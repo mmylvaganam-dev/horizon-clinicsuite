@@ -23,6 +23,26 @@ Deno.serve(async (req) => {
         // Update the prescription
         const updatedPrescription = await base44.asServiceRole.entities.Prescription.update(prescriptionId, updates);
 
+        // Audit status transition if status changed
+        if (updates.status && updates.status !== existingPrescription.status) {
+            await base44.asServiceRole.entities.AuditLog.create({
+                timestamp: new Date().toISOString(),
+                user_id: user.id,
+                user_email: user.email,
+                organization_id: existingPrescription.organization_id || '',
+                location_id: existingPrescription.location_id || '',
+                patient_id: existingPrescription.patient_id,
+                module: 'PHARMACY',
+                action: 'status_transition',
+                record_type: 'Prescription',
+                record_id: prescriptionId,
+                metadata: {
+                    previous_status: existingPrescription.status,
+                    new_status: updates.status
+                }
+            });
+        }
+
         // Audit log
         await base44.asServiceRole.entities.AuditLog.create({
             timestamp: new Date().toISOString(),

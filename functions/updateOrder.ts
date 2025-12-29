@@ -23,6 +23,26 @@ Deno.serve(async (req) => {
         // Update the order
         const updatedOrder = await base44.asServiceRole.entities.Order.update(orderId, updates);
 
+        // Audit status transition if status changed
+        if (updates.status && updates.status !== existingOrder.status) {
+            await base44.asServiceRole.entities.AuditLog.create({
+                timestamp: new Date().toISOString(),
+                user_id: user.id,
+                user_email: user.email,
+                organization_id: existingOrder.organization_id || '',
+                location_id: existingOrder.location_id || '',
+                patient_id: existingOrder.patient_id,
+                module: 'ORDERS',
+                action: 'status_transition',
+                record_type: 'Order',
+                record_id: orderId,
+                metadata: {
+                    previous_status: existingOrder.status,
+                    new_status: updates.status
+                }
+            });
+        }
+
         // Audit log
         await base44.asServiceRole.entities.AuditLog.create({
             timestamp: new Date().toISOString(),
