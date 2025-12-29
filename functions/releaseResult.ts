@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
             status: 'Released'
         });
 
-        // Audit log
+        // Audit log with module and patient_ref
         await base44.asServiceRole.entities.AuditLog.create({
             timestamp: new Date().toISOString(),
             user_id: user.id,
@@ -70,13 +70,15 @@ Deno.serve(async (req) => {
             organization_id: result.organization_id,
             location_id: result.location_id,
             patient_id: result.patient_id,
-            module: 'RESULTS',
-            action: 'release',
-            record_type: 'Result',
-            record_id: resultId,
+            module: result.result_type || 'RESULTS',
+            action: 'release_result',
+            record_type: 'ReleaseToPatient',
+            record_id: release.id,
             metadata: {
-                release_note: releaseNote,
-                release_id: release.id,
+                result_id: resultId,
+                patient_ref: result.patient_id,
+                result_type: result.result_type,
+                release_note: releaseNote || '',
                 previous_status: result.status
             }
         });
