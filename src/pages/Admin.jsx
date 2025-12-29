@@ -70,6 +70,13 @@ export default function Admin() {
       icon: Settings,
       page: 'AdminConfig',
       color: 'from-indigo-500 to-indigo-600'
+    },
+    {
+      title: 'System Health',
+      description: 'Data integrity monitoring',
+      icon: Activity,
+      page: 'AdminSystemHealth',
+      color: 'from-emerald-500 to-emerald-600'
     }
   ];
 

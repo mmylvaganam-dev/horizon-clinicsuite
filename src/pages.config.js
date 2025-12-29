@@ -15,6 +15,7 @@ import AdminModules from './pages/AdminModules';
 import AdminAuditLogs from './pages/AdminAuditLogs';
 import AdminConfig from './pages/AdminConfig';
 import OrdersResults from './pages/OrdersResults';
+import AdminSystemHealth from './pages/AdminSystemHealth';
 import __Layout from './Layout.jsx';
 
 
@@ -36,6 +37,7 @@ export const PAGES = {
     "AdminAuditLogs": AdminAuditLogs,
     "AdminConfig": AdminConfig,
     "OrdersResults": OrdersResults,
+    "AdminSystemHealth": AdminSystemHealth,
 }
 
 export const pagesConfig = {
