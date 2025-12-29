@@ -20,9 +20,12 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Result not found' }, { status: 404 });
         }
 
-        // Ensure result is signed before release
-        if (result.status !== 'signed') {
-            return Response.json({ error: 'Result must be signed before release' }, { status: 400 });
+        // Validation: Result must be Signed before release
+        if (result.status !== 'Signed') {
+            return Response.json({ 
+                error: 'Result must be Signed before release',
+                current_status: result.status 
+            }, { status: 400 });
         }
 
         // Check if already released
@@ -54,9 +57,9 @@ Deno.serve(async (req) => {
             });
         }
 
-        // Update result status to released
+        // Update result status to Released
         await base44.asServiceRole.entities.Result.update(resultId, { 
-            status: 'released'
+            status: 'Released'
         });
 
         // Audit log
@@ -78,7 +81,7 @@ Deno.serve(async (req) => {
             }
         });
 
-        return Response.json({ release, result: { ...result, status: 'released' } });
+        return Response.json({ release, result: { ...result, status: 'Released' } });
     } catch (error) {
         return Response.json({ error: error.message }, { status: 500 });
     }

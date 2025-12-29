@@ -20,6 +20,14 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Result not found' }, { status: 404 });
         }
 
+        // Validation: Result must be Reviewed before it can be Signed
+        if (result.status !== 'Reviewed') {
+            return Response.json({ 
+                error: 'Result must be in Reviewed status before signing',
+                current_status: result.status 
+            }, { status: 400 });
+        }
+
         // Create sign-off
         const signOff = await base44.asServiceRole.entities.SignOff.create({
             result_id: resultId,
@@ -33,9 +41,9 @@ Deno.serve(async (req) => {
             }
         });
 
-        // Update result status to signed
+        // Update result status to Signed
         await base44.asServiceRole.entities.Result.update(resultId, { 
-            status: 'signed'
+            status: 'Signed'
         });
 
         // Audit log
@@ -57,7 +65,7 @@ Deno.serve(async (req) => {
             }
         });
 
-        return Response.json({ signOff, result: { ...result, status: 'signed' } });
+        return Response.json({ signOff, result: { ...result, status: 'Signed' } });
     } catch (error) {
         return Response.json({ error: error.message }, { status: 500 });
     }
