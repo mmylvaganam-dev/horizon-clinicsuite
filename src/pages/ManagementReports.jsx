@@ -107,6 +107,7 @@ export default function ManagementReports() {
               <div className="flex gap-2 mt-2">
                 <Badge variant="outline" className="text-xs">{summary.lab_summary?.signed || 0} signed</Badge>
                 <Badge variant="outline" className="text-xs">{summary.lab_summary?.pending || 0} pending</Badge>
+                <Badge variant="outline" className="bg-rose-100 text-rose-700 text-xs">{summary.lab_summary?.critical_count || 0} critical</Badge>
               </div>
             </CardContent>
           </Card>
@@ -116,7 +117,7 @@ export default function ManagementReports() {
             <CardHeader className="pb-3">
               <CardTitle className="text-sm flex items-center gap-2">
                 <TrendingUp className="w-4 h-4" />
-                Diagnostics Signed
+                Diagnostics
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -132,6 +133,14 @@ export default function ManagementReports() {
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-600">Radiology:</span>
                   <span className="font-semibold">{summary.diagnostic_volume?.radiology || 0}</span>
+                </div>
+                <div className="flex justify-between text-sm pt-2 border-t mt-2">
+                  <span className="text-slate-600">Signed:</span>
+                  <Badge variant="outline" className="text-xs">{summary.diagnostic_volume?.signed_count || 0}</Badge>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-600">Released:</span>
+                  <Badge variant="outline" className="bg-emerald-100 text-emerald-700 text-xs">{summary.diagnostic_volume?.released_count || 0}</Badge>
                 </div>
               </div>
             </CardContent>
@@ -185,6 +194,33 @@ export default function ManagementReports() {
                   <span className="text-slate-600">Over 120 days</span>
                   <span className="font-semibold text-rose-600">${summary.ar_aging.over_90?.toFixed(2) || '0.00'}</span>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Low Stock Summary */}
+        {summary.low_stock_summary && summary.low_stock_summary.low_stock_items > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Package className="w-4 h-4" />
+                Low Stock Items
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-slate-600 mb-3">
+                {summary.low_stock_summary.low_stock_items} items below threshold
+              </p>
+              <div className="space-y-2">
+                {summary.low_stock_summary.items?.map((item, i) => (
+                  <div key={i} className="flex items-center justify-between text-sm">
+                    <span className="text-slate-700 truncate">{item.product_code}</span>
+                    <Badge variant="outline" className="bg-amber-100 text-amber-700">
+                      {item.available_qty} units
+                    </Badge>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>

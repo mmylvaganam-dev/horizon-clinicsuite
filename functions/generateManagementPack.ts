@@ -132,6 +132,36 @@ Deno.serve(async (req) => {
             invoice_count: periodInvoices.length
         };
 
+        // Get critical result count
+        const criticalFlags = await base44.asServiceRole.entities.ResultFlag.list();
+        const criticalResultIds = new Set(
+            criticalFlags
+                .filter(f => f.flag_type === 'critical')
+                .map(f => f.result_id)
+        );
+        const criticalCount = labResults.filter(r => criticalResultIds.has(r.id)).length;
+
+        // Get inventory for low stock summary
+        const inventoryBalances = await base44.asServiceRole.entities.InventoryBalance.list();
+        const lowStockItems = inventoryBalances.filter(inv => {
+            const inOrg = !organization_id || inv.organization_id === organization_id;
+            return inOrg && inv.available_qty < 10; // threshold for low stock
+        });
+
+        // Add to summary
+        summary.lab_summary.critical_count = criticalCount;
+        summary.low_stock_summary = {
+            low_stock_items: lowStockItems.length,
+            items: lowStockItems.slice(0, 10).map(item => ({
+                product_code: item.product_code,
+                available_qty: item.available_qty
+            }))
+        };
+        summary.diagnostic_volume.signed_count = diagnosticVolume.cardio + diagnosticVolume.pft + diagnosticVolume.radiology;
+        summary.diagnostic_volume.released_count = periodResults.filter(r => 
+            ['CARDIO', 'PFT', 'RADIOLOGY'].includes(r.result_type) && r.status === 'Released'
+        ).length;
+
         // Create ExportBundle
         const bundle = await base44.asServiceRole.entities.ExportBundle.create({
             organization_id: organization_id || '',
@@ -139,6 +169,11 @@ Deno.serve(async (req) => {
             bundle_type: 'custom',
             date_from: period_start,
             date_to: period_end,
+            status: 'generated',
+            requested_by: user.id,
+            requested_by_email: user.email,
+            requested_at: new Date().toISOString(),
+            export_reason: 'Monthly Management Pack Report',
             generated_by: user.id,
             generated_by_email: user.email,
             generated_at: new Date().toISOString(),
@@ -152,13 +187,19 @@ Deno.serve(async (req) => {
             organization_id: organization_id || '',
             location_id: '',
             patient_ref: '',
-            artifact_type: 'government_report',
+            artifact_type: 'other',
             source_type: 'ExportBundle',
             source_id: bundle.id,
             file_ref: bundle.file_ref,
             created_by: user.id,
             created_by_email: user.email,
-            created_at: new Date().toISOString()
+            created_at: new Date().toISOString(),
+            metadata_json: {
+                report_type: 'monthly_management_pack',
+                period_start,
+                period_end,
+                organization_id: organization_id || 'all'
+            }
         });
 
         // Audit log
