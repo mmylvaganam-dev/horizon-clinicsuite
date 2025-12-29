@@ -61,7 +61,8 @@ Deno.serve(async (req) => {
             total,
             status: 'completed',
             created_by: user.id,
-            created_by_email: user.email
+            created_by_email: user.email,
+            prescription_id: saleData.prescription_id || null
         });
 
         // Create sale items
@@ -88,6 +89,53 @@ Deno.serve(async (req) => {
             issued_by_email: user.email
         });
 
+        // If this sale is for a prescription, create DispenseEvent link
+        let dispenseEvent = null;
+        if (saleData.prescription_id) {
+            const prescriptions = await base44.asServiceRole.entities.Prescription.filter({ 
+                id: saleData.prescription_id 
+            });
+            const prescription = prescriptions[0];
+
+            if (prescription) {
+                dispenseEvent = await base44.asServiceRole.entities.DispenseEvent.create({
+                    prescription_id: saleData.prescription_id,
+                    patient_id: prescription.patient_id,
+                    sale_id: sale.id,
+                    quantity_dispensed: prescription.quantity,
+                    dispensed_by: user.id,
+                    dispensed_by_email: user.email,
+                    dispensed_at: new Date().toISOString(),
+                    status: 'dispensed',
+                    notes: `Dispensed via POS sale ${receiptNumber}`
+                });
+
+                // Update prescription status
+                await base44.asServiceRole.entities.Prescription.update(saleData.prescription_id, {
+                    status: 'Dispensed'
+                });
+
+                // Audit the prescription-sale link
+                await base44.asServiceRole.entities.AuditLog.create({
+                    timestamp: new Date().toISOString(),
+                    user_id: user.id,
+                    user_email: user.email,
+                    organization_id: saleData.organization_id || '',
+                    location_id: saleData.location_id || '',
+                    patient_id: prescription.patient_id || '',
+                    module: 'PHARMACY_POS',
+                    action: 'link_prescription',
+                    record_type: 'DispenseEvent',
+                    record_id: dispenseEvent.id,
+                    metadata: {
+                        prescription_id: saleData.prescription_id,
+                        sale_id: sale.id,
+                        receipt_number: receiptNumber
+                    }
+                });
+            }
+        }
+
         // Audit log
         await base44.asServiceRole.entities.AuditLog.create({
             timestamp: new Date().toISOString(),
@@ -111,7 +159,8 @@ Deno.serve(async (req) => {
         return Response.json({ 
             sale, 
             items: createdItems,
-            receipt 
+            receipt,
+            dispenseEvent
         });
     } catch (error) {
         return Response.json({ error: error.message }, { status: 500 });

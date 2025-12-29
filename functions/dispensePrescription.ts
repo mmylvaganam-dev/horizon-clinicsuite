@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
         }
 
         const payload = await req.json();
-        const { prescriptionId, quantityDispensed, notes } = payload;
+        const { prescriptionId, quantityDispensed, notes, saleId } = payload;
 
         // Get prescription
         const prescriptions = await base44.asServiceRole.entities.Prescription.filter({ id: prescriptionId });
