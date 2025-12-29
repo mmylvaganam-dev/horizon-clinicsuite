@@ -17,6 +17,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import LinkedRecords from '../components/shared/LinkedRecords';
+import { AlertTriangle } from 'lucide-react';
 
 const orderStatusColors = {
   draft: 'bg-slate-100 text-slate-700 border-slate-200',
@@ -72,6 +73,11 @@ export default function OrdersResults() {
     queryFn: () => base44.entities.ResultFlag.list(),
   });
 
+  const { data: releases = [] } = useQuery({
+    queryKey: ['releases'],
+    queryFn: () => base44.entities.ReleaseToPatient.list(),
+  });
+
   const getPatientName = (patientId) => {
     const patient = patients.find(p => p.id === patientId);
     return patient ? `${patient.first_name} ${patient.last_name}` : 'Unknown';
@@ -79,6 +85,11 @@ export default function OrdersResults() {
 
   const getResultFlags = (resultId) => {
     return resultFlags.filter(f => f.result_id === resultId);
+  };
+
+  const isResultReleased = (resultId) => {
+    const release = releases.find(r => r.result_id === resultId);
+    return release?.released || false;
   };
 
   const filterByDate = (dateString) => {
@@ -260,6 +271,7 @@ export default function OrdersResults() {
           ) : (
             filteredResults.map((result) => {
               const flags = getResultFlags(result.id);
+              const released = isResultReleased(result.id);
               
               return (
                 <div key={result.id}>
@@ -267,6 +279,12 @@ export default function OrdersResults() {
                     className="p-5 bg-white border-0 shadow-sm hover:shadow-md transition-all cursor-pointer"
                     onClick={() => setExpandedResult(expandedResult === result.id ? null : result.id)}
                   >
+                    {!released && result.status === 'Signed' && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-3 flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 text-amber-600" />
+                        <span className="text-sm font-semibold text-amber-900">Unreleased - Not visible to patient</span>
+                      </div>
+                    )}
                     <div className="flex items-start gap-4">
                       <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${orderTypeColors[result.result_type]} flex items-center justify-center flex-shrink-0`}>
                         <FileText className="w-6 h-6 text-white" />
@@ -277,6 +295,11 @@ export default function OrdersResults() {
                             {result.status}
                           </Badge>
                           <Badge variant="outline">{result.result_type}</Badge>
+                          {!released && result.status === 'Signed' && (
+                            <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-300">
+                              Unreleased
+                            </Badge>
+                          )}
                           {flags.map((flag) => (
                             <Badge key={flag.id} variant="outline" className="bg-rose-100 text-rose-700 flex items-center gap-1">
                               <AlertTriangle className="w-3 h-3" />

@@ -30,6 +30,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Appointments', page: 'Appointments', icon: Calendar },
     { name: 'Medical Records', page: 'MedicalRecords', icon: FileText },
     { name: 'Orders & Results', page: 'OrdersResults', icon: FileText },
+    { name: 'Release Queue', page: 'ReleaseQueue', icon: FileText },
     { name: 'Pharmacy POS', page: 'PharmacyPOS', icon: Activity },
     { name: 'Inventory', page: 'PharmacyInventory', icon: Activity },
     { name: 'Procurement', page: 'Procurement', icon: ShoppingBag },

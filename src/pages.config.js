@@ -34,6 +34,7 @@ import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 import AdminPermissionMatrix from './pages/AdminPermissionMatrix';
 import AdminBreakGlassReport from './pages/AdminBreakGlassReport';
+import ReleaseQueue from './pages/ReleaseQueue';
 import __Layout from './Layout.jsx';
 
 
@@ -74,6 +75,7 @@ export const PAGES = {
     "Settings": Settings,
     "AdminPermissionMatrix": AdminPermissionMatrix,
     "AdminBreakGlassReport": AdminBreakGlassReport,
+    "ReleaseQueue": ReleaseQueue,
 }
 
 export const pagesConfig = {
