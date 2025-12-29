@@ -39,9 +39,15 @@ export default function AdminBackups() {
     return successful.length > 0 ? successful[0] : null;
   };
 
+  const getLastFailedBackup = () => {
+    const failed = backupLogs.filter(log => log.status === 'fail');
+    return failed.length > 0 ? failed[0] : null;
+  };
+
   const lastNightly = getLastSuccessfulBackup('nightly');
   const lastWeekly = getLastSuccessfulBackup('weekly');
   const lastMonthly = getLastSuccessfulBackup('monthly');
+  const lastFailed = getLastFailedBackup();
 
   const recentBackups = backupLogs.slice(0, 10);
   const failedBackups = backupLogs.filter(log => log.status === 'fail');
@@ -66,12 +72,72 @@ export default function AdminBackups() {
         </Card>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-slate-600 flex items-center gap-2">
+              <CheckCircle className="w-4 h-4" />
+              Last Successful Backup
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {lastNightly || lastWeekly || lastMonthly ? (
+              <div>
+                <p className="text-2xl font-bold text-emerald-600 flex items-center gap-2">
+                  <CheckCircle className="w-6 h-6" />
+                  Success
+                </p>
+                <p className="text-sm text-slate-600 mt-2">
+                  {formatDistanceToNow(new Date((lastNightly || lastWeekly || lastMonthly).completed_at || (lastNightly || lastWeekly || lastMonthly).started_at), { addSuffix: true })}
+                </p>
+                <p className="text-xs text-slate-500 mt-1">
+                  {format(new Date((lastNightly || lastWeekly || lastMonthly).completed_at || (lastNightly || lastWeekly || lastMonthly).started_at), 'MMM d, yyyy h:mm a')}
+                </p>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-slate-400">
+                <AlertTriangle className="w-6 h-6" />
+                <span>No backups yet</span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-slate-600 flex items-center gap-2">
+              <XCircle className="w-4 h-4" />
+              Last Failed Backup
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {lastFailed ? (
+              <div>
+                <p className="text-2xl font-bold text-rose-600 flex items-center gap-2">
+                  <XCircle className="w-6 h-6" />
+                  Failed
+                </p>
+                <p className="text-sm text-slate-600 mt-2">
+                  {formatDistanceToNow(new Date(lastFailed.started_at), { addSuffix: true })}
+                </p>
+                <p className="text-xs text-slate-500 mt-1">
+                  {format(new Date(lastFailed.started_at), 'MMM d, yyyy h:mm a')}
+                </p>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-emerald-600">
+                <CheckCircle className="w-6 h-6" />
+                <span>No failures</span>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm font-medium text-slate-600 flex items-center gap-2">
               <Clock className="w-4 h-4" />
-              Last Nightly Backup
+              Last Nightly
             </CardTitle>
           </CardHeader>
           <CardContent>
