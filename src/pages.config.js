@@ -1,73 +1,75 @@
 import Admin from './pages/Admin';
 import AdminAuditLogs from './pages/AdminAuditLogs';
+import AdminChartOfAccounts from './pages/AdminChartOfAccounts';
 import AdminConfig from './pages/AdminConfig';
 import AdminDepartments from './pages/AdminDepartments';
 import AdminLocations from './pages/AdminLocations';
 import AdminModules from './pages/AdminModules';
+import AdminNumberingRules from './pages/AdminNumberingRules';
 import AdminOrganizations from './pages/AdminOrganizations';
+import AdminPatientPortal from './pages/AdminPatientPortal';
 import AdminPermissions from './pages/AdminPermissions';
+import AdminPostingRules from './pages/AdminPostingRules';
+import AdminServiceCatalog from './pages/AdminServiceCatalog';
 import AdminSystemHealth from './pages/AdminSystemHealth';
+import AdminTaxRules from './pages/AdminTaxRules';
 import AdminUsers from './pages/AdminUsers';
 import Analytics from './pages/Analytics';
 import Appointments from './pages/Appointments';
+import Billing from './pages/Billing';
+import Communications from './pages/Communications';
 import Dashboard from './pages/Dashboard';
+import GovernmentReporting from './pages/GovernmentReporting';
 import MedicalRecords from './pages/MedicalRecords';
+import Messaging from './pages/Messaging';
 import OrdersResults from './pages/OrdersResults';
 import PatientDetails from './pages/PatientDetails';
+import PatientPortal from './pages/PatientPortal';
 import Patients from './pages/Patients';
 import PharmacyInventory from './pages/PharmacyInventory';
 import PharmacyPOS from './pages/PharmacyPOS';
 import Procurement from './pages/Procurement';
-import Settings from './pages/Settings';
-import AdminServiceCatalog from './pages/AdminServiceCatalog';
-import AdminTaxRules from './pages/AdminTaxRules';
-import AdminNumberingRules from './pages/AdminNumberingRules';
-import Billing from './pages/Billing';
-import AdminPostingRules from './pages/AdminPostingRules';
-import AdminChartOfAccounts from './pages/AdminChartOfAccounts';
 import Reports from './pages/Reports';
-import AdminPatientPortal from './pages/AdminPatientPortal';
-import PatientPortal from './pages/PatientPortal';
-import Messaging from './pages/Messaging';
-import Communications from './pages/Communications';
-import GovernmentReporting from './pages/GovernmentReporting';
+import Settings from './pages/Settings';
+import PartnerManagement from './pages/PartnerManagement';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Admin": Admin,
     "AdminAuditLogs": AdminAuditLogs,
+    "AdminChartOfAccounts": AdminChartOfAccounts,
     "AdminConfig": AdminConfig,
     "AdminDepartments": AdminDepartments,
     "AdminLocations": AdminLocations,
     "AdminModules": AdminModules,
+    "AdminNumberingRules": AdminNumberingRules,
     "AdminOrganizations": AdminOrganizations,
+    "AdminPatientPortal": AdminPatientPortal,
     "AdminPermissions": AdminPermissions,
+    "AdminPostingRules": AdminPostingRules,
+    "AdminServiceCatalog": AdminServiceCatalog,
     "AdminSystemHealth": AdminSystemHealth,
+    "AdminTaxRules": AdminTaxRules,
     "AdminUsers": AdminUsers,
     "Analytics": Analytics,
     "Appointments": Appointments,
+    "Billing": Billing,
+    "Communications": Communications,
     "Dashboard": Dashboard,
+    "GovernmentReporting": GovernmentReporting,
     "MedicalRecords": MedicalRecords,
+    "Messaging": Messaging,
     "OrdersResults": OrdersResults,
     "PatientDetails": PatientDetails,
+    "PatientPortal": PatientPortal,
     "Patients": Patients,
     "PharmacyInventory": PharmacyInventory,
     "PharmacyPOS": PharmacyPOS,
     "Procurement": Procurement,
-    "Settings": Settings,
-    "AdminServiceCatalog": AdminServiceCatalog,
-    "AdminTaxRules": AdminTaxRules,
-    "AdminNumberingRules": AdminNumberingRules,
-    "Billing": Billing,
-    "AdminPostingRules": AdminPostingRules,
-    "AdminChartOfAccounts": AdminChartOfAccounts,
     "Reports": Reports,
-    "AdminPatientPortal": AdminPatientPortal,
-    "PatientPortal": PatientPortal,
-    "Messaging": Messaging,
-    "Communications": Communications,
-    "GovernmentReporting": GovernmentReporting,
+    "Settings": Settings,
+    "PartnerManagement": PartnerManagement,
 }
 
 export const pagesConfig = {

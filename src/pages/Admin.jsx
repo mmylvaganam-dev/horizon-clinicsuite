@@ -127,6 +127,13 @@ export default function Admin() {
       icon: FileText,
       page: 'GovernmentReporting',
       color: 'from-indigo-500 to-indigo-600'
+    },
+    {
+      title: 'Partner Management',
+      description: 'Referral partners',
+      icon: Users,
+      page: 'PartnerManagement',
+      color: 'from-blue-500 to-blue-600'
     }
   ];
 
