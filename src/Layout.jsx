@@ -40,6 +40,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Messages', page: 'Messaging', icon: MessageSquare },
     { name: 'Communications', page: 'Communications', icon: Mail },
     { name: 'Reports', page: 'Reports', icon: FileText },
+    { name: 'Management Reports', page: 'ManagementReports', icon: FileText },
     { name: 'Analytics', page: 'Analytics', icon: BarChart3 },
     { name: 'Admin', page: 'Admin', icon: Settings },
   ];
