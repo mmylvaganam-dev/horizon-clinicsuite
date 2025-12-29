@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
         }
 
         const payload = await req.json();
-        const { saleData, items } = payload;
+        const { saleData, items, prescriptionId } = payload;
 
         if (!items || items.length === 0) {
             return Response.json({ error: 'At least one item is required' }, { status: 400 });

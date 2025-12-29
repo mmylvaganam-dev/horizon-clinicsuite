@@ -24,7 +24,6 @@ Deno.serve(async (req) => {
         const dispenseEvent = await base44.asServiceRole.entities.DispenseEvent.create({
             prescription_id: prescriptionId,
             patient_id: prescription.patient_id,
-            sale_id: saleId || null,
             quantity_dispensed: quantityDispensed,
             dispensed_by: user.id,
             dispensed_by_email: user.email,
@@ -32,6 +31,43 @@ Deno.serve(async (req) => {
             status: quantityDispensed >= prescription.quantity ? 'dispensed' : 'partial',
             notes: notes || ''
         });
+
+        // Create RecordLink if saleId is provided
+        if (saleId) {
+            await base44.asServiceRole.entities.RecordLink.create({
+                organization_id: prescription.organization_id || '',
+                location_id: prescription.location_id || '',
+                left_type: 'DispenseEvent',
+                left_id: dispenseEvent.id,
+                right_type: 'PharmacySale',
+                right_id: saleId,
+                link_purpose: 'dispense_for_sale',
+                created_by: user.id,
+                created_by_email: user.email,
+                created_at: new Date().toISOString(),
+                metadata_json: {
+                    prescription_id: prescriptionId
+                }
+            });
+
+            // Audit log for link
+            await base44.asServiceRole.entities.AuditLog.create({
+                timestamp: new Date().toISOString(),
+                user_id: user.id,
+                user_email: user.email,
+                organization_id: prescription.organization_id || '',
+                location_id: prescription.location_id || '',
+                patient_id: prescription.patient_id,
+                module: 'PHARMACY',
+                action: 'link_dispense_to_sale',
+                record_type: 'RecordLink',
+                record_id: dispenseEvent.id,
+                metadata: {
+                    dispense_event_id: dispenseEvent.id,
+                    sale_id: saleId
+                }
+            });
+        }
 
         // Update prescription status
         const newStatus = quantityDispensed >= prescription.quantity ? 'dispensed' : 'partially_dispensed';
@@ -56,8 +92,7 @@ Deno.serve(async (req) => {
                 drug_name: prescription.drug_name,
                 quantity_dispensed: quantityDispensed,
                 quantity_prescribed: prescription.quantity,
-                status: dispenseEvent.status,
-                sale_id: saleId || null
+                status: dispenseEvent.status
             }
         });
 
