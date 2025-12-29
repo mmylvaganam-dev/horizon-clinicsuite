@@ -120,6 +120,13 @@ export default function Admin() {
       icon: Users,
       page: 'AdminPatientPortal',
       color: 'from-sky-500 to-sky-600'
+    },
+    {
+      title: 'Government Reporting',
+      description: 'Regulatory reports',
+      icon: FileText,
+      page: 'GovernmentReporting',
+      color: 'from-indigo-500 to-indigo-600'
     }
   ];
 

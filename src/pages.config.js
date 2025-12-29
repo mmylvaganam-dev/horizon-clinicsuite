@@ -30,6 +30,7 @@ import AdminPatientPortal from './pages/AdminPatientPortal';
 import PatientPortal from './pages/PatientPortal';
 import Messaging from './pages/Messaging';
 import Communications from './pages/Communications';
+import GovernmentReporting from './pages/GovernmentReporting';
 import __Layout from './Layout.jsx';
 
 
@@ -66,6 +67,7 @@ export const PAGES = {
     "PatientPortal": PatientPortal,
     "Messaging": Messaging,
     "Communications": Communications,
+    "GovernmentReporting": GovernmentReporting,
 }
 
 export const pagesConfig = {
