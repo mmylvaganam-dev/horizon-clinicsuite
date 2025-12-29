@@ -113,6 +113,13 @@ export default function Admin() {
       icon: Settings,
       page: 'AdminPostingRules',
       color: 'from-fuchsia-500 to-fuchsia-600'
+    },
+    {
+      title: 'Patient Portal',
+      description: 'Portal account management',
+      icon: Users,
+      page: 'AdminPatientPortal',
+      color: 'from-sky-500 to-sky-600'
     }
   ];
 

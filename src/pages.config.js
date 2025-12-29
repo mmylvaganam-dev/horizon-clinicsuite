@@ -26,6 +26,8 @@ import Billing from './pages/Billing';
 import AdminPostingRules from './pages/AdminPostingRules';
 import AdminChartOfAccounts from './pages/AdminChartOfAccounts';
 import Reports from './pages/Reports';
+import AdminPatientPortal from './pages/AdminPatientPortal';
+import PatientPortal from './pages/PatientPortal';
 import __Layout from './Layout.jsx';
 
 
@@ -58,6 +60,8 @@ export const PAGES = {
     "AdminPostingRules": AdminPostingRules,
     "AdminChartOfAccounts": AdminChartOfAccounts,
     "Reports": Reports,
+    "AdminPatientPortal": AdminPatientPortal,
+    "PatientPortal": PatientPortal,
 }
 
 export const pagesConfig = {
