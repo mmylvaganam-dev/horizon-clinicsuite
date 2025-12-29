@@ -17,7 +17,7 @@ import {
   Loader2,
   CheckCircle2
 } from 'lucide-react';
-import { toast } from '@/components/ui/toast';
+
 
 export default function Settings() {
   const [saved, setSaved] = useState(false);
