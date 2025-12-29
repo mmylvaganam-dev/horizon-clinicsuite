@@ -62,6 +62,7 @@ import AdminRoleStandards from './pages/AdminRoleStandards';
 import OrganizationUserManagement from './pages/OrganizationUserManagement';
 import AdminRolePermissions from './pages/AdminRolePermissions';
 import AdminOrganizationBranding from './pages/AdminOrganizationBranding';
+import AdminOrganizationActivity from './pages/AdminOrganizationActivity';
 import __Layout from './Layout.jsx';
 
 
@@ -130,6 +131,7 @@ export const PAGES = {
     "OrganizationUserManagement": OrganizationUserManagement,
     "AdminRolePermissions": AdminRolePermissions,
     "AdminOrganizationBranding": AdminOrganizationBranding,
+    "AdminOrganizationActivity": AdminOrganizationActivity,
 }
 
 export const pagesConfig = {

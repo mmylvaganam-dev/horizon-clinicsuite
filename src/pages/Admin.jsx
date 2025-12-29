@@ -156,6 +156,13 @@ export default function Admin() {
       color: 'from-emerald-500 to-emerald-600'
     },
     {
+      title: 'Organization Activity',
+      description: 'Aggregate activity metrics',
+      icon: Activity,
+      page: 'AdminOrganizationActivity',
+      color: 'from-blue-500 to-blue-600'
+    },
+    {
       title: 'Service Catalog',
       description: 'Manage services and pricing',
       icon: Grid3X3,
