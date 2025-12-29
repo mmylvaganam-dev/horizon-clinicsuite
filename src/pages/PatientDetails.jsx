@@ -133,6 +133,14 @@ export default function PatientDetails() {
         </Button>
         <div className="flex gap-2">
           <Button 
+            variant="outline"
+            onClick={() => navigate(`${createPageUrl('EMR')}?patient=${patientId}`)}
+            className="bg-teal-600 hover:bg-teal-700 text-white"
+          >
+            <FileText className="w-4 h-4 mr-2" />
+            Open EMR
+          </Button>
+          <Button 
             variant="outline" 
             onClick={() => setDeleteOpen(true)}
             className="text-rose-600 hover:text-rose-700 hover:bg-rose-50"

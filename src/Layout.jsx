@@ -29,9 +29,10 @@ export default function Layout({ children, currentPageName }) {
   const navigation = [
     { name: 'Dashboard', page: 'Dashboard', icon: LayoutDashboard },
     { name: 'Daily Ops', page: 'DailyOps', icon: Activity },
+    { name: 'EMR', page: 'EMR', icon: FileText },
+    { name: 'Patients', page: 'Patients', icon: Users },
     { name: 'Finance Dashboard', page: 'FinanceDashboard', icon: DollarSign },
     { name: 'Companies', page: 'FinanceCompanies', icon: Building2 },
-    { name: 'Patients', page: 'Patients', icon: Users },
     { name: 'Appointments', page: 'Appointments', icon: Calendar },
     { name: 'Medical Records', page: 'MedicalRecords', icon: FileText },
     { name: 'Orders & Results', page: 'OrdersResults', icon: FileText },
