@@ -18,6 +18,7 @@ import Patients from './pages/Patients';
 import Settings from './pages/Settings';
 import PharmacyPOS from './pages/PharmacyPOS';
 import PharmacyInventory from './pages/PharmacyInventory';
+import Procurement from './pages/Procurement';
 import __Layout from './Layout.jsx';
 
 
@@ -42,6 +43,7 @@ export const PAGES = {
     "Settings": Settings,
     "PharmacyPOS": PharmacyPOS,
     "PharmacyInventory": PharmacyInventory,
+    "Procurement": Procurement,
 }
 
 export const pagesConfig = {
