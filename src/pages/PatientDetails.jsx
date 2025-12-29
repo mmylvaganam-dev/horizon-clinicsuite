@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
@@ -20,7 +20,8 @@ import {
   AlertTriangle,
   FileText,
   Clock,
-  Trash2
+  Trash2,
+  Lock
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
@@ -29,6 +30,7 @@ import PatientTasksTab from '../components/patient/PatientTasksTab';
 import PatientSOAPTab from '../components/patient/PatientSOAPTab';
 import PatientReferralsTab from '../components/patient/PatientReferralsTab';
 import PatientLabsTab from '../components/patient/PatientLabsTab';
+import { usePatientAccess, logPatientProfileView } from '../components/rbac/PatientAccessControl';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,6 +57,8 @@ export default function PatientDetails() {
   const [formOpen, setFormOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
+  const access = usePatientAccess();
+
   const { data: patient, isLoading: loadingPatient } = useQuery({
     queryKey: ['patient', patientId],
     queryFn: async () => {
@@ -63,6 +67,14 @@ export default function PatientDetails() {
     },
     enabled: !!patientId,
   });
+
+  useEffect(() => {
+    if (patient && access.user) {
+      const accessLevel = access.canViewFullChart ? 'full_chart' : 
+                          access.canViewBasicProfile ? 'basic_profile' : 'none';
+      logPatientProfileView(access.user, patientId, accessLevel);
+    }
+  }, [patient, access.user, patientId]);
 
   const { data: appointments = [] } = useQuery({
     queryKey: ['patientAppointments', patientId],
@@ -110,6 +122,32 @@ export default function PatientDetails() {
         <h3 className="text-lg font-medium text-slate-900">Patient not found</h3>
         <Button variant="outline" className="mt-4" onClick={() => navigate(createPageUrl('Patients'))}>
           Back to Patients
+        </Button>
+      </div>
+    );
+  }
+
+  if (access.noPatientAccess) {
+    return (
+      <div className="text-center py-12">
+        <Lock className="w-12 h-12 mx-auto text-rose-500 mb-4" />
+        <h3 className="text-lg font-medium text-slate-900">Access Restricted</h3>
+        <p className="text-slate-600 mt-2">Your role does not permit patient-level access</p>
+        <Button variant="outline" className="mt-4" onClick={() => navigate(createPageUrl('Reports'))}>
+          Go to Reports
+        </Button>
+      </div>
+    );
+  }
+
+  if (!access.canViewBasicProfile) {
+    return (
+      <div className="text-center py-12">
+        <Lock className="w-12 h-12 mx-auto text-rose-500 mb-4" />
+        <h3 className="text-lg font-medium text-slate-900">Insufficient Permissions</h3>
+        <p className="text-slate-600 mt-2">You do not have permission to view patient profiles</p>
+        <Button variant="outline" className="mt-4" onClick={() => navigate(createPageUrl('Dashboard'))}>
+          Go to Dashboard
         </Button>
       </div>
     );
@@ -196,15 +234,31 @@ export default function PatientDetails() {
       <Tabs defaultValue="overview" className="space-y-6">
         <TabsList className="grid grid-cols-3 lg:grid-cols-7 w-full">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="appointments">Appointments</TabsTrigger>
-          <TabsTrigger value="records">Records</TabsTrigger>
-          <TabsTrigger value="soap">SOAP Notes</TabsTrigger>
-          <TabsTrigger value="labs">Labs</TabsTrigger>
-          <TabsTrigger value="referrals">Referrals</TabsTrigger>
-          <TabsTrigger value="tasks">Tasks</TabsTrigger>
+          {access.canViewAppointments && <TabsTrigger value="appointments">Appointments</TabsTrigger>}
+          {access.canViewClinicalNotes && <TabsTrigger value="records">Records</TabsTrigger>}
+          {access.canViewClinicalNotes && <TabsTrigger value="soap">SOAP Notes</TabsTrigger>}
+          {access.canViewLabResults && <TabsTrigger value="labs">Labs</TabsTrigger>}
+          {access.canViewReferrals && <TabsTrigger value="referrals">Referrals</TabsTrigger>}
+          {access.canViewTasks && <TabsTrigger value="tasks">Tasks</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
+          {!access.canViewFullChart && (
+            <Card className="bg-blue-50 border-blue-200">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-3">
+                  <Shield className="w-5 h-5 text-blue-600 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-blue-900">Limited Access</p>
+                    <p className="text-sm text-blue-700 mt-1">
+                      You are viewing basic patient profile only. Clinical details are restricted to physicians.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Contact Info */}
             <Card className="bg-white border-0 shadow-sm">
@@ -262,7 +316,7 @@ export default function PatientDetails() {
               </CardContent>
             </Card>
 
-            {/* Medical Info */}
+            {/* Medical Info - Basic */}
             <Card className="bg-white border-0 shadow-sm">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
@@ -280,7 +334,7 @@ export default function PatientDetails() {
                     <p className="text-sm text-amber-800">{patient.allergies}</p>
                   </div>
                 )}
-                {patient.chronic_conditions && (
+                {access.canViewFullChart && patient.chronic_conditions && (
                   <div>
                     <p className="text-sm text-slate-500 mb-1">Chronic Conditions</p>
                     <p className="font-medium">{patient.chronic_conditions}</p>
@@ -295,8 +349,8 @@ export default function PatientDetails() {
               </CardContent>
             </Card>
 
-            {/* Emergency Contact */}
-            {(patient.emergency_contact_name || patient.emergency_contact_phone) && (
+            {/* Emergency Contact - Full Access Only */}
+            {access.canViewFullChart && (patient.emergency_contact_name || patient.emergency_contact_phone) && (
               <Card className="bg-white border-0 shadow-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
@@ -315,8 +369,8 @@ export default function PatientDetails() {
               </Card>
             )}
 
-            {/* Insurance */}
-            {(patient.insurance_provider || patient.insurance_number) && (
+            {/* Insurance - Full Access Only */}
+            {access.canViewFullChart && (patient.insurance_provider || patient.insurance_number) && (
               <Card className="bg-white border-0 shadow-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
@@ -337,7 +391,7 @@ export default function PatientDetails() {
           </div>
         </TabsContent>
 
-        <TabsContent value="appointments" className="space-y-4">
+        {access.canViewAppointments && <TabsContent value="appointments" className="space-y-4">
           {appointments.length === 0 ? (
             <Card className="p-12 text-center bg-white border-0 shadow-sm">
               <Calendar className="w-12 h-12 mx-auto text-slate-300 mb-4" />
@@ -366,9 +420,9 @@ export default function PatientDetails() {
               </Card>
             ))
           )}
-        </TabsContent>
+        </TabsContent>}
 
-        <TabsContent value="records" className="space-y-4">
+        {access.canViewClinicalNotes && <TabsContent value="records" className="space-y-4">
           {records.length === 0 ? (
             <Card className="p-12 text-center bg-white border-0 shadow-sm">
               <FileText className="w-12 h-12 mx-auto text-slate-300 mb-4" />
@@ -398,40 +452,40 @@ export default function PatientDetails() {
               </Card>
             ))
           )}
-        </TabsContent>
+        </TabsContent>}
 
-        <TabsContent value="soap">
+        {access.canViewClinicalNotes && <TabsContent value="soap">
           <Card className="bg-white border-0 shadow-sm">
             <CardContent className="pt-6">
               <PatientSOAPTab patientId={patientId} />
             </CardContent>
           </Card>
-        </TabsContent>
+        </TabsContent>}
 
-        <TabsContent value="labs">
+        {access.canViewLabResults && <TabsContent value="labs">
           <Card className="bg-white border-0 shadow-sm">
             <CardContent className="pt-6">
               <PatientLabsTab patientId={patientId} />
             </CardContent>
           </Card>
-        </TabsContent>
+        </TabsContent>}
 
-        <TabsContent value="referrals">
+        {access.canViewReferrals && <TabsContent value="referrals">
           <Card className="bg-white border-0 shadow-sm">
             <CardContent className="pt-6">
               <PatientReferralsTab patientId={patientId} />
             </CardContent>
           </Card>
-        </TabsContent>
+        </TabsContent>}
 
-        <TabsContent value="tasks">
+        {access.canViewTasks && <TabsContent value="tasks">
           <Card className="bg-white border-0 shadow-sm">
             <CardContent className="pt-6">
               <PatientTasksTab patientId={patientId} />
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+        </TabsContent>}
+        </Tabs>
 
       {/* Edit Form */}
       <PatientForm
