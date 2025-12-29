@@ -58,6 +58,7 @@ import AdminSecurityValidation from './pages/AdminSecurityValidation';
 import PlatformSettings from './pages/PlatformSettings';
 import AppAdministration from './pages/AppAdministration';
 import PlatformConfiguration from './pages/PlatformConfiguration';
+import AdminRoleStandards from './pages/AdminRoleStandards';
 import __Layout from './Layout.jsx';
 
 
@@ -122,6 +123,7 @@ export const PAGES = {
     "PlatformSettings": PlatformSettings,
     "AppAdministration": AppAdministration,
     "PlatformConfiguration": PlatformConfiguration,
+    "AdminRoleStandards": AdminRoleStandards,
 }
 
 export const pagesConfig = {

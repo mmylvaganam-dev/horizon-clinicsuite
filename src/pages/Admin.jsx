@@ -79,6 +79,13 @@ export default function Admin() {
       color: 'from-teal-500 to-teal-600'
     },
     {
+      title: 'Role Standards',
+      description: 'Standardized RBAC roles',
+      icon: Shield,
+      page: 'AdminRoleStandards',
+      color: 'from-indigo-500 to-indigo-600'
+    },
+    {
       title: 'Permissions',
       description: 'Configure role permissions',
       icon: Shield,
