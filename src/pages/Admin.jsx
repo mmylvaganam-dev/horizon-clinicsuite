@@ -176,6 +176,13 @@ export default function Admin() {
       icon: Activity,
       page: 'AdminBackups',
       color: 'from-green-500 to-green-600'
+    },
+    {
+      title: 'Compliance Checklist',
+      description: 'Deployment validation',
+      icon: Shield,
+      page: 'AdminComplianceChecklist',
+      color: 'from-indigo-500 to-indigo-600'
     }
   ];
 
