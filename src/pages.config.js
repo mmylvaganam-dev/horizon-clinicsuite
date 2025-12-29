@@ -8,6 +8,8 @@ import Settings from './pages/Settings';
 import Admin from './pages/Admin';
 import AdminOrganizations from './pages/AdminOrganizations';
 import AdminLocations from './pages/AdminLocations';
+import AdminDepartments from './pages/AdminDepartments';
+import AdminUsers from './pages/AdminUsers';
 import __Layout from './Layout.jsx';
 
 
@@ -22,6 +24,8 @@ export const PAGES = {
     "Admin": Admin,
     "AdminOrganizations": AdminOrganizations,
     "AdminLocations": AdminLocations,
+    "AdminDepartments": AdminDepartments,
+    "AdminUsers": AdminUsers,
 }
 
 export const pagesConfig = {
