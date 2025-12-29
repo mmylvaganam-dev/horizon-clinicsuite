@@ -23,6 +23,7 @@ import GovernmentReporting from './pages/GovernmentReporting';
 import MedicalRecords from './pages/MedicalRecords';
 import Messaging from './pages/Messaging';
 import OrdersResults from './pages/OrdersResults';
+import PartnerManagement from './pages/PartnerManagement';
 import PatientDetails from './pages/PatientDetails';
 import PatientPortal from './pages/PatientPortal';
 import Patients from './pages/Patients';
@@ -31,7 +32,7 @@ import PharmacyPOS from './pages/PharmacyPOS';
 import Procurement from './pages/Procurement';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
-import PartnerManagement from './pages/PartnerManagement';
+import AdminPermissionMatrix from './pages/AdminPermissionMatrix';
 import __Layout from './Layout.jsx';
 
 
@@ -61,6 +62,7 @@ export const PAGES = {
     "MedicalRecords": MedicalRecords,
     "Messaging": Messaging,
     "OrdersResults": OrdersResults,
+    "PartnerManagement": PartnerManagement,
     "PatientDetails": PatientDetails,
     "PatientPortal": PatientPortal,
     "Patients": Patients,
@@ -69,7 +71,7 @@ export const PAGES = {
     "Procurement": Procurement,
     "Reports": Reports,
     "Settings": Settings,
-    "PartnerManagement": PartnerManagement,
+    "AdminPermissionMatrix": AdminPermissionMatrix,
 }
 
 export const pagesConfig = {

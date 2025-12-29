@@ -52,6 +52,13 @@ export default function Admin() {
       color: 'from-rose-500 to-rose-600'
     },
     {
+      title: 'Permission Matrix',
+      description: 'Visual permission editor',
+      icon: Grid3X3,
+      page: 'AdminPermissionMatrix',
+      color: 'from-violet-500 to-violet-600'
+    },
+    {
       title: 'Modules',
       description: 'Manage module access',
       icon: Grid3X3,
