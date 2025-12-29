@@ -13,7 +13,9 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import PatientSOAPTab from '../components/patient/PatientSOAPTab';
 import PatientLabsTab from '../components/patient/PatientLabsTab';
-import PatientReferralsTab from '../components/patient/PatientReferralsTab';
+import MedicationList from '../components/emr/MedicationList';
+import PastSurgicalHistory from '../components/emr/PastSurgicalHistory';
+import SpecialistChart from '../components/emr/SpecialistChart';
 
 export default function EMR() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -157,25 +159,125 @@ export default function EMR() {
             </CardContent>
           </Card>
 
-          <Tabs defaultValue="soap" className="space-y-6">
-            <TabsList className="grid grid-cols-4 w-full">
-              <TabsTrigger value="soap">
-                <FileText className="w-4 h-4 mr-2" />
-                SOAP Notes
-              </TabsTrigger>
-              <TabsTrigger value="labs">
-                <TestTube className="w-4 h-4 mr-2" />
-                Lab Results
-              </TabsTrigger>
-              <TabsTrigger value="referrals">
-                <UserCheck className="w-4 h-4 mr-2" />
-                Referrals
-              </TabsTrigger>
-              <TabsTrigger value="records">
-                <Activity className="w-4 h-4 mr-2" />
-                Medical Records
-              </TabsTrigger>
+          <Tabs defaultValue="cpp" className="space-y-6">
+            <TabsList className="grid grid-cols-2 lg:grid-cols-7 w-full">
+              <TabsTrigger value="cpp">CPP</TabsTrigger>
+              <TabsTrigger value="medications">Medications</TabsTrigger>
+              <TabsTrigger value="history">History</TabsTrigger>
+              <TabsTrigger value="soap">SOAP Notes</TabsTrigger>
+              <TabsTrigger value="labs">Labs</TabsTrigger>
+              <TabsTrigger value="referrals">Specialists</TabsTrigger>
+              <TabsTrigger value="records">Records</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="cpp">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card className="bg-white border-0 shadow-sm">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Current Patient Profile (CPP)</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <p className="text-sm font-semibold text-slate-700 mb-2">Chief Complaints / Active Issues</p>
+                      <div className="space-y-2">
+                        {selectedPatient.chronic_conditions ? (
+                          <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <p className="text-sm text-blue-900">{selectedPatient.chronic_conditions}</p>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-slate-500 italic">No active issues documented</p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <p className="text-sm font-semibold text-slate-700 mb-2">Current Plans</p>
+                      {soapNotes.length > 0 ? (
+                        <div className="space-y-2">
+                          {soapNotes.slice(0, 3).map(note => (
+                            <div key={note.id} className="p-3 bg-slate-50 rounded-lg border">
+                              <p className="text-xs text-slate-500 mb-1">{format(new Date(note.note_date), 'MMM d, yyyy')}</p>
+                              <p className="text-sm text-slate-700"><span className="font-semibold">Plan:</span> {note.plan?.substring(0, 150)}...</p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm text-slate-500 italic">No current plans documented</p>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white border-0 shadow-sm">
+                  <CardHeader>
+                    <CardTitle className="text-lg">Allergies & Alerts</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {selectedPatient.allergies ? (
+                      <div className="p-4 bg-amber-50 rounded-lg border-2 border-amber-300">
+                        <div className="flex items-center gap-2 text-amber-800 mb-2">
+                          <span className="text-2xl">⚠️</span>
+                          <p className="font-bold text-lg">ALLERGIES</p>
+                        </div>
+                        <p className="text-amber-900">{selectedPatient.allergies}</p>
+                      </div>
+                    ) : (
+                      <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-200">
+                        <p className="text-emerald-800">✓ No known allergies</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="medications">
+              <Card className="bg-white border-0 shadow-sm">
+                <CardHeader>
+                  <CardTitle>Current Medications</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <MedicationList patientId={selectedPatient.id} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="history">
+              <div className="space-y-6">
+                <Card className="bg-white border-0 shadow-sm">
+                  <CardHeader>
+                    <CardTitle>Past Medical History (PMHx)</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {selectedPatient.chronic_conditions ? (
+                      <div className="p-4 bg-slate-50 rounded-lg">
+                        <p className="text-slate-900">{selectedPatient.chronic_conditions}</p>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-slate-500 italic">No past medical history documented</p>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white border-0 shadow-sm">
+                  <CardHeader>
+                    <CardTitle>Past Surgical History (PSHx)</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <PastSurgicalHistory patientId={selectedPatient.id} />
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-white border-0 shadow-sm">
+                  <CardHeader>
+                    <CardTitle>Family History</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-slate-500 italic">Family history section - to be documented</p>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
 
             <TabsContent value="soap">
               <Card className="bg-white border-0 shadow-sm">
@@ -195,8 +297,11 @@ export default function EMR() {
 
             <TabsContent value="referrals">
               <Card className="bg-white border-0 shadow-sm">
-                <CardContent className="pt-6">
-                  <PatientReferralsTab patientId={selectedPatient.id} />
+                <CardHeader>
+                  <CardTitle>Specialist Consultations</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <SpecialistChart patientId={selectedPatient.id} />
                 </CardContent>
               </Card>
             </TabsContent>
