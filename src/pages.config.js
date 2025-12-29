@@ -1,5 +1,6 @@
 import Admin from './pages/Admin';
 import AdminAuditLogs from './pages/AdminAuditLogs';
+import AdminBreakGlassReport from './pages/AdminBreakGlassReport';
 import AdminChartOfAccounts from './pages/AdminChartOfAccounts';
 import AdminConfig from './pages/AdminConfig';
 import AdminDepartments from './pages/AdminDepartments';
@@ -8,6 +9,7 @@ import AdminModules from './pages/AdminModules';
 import AdminNumberingRules from './pages/AdminNumberingRules';
 import AdminOrganizations from './pages/AdminOrganizations';
 import AdminPatientPortal from './pages/AdminPatientPortal';
+import AdminPermissionMatrix from './pages/AdminPermissionMatrix';
 import AdminPermissions from './pages/AdminPermissions';
 import AdminPostingRules from './pages/AdminPostingRules';
 import AdminServiceCatalog from './pages/AdminServiceCatalog';
@@ -18,6 +20,7 @@ import Analytics from './pages/Analytics';
 import Appointments from './pages/Appointments';
 import Billing from './pages/Billing';
 import Communications from './pages/Communications';
+import CriticalQueue from './pages/CriticalQueue';
 import Dashboard from './pages/Dashboard';
 import GovernmentReporting from './pages/GovernmentReporting';
 import MedicalRecords from './pages/MedicalRecords';
@@ -30,18 +33,17 @@ import Patients from './pages/Patients';
 import PharmacyInventory from './pages/PharmacyInventory';
 import PharmacyPOS from './pages/PharmacyPOS';
 import Procurement from './pages/Procurement';
+import ReleaseQueue from './pages/ReleaseQueue';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
-import AdminPermissionMatrix from './pages/AdminPermissionMatrix';
-import AdminBreakGlassReport from './pages/AdminBreakGlassReport';
-import ReleaseQueue from './pages/ReleaseQueue';
-import CriticalQueue from './pages/CriticalQueue';
+import DataExport from './pages/DataExport';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Admin": Admin,
     "AdminAuditLogs": AdminAuditLogs,
+    "AdminBreakGlassReport": AdminBreakGlassReport,
     "AdminChartOfAccounts": AdminChartOfAccounts,
     "AdminConfig": AdminConfig,
     "AdminDepartments": AdminDepartments,
@@ -50,6 +52,7 @@ export const PAGES = {
     "AdminNumberingRules": AdminNumberingRules,
     "AdminOrganizations": AdminOrganizations,
     "AdminPatientPortal": AdminPatientPortal,
+    "AdminPermissionMatrix": AdminPermissionMatrix,
     "AdminPermissions": AdminPermissions,
     "AdminPostingRules": AdminPostingRules,
     "AdminServiceCatalog": AdminServiceCatalog,
@@ -60,6 +63,7 @@ export const PAGES = {
     "Appointments": Appointments,
     "Billing": Billing,
     "Communications": Communications,
+    "CriticalQueue": CriticalQueue,
     "Dashboard": Dashboard,
     "GovernmentReporting": GovernmentReporting,
     "MedicalRecords": MedicalRecords,
@@ -72,12 +76,10 @@ export const PAGES = {
     "PharmacyInventory": PharmacyInventory,
     "PharmacyPOS": PharmacyPOS,
     "Procurement": Procurement,
+    "ReleaseQueue": ReleaseQueue,
     "Reports": Reports,
     "Settings": Settings,
-    "AdminPermissionMatrix": AdminPermissionMatrix,
-    "AdminBreakGlassReport": AdminBreakGlassReport,
-    "ReleaseQueue": ReleaseQueue,
-    "CriticalQueue": CriticalQueue,
+    "DataExport": DataExport,
 }
 
 export const pagesConfig = {

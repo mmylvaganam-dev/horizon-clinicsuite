@@ -148,6 +148,13 @@ export default function Admin() {
       icon: Users,
       page: 'PartnerManagement',
       color: 'from-blue-500 to-blue-600'
+    },
+    {
+      title: 'Data Export',
+      description: 'Export bundles',
+      icon: FileText,
+      page: 'DataExport',
+      color: 'from-teal-500 to-teal-600'
     }
   ];
 
