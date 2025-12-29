@@ -1,7 +1,10 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '../utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { 
   Building2, 
   MapPin, 
@@ -15,6 +18,37 @@ import {
 } from 'lucide-react';
 
 export default function Admin() {
+  const navigate = useNavigate();
+
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const { data: userRoles = [] } = useQuery({
+    queryKey: ['userRoles', user?.id],
+    queryFn: async () => {
+      const roles = await base44.entities.UserRole.filter({ user_id: user.id });
+      return roles;
+    },
+    enabled: !!user,
+  });
+
+  const { data: allRoles = [] } = useQuery({
+    queryKey: ['allRoles'],
+    queryFn: () => base44.entities.Role.list(),
+  });
+
+  const isPlatformOwner = userRoles.some(ur => {
+    const role = allRoles.find(r => r.id === ur.role_id);
+    return role?.role_name === 'PLATFORM_OWNER';
+  });
+
+  const isAppAdmin = userRoles.some(ur => {
+    const role = allRoles.find(r => r.id === ur.role_id);
+    return role?.role_name === 'APP_ADMIN';
+  });
+
   const adminModules = [
     {
       title: 'Organizations',
@@ -227,6 +261,46 @@ export default function Admin() {
         <h1 className="text-3xl font-bold text-slate-900 tracking-tight">System Administration</h1>
         <p className="text-slate-500 mt-1">Manage organizations, users, roles, and system configuration</p>
       </div>
+
+      {isPlatformOwner && (
+        <Card
+          className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 border-rose-300 bg-rose-50"
+          onClick={() => navigate(createPageUrl('PlatformSettings'))}
+        >
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center shadow-lg">
+                <Shield className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-rose-900">Platform Settings</h3>
+                <p className="text-sm text-rose-700">Owner-level system administration</p>
+                <Badge className="bg-rose-200 text-rose-800 mt-2">PLATFORM_OWNER ONLY</Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {isAppAdmin && (
+        <Card
+          className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 border-blue-300 bg-blue-50"
+          onClick={() => navigate(createPageUrl('AppAdministration'))}
+        >
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                <Settings className="w-7 h-7 text-white" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-blue-900">App Administration</h3>
+                <p className="text-sm text-blue-700">Limited configuration support (no PHI access)</p>
+                <Badge className="bg-blue-200 text-blue-800 mt-2">APP_ADMIN</Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {adminModules.map((module) => (
