@@ -7,8 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { FileText, AlertTriangle, CheckCircle, Search } from 'lucide-react';
+import { FileText, AlertTriangle, CheckCircle, Search, Filter } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -25,6 +26,7 @@ const resultTypeColors = {
 export default function ReleaseQueue() {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
+  const [moduleFilter, setModuleFilter] = useState('all');
   const [releaseDialog, setReleaseDialog] = useState(false);
   const [selectedResult, setSelectedResult] = useState(null);
   const [releaseNote, setReleaseNote] = useState('');
@@ -75,8 +77,10 @@ export default function ReleaseQueue() {
 
   const filteredResults = signedNotReleased.filter(result => {
     const patientName = getPatientName(result.patient_id).toLowerCase();
-    return patientName.includes(searchTerm.toLowerCase()) ||
-           result.result_type?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = patientName.includes(searchTerm.toLowerCase()) ||
+                         result.result_type?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesModule = moduleFilter === 'all' || result.result_type === moduleFilter;
+    return matchesSearch && matchesModule;
   });
 
   const handleReleaseClick = (result) => {
@@ -148,14 +152,29 @@ export default function ReleaseQueue() {
       </div>
 
       <Card className="p-4 bg-white border-0 shadow-sm">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <Input
-            placeholder="Search by patient name or result type..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input
+              placeholder="Search by patient name or result type..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select value={moduleFilter} onValueChange={setModuleFilter}>
+            <SelectTrigger className="w-full sm:w-48">
+              <Filter className="w-4 h-4 mr-2" />
+              <SelectValue placeholder="Filter by module" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Modules</SelectItem>
+              <SelectItem value="LAB">Lab</SelectItem>
+              <SelectItem value="CARDIO">Cardio</SelectItem>
+              <SelectItem value="PFT">PFT</SelectItem>
+              <SelectItem value="RADIOLOGY">Radiology</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </Card>
 
