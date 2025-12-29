@@ -162,6 +162,13 @@ export default function Admin() {
       icon: Activity,
       page: 'AdminRetentionPolicies',
       color: 'from-purple-500 to-purple-600'
+    },
+    {
+      title: 'Archive Management',
+      description: 'Archived records',
+      icon: FileText,
+      page: 'AdminArchive',
+      color: 'from-slate-500 to-slate-600'
     }
   ];
 
