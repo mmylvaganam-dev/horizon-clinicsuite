@@ -57,6 +57,7 @@ import TaskManagement from './pages/TaskManagement';
 import AdminSecurityValidation from './pages/AdminSecurityValidation';
 import PlatformSettings from './pages/PlatformSettings';
 import AppAdministration from './pages/AppAdministration';
+import PlatformConfiguration from './pages/PlatformConfiguration';
 import __Layout from './Layout.jsx';
 
 
@@ -120,6 +121,7 @@ export const PAGES = {
     "AdminSecurityValidation": AdminSecurityValidation,
     "PlatformSettings": PlatformSettings,
     "AppAdministration": AppAdministration,
+    "PlatformConfiguration": PlatformConfiguration,
 }
 
 export const pagesConfig = {

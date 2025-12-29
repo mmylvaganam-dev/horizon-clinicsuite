@@ -92,6 +92,13 @@ export default function PlatformSettings() {
 
   const platformModules = [
     {
+      title: 'Platform Configuration',
+      description: 'Owner-only settings and feature flags',
+      icon: Settings,
+      page: 'PlatformConfiguration',
+      color: 'from-violet-500 to-violet-600'
+    },
+    {
       title: 'System Configuration',
       description: 'Global system settings and deployment profiles',
       icon: Settings,
