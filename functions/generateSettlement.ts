@@ -45,6 +45,20 @@ Deno.serve(async (req) => {
             });
         }
 
+        // Create document artifact
+        const artifact = await base44.asServiceRole.entities.DocumentArtifact.create({
+            organization_id: '',
+            location_id: '',
+            patient_ref: '',
+            artifact_type: 'settlement_report',
+            source_type: 'Settlement',
+            source_id: settlement.id,
+            file_ref: `settlement_${settlement.id}_${new Date().toISOString()}`,
+            created_by: user.id,
+            created_by_email: user.email,
+            created_at: new Date().toISOString()
+        });
+
         // Audit log
         await base44.asServiceRole.entities.AuditLog.create({
             timestamp: new Date().toISOString(),
@@ -62,7 +76,8 @@ Deno.serve(async (req) => {
                 period_start,
                 period_end,
                 amount: totalAmount,
-                referral_count: periodReferrals.length
+                referral_count: periodReferrals.length,
+                artifact_id: artifact.id
             }
         });
 
