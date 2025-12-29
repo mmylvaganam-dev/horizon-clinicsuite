@@ -20,6 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { format, addDays, startOfWeek, isSameDay, parseISO } from 'date-fns';
 import AppointmentForm from '../components/appointments/AppointmentForm';
+import LinkedRecords from '../components/shared/LinkedRecords';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,6 +60,7 @@ export default function Appointments() {
   const [editingAppointment, setEditingAppointment] = useState(null);
   const [deleteId, setDeleteId] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [expandedAppointment, setExpandedAppointment] = useState(null);
 
   const { data: appointments = [], isLoading: loadingAppointments } = useQuery({
     queryKey: ['appointments'],
@@ -247,44 +249,61 @@ export default function Appointments() {
             </div>
           ) : (
             getAppointmentsForDay(selectedDate).map((apt) => (
-              <div key={apt.id} className="p-4 hover:bg-slate-50 transition-colors">
-                <div className="flex items-center gap-4">
-                  <div className={`w-1 h-16 rounded-full ${typeColors[apt.type] || 'bg-slate-500'}`} />
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <Clock className="w-4 h-4 text-slate-400" />
-                      <span className="font-medium text-slate-900">{apt.time}</span>
-                      <span className="text-slate-400">•</span>
-                      <span className="text-slate-500">{apt.duration || 30} min</span>
+              <div key={apt.id}>
+                <div 
+                  className="p-4 hover:bg-slate-50 transition-colors cursor-pointer"
+                  onClick={() => setExpandedAppointment(expandedAppointment === apt.id ? null : apt.id)}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`w-1 h-16 rounded-full ${typeColors[apt.type] || 'bg-slate-500'}`} />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Clock className="w-4 h-4 text-slate-400" />
+                        <span className="font-medium text-slate-900">{apt.time}</span>
+                        <span className="text-slate-400">•</span>
+                        <span className="text-slate-500">{apt.duration || 30} min</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <User className="w-4 h-4 text-slate-400" />
+                        <span className="font-medium">{apt.patient_name || 'Unknown Patient'}</span>
+                      </div>
+                      <p className="text-sm text-slate-500 mt-1">
+                        {apt.type?.replace(/[_-]/g, ' ')} • {apt.reason || 'No reason specified'}
+                      </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4 text-slate-400" />
-                      <span className="font-medium">{apt.patient_name || 'Unknown Patient'}</span>
+                    <Badge variant="outline" className={`${statusColors[apt.status] || statusColors.scheduled} border`}>
+                      {apt.status?.replace('-', ' ') || 'scheduled'}
+                    </Badge>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => { 
+                          e.stopPropagation();
+                          setEditingAppointment(apt); 
+                          setFormOpen(true); 
+                        }}
+                      >
+                        <Edit className="w-4 h-4 text-slate-400" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteId(apt.id);
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4 text-slate-400" />
+                      </Button>
                     </div>
-                    <p className="text-sm text-slate-500 mt-1">
-                      {apt.type?.replace(/[_-]/g, ' ')} • {apt.reason || 'No reason specified'}
-                    </p>
-                  </div>
-                  <Badge variant="outline" className={`${statusColors[apt.status] || statusColors.scheduled} border`}>
-                    {apt.status?.replace('-', ' ') || 'scheduled'}
-                  </Badge>
-                  <div className="flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => { setEditingAppointment(apt); setFormOpen(true); }}
-                    >
-                      <Edit className="w-4 h-4 text-slate-400" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setDeleteId(apt.id)}
-                    >
-                      <Trash2 className="w-4 h-4 text-slate-400" />
-                    </Button>
                   </div>
                 </div>
+                {expandedAppointment === apt.id && (
+                  <div className="ml-8 mb-2 px-4">
+                    <LinkedRecords recordType="Appointment" recordId={apt.id} />
+                  </div>
+                )}
               </div>
             ))
           )}

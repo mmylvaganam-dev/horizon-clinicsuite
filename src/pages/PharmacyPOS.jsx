@@ -24,6 +24,7 @@ import {
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import toast from 'react-hot-toast';
+import LinkedRecords from '../components/shared/LinkedRecords';
 
 export default function PharmacyPOS() {
   const queryClient = useQueryClient();
@@ -36,6 +37,7 @@ export default function PharmacyPOS() {
   const [selectedSale, setSelectedSale] = useState(null);
   const [refundType, setRefundType] = useState('refund');
   const [refundReason, setRefundReason] = useState('');
+  const [expandedSale, setExpandedSale] = useState(null);
 
   const { data: patients = [] } = useQuery({
     queryKey: ['patients'],
@@ -407,47 +409,58 @@ export default function PharmacyPOS() {
               : null;
 
             return (
-              <Card key={sale.id} className="p-5 bg-white border-0 shadow-sm hover:shadow-md transition-all">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge variant="outline" className={statusColors[sale.status]}>
-                        {sale.status}
-                      </Badge>
-                      <Badge variant="outline">
-                        {getReceiptNumber(sale.id)}
-                      </Badge>
-                      {linkedPrescription && (
-                        <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-200">
-                          Rx: {linkedPrescription.drug_name}
-                        </Badge>
-                      )}
-                    </div>
-                    <p className="font-medium text-slate-900">
-                      {getPatientName(sale.patient_id)}
-                    </p>
-                  <p className="text-sm text-slate-500">
-                    {new Date(sale.sale_date).toLocaleString()}
-                  </p>
-                  <p className="text-lg font-semibold text-teal-600 mt-2">
-                    ${sale.total.toFixed(2)}
-                  </p>
-                </div>
-                {sale.status === 'completed' && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedSale(sale);
-                      setShowRefundDialog(true);
-                    }}
+              <div key={sale.id}>
+                <Card className="p-5 bg-white border-0 shadow-sm hover:shadow-md transition-all">
+                  <div 
+                    className="flex items-start justify-between cursor-pointer"
+                    onClick={() => setExpandedSale(expandedSale === sale.id ? null : sale.id)}
                   >
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Refund/Void
-                  </Button>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="outline" className={statusColors[sale.status]}>
+                          {sale.status}
+                        </Badge>
+                        <Badge variant="outline">
+                          {getReceiptNumber(sale.id)}
+                        </Badge>
+                        {linkedPrescription && (
+                          <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-200">
+                            Rx: {linkedPrescription.drug_name}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="font-medium text-slate-900">
+                        {getPatientName(sale.patient_id)}
+                      </p>
+                      <p className="text-sm text-slate-500">
+                        {new Date(sale.sale_date).toLocaleString()}
+                      </p>
+                      <p className="text-lg font-semibold text-teal-600 mt-2">
+                        ${sale.total.toFixed(2)}
+                      </p>
+                    </div>
+                    {sale.status === 'completed' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedSale(sale);
+                          setShowRefundDialog(true);
+                        }}
+                      >
+                        <RefreshCw className="w-4 h-4 mr-2" />
+                        Refund/Void
+                      </Button>
+                    )}
+                  </div>
+                </Card>
+                {expandedSale === sale.id && (
+                  <div className="ml-6 mt-2">
+                    <LinkedRecords recordType="PharmacySale" recordId={sale.id} />
+                  </div>
                 )}
               </div>
-            </Card>
             );
           })}
         </TabsContent>

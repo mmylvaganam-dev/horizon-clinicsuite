@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
+import LinkedRecords from '../components/shared/LinkedRecords';
 
 const orderStatusColors = {
   draft: 'bg-slate-100 text-slate-700 border-slate-200',
@@ -48,6 +49,8 @@ export default function OrdersResults() {
   const [orderTypeFilter, setOrderTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all');
+  const [expandedOrder, setExpandedOrder] = useState(null);
+  const [expandedResult, setExpandedResult] = useState(null);
 
   const { data: orders = [], isLoading: loadingOrders } = useQuery({
     queryKey: ['orders'],
@@ -201,34 +204,44 @@ export default function OrdersResults() {
             </Card>
           ) : (
             filteredOrders.map((order) => (
-              <Card key={order.id} className="p-5 bg-white border-0 shadow-sm hover:shadow-md transition-all">
-                <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${orderTypeColors[order.order_type]} flex items-center justify-center flex-shrink-0`}>
-                    <ClipboardList className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
-                          <Badge variant="outline" className={`${orderStatusColors[order.status]} border`}>
-                            {order.status}
-                          </Badge>
-                          <Badge variant="outline">{order.order_type}</Badge>
-                          {order.priority !== 'routine' && (
-                            <Badge variant="outline" className="bg-rose-100 text-rose-700">
-                              {order.priority}
+              <div key={order.id}>
+                <Card 
+                  className="p-5 bg-white border-0 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                  onClick={() => setExpandedOrder(expandedOrder === order.id ? null : order.id)}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${orderTypeColors[order.order_type]} flex items-center justify-center flex-shrink-0`}>
+                      <ClipboardList className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <Badge variant="outline" className={`${orderStatusColors[order.status]} border`}>
+                              {order.status}
                             </Badge>
-                          )}
+                            <Badge variant="outline">{order.order_type}</Badge>
+                            {order.priority !== 'routine' && (
+                              <Badge variant="outline" className="bg-rose-100 text-rose-700">
+                                {order.priority}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="font-medium text-slate-900">{getPatientName(order.patient_id)}</p>
+                          <p className="text-sm text-slate-500">
+                            Ordered by: {order.ordered_by} • {format(new Date(order.ordered_at || order.created_date), 'MMM d, yyyy h:mm a')}
+                          </p>
                         </div>
-                        <p className="font-medium text-slate-900">{getPatientName(order.patient_id)}</p>
-                        <p className="text-sm text-slate-500">
-                          Ordered by: {order.ordered_by} • {format(new Date(order.ordered_at || order.created_date), 'MMM d, yyyy h:mm a')}
-                        </p>
                       </div>
                     </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
+                {expandedOrder === order.id && (
+                  <div className="ml-16 mt-2">
+                    <LinkedRecords recordType="Order" recordId={order.id} />
+                  </div>
+                )}
+              </div>
             ))
           )}
         </TabsContent>
@@ -249,34 +262,44 @@ export default function OrdersResults() {
               const flags = getResultFlags(result.id);
               
               return (
-                <Card key={result.id} className="p-5 bg-white border-0 shadow-sm hover:shadow-md transition-all">
-                  <div className="flex items-start gap-4">
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${orderTypeColors[result.result_type]} flex items-center justify-center flex-shrink-0`}>
-                      <FileText className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <Badge variant="outline" className={`${resultStatusColors[result.status]} border`}>
-                          {result.status}
-                        </Badge>
-                        <Badge variant="outline">{result.result_type}</Badge>
-                        {flags.map((flag) => (
-                          <Badge key={flag.id} variant="outline" className="bg-rose-100 text-rose-700 flex items-center gap-1">
-                            <AlertTriangle className="w-3 h-3" />
-                            {flag.flag_type}
-                          </Badge>
-                        ))}
+                <div key={result.id}>
+                  <Card 
+                    className="p-5 bg-white border-0 shadow-sm hover:shadow-md transition-all cursor-pointer"
+                    onClick={() => setExpandedResult(expandedResult === result.id ? null : result.id)}
+                  >
+                    <div className="flex items-start gap-4">
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${orderTypeColors[result.result_type]} flex items-center justify-center flex-shrink-0`}>
+                        <FileText className="w-6 h-6 text-white" />
                       </div>
-                      <p className="font-medium text-slate-900">{getPatientName(result.patient_id)}</p>
-                      <p className="text-sm text-slate-500">
-                        {result.result_date && format(new Date(result.result_date), 'MMM d, yyyy h:mm a')}
-                      </p>
-                      {result.narrative_text && (
-                        <p className="text-sm text-slate-600 mt-2 line-clamp-2">{result.narrative_text}</p>
-                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <Badge variant="outline" className={`${resultStatusColors[result.status]} border`}>
+                            {result.status}
+                          </Badge>
+                          <Badge variant="outline">{result.result_type}</Badge>
+                          {flags.map((flag) => (
+                            <Badge key={flag.id} variant="outline" className="bg-rose-100 text-rose-700 flex items-center gap-1">
+                              <AlertTriangle className="w-3 h-3" />
+                              {flag.flag_type}
+                            </Badge>
+                          ))}
+                        </div>
+                        <p className="font-medium text-slate-900">{getPatientName(result.patient_id)}</p>
+                        <p className="text-sm text-slate-500">
+                          {result.result_date && format(new Date(result.result_date), 'MMM d, yyyy h:mm a')}
+                        </p>
+                        {result.narrative_text && (
+                          <p className="text-sm text-slate-600 mt-2 line-clamp-2">{result.narrative_text}</p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </Card>
+                  </Card>
+                  {expandedResult === result.id && (
+                    <div className="ml-16 mt-2">
+                      <LinkedRecords recordType="Result" recordId={result.id} />
+                    </div>
+                  )}
+                </div>
               );
             })
           )}
