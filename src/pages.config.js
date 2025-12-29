@@ -37,6 +37,7 @@ import ReleaseQueue from './pages/ReleaseQueue';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 import DataExport from './pages/DataExport';
+import AdminRetentionPolicies from './pages/AdminRetentionPolicies';
 import __Layout from './Layout.jsx';
 
 
@@ -80,6 +81,7 @@ export const PAGES = {
     "Reports": Reports,
     "Settings": Settings,
     "DataExport": DataExport,
+    "AdminRetentionPolicies": AdminRetentionPolicies,
 }
 
 export const pagesConfig = {

@@ -155,6 +155,13 @@ export default function Admin() {
       icon: FileText,
       page: 'DataExport',
       color: 'from-teal-500 to-teal-600'
+    },
+    {
+      title: 'Retention Policies',
+      description: 'Data retention rules',
+      icon: Activity,
+      page: 'AdminRetentionPolicies',
+      color: 'from-purple-500 to-purple-600'
     }
   ];
 
