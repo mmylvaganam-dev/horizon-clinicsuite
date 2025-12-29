@@ -29,6 +29,7 @@ export default function PharmacyPOS() {
   const queryClient = useQueryClient();
   const [cart, setCart] = useState([]);
   const [patientId, setPatientId] = useState('');
+  const [prescriptionId, setPrescriptionId] = useState('');
   const [taxRate, setTaxRate] = useState(0);
   const [notes, setNotes] = useState('');
   const [showRefundDialog, setShowRefundDialog] = useState(false);
@@ -56,13 +57,25 @@ export default function PharmacyPOS() {
     queryFn: () => base44.entities.PharmacyReceipt.list(),
   });
 
+  const { data: recordLinks = [] } = useQuery({
+    queryKey: ['recordLinks'],
+    queryFn: () => base44.entities.RecordLink.list('-created_at'),
+  });
+
+  const { data: prescriptions = [] } = useQuery({
+    queryKey: ['prescriptions'],
+    queryFn: () => base44.entities.Prescription.list(),
+  });
+
   const createSaleMutation = useMutation({
     mutationFn: (data) => base44.functions.invoke('createPharmacySale', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pharmacySales'] });
       queryClient.invalidateQueries({ queryKey: ['pharmacyReceipts'] });
+      queryClient.invalidateQueries({ queryKey: ['recordLinks'] });
       setCart([]);
       setPatientId('');
+      setPrescriptionId('');
       setNotes('');
       toast.success('Sale completed successfully!');
     },
@@ -137,7 +150,8 @@ export default function PharmacyPOS() {
         tax,
         notes
       },
-      items: cart.map(({ id, ...item }) => item)
+      items: cart.map(({ id, ...item }) => item),
+      prescriptionId: prescriptionId || null
     });
   };
 
@@ -312,6 +326,23 @@ export default function PharmacyPOS() {
                   </div>
 
                   <div>
+                    <Label>Prescription (Optional)</Label>
+                    <Select value={prescriptionId} onValueChange={setPrescriptionId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select prescription" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value={null}>No Prescription</SelectItem>
+                        {prescriptions.filter(p => p.status === 'New' || p.status === 'Verified').map(p => (
+                          <SelectItem key={p.id} value={p.id}>
+                            {p.drug_name} - {getPatientName(p.patient_id)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
                     <Label>Tax Rate (%)</Label>
                     <Input
                       type="number"
@@ -364,21 +395,37 @@ export default function PharmacyPOS() {
         </TabsContent>
 
         <TabsContent value="history" className="space-y-3">
-          {sales.map((sale) => (
-            <Card key={sale.id} className="p-5 bg-white border-0 shadow-sm hover:shadow-md transition-all">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="outline" className={statusColors[sale.status]}>
-                      {sale.status}
-                    </Badge>
-                    <Badge variant="outline">
-                      {getReceiptNumber(sale.id)}
-                    </Badge>
-                  </div>
-                  <p className="font-medium text-slate-900">
-                    {getPatientName(sale.patient_id)}
-                  </p>
+          {sales.map((sale) => {
+            // Find linked prescription
+            const prescriptionLink = recordLinks.find(
+              link => link.right_type === 'PharmacySale' && 
+                      link.right_id === sale.id && 
+                      link.left_type === 'Prescription'
+            );
+            const linkedPrescription = prescriptionLink 
+              ? prescriptions.find(p => p.id === prescriptionLink.left_id)
+              : null;
+
+            return (
+              <Card key={sale.id} className="p-5 bg-white border-0 shadow-sm hover:shadow-md transition-all">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge variant="outline" className={statusColors[sale.status]}>
+                        {sale.status}
+                      </Badge>
+                      <Badge variant="outline">
+                        {getReceiptNumber(sale.id)}
+                      </Badge>
+                      {linkedPrescription && (
+                        <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-200">
+                          Rx: {linkedPrescription.drug_name}
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="font-medium text-slate-900">
+                      {getPatientName(sale.patient_id)}
+                    </p>
                   <p className="text-sm text-slate-500">
                     {new Date(sale.sale_date).toLocaleString()}
                   </p>
@@ -401,7 +448,8 @@ export default function PharmacyPOS() {
                 )}
               </div>
             </Card>
-          ))}
+            );
+          })}
         </TabsContent>
       </Tabs>
 

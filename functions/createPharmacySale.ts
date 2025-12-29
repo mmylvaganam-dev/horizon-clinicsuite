@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
             status: 'completed',
             created_by: user.id,
             created_by_email: user.email,
-            prescription_id: saleData.prescription_id || null
+
         });
 
         // Create sale items and update inventory
@@ -124,19 +124,19 @@ Deno.serve(async (req) => {
             issued_by_email: user.email
         });
 
-        // If this sale is for a prescription, create DispenseEvent link
+        // Create dispense event and links if prescription is involved
         let dispenseEvent = null;
-        if (saleData.prescription_id) {
+        if (prescriptionId) {
             const prescriptions = await base44.asServiceRole.entities.Prescription.filter({ 
-                id: saleData.prescription_id 
+                id: prescriptionId 
             });
             const prescription = prescriptions[0];
 
             if (prescription) {
+                // Create dispense event
                 dispenseEvent = await base44.asServiceRole.entities.DispenseEvent.create({
-                    prescription_id: saleData.prescription_id,
+                    prescription_id: prescriptionId,
                     patient_id: prescription.patient_id,
-                    sale_id: sale.id,
                     quantity_dispensed: prescription.quantity,
                     dispensed_by: user.id,
                     dispensed_by_email: user.email,
@@ -145,26 +145,61 @@ Deno.serve(async (req) => {
                     notes: `Dispensed via POS sale ${receiptNumber}`
                 });
 
+                // Create RecordLink: Prescription <-> PharmacySale
+                await base44.asServiceRole.entities.RecordLink.create({
+                    organization_id: saleData.organization_id || '',
+                    location_id: saleData.location_id || '',
+                    left_type: 'Prescription',
+                    left_id: prescriptionId,
+                    right_type: 'PharmacySale',
+                    right_id: sale.id,
+                    link_purpose: 'sale_for_prescription',
+                    created_by: user.id,
+                    created_by_email: user.email,
+                    created_at: new Date().toISOString(),
+                    metadata_json: {
+                        receipt_number: receiptNumber,
+                        drug_name: prescription.drug_name
+                    }
+                });
+
+                // Create RecordLink: DispenseEvent <-> PharmacySale
+                await base44.asServiceRole.entities.RecordLink.create({
+                    organization_id: saleData.organization_id || '',
+                    location_id: saleData.location_id || '',
+                    left_type: 'DispenseEvent',
+                    left_id: dispenseEvent.id,
+                    right_type: 'PharmacySale',
+                    right_id: sale.id,
+                    link_purpose: 'dispense_for_sale',
+                    created_by: user.id,
+                    created_by_email: user.email,
+                    created_at: new Date().toISOString(),
+                    metadata_json: {
+                        receipt_number: receiptNumber
+                    }
+                });
+
                 // Update prescription status
-                await base44.asServiceRole.entities.Prescription.update(saleData.prescription_id, {
+                await base44.asServiceRole.entities.Prescription.update(prescriptionId, {
                     status: 'Dispensed'
                 });
 
-                // Audit the prescription-sale link
+                // Audit log for prescription link
                 await base44.asServiceRole.entities.AuditLog.create({
                     timestamp: new Date().toISOString(),
                     user_id: user.id,
                     user_email: user.email,
                     organization_id: saleData.organization_id || '',
                     location_id: saleData.location_id || '',
-                    patient_id: prescription.patient_id || '',
-                    module: 'PHARMACY_POS',
-                    action: 'link_prescription',
-                    record_type: 'DispenseEvent',
-                    record_id: dispenseEvent.id,
+                    patient_id: prescription.patient_id,
+                    module: 'PHARMACY',
+                    action: 'link_prescription_to_sale',
+                    record_type: 'RecordLink',
+                    record_id: sale.id,
                     metadata: {
-                        prescription_id: saleData.prescription_id,
-                        sale_id: sale.id,
+                        prescription_id: prescriptionId,
+                        dispense_event_id: dispenseEvent.id,
                         receipt_number: receiptNumber
                     }
                 });
