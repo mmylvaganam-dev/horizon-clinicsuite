@@ -29,6 +29,7 @@ import Reports from './pages/Reports';
 import AdminPatientPortal from './pages/AdminPatientPortal';
 import PatientPortal from './pages/PatientPortal';
 import Messaging from './pages/Messaging';
+import Communications from './pages/Communications';
 import __Layout from './Layout.jsx';
 
 
@@ -64,6 +65,7 @@ export const PAGES = {
     "AdminPatientPortal": AdminPatientPortal,
     "PatientPortal": PatientPortal,
     "Messaging": Messaging,
+    "Communications": Communications,
 }
 
 export const pagesConfig = {

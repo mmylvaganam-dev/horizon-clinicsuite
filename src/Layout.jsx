@@ -15,7 +15,8 @@ import {
   Activity,
   ShoppingBag,
   DollarSign,
-  MessageSquare
+  MessageSquare,
+  Mail
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -34,6 +35,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Procurement', page: 'Procurement', icon: ShoppingBag },
     { name: 'Billing', page: 'Billing', icon: DollarSign },
     { name: 'Messages', page: 'Messaging', icon: MessageSquare },
+    { name: 'Communications', page: 'Communications', icon: Mail },
     { name: 'Reports', page: 'Reports', icon: FileText },
     { name: 'Analytics', page: 'Analytics', icon: BarChart3 },
     { name: 'Admin', page: 'Admin', icon: Settings },
