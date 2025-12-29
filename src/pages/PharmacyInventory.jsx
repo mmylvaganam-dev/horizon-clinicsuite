@@ -14,8 +14,10 @@ import {
   TrendingDown,
   Plus,
   Edit,
-  History
+  History,
+  Calendar
 } from 'lucide-react';
+import BatchesTab from '../components/inventory/BatchesTab';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Dialog,
@@ -39,8 +41,12 @@ export default function PharmacyInventory() {
     itemName: '',
     qty: 0,
     unitCost: 0,
+    batchNumber: '',
+    expiryDate: '',
     reason: ''
   });
+
+  const [expiryAlertDays, setExpiryAlertDays] = useState(90);
 
   const [adjustForm, setAdjustForm] = useState({
     qty: 0,
@@ -67,13 +73,25 @@ export default function PharmacyInventory() {
     queryFn: () => base44.entities.Location.list(),
   });
 
+  const { data: batches = [] } = useQuery({
+    queryKey: ['stockBatches'],
+    queryFn: () => base44.entities.StockBatch.list('-expiry_date'),
+  });
+
   const receiveInventoryMutation = useMutation({
-    mutationFn: (data) => base44.functions.invoke('receiveInventory', data),
+    mutationFn: (data) => {
+      // Use batch receive if batch info provided
+      if (data.batchNumber && data.expiryDate) {
+        return base44.functions.invoke('receiveBatch', data);
+      }
+      return base44.functions.invoke('receiveInventory', data);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['inventoryBalances'] });
       queryClient.invalidateQueries({ queryKey: ['inventoryTxns'] });
+      queryClient.invalidateQueries({ queryKey: ['stockBatches'] });
       setShowReceiveDialog(false);
-      setReceiveForm({ locationId: '', skuCode: '', itemName: '', qty: 0, unitCost: 0, reason: '' });
+      setReceiveForm({ locationId: '', skuCode: '', itemName: '', qty: 0, unitCost: 0, batchNumber: '', expiryDate: '', reason: '' });
       toast.success('Inventory received successfully!');
     },
     onError: (error) => {
@@ -105,6 +123,15 @@ export default function PharmacyInventory() {
       toast.error('Please fill all required fields');
       return;
     }
+    
+    // If batch tracking, require batch number and expiry
+    if (receiveForm.batchNumber || receiveForm.expiryDate) {
+      if (!receiveForm.batchNumber || !receiveForm.expiryDate) {
+        toast.error('Both batch number and expiry date required for batch tracking');
+        return;
+      }
+    }
+    
     receiveInventoryMutation.mutate(receiveForm);
   };
 
@@ -174,6 +201,10 @@ export default function PharmacyInventory() {
             <Package className="w-4 h-4 mr-2" />
             Stock Balances
           </TabsTrigger>
+          <TabsTrigger value="batches">
+            <Calendar className="w-4 h-4 mr-2" />
+            Batches & Expiry
+          </TabsTrigger>
           <TabsTrigger value="transactions">
             <History className="w-4 h-4 mr-2" />
             Transaction History
@@ -242,6 +273,10 @@ export default function PharmacyInventory() {
               );
             })
           )}
+        </TabsContent>
+
+        <TabsContent value="batches">
+          <BatchesTab batches={batches} locations={locations} expiryDays={expiryAlertDays} />
         </TabsContent>
 
         <TabsContent value="transactions" className="space-y-3">
@@ -361,6 +396,22 @@ export default function PharmacyInventory() {
                 step="0.01"
                 value={receiveForm.unitCost}
                 onChange={(e) => setReceiveForm({...receiveForm, unitCost: parseFloat(e.target.value) || 0})}
+              />
+            </div>
+            <div>
+              <Label>Batch Number (Optional)</Label>
+              <Input
+                value={receiveForm.batchNumber}
+                onChange={(e) => setReceiveForm({...receiveForm, batchNumber: e.target.value})}
+                placeholder="e.g., LOT-2025-001"
+              />
+            </div>
+            <div>
+              <Label>Expiry Date (Optional)</Label>
+              <Input
+                type="date"
+                value={receiveForm.expiryDate}
+                onChange={(e) => setReceiveForm({...receiveForm, expiryDate: e.target.value})}
               />
             </div>
             <div>
