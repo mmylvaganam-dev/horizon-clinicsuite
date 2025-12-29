@@ -157,6 +157,13 @@ export default function Admin() {
       color: 'from-teal-500 to-teal-600'
     },
     {
+      title: 'Export Approvals',
+      description: 'Review export requests',
+      icon: Shield,
+      page: 'AdminExportApprovals',
+      color: 'from-emerald-500 to-emerald-600'
+    },
+    {
       title: 'Retention Policies',
       description: 'Data retention rules',
       icon: Activity,
