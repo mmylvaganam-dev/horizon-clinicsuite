@@ -31,24 +31,34 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Daily Ops', page: 'DailyOps', icon: Activity },
     { name: 'EMR', page: 'EMR', icon: FileText },
     { name: 'Patients', page: 'Patients', icon: Users },
-    { name: 'Finance Dashboard', page: 'FinanceDashboard', icon: DollarSign },
-    { name: 'Companies', page: 'FinanceCompanies', icon: Building2 },
     { name: 'Appointments', page: 'Appointments', icon: Calendar },
     { name: 'Medical Records', page: 'MedicalRecords', icon: FileText },
     { name: 'Orders & Results', page: 'OrdersResults', icon: FileText },
     { name: 'Release Queue', page: 'ReleaseQueue', icon: FileText },
     { name: 'Critical Queue', page: 'CriticalQueue', icon: Activity },
-    { name: 'SOAP Notes', page: 'SOAPNotes', icon: FileText },
     { name: 'Task Management', page: 'TaskManagement', icon: CheckSquare },
-    { name: 'Pharmacy POS', page: 'PharmacyPOS', icon: Activity },
+
+    { name: '─ PHARMACY ─', page: null, icon: null, divider: true },
+    { name: 'Pharmacy Dashboard', page: 'PharmacyDashboard', icon: Activity },
+    { name: 'Point of Sale', page: 'PharmacyPOS', icon: ShoppingBag },
     { name: 'Inventory', page: 'PharmacyInventory', icon: Activity },
     { name: 'Procurement', page: 'Procurement', icon: ShoppingBag },
+
+    { name: '─ FINANCE ─', page: null, icon: null, divider: true },
+    { name: 'Finance Dashboard', page: 'FinanceDashboard', icon: DollarSign },
+    { name: 'Companies', page: 'FinanceCompanies', icon: Building2 },
     { name: 'Billing', page: 'Billing', icon: DollarSign },
+
+    { name: '─ COMMUNICATIONS ─', page: null, icon: null, divider: true },
     { name: 'Messages', page: 'Messaging', icon: MessageSquare },
     { name: 'Communications', page: 'Communications', icon: Mail },
+
+    { name: '─ REPORTS ─', page: null, icon: null, divider: true },
     { name: 'Reports', page: 'Reports', icon: FileText },
     { name: 'Management Reports', page: 'ManagementReports', icon: FileText },
     { name: 'Analytics', page: 'Analytics', icon: BarChart3 },
+
+    { name: '─ ADMIN ─', page: null, icon: null, divider: true },
     { name: 'Admin', page: 'Admin', icon: Settings },
   ];
 
@@ -89,7 +99,15 @@ export default function Layout({ children, currentPageName }) {
 
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-            {navigation.map((item) => {
+            {navigation.map((item, index) => {
+              if (item.divider) {
+                return (
+                  <div key={`divider-${index}`} className="px-4 py-2">
+                    <p className="text-xs font-semibold text-slate-500 tracking-wider">{item.name}</p>
+                  </div>
+                );
+              }
+
               const isActive = currentPageName === item.page;
               return (
                 <Link

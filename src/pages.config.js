@@ -52,6 +52,7 @@ import SOAPNotes from './pages/SOAPNotes';
 import Settings from './pages/Settings';
 import TaskManagement from './pages/TaskManagement';
 import EMR from './pages/EMR';
+import PharmacyDashboard from './pages/PharmacyDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -110,6 +111,7 @@ export const PAGES = {
     "Settings": Settings,
     "TaskManagement": TaskManagement,
     "EMR": EMR,
+    "PharmacyDashboard": PharmacyDashboard,
 }
 
 export const pagesConfig = {
