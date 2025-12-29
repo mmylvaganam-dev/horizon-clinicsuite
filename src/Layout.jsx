@@ -28,9 +28,9 @@ export default function Layout({ children, currentPageName }) {
 
   const navigation = [
     { name: 'Dashboard', page: 'Dashboard', icon: LayoutDashboard },
-    { name: 'EMR', page: 'EMR', icon: FileText },
-    { name: 'Patients', page: 'Patients', icon: Users },
     { name: 'Appointments', page: 'Appointments', icon: Calendar },
+    { name: 'Patients', page: 'Patients', icon: Users },
+    { name: 'EMR', page: 'EMR', icon: FileText },
     { name: 'Medical Records', page: 'MedicalRecords', icon: FileText },
     { name: 'Orders & Results', page: 'OrdersResults', icon: FileText },
     { name: 'Release Queue', page: 'ReleaseQueue', icon: FileText },

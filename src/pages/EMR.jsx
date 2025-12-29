@@ -6,10 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, FileText, User, Activity, TestTube, UserCheck, Calendar } from 'lucide-react';
+import { Search, FileText, User, Activity, TestTube, UserCheck, Calendar, Pill } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import PatientSOAPTab from '../components/patient/PatientSOAPTab';
 import PatientLabsTab from '../components/patient/PatientLabsTab';
@@ -18,6 +18,7 @@ import PastSurgicalHistory from '../components/emr/PastSurgicalHistory';
 import SpecialistChart from '../components/emr/SpecialistChart';
 
 export default function EMR() {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPatient, setSelectedPatient] = useState(null);
 
@@ -233,8 +234,16 @@ export default function EMR() {
 
             <TabsContent value="medications">
               <Card className="bg-white border-0 shadow-sm">
-                <CardHeader>
+                <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle>Current Medications</CardTitle>
+                  <Button 
+                    onClick={() => navigate(`${createPageUrl('Prescriptions')}?patient=${selectedPatient.id}`)}
+                    size="sm"
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    <Pill className="w-4 h-4 mr-2" />
+                    New Prescription
+                  </Button>
                 </CardHeader>
                 <CardContent>
                   <MedicationList patientId={selectedPatient.id} />
