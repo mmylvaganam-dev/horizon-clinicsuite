@@ -25,6 +25,7 @@ import AdminNumberingRules from './pages/AdminNumberingRules';
 import Billing from './pages/Billing';
 import AdminPostingRules from './pages/AdminPostingRules';
 import AdminChartOfAccounts from './pages/AdminChartOfAccounts';
+import Reports from './pages/Reports';
 import __Layout from './Layout.jsx';
 
 
@@ -56,6 +57,7 @@ export const PAGES = {
     "Billing": Billing,
     "AdminPostingRules": AdminPostingRules,
     "AdminChartOfAccounts": AdminChartOfAccounts,
+    "Reports": Reports,
 }
 
 export const pagesConfig = {
