@@ -59,6 +59,7 @@ import PlatformSettings from './pages/PlatformSettings';
 import AppAdministration from './pages/AppAdministration';
 import PlatformConfiguration from './pages/PlatformConfiguration';
 import AdminRoleStandards from './pages/AdminRoleStandards';
+import OrganizationUserManagement from './pages/OrganizationUserManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -124,6 +125,7 @@ export const PAGES = {
     "AppAdministration": AppAdministration,
     "PlatformConfiguration": PlatformConfiguration,
     "AdminRoleStandards": AdminRoleStandards,
+    "OrganizationUserManagement": OrganizationUserManagement,
 }
 
 export const pagesConfig = {

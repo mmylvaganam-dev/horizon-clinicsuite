@@ -72,6 +72,13 @@ export default function Admin() {
       color: 'from-purple-500 to-purple-600'
     },
     {
+      title: 'Organization Users',
+      description: 'Manage organization users',
+      icon: Users,
+      page: 'OrganizationUserManagement',
+      color: 'from-cyan-500 to-cyan-600'
+    },
+    {
       title: 'Users & Roles',
       description: 'Manage user roles and permissions',
       icon: Users,
