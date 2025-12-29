@@ -25,6 +25,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Patients', page: 'Patients', icon: Users },
     { name: 'Appointments', page: 'Appointments', icon: Calendar },
     { name: 'Medical Records', page: 'MedicalRecords', icon: FileText },
+    { name: 'Orders & Results', page: 'OrdersResults', icon: FileText },
     { name: 'Analytics', page: 'Analytics', icon: BarChart3 },
     { name: 'Admin', page: 'Admin', icon: Settings },
   ];

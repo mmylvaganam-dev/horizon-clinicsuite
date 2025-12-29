@@ -12,16 +12,10 @@ import {
   Search, 
   Filter, 
   ClipboardList, 
-  CheckCircle2, 
-  AlertTriangle,
-  FileCheck,
-  Share2,
-  Eye
+  AlertTriangle
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
 
 const orderStatusColors = {
   draft: 'bg-slate-100 text-slate-700 border-slate-200',
@@ -50,13 +44,10 @@ const orderTypeColors = {
 };
 
 export default function OrdersResults() {
-  const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [orderTypeFilter, setOrderTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [selectedResult, setSelectedResult] = useState(null);
-  const [actionDialog, setActionDialog] = useState(null);
-  const [actionNote, setActionNote] = useState('');
+  const [dateFilter, setDateFilter] = useState('all');
 
   const { data: orders = [], isLoading: loadingOrders } = useQuery({
     queryKey: ['orders'],
@@ -73,104 +64,9 @@ export default function OrdersResults() {
     queryFn: () => base44.entities.Patient.list(),
   });
 
-  const { data: signOffs = [] } = useQuery({
-    queryKey: ['signOffs'],
-    queryFn: () => base44.entities.SignOff.list(),
-  });
-
-  const { data: releases = [] } = useQuery({
-    queryKey: ['releases'],
-    queryFn: () => base44.entities.ReleaseToPatient.list(),
-  });
-
   const { data: resultFlags = [] } = useQuery({
     queryKey: ['resultFlags'],
     queryFn: () => base44.entities.ResultFlag.list(),
-  });
-
-  const updateResultStatusMutation = useMutation({
-    mutationFn: ({ id, status }) => base44.entities.Result.update(id, { status }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['results'] });
-    },
-  });
-
-  const signResultMutation = useMutation({
-    mutationFn: async ({ resultId, comments }) => {
-      const user = await base44.auth.me();
-      await base44.entities.SignOff.create({
-        result_id: resultId,
-        signed_by: user.id,
-        signed_by_email: user.email,
-        signed_at: new Date().toISOString(),
-        comments
-      });
-      await base44.entities.Result.update(resultId, { status: 'signed' });
-      await base44.entities.AuditLog.create({
-        timestamp: new Date().toISOString(),
-        user_id: user.id,
-        user_email: user.email,
-        organization_id: selectedResult?.organization_id || '',
-        location_id: selectedResult?.location_id || '',
-        patient_id: selectedResult?.patient_id,
-        module: 'RESULTS',
-        action: 'sign',
-        record_type: 'Result',
-        record_id: resultId,
-        metadata: { comments }
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['results', 'signOffs', 'auditLogs'] });
-      setActionDialog(null);
-      setActionNote('');
-    },
-  });
-
-  const releaseResultMutation = useMutation({
-    mutationFn: async ({ resultId, note }) => {
-      const user = await base44.auth.me();
-      const existing = releases.find(r => r.result_id === resultId);
-      if (existing) {
-        await base44.entities.ReleaseToPatient.update(existing.id, {
-          released: true,
-          released_by: user.id,
-          released_by_email: user.email,
-          released_at: new Date().toISOString(),
-          release_note: note,
-          portal_visible_from: new Date().toISOString()
-        });
-      } else {
-        await base44.entities.ReleaseToPatient.create({
-          result_id: resultId,
-          released: true,
-          released_by: user.id,
-          released_by_email: user.email,
-          released_at: new Date().toISOString(),
-          release_note: note,
-          portal_visible_from: new Date().toISOString()
-        });
-      }
-      await base44.entities.Result.update(resultId, { status: 'released' });
-      await base44.entities.AuditLog.create({
-        timestamp: new Date().toISOString(),
-        user_id: user.id,
-        user_email: user.email,
-        organization_id: selectedResult?.organization_id || '',
-        location_id: selectedResult?.location_id || '',
-        patient_id: selectedResult?.patient_id,
-        module: 'RESULTS',
-        action: 'release',
-        record_type: 'Result',
-        record_id: resultId,
-        metadata: { note }
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['results', 'releases', 'auditLogs'] });
-      setActionDialog(null);
-      setActionNote('');
-    },
   });
 
   const getPatientName = (patientId) => {
@@ -178,29 +74,20 @@ export default function OrdersResults() {
     return patient ? `${patient.first_name} ${patient.last_name}` : 'Unknown';
   };
 
-  const isResultSigned = (resultId) => {
-    return signOffs.some(s => s.result_id === resultId);
-  };
-
-  const isResultReleased = (resultId) => {
-    const release = releases.find(r => r.result_id === resultId);
-    return release?.released || false;
-  };
-
   const getResultFlags = (resultId) => {
     return resultFlags.filter(f => f.result_id === resultId);
   };
 
-  const handleSignResult = () => {
-    if (selectedResult) {
-      signResultMutation.mutate({ resultId: selectedResult.id, comments: actionNote });
-    }
-  };
-
-  const handleReleaseResult = () => {
-    if (selectedResult) {
-      releaseResultMutation.mutate({ resultId: selectedResult.id, note: actionNote });
-    }
+  const filterByDate = (dateString) => {
+    if (dateFilter === 'all') return true;
+    const date = new Date(dateString);
+    const now = new Date();
+    const daysDiff = Math.floor((now - date) / (1000 * 60 * 60 * 24));
+    
+    if (dateFilter === 'today') return daysDiff === 0;
+    if (dateFilter === 'week') return daysDiff <= 7;
+    if (dateFilter === 'month') return daysDiff <= 30;
+    return true;
   };
 
   const filteredOrders = orders.filter(order => {
@@ -210,7 +97,8 @@ export default function OrdersResults() {
       order.ordered_by?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesType = orderTypeFilter === 'all' || order.order_type === orderTypeFilter;
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
-    return matchesSearch && matchesType && matchesStatus;
+    const matchesDate = filterByDate(order.ordered_at || order.created_date);
+    return matchesSearch && matchesType && matchesStatus && matchesDate;
   });
 
   const filteredResults = results.filter(result => {
@@ -218,7 +106,8 @@ export default function OrdersResults() {
     const matchesSearch = patientName.includes(searchTerm.toLowerCase());
     const matchesType = orderTypeFilter === 'all' || result.result_type === orderTypeFilter;
     const matchesStatus = statusFilter === 'all' || result.status === statusFilter;
-    return matchesSearch && matchesType && matchesStatus;
+    const matchesDate = filterByDate(result.result_date || result.created_date);
+    return matchesSearch && matchesType && matchesStatus && matchesDate;
   });
 
   return (
@@ -270,6 +159,17 @@ export default function OrdersResults() {
                 <SelectItem value="reviewed">Reviewed</SelectItem>
                 <SelectItem value="signed">Signed</SelectItem>
                 <SelectItem value="released">Released</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={dateFilter} onValueChange={setDateFilter}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Time</SelectItem>
+                <SelectItem value="today">Today</SelectItem>
+                <SelectItem value="week">Last 7 Days</SelectItem>
+                <SelectItem value="month">Last 30 Days</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -347,8 +247,6 @@ export default function OrdersResults() {
           ) : (
             filteredResults.map((result) => {
               const flags = getResultFlags(result.id);
-              const isSigned = isResultSigned(result.id);
-              const isReleased = isResultReleased(result.id);
               
               return (
                 <Card key={result.id} className="p-5 bg-white border-0 shadow-sm hover:shadow-md transition-all">
@@ -357,81 +255,25 @@ export default function OrdersResults() {
                       <FileText className="w-6 h-6 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <Badge variant="outline" className={`${resultStatusColors[result.status]} border`}>
-                              {result.status}
-                            </Badge>
-                            <Badge variant="outline">{result.result_type}</Badge>
-                            {flags.map((flag) => (
-                              <Badge key={flag.id} variant="outline" className="bg-rose-100 text-rose-700 flex items-center gap-1">
-                                <AlertTriangle className="w-3 h-3" />
-                                {flag.flag_type}
-                              </Badge>
-                            ))}
-                            {isSigned && (
-                              <Badge variant="outline" className="bg-emerald-100 text-emerald-700 flex items-center gap-1">
-                                <FileCheck className="w-3 h-3" />
-                                Signed
-                              </Badge>
-                            )}
-                            {isReleased && (
-                              <Badge variant="outline" className="bg-teal-100 text-teal-700 flex items-center gap-1">
-                                <Share2 className="w-3 h-3" />
-                                Released
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="font-medium text-slate-900">{getPatientName(result.patient_id)}</p>
-                          <p className="text-sm text-slate-500">
-                            {result.result_date && format(new Date(result.result_date), 'MMM d, yyyy h:mm a')}
-                          </p>
-                          {result.narrative_text && (
-                            <p className="text-sm text-slate-600 mt-2 line-clamp-2">{result.narrative_text}</p>
-                          )}
-                        </div>
-                        <div className="flex gap-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            onClick={() => {
-                              setSelectedResult(result);
-                              setActionDialog('view');
-                            }}
-                          >
-                            <Eye className="w-4 h-4" />
-                          </Button>
-                          {result.status === 'reviewed' && !isSigned && (
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => {
-                                setSelectedResult(result);
-                                setActionDialog('sign');
-                              }}
-                              className="text-emerald-600 hover:text-emerald-700"
-                            >
-                              <FileCheck className="w-4 h-4 mr-1" />
-                              Sign
-                            </Button>
-                          )}
-                          {result.status === 'signed' && !isReleased && (
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => {
-                                setSelectedResult(result);
-                                setActionDialog('release');
-                              }}
-                              className="text-teal-600 hover:text-teal-700"
-                            >
-                              <Share2 className="w-4 h-4 mr-1" />
-                              Release
-                            </Button>
-                          )}
-                        </div>
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
+                        <Badge variant="outline" className={`${resultStatusColors[result.status]} border`}>
+                          {result.status}
+                        </Badge>
+                        <Badge variant="outline">{result.result_type}</Badge>
+                        {flags.map((flag) => (
+                          <Badge key={flag.id} variant="outline" className="bg-rose-100 text-rose-700 flex items-center gap-1">
+                            <AlertTriangle className="w-3 h-3" />
+                            {flag.flag_type}
+                          </Badge>
+                        ))}
                       </div>
+                      <p className="font-medium text-slate-900">{getPatientName(result.patient_id)}</p>
+                      <p className="text-sm text-slate-500">
+                        {result.result_date && format(new Date(result.result_date), 'MMM d, yyyy h:mm a')}
+                      </p>
+                      {result.narrative_text && (
+                        <p className="text-sm text-slate-600 mt-2 line-clamp-2">{result.narrative_text}</p>
+                      )}
                     </div>
                   </div>
                 </Card>
@@ -441,107 +283,7 @@ export default function OrdersResults() {
         </TabsContent>
       </Tabs>
 
-      <Dialog open={actionDialog === 'sign'} onOpenChange={() => { setActionDialog(null); setActionNote(''); }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Sign Result</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-slate-600">
-              Sign result for patient: <span className="font-medium">{selectedResult && getPatientName(selectedResult.patient_id)}</span>
-            </p>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Comments (Optional)</label>
-              <Textarea
-                value={actionNote}
-                onChange={(e) => setActionNote(e.target.value)}
-                placeholder="Add any comments..."
-                rows={3}
-              />
-            </div>
-            <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => { setActionDialog(null); setActionNote(''); }}>Cancel</Button>
-              <Button onClick={handleSignResult} className="bg-emerald-600 hover:bg-emerald-700">
-                <FileCheck className="w-4 h-4 mr-2" />
-                Sign Result
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
 
-      <Dialog open={actionDialog === 'release'} onOpenChange={() => { setActionDialog(null); setActionNote(''); }}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Release to Patient Portal</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-slate-600">
-              Release result to patient portal for: <span className="font-medium">{selectedResult && getPatientName(selectedResult.patient_id)}</span>
-            </p>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Release Note (Optional)</label>
-              <Textarea
-                value={actionNote}
-                onChange={(e) => setActionNote(e.target.value)}
-                placeholder="Add any notes for the patient..."
-                rows={3}
-              />
-            </div>
-            <div className="flex justify-end gap-3">
-              <Button variant="outline" onClick={() => { setActionDialog(null); setActionNote(''); }}>Cancel</Button>
-              <Button onClick={handleReleaseResult} className="bg-teal-600 hover:bg-teal-700">
-                <Share2 className="w-4 h-4 mr-2" />
-                Release Result
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={actionDialog === 'view'} onOpenChange={() => { setActionDialog(null); }}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Result Details</DialogTitle>
-          </DialogHeader>
-          {selectedResult && (
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm text-slate-500">Patient</p>
-                <p className="font-medium">{getPatientName(selectedResult.patient_id)}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Result Type</p>
-                <p className="font-medium">{selectedResult.result_type}</p>
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Status</p>
-                <Badge variant="outline" className={`${resultStatusColors[selectedResult.status]} border`}>
-                  {selectedResult.status}
-                </Badge>
-              </div>
-              {selectedResult.narrative_text && (
-                <div>
-                  <p className="text-sm text-slate-500 mb-2">Report</p>
-                  <div className="p-4 bg-slate-50 rounded-lg">
-                    <p className="text-sm text-slate-700 whitespace-pre-wrap">{selectedResult.narrative_text}</p>
-                  </div>
-                </div>
-              )}
-              {selectedResult.structured_json && Object.keys(selectedResult.structured_json).length > 0 && (
-                <div>
-                  <p className="text-sm text-slate-500 mb-2">Structured Data</p>
-                  <div className="p-4 bg-slate-50 rounded-lg">
-                    <pre className="text-xs text-slate-700 overflow-auto">
-                      {JSON.stringify(selectedResult.structured_json, null, 2)}
-                    </pre>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
