@@ -16,7 +16,9 @@ import {
   ShoppingBag,
   DollarSign,
   MessageSquare,
-  Mail
+  Mail,
+  Building2,
+  CheckSquare
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -27,6 +29,8 @@ export default function Layout({ children, currentPageName }) {
   const navigation = [
     { name: 'Dashboard', page: 'Dashboard', icon: LayoutDashboard },
     { name: 'Daily Ops', page: 'DailyOps', icon: Activity },
+    { name: 'Finance Dashboard', page: 'FinanceDashboard', icon: DollarSign },
+    { name: 'Companies', page: 'FinanceCompanies', icon: Building2 },
     { name: 'Patients', page: 'Patients', icon: Users },
     { name: 'Appointments', page: 'Appointments', icon: Calendar },
     { name: 'Medical Records', page: 'MedicalRecords', icon: FileText },

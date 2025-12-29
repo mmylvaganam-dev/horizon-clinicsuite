@@ -49,6 +49,8 @@ import AdminGoLiveChecklist from './pages/AdminGoLiveChecklist';
 import AdminSystemVersion from './pages/AdminSystemVersion';
 import SOAPNotes from './pages/SOAPNotes';
 import TaskManagement from './pages/TaskManagement';
+import FinanceDashboard from './pages/FinanceDashboard';
+import FinanceCompanies from './pages/FinanceCompanies';
 import __Layout from './Layout.jsx';
 
 
@@ -104,6 +106,8 @@ export const PAGES = {
     "AdminSystemVersion": AdminSystemVersion,
     "SOAPNotes": SOAPNotes,
     "TaskManagement": TaskManagement,
+    "FinanceDashboard": FinanceDashboard,
+    "FinanceCompanies": FinanceCompanies,
 }
 
 export const pagesConfig = {
