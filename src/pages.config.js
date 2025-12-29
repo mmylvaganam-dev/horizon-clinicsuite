@@ -28,6 +28,7 @@ import AdminChartOfAccounts from './pages/AdminChartOfAccounts';
 import Reports from './pages/Reports';
 import AdminPatientPortal from './pages/AdminPatientPortal';
 import PatientPortal from './pages/PatientPortal';
+import Messaging from './pages/Messaging';
 import __Layout from './Layout.jsx';
 
 
@@ -62,6 +63,7 @@ export const PAGES = {
     "Reports": Reports,
     "AdminPatientPortal": AdminPatientPortal,
     "PatientPortal": PatientPortal,
+    "Messaging": Messaging,
 }
 
 export const pagesConfig = {

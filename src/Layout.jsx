@@ -14,7 +14,8 @@ import {
   ChevronRight,
   Activity,
   ShoppingBag,
-  DollarSign
+  DollarSign,
+  MessageSquare
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Inventory', page: 'PharmacyInventory', icon: Activity },
     { name: 'Procurement', page: 'Procurement', icon: ShoppingBag },
     { name: 'Billing', page: 'Billing', icon: DollarSign },
+    { name: 'Messages', page: 'Messaging', icon: MessageSquare },
     { name: 'Reports', page: 'Reports', icon: FileText },
     { name: 'Analytics', page: 'Analytics', icon: BarChart3 },
     { name: 'Admin', page: 'Admin', icon: Settings },

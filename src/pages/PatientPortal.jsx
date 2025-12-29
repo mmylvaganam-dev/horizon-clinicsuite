@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { FileText, Calendar, Lock } from 'lucide-react';
+import { FileText, Calendar, Lock, MessageSquare, Send } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 
@@ -112,6 +112,21 @@ export default function PatientPortal() {
     enabled: !!portalAccount
   });
 
+  const { data: threads = [] } = useQuery({
+    queryKey: ['patientThreads', portalAccount?.patient_ref],
+    queryFn: () => base44.entities.MessageThread.filter({ patient_ref: portalAccount.patient_ref }),
+    enabled: !!portalAccount
+  });
+
+  const [selectedThread, setSelectedThread] = useState(null);
+  const [messageBody, setMessageBody] = useState('');
+
+  const { data: messages = [] } = useQuery({
+    queryKey: ['threadMessages', selectedThread?.id],
+    queryFn: () => base44.entities.Message.filter({ thread_id: selectedThread.id }),
+    enabled: !!selectedThread
+  });
+
   const logView = async (viewType, refType, refId) => {
     if (!portalAccount) return;
 
@@ -140,6 +155,47 @@ export default function PatientPortal() {
       });
     } catch (error) {
       console.error('View logging error:', error);
+    }
+  };
+
+  const sendPatientMessage = async () => {
+    if (!messageBody.trim()) {
+      toast.error('Message cannot be empty');
+      return;
+    }
+
+    try {
+      const message = await base44.entities.Message.create({
+        thread_id: selectedThread.id,
+        sender_type: 'patient',
+        sender_ref: portalAccount.patient_ref,
+        sender_name: `${patient.first_name} ${patient.last_name}`,
+        body: messageBody,
+        created_at: new Date().toISOString()
+      });
+
+      await base44.entities.MessageThread.update(selectedThread.id, {
+        last_message_at: new Date().toISOString()
+      });
+
+      await base44.entities.AuditLog.create({
+        timestamp: new Date().toISOString(),
+        user_id: portalAccount.id,
+        user_email: portalAccount.email,
+        organization_id: portalAccount.organization_id || '',
+        location_id: '',
+        patient_id: portalAccount.patient_ref || '',
+        module: 'PATIENT_PORTAL',
+        action: 'send_message',
+        record_type: 'Message',
+        record_id: message.id,
+        metadata: { thread_id: selectedThread.id, sender_type: 'patient' }
+      });
+
+      setMessageBody('');
+      toast.success('Message sent!');
+    } catch (error) {
+      toast.error('Failed to send message');
     }
   };
 
@@ -184,6 +240,10 @@ export default function PatientPortal() {
             <TabsTrigger value="appointments">
               <Calendar className="w-4 h-4 mr-2" />
               Appointments
+            </TabsTrigger>
+            <TabsTrigger value="messages">
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Messages
             </TabsTrigger>
           </TabsList>
 
@@ -265,6 +325,101 @@ export default function PatientPortal() {
                   </div>
                 </Card>
               ))
+            )}
+          </TabsContent>
+
+          <TabsContent value="messages" className="space-y-4 mt-6">
+            {selectedThread ? (
+              <Card>
+                <CardHeader className="border-b">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-lg">{selectedThread.subject || 'No subject'}</CardTitle>
+                      <Badge variant="outline" className={selectedThread.status === 'open' ? 'bg-emerald-100 text-emerald-700 mt-2' : 'bg-slate-100 text-slate-700 mt-2'}>
+                        {selectedThread.status}
+                      </Badge>
+                    </div>
+                    <Button variant="ghost" onClick={() => setSelectedThread(null)}>
+                      Back
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4 space-y-3 max-h-[400px] overflow-y-auto">
+                  {messages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`flex ${msg.sender_type === 'patient' ? 'justify-end' : 'justify-start'}`}
+                    >
+                      <div
+                        className={`max-w-[70%] p-3 rounded-lg ${
+                          msg.sender_type === 'patient'
+                            ? 'bg-teal-500 text-white'
+                            : 'bg-slate-100 text-slate-900'
+                        }`}
+                      >
+                        <p className="text-xs opacity-70 mb-1">{msg.sender_name || 'Unknown'}</p>
+                        <p className="text-sm whitespace-pre-wrap">{msg.body}</p>
+                        <p className="text-xs opacity-70 mt-1">
+                          {format(new Date(msg.created_at), 'MMM d, h:mm a')}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+                {selectedThread.status === 'open' && (
+                  <div className="p-4 border-t">
+                    <div className="flex gap-2">
+                      <Input
+                        value={messageBody}
+                        onChange={(e) => setMessageBody(e.target.value)}
+                        placeholder="Type your message..."
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            sendPatientMessage();
+                          }
+                        }}
+                      />
+                      <Button onClick={sendPatientMessage}>
+                        <Send className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {threads.length === 0 ? (
+                  <Card className="p-8 text-center">
+                    <MessageSquare className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                    <p className="text-slate-500">No messages available</p>
+                  </Card>
+                ) : (
+                  threads.map((thread) => (
+                    <Card
+                      key={thread.id}
+                      className="p-4 cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => setSelectedThread(thread)}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge variant="outline" className={thread.status === 'open' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}>
+                              {thread.status}
+                            </Badge>
+                          </div>
+                          <p className="font-semibold">{thread.subject || 'No subject'}</p>
+                          {thread.last_message_at && (
+                            <p className="text-sm text-slate-500 mt-1">
+                              {format(new Date(thread.last_message_at), 'MMM d, yyyy h:mm a')}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </div>
             )}
           </TabsContent>
         </Tabs>
