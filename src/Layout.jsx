@@ -33,6 +33,8 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Orders & Results', page: 'OrdersResults', icon: FileText },
     { name: 'Release Queue', page: 'ReleaseQueue', icon: FileText },
     { name: 'Critical Queue', page: 'CriticalQueue', icon: Activity },
+    { name: 'SOAP Notes', page: 'SOAPNotes', icon: FileText },
+    { name: 'Task Management', page: 'TaskManagement', icon: CheckSquare },
     { name: 'Pharmacy POS', page: 'PharmacyPOS', icon: Activity },
     { name: 'Inventory', page: 'PharmacyInventory', icon: Activity },
     { name: 'Procurement', page: 'Procurement', icon: ShoppingBag },

@@ -47,6 +47,8 @@ import AdminSecurityPosture from './pages/AdminSecurityPosture';
 import AdminExportApprovals from './pages/AdminExportApprovals';
 import AdminGoLiveChecklist from './pages/AdminGoLiveChecklist';
 import AdminSystemVersion from './pages/AdminSystemVersion';
+import SOAPNotes from './pages/SOAPNotes';
+import TaskManagement from './pages/TaskManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -100,6 +102,8 @@ export const PAGES = {
     "AdminExportApprovals": AdminExportApprovals,
     "AdminGoLiveChecklist": AdminGoLiveChecklist,
     "AdminSystemVersion": AdminSystemVersion,
+    "SOAPNotes": SOAPNotes,
+    "TaskManagement": TaskManagement,
 }
 
 export const pagesConfig = {
