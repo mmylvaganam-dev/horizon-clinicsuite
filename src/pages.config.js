@@ -55,6 +55,8 @@ import SOAPNotes from './pages/SOAPNotes';
 import Settings from './pages/Settings';
 import TaskManagement from './pages/TaskManagement';
 import AdminSecurityValidation from './pages/AdminSecurityValidation';
+import PlatformSettings from './pages/PlatformSettings';
+import AppAdministration from './pages/AppAdministration';
 import __Layout from './Layout.jsx';
 
 
@@ -116,6 +118,8 @@ export const PAGES = {
     "Settings": Settings,
     "TaskManagement": TaskManagement,
     "AdminSecurityValidation": AdminSecurityValidation,
+    "PlatformSettings": PlatformSettings,
+    "AppAdministration": AppAdministration,
 }
 
 export const pagesConfig = {
