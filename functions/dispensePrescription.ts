@@ -24,6 +24,7 @@ Deno.serve(async (req) => {
         const dispenseEvent = await base44.asServiceRole.entities.DispenseEvent.create({
             prescription_id: prescriptionId,
             patient_id: prescription.patient_id,
+            sale_id: saleId || null,
             quantity_dispensed: quantityDispensed,
             dispensed_by: user.id,
             dispensed_by_email: user.email,
@@ -55,7 +56,8 @@ Deno.serve(async (req) => {
                 drug_name: prescription.drug_name,
                 quantity_dispensed: quantityDispensed,
                 quantity_prescribed: prescription.quantity,
-                status: dispenseEvent.status
+                status: dispenseEvent.status,
+                sale_id: saleId || null
             }
         });
 
