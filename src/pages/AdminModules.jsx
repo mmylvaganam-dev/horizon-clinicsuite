@@ -37,12 +37,18 @@ export default function AdminModules() {
   });
 
   const toggleModuleMutation = useMutation({
-    mutationFn: ({ orgId, modId, enabled }) => {
+    mutationFn: async ({ orgId, modId, enabled }) => {
+      const user = await base44.auth.me();
+      if (user.role !== 'admin') {
+        throw new Error('Unauthorized: Admin role required');
+      }
+
       const existing = orgModuleAccess.find(oma => oma.organization_id === orgId && oma.module_id === modId);
+      let result;
       if (existing) {
-        return base44.entities.OrganizationModuleAccess.update(existing.id, { enabled });
+        result = await base44.entities.OrganizationModuleAccess.update(existing.id, { enabled });
       } else {
-        return base44.entities.OrganizationModuleAccess.create({
+        result = await base44.entities.OrganizationModuleAccess.create({
           organization_id: orgId,
           module_id: modId,
           enabled,
@@ -50,6 +56,22 @@ export default function AdminModules() {
           license_type: 'full'
         });
       }
+
+      await base44.entities.AuditLog.create({
+        timestamp: new Date().toISOString(),
+        user_id: user.id,
+        user_email: user.email,
+        organization_id: orgId,
+        location_id: '',
+        patient_id: '',
+        module: 'ADMIN',
+        action: enabled ? 'enable_module' : 'disable_module',
+        record_type: 'OrganizationModuleAccess',
+        record_id: result.id,
+        metadata: { module_id: modId, enabled }
+      });
+
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orgModuleAccess'] });

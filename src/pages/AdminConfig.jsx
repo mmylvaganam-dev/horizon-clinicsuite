@@ -39,12 +39,34 @@ export default function AdminConfig() {
   });
 
   const saveConfigMutation = useMutation({
-    mutationFn: ({ id, data }) => {
-      if (id) {
-        return base44.entities.OrganizationConfig.update(id, data);
-      } else {
-        return base44.entities.OrganizationConfig.create(data);
+    mutationFn: async ({ id, data }) => {
+      const user = await base44.auth.me();
+      if (user.role !== 'admin') {
+        throw new Error('Unauthorized: Admin role required');
       }
+
+      let result;
+      if (id) {
+        result = await base44.entities.OrganizationConfig.update(id, data);
+      } else {
+        result = await base44.entities.OrganizationConfig.create(data);
+      }
+
+      await base44.entities.AuditLog.create({
+        timestamp: new Date().toISOString(),
+        user_id: user.id,
+        user_email: user.email,
+        organization_id: data.organization_id || '',
+        location_id: '',
+        patient_id: '',
+        module: 'ADMIN',
+        action: id ? 'update_config' : 'create_config',
+        record_type: 'OrganizationConfig',
+        record_id: result.id,
+        metadata: { config_key_id: data.config_key_id, value: data.value }
+      });
+
+      return result;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orgConfigs'] });

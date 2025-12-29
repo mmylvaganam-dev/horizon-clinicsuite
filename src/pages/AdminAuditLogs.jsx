@@ -25,6 +25,9 @@ export default function AdminAuditLogs() {
   const [searchTerm, setSearchTerm] = useState('');
   const [moduleFilter, setModuleFilter] = useState('all');
   const [actionFilter, setActionFilter] = useState('all');
+  const [patientFilter, setPatientFilter] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
 
   const { data: auditLogs = [], isLoading } = useQuery({
     queryKey: ['auditLogs'],
@@ -39,8 +42,13 @@ export default function AdminAuditLogs() {
     
     const matchesModule = moduleFilter === 'all' || log.module === moduleFilter;
     const matchesAction = actionFilter === 'all' || log.action === actionFilter;
+    const matchesPatient = !patientFilter || log.patient_id?.includes(patientFilter);
     
-    return matchesSearch && matchesModule && matchesAction;
+    const logDate = new Date(log.timestamp || log.created_date);
+    const matchesDateFrom = !dateFrom || logDate >= new Date(dateFrom);
+    const matchesDateTo = !dateTo || logDate <= new Date(dateTo);
+    
+    return matchesSearch && matchesModule && matchesAction && matchesPatient && matchesDateFrom && matchesDateTo;
   });
 
   const uniqueModules = [...new Set(auditLogs.map(log => log.module))].filter(Boolean);
@@ -60,43 +68,80 @@ export default function AdminAuditLogs() {
       </div>
 
       <Card className="p-4 bg-white border-0 shadow-sm">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input
-              placeholder="Search by user, record type, patient ID..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input
+                placeholder="Search by user, record type..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <div className="flex gap-3">
+              <Select value={moduleFilter} onValueChange={setModuleFilter}>
+                <SelectTrigger className="w-36">
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Modules</SelectItem>
+                  {uniqueModules.map(mod => (
+                    <SelectItem key={mod} value={mod}>{mod}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={actionFilter} onValueChange={setActionFilter}>
+                <SelectTrigger className="w-36">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Actions</SelectItem>
+                  <SelectItem value="view">View</SelectItem>
+                  <SelectItem value="create">Create</SelectItem>
+                  <SelectItem value="update">Update</SelectItem>
+                  <SelectItem value="delete">Delete</SelectItem>
+                  <SelectItem value="export">Export</SelectItem>
+                  <SelectItem value="print">Print</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="flex gap-3">
-            <Select value={moduleFilter} onValueChange={setModuleFilter}>
-              <SelectTrigger className="w-36">
-                <Filter className="w-4 h-4 mr-2" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Modules</SelectItem>
-                {uniqueModules.map(mod => (
-                  <SelectItem key={mod} value={mod}>{mod}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={actionFilter} onValueChange={setActionFilter}>
-              <SelectTrigger className="w-36">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Actions</SelectItem>
-                <SelectItem value="view">View</SelectItem>
-                <SelectItem value="create">Create</SelectItem>
-                <SelectItem value="update">Update</SelectItem>
-                <SelectItem value="delete">Delete</SelectItem>
-                <SelectItem value="export">Export</SelectItem>
-                <SelectItem value="print">Print</SelectItem>
-              </SelectContent>
-            </Select>
+            <Input
+              placeholder="Patient ID"
+              value={patientFilter}
+              onChange={(e) => setPatientFilter(e.target.value)}
+              className="w-48"
+            />
+            <Input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              placeholder="From date"
+              className="w-48"
+            />
+            <Input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              placeholder="To date"
+              className="w-48"
+            />
+            {(patientFilter || dateFrom || dateTo) && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => {
+                  setPatientFilter('');
+                  setDateFrom('');
+                  setDateTo('');
+                }}
+              >
+                Clear Filters
+              </Button>
+            )}
           </div>
         </div>
       </Card>
