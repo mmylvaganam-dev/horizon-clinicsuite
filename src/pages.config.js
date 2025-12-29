@@ -12,6 +12,8 @@ import AdminDepartments from './pages/AdminDepartments';
 import AdminUsers from './pages/AdminUsers';
 import AdminPermissions from './pages/AdminPermissions';
 import AdminModules from './pages/AdminModules';
+import AdminAuditLogs from './pages/AdminAuditLogs';
+import AdminConfig from './pages/AdminConfig';
 import __Layout from './Layout.jsx';
 
 
@@ -30,6 +32,8 @@ export const PAGES = {
     "AdminUsers": AdminUsers,
     "AdminPermissions": AdminPermissions,
     "AdminModules": AdminModules,
+    "AdminAuditLogs": AdminAuditLogs,
+    "AdminConfig": AdminConfig,
 }
 
 export const pagesConfig = {
