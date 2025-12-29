@@ -15,10 +15,10 @@ import MedicalRecords from './pages/MedicalRecords';
 import OrdersResults from './pages/OrdersResults';
 import PatientDetails from './pages/PatientDetails';
 import Patients from './pages/Patients';
-import Settings from './pages/Settings';
-import PharmacyPOS from './pages/PharmacyPOS';
 import PharmacyInventory from './pages/PharmacyInventory';
+import PharmacyPOS from './pages/PharmacyPOS';
 import Procurement from './pages/Procurement';
+import Settings from './pages/Settings';
 import __Layout from './Layout.jsx';
 
 
@@ -40,10 +40,10 @@ export const PAGES = {
     "OrdersResults": OrdersResults,
     "PatientDetails": PatientDetails,
     "Patients": Patients,
-    "Settings": Settings,
-    "PharmacyPOS": PharmacyPOS,
     "PharmacyInventory": PharmacyInventory,
+    "PharmacyPOS": PharmacyPOS,
     "Procurement": Procurement,
+    "Settings": Settings,
 }
 
 export const pagesConfig = {

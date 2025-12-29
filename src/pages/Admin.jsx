@@ -10,7 +10,8 @@ import {
   Grid3X3, 
   Settings,
   FileText,
-  Key
+  Key,
+  Activity
 } from 'lucide-react';
 
 export default function Admin() {
