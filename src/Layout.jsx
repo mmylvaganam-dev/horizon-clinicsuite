@@ -13,7 +13,8 @@ import {
   LogOut,
   ChevronRight,
   Activity,
-  ShoppingBag
+  ShoppingBag,
+  DollarSign
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -30,6 +31,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Pharmacy POS', page: 'PharmacyPOS', icon: Activity },
     { name: 'Inventory', page: 'PharmacyInventory', icon: Activity },
     { name: 'Procurement', page: 'Procurement', icon: ShoppingBag },
+    { name: 'Billing', page: 'Billing', icon: DollarSign },
     { name: 'Analytics', page: 'Analytics', icon: BarChart3 },
     { name: 'Admin', page: 'Admin', icon: Settings },
   ];
