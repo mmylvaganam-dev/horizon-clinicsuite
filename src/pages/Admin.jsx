@@ -93,6 +93,13 @@ export default function Admin() {
       color: 'from-indigo-500 to-indigo-600'
     },
     {
+      title: 'Role Permissions',
+      description: 'View role permission matrix',
+      icon: Shield,
+      page: 'AdminRolePermissions',
+      color: 'from-purple-500 to-purple-600'
+    },
+    {
       title: 'Permissions',
       description: 'Configure role permissions',
       icon: Shield,

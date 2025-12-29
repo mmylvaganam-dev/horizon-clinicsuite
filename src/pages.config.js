@@ -60,6 +60,7 @@ import AppAdministration from './pages/AppAdministration';
 import PlatformConfiguration from './pages/PlatformConfiguration';
 import AdminRoleStandards from './pages/AdminRoleStandards';
 import OrganizationUserManagement from './pages/OrganizationUserManagement';
+import AdminRolePermissions from './pages/AdminRolePermissions';
 import __Layout from './Layout.jsx';
 
 
@@ -126,6 +127,7 @@ export const PAGES = {
     "PlatformConfiguration": PlatformConfiguration,
     "AdminRoleStandards": AdminRoleStandards,
     "OrganizationUserManagement": OrganizationUserManagement,
+    "AdminRolePermissions": AdminRolePermissions,
 }
 
 export const pagesConfig = {
