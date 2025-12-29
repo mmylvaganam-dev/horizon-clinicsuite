@@ -169,6 +169,13 @@ export default function Admin() {
       icon: FileText,
       page: 'AdminArchive',
       color: 'from-slate-500 to-slate-600'
+    },
+    {
+      title: 'Backup Status',
+      description: 'Backup operations',
+      icon: Activity,
+      page: 'AdminBackups',
+      color: 'from-green-500 to-green-600'
     }
   ];
 

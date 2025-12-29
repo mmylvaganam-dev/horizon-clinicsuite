@@ -39,6 +39,7 @@ import Settings from './pages/Settings';
 import DataExport from './pages/DataExport';
 import AdminRetentionPolicies from './pages/AdminRetentionPolicies';
 import AdminArchive from './pages/AdminArchive';
+import AdminBackups from './pages/AdminBackups';
 import __Layout from './Layout.jsx';
 
 
@@ -84,6 +85,7 @@ export const PAGES = {
     "DataExport": DataExport,
     "AdminRetentionPolicies": AdminRetentionPolicies,
     "AdminArchive": AdminArchive,
+    "AdminBackups": AdminBackups,
 }
 
 export const pagesConfig = {
