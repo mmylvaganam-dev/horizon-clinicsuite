@@ -17,7 +17,6 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import LinkedRecords from '../components/shared/LinkedRecords';
-import { AlertTriangle } from 'lucide-react';
 
 const orderStatusColors = {
   draft: 'bg-slate-100 text-slate-700 border-slate-200',
