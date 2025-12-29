@@ -12,35 +12,10 @@ Deno.serve(async (req) => {
         const payload = await req.json();
         const { poData, lines } = payload;
 
-        // Generate PO number
-        let poNumber;
-        const configKey = `po_counter_${poData.organization_id || 'default'}`;
-        
-        try {
-            const configs = await base44.asServiceRole.entities.OrganizationConfig.filter({ 
-                config_key: configKey 
-            });
-            
-            let counter = 1;
-            if (configs.length > 0) {
-                counter = parseInt(configs[0].config_value || '0') + 1;
-                await base44.asServiceRole.entities.OrganizationConfig.update(configs[0].id, {
-                    config_value: counter.toString()
-                });
-            } else {
-                await base44.asServiceRole.entities.OrganizationConfig.create({
-                    organization_id: poData.organization_id || '',
-                    config_key: configKey,
-                    config_value: counter.toString(),
-                    description: 'Purchase order counter'
-                });
-            }
-            
-            const year = new Date().getFullYear();
-            poNumber = `PO-${year}-${counter.toString().padStart(6, '0')}`;
-        } catch (error) {
-            poNumber = `PO-${Date.now()}`;
-        }
+        // Generate PO number using timestamp
+        const year = new Date().getFullYear();
+        const timestamp = Date.now();
+        const poNumber = `PO-${year}-${timestamp.toString().slice(-6)}`;
 
         // Create purchase order
         const po = await base44.asServiceRole.entities.PurchaseOrder.create({
