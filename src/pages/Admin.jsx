@@ -197,8 +197,22 @@ export default function Admin() {
       icon: Shield,
       page: 'AdminSecurityPosture',
       color: 'from-purple-500 to-purple-600'
-    }
-  ];
+      },
+      {
+      title: 'System Version',
+      description: 'Version control & schema lock',
+      icon: Shield,
+      page: 'AdminSystemVersion',
+      color: 'from-teal-500 to-teal-600'
+      },
+      {
+      title: 'Go-Live Checklist',
+      description: 'Production readiness validation',
+      icon: Shield,
+      page: 'AdminGoLiveChecklist',
+      color: 'from-emerald-500 to-emerald-600'
+      }
+      ];
 
   return (
     <div className="space-y-6">

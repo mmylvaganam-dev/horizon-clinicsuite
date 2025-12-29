@@ -45,6 +45,8 @@ import ManagementReports from './pages/ManagementReports';
 import AdminComplianceChecklist from './pages/AdminComplianceChecklist';
 import AdminSecurityPosture from './pages/AdminSecurityPosture';
 import AdminExportApprovals from './pages/AdminExportApprovals';
+import AdminGoLiveChecklist from './pages/AdminGoLiveChecklist';
+import AdminSystemVersion from './pages/AdminSystemVersion';
 import __Layout from './Layout.jsx';
 
 
@@ -96,6 +98,8 @@ export const PAGES = {
     "AdminComplianceChecklist": AdminComplianceChecklist,
     "AdminSecurityPosture": AdminSecurityPosture,
     "AdminExportApprovals": AdminExportApprovals,
+    "AdminGoLiveChecklist": AdminGoLiveChecklist,
+    "AdminSystemVersion": AdminSystemVersion,
 }
 
 export const pagesConfig = {

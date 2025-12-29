@@ -146,7 +146,12 @@ export default function Layout({ children, currentPageName }) {
         <main className="p-4 lg:p-8">
           {children}
         </main>
-      </div>
-    </div>
-  );
-}
+
+        {/* Footer with version */}
+        <footer className="border-t border-slate-200 p-4 text-center text-xs text-slate-500">
+          Asia ClinicSuite v1.0 — Production Ready
+        </footer>
+        </div>
+        </div>
+        );
+        }
