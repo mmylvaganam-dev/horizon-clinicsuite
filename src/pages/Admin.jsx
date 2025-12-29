@@ -142,6 +142,13 @@ export default function Admin() {
       color: 'from-indigo-500 to-indigo-600'
     },
     {
+      title: 'Organization Branding',
+      description: 'White-label branding',
+      icon: Settings,
+      page: 'AdminOrganizationBranding',
+      color: 'from-pink-500 to-pink-600'
+    },
+    {
       title: 'System Health',
       description: 'Data integrity monitoring',
       icon: Activity,
