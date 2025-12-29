@@ -17,6 +17,7 @@ import PatientDetails from './pages/PatientDetails';
 import Patients from './pages/Patients';
 import Settings from './pages/Settings';
 import PharmacyPOS from './pages/PharmacyPOS';
+import PharmacyInventory from './pages/PharmacyInventory';
 import __Layout from './Layout.jsx';
 
 
@@ -40,6 +41,7 @@ export const PAGES = {
     "Patients": Patients,
     "Settings": Settings,
     "PharmacyPOS": PharmacyPOS,
+    "PharmacyInventory": PharmacyInventory,
 }
 
 export const pagesConfig = {

@@ -27,6 +27,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Medical Records', page: 'MedicalRecords', icon: FileText },
     { name: 'Orders & Results', page: 'OrdersResults', icon: FileText },
     { name: 'Pharmacy POS', page: 'PharmacyPOS', icon: Activity },
+    { name: 'Inventory', page: 'PharmacyInventory', icon: Activity },
     { name: 'Analytics', page: 'Analytics', icon: BarChart3 },
     { name: 'Admin', page: 'Admin', icon: Settings },
   ];

@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
             prescription_id: saleData.prescription_id || null
         });
 
-        // Create sale items
+        // Create sale items and update inventory
         const createdItems = [];
         for (const item of items) {
             const saleItem = await base44.asServiceRole.entities.PharmacySaleItem.create({
@@ -78,6 +78,41 @@ Deno.serve(async (req) => {
                 notes: item.notes || ''
             });
             createdItems.push(saleItem);
+
+            // Update inventory if drug_id exists
+            if (item.drug_id && saleData.location_id) {
+                const inventoryItems = await base44.asServiceRole.entities.InventoryItem.filter({
+                    location_id: saleData.location_id,
+                    drug_id: item.drug_id
+                });
+
+                if (inventoryItems.length > 0) {
+                    const inventoryItem = inventoryItems[0];
+                    const previousQty = inventoryItem.on_hand_qty;
+                    const newQty = previousQty - item.quantity;
+
+                    // Update inventory quantity
+                    await base44.asServiceRole.entities.InventoryItem.update(inventoryItem.id, {
+                        on_hand_qty: newQty,
+                        updated_at: new Date().toISOString()
+                    });
+
+                    // Create stock movement record
+                    await base44.asServiceRole.entities.StockMovement.create({
+                        inventory_item_id: inventoryItem.id,
+                        movement_type: 'sale',
+                        quantity: -item.quantity,
+                        ref_type: 'PharmacySale',
+                        ref_id: sale.id,
+                        created_by: user.id,
+                        created_by_email: user.email,
+                        created_at: new Date().toISOString(),
+                        reason: `Sale: ${receiptNumber}`,
+                        previous_qty: previousQty,
+                        new_qty: newQty
+                    });
+                }
+            }
         }
 
         // Create receipt
