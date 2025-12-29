@@ -43,6 +43,7 @@ import AdminBackups from './pages/AdminBackups';
 import DailyOps from './pages/DailyOps';
 import ManagementReports from './pages/ManagementReports';
 import AdminComplianceChecklist from './pages/AdminComplianceChecklist';
+import AdminSecurityPosture from './pages/AdminSecurityPosture';
 import __Layout from './Layout.jsx';
 
 
@@ -92,6 +93,7 @@ export const PAGES = {
     "DailyOps": DailyOps,
     "ManagementReports": ManagementReports,
     "AdminComplianceChecklist": AdminComplianceChecklist,
+    "AdminSecurityPosture": AdminSecurityPosture,
 }
 
 export const pagesConfig = {

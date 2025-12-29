@@ -183,6 +183,13 @@ export default function Admin() {
       icon: Shield,
       page: 'AdminComplianceChecklist',
       color: 'from-indigo-500 to-indigo-600'
+    },
+    {
+      title: 'Security Posture',
+      description: 'Access controls & monitoring',
+      icon: Shield,
+      page: 'AdminSecurityPosture',
+      color: 'from-purple-500 to-purple-600'
     }
   ];
 
