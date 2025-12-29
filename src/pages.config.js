@@ -40,6 +40,7 @@ import DataExport from './pages/DataExport';
 import AdminRetentionPolicies from './pages/AdminRetentionPolicies';
 import AdminArchive from './pages/AdminArchive';
 import AdminBackups from './pages/AdminBackups';
+import DailyOps from './pages/DailyOps';
 import __Layout from './Layout.jsx';
 
 
@@ -86,6 +87,7 @@ export const PAGES = {
     "AdminRetentionPolicies": AdminRetentionPolicies,
     "AdminArchive": AdminArchive,
     "AdminBackups": AdminBackups,
+    "DailyOps": DailyOps,
 }
 
 export const pagesConfig = {
