@@ -32,6 +32,7 @@ import CriticalQueue from './pages/CriticalQueue';
 import DailyOps from './pages/DailyOps';
 import Dashboard from './pages/Dashboard';
 import DataExport from './pages/DataExport';
+import EMR from './pages/EMR';
 import FinanceCompanies from './pages/FinanceCompanies';
 import FinanceDashboard from './pages/FinanceDashboard';
 import GovernmentReporting from './pages/GovernmentReporting';
@@ -43,6 +44,7 @@ import PartnerManagement from './pages/PartnerManagement';
 import PatientDetails from './pages/PatientDetails';
 import PatientPortal from './pages/PatientPortal';
 import Patients from './pages/Patients';
+import PharmacyDashboard from './pages/PharmacyDashboard';
 import PharmacyInventory from './pages/PharmacyInventory';
 import PharmacyPOS from './pages/PharmacyPOS';
 import Procurement from './pages/Procurement';
@@ -51,8 +53,6 @@ import Reports from './pages/Reports';
 import SOAPNotes from './pages/SOAPNotes';
 import Settings from './pages/Settings';
 import TaskManagement from './pages/TaskManagement';
-import EMR from './pages/EMR';
-import PharmacyDashboard from './pages/PharmacyDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -91,6 +91,7 @@ export const PAGES = {
     "DailyOps": DailyOps,
     "Dashboard": Dashboard,
     "DataExport": DataExport,
+    "EMR": EMR,
     "FinanceCompanies": FinanceCompanies,
     "FinanceDashboard": FinanceDashboard,
     "GovernmentReporting": GovernmentReporting,
@@ -102,6 +103,7 @@ export const PAGES = {
     "PatientDetails": PatientDetails,
     "PatientPortal": PatientPortal,
     "Patients": Patients,
+    "PharmacyDashboard": PharmacyDashboard,
     "PharmacyInventory": PharmacyInventory,
     "PharmacyPOS": PharmacyPOS,
     "Procurement": Procurement,
@@ -110,8 +112,6 @@ export const PAGES = {
     "SOAPNotes": SOAPNotes,
     "Settings": Settings,
     "TaskManagement": TaskManagement,
-    "EMR": EMR,
-    "PharmacyDashboard": PharmacyDashboard,
 }
 
 export const pagesConfig = {

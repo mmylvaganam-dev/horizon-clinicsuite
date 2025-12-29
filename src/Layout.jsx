@@ -28,7 +28,6 @@ export default function Layout({ children, currentPageName }) {
 
   const navigation = [
     { name: 'Dashboard', page: 'Dashboard', icon: LayoutDashboard },
-    { name: 'Daily Ops', page: 'DailyOps', icon: Activity },
     { name: 'EMR', page: 'EMR', icon: FileText },
     { name: 'Patients', page: 'Patients', icon: Users },
     { name: 'Appointments', page: 'Appointments', icon: Calendar },
@@ -54,6 +53,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Communications', page: 'Communications', icon: Mail },
 
     { name: '─ REPORTS ─', page: null, icon: null, divider: true },
+    { name: 'Daily Ops', page: 'DailyOps', icon: Activity },
     { name: 'Reports', page: 'Reports', icon: FileText },
     { name: 'Management Reports', page: 'ManagementReports', icon: FileText },
     { name: 'Analytics', page: 'Analytics', icon: BarChart3 },
