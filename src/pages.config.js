@@ -47,13 +47,14 @@ import Patients from './pages/Patients';
 import PharmacyDashboard from './pages/PharmacyDashboard';
 import PharmacyInventory from './pages/PharmacyInventory';
 import PharmacyPOS from './pages/PharmacyPOS';
+import Prescriptions from './pages/Prescriptions';
 import Procurement from './pages/Procurement';
 import ReleaseQueue from './pages/ReleaseQueue';
 import Reports from './pages/Reports';
 import SOAPNotes from './pages/SOAPNotes';
 import Settings from './pages/Settings';
 import TaskManagement from './pages/TaskManagement';
-import Prescriptions from './pages/Prescriptions';
+import AdminSecurityValidation from './pages/AdminSecurityValidation';
 import __Layout from './Layout.jsx';
 
 
@@ -107,13 +108,14 @@ export const PAGES = {
     "PharmacyDashboard": PharmacyDashboard,
     "PharmacyInventory": PharmacyInventory,
     "PharmacyPOS": PharmacyPOS,
+    "Prescriptions": Prescriptions,
     "Procurement": Procurement,
     "ReleaseQueue": ReleaseQueue,
     "Reports": Reports,
     "SOAPNotes": SOAPNotes,
     "Settings": Settings,
     "TaskManagement": TaskManagement,
-    "Prescriptions": Prescriptions,
+    "AdminSecurityValidation": AdminSecurityValidation,
 }
 
 export const pagesConfig = {

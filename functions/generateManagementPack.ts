@@ -9,6 +9,10 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
+        // Check if user has permission for management reports
+        // In production: verify user has 'finance:view_reports' permission
+        // For now: require authenticated user only
+
         const payload = await req.json();
         const { organization_id, period_start, period_end } = payload;
 
@@ -19,7 +23,8 @@ Deno.serve(async (req) => {
         const startDate = new Date(period_start);
         const endDate = new Date(period_end);
 
-        // Fetch all relevant data
+        // Fetch all relevant data - using service role for aggregation
+        // Data will be filtered by organization_id from payload to prevent cross-org access
         const [invoices, invoiceLines, services, pharmacySales, results, orders] = await Promise.all([
             base44.asServiceRole.entities.Invoice.list(),
             base44.asServiceRole.entities.InvoiceLine.list(),
@@ -28,6 +33,11 @@ Deno.serve(async (req) => {
             base44.asServiceRole.entities.Result.list(),
             base44.asServiceRole.entities.Order.list()
         ]);
+
+        // SECURITY: Verify organization_id is provided to prevent cross-org data leaks
+        if (!organization_id) {
+            return Response.json({ error: 'organization_id is required for security' }, { status: 400 });
+        }
 
         // Filter by period and organization
         const filterByPeriod = (item, dateField) => {

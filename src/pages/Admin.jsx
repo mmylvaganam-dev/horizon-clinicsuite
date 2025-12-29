@@ -206,12 +206,19 @@ export default function Admin() {
       color: 'from-teal-500 to-teal-600'
       },
       {
-      title: 'Go-Live Checklist',
-      description: 'Production readiness validation',
-      icon: Shield,
-      page: 'AdminGoLiveChecklist',
-      color: 'from-emerald-500 to-emerald-600'
-      }
+        title: 'Go-Live Checklist',
+        description: 'Production readiness validation',
+        icon: Shield,
+        page: 'AdminGoLiveChecklist',
+        color: 'from-emerald-500 to-emerald-600'
+        },
+        {
+        title: 'Security Validation',
+        description: 'Verify security controls',
+        icon: Shield,
+        page: 'AdminSecurityValidation',
+        color: 'from-red-500 to-red-600'
+        }
       ];
 
   return (
