@@ -100,6 +100,20 @@ Deno.serve(async (req) => {
             }
         }
 
+        // Create document artifact
+        const artifact = await base44.asServiceRole.entities.DocumentArtifact.create({
+            organization_id: invoiceData.organization_id || '',
+            location_id: invoiceData.location_id || '',
+            patient_ref: invoiceData.patient_id || '',
+            artifact_type: 'invoice_pdf',
+            source_type: 'Invoice',
+            source_id: invoice.id,
+            file_ref: `invoice_${invoiceNumber}_${new Date().toISOString()}`,
+            created_by: user.id,
+            created_by_email: user.email,
+            created_at: new Date().toISOString()
+        });
+
         // Audit log
         await base44.asServiceRole.entities.AuditLog.create({
             timestamp: new Date().toISOString(),
@@ -115,7 +129,8 @@ Deno.serve(async (req) => {
             metadata: {
                 invoice_number: invoiceNumber,
                 total,
-                line_count: lines.length
+                line_count: lines.length,
+                artifact_id: artifact.id
             }
         });
 

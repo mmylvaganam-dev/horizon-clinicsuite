@@ -254,6 +254,20 @@ Deno.serve(async (req) => {
             // Continue even if journal posting fails
         }
 
+        // Create document artifact for receipt
+        const artifact = await base44.asServiceRole.entities.DocumentArtifact.create({
+            organization_id: saleData.organization_id || '',
+            location_id: saleData.location_id || '',
+            patient_ref: saleData.patient_id || '',
+            artifact_type: 'receipt_pdf',
+            source_type: 'PharmacySale',
+            source_id: sale.id,
+            file_ref: `receipt_${receiptNumber}_${new Date().toISOString()}`,
+            created_by: user.id,
+            created_by_email: user.email,
+            created_at: new Date().toISOString()
+        });
+
         // Audit log
         await base44.asServiceRole.entities.AuditLog.create({
             timestamp: new Date().toISOString(),
@@ -270,7 +284,8 @@ Deno.serve(async (req) => {
                 receipt_number: receiptNumber,
                 total,
                 item_count: items.length,
-                has_patient: !!saleData.patient_id
+                has_patient: !!saleData.patient_id,
+                artifact_id: artifact.id
             }
         });
 
