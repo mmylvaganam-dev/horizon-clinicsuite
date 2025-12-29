@@ -26,7 +26,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Appointments', page: 'Appointments', icon: Calendar },
     { name: 'Medical Records', page: 'MedicalRecords', icon: FileText },
     { name: 'Analytics', page: 'Analytics', icon: BarChart3 },
-    { name: 'Settings', page: 'Settings', icon: Settings },
+    { name: 'Admin', page: 'Admin', icon: Settings },
   ];
 
   const handleLogout = () => {
