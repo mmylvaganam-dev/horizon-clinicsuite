@@ -61,7 +61,7 @@ export default function Procurement() {
     queryFn: () => base44.entities.PurchaseOrder.list('-created_at'),
   });
 
-  const { data: poLines: allPOLines = [] } = useQuery({
+  const { data: allPOLines = [] } = useQuery({
     queryKey: ['purchaseOrderLines'],
     queryFn: () => base44.entities.PurchaseOrderLine.list(),
   });
