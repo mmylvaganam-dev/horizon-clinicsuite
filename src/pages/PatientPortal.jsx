@@ -95,19 +95,20 @@ export default function PatientPortal() {
   const { data: results = [] } = useQuery({
     queryKey: ['patientResults', portalAccount?.patient_ref],
     queryFn: async () => {
-      // Get all releases for this patient
+      // Get only explicitly released results for this patient
       const releases = await base44.entities.ReleaseToPatient.filter({ 
-        patient_id: portalAccount.patient_ref 
+        patient_id: portalAccount.patient_ref,
+        released: true
       });
       
       const releasedResultIds = releases.map(r => r.result_id);
       
-      // Get only released results
+      // Get only results that are explicitly released
       const allResults = await base44.entities.Result.filter({ 
         patient_id: portalAccount.patient_ref 
       });
       
-      return allResults.filter(r => releasedResultIds.includes(r.id));
+      return allResults.filter(r => releasedResultIds.includes(r.id) && r.status === 'Released');
     },
     enabled: !!portalAccount
   });
