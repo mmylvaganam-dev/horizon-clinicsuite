@@ -81,36 +81,71 @@ Deno.serve(async (req) => {
 
             // Update inventory if drug_id exists
             if (item.drug_id && saleData.location_id) {
-                const inventoryItems = await base44.asServiceRole.entities.InventoryItem.filter({
-                    location_id: saleData.location_id,
-                    drug_id: item.drug_id
-                });
+                // Get drug to find sku_code
+                const drugs = await base44.asServiceRole.entities.DrugCatalog.filter({ id: item.drug_id });
+                const drug = drugs[0];
 
-                if (inventoryItems.length > 0) {
-                    const inventoryItem = inventoryItems[0];
-                    const previousQty = inventoryItem.on_hand_qty;
-                    const newQty = previousQty - item.quantity;
-
-                    // Update inventory quantity
-                    await base44.asServiceRole.entities.InventoryItem.update(inventoryItem.id, {
-                        on_hand_qty: newQty,
-                        updated_at: new Date().toISOString()
+                if (drug && drug.drug_code) {
+                    // Find inventory balance by sku_code
+                    const balances = await base44.asServiceRole.entities.InventoryBalance.filter({
+                        location_id: saleData.location_id,
+                        sku_code: drug.drug_code
                     });
 
-                    // Create stock movement record
-                    await base44.asServiceRole.entities.StockMovement.create({
-                        inventory_item_id: inventoryItem.id,
-                        movement_type: 'sale',
-                        quantity: -item.quantity,
-                        ref_type: 'PharmacySale',
-                        ref_id: sale.id,
-                        created_by: user.id,
-                        created_by_email: user.email,
-                        created_at: new Date().toISOString(),
-                        reason: `Sale: ${receiptNumber}`,
-                        previous_qty: previousQty,
-                        new_qty: newQty
-                    });
+                    if (balances.length > 0) {
+                        const balance = balances[0];
+                        const previousQty = balance.on_hand_qty;
+                        const newQty = previousQty - item.quantity;
+
+                        // Update inventory balance
+                        await base44.asServiceRole.entities.InventoryBalance.update(balance.id, {
+                            on_hand_qty: newQty,
+                            updated_at: new Date().toISOString()
+                        });
+
+                        // Create inventory transaction
+                        await base44.asServiceRole.entities.InventoryTxn.create({
+                            organization_id: saleData.organization_id || '',
+                            location_id: saleData.location_id,
+                            sku_code: drug.drug_code,
+                            item_name: drug.drug_name,
+                            txn_type: 'sale',
+                            qty: -item.quantity,
+                            ref_type: 'PharmacySale',
+                            ref_id: sale.id,
+                            reason: `POS Sale: ${receiptNumber}`,
+                            created_by: user.id,
+                            created_by_email: user.email,
+                            created_at: new Date().toISOString(),
+                            previous_qty: previousQty,
+                            new_qty: newQty,
+                            metadata_json: {
+                                receipt_number: receiptNumber,
+                                item_name: item.item_name
+                            }
+                        });
+
+                        // Audit log
+                        await base44.asServiceRole.entities.AuditLog.create({
+                            timestamp: new Date().toISOString(),
+                            user_id: user.id,
+                            user_email: user.email,
+                            organization_id: saleData.organization_id || '',
+                            location_id: saleData.location_id,
+                            patient_id: saleData.patient_id || '',
+                            module: 'INVENTORY',
+                            action: 'sale_deduction',
+                            record_type: 'InventoryTxn',
+                            record_id: balance.id,
+                            metadata: {
+                                sku_code: drug.drug_code,
+                                qty_change: -item.quantity,
+                                previous_qty: previousQty,
+                                new_qty: newQty,
+                                sale_id: sale.id
+                            }
+                        });
+                    }
                 }
             }
         }
