@@ -25,6 +25,10 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import PatientForm from '../components/patients/PatientForm';
+import PatientTasksTab from '../components/patient/PatientTasksTab';
+import PatientSOAPTab from '../components/patient/PatientSOAPTab';
+import PatientReferralsTab from '../components/patient/PatientReferralsTab';
+import PatientLabsTab from '../components/patient/PatientLabsTab';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -182,10 +186,14 @@ export default function PatientDetails() {
 
       {/* Tabs Content */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList>
+        <TabsList className="grid grid-cols-3 lg:grid-cols-7 w-full">
           <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="appointments">Appointments ({appointments.length})</TabsTrigger>
-          <TabsTrigger value="records">Medical Records ({records.length})</TabsTrigger>
+          <TabsTrigger value="appointments">Appointments</TabsTrigger>
+          <TabsTrigger value="records">Records</TabsTrigger>
+          <TabsTrigger value="soap">SOAP Notes</TabsTrigger>
+          <TabsTrigger value="labs">Labs</TabsTrigger>
+          <TabsTrigger value="referrals">Referrals</TabsTrigger>
+          <TabsTrigger value="tasks">Tasks</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -382,6 +390,38 @@ export default function PatientDetails() {
               </Card>
             ))
           )}
+        </TabsContent>
+
+        <TabsContent value="soap">
+          <Card className="bg-white border-0 shadow-sm">
+            <CardContent className="pt-6">
+              <PatientSOAPTab patientId={patientId} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="labs">
+          <Card className="bg-white border-0 shadow-sm">
+            <CardContent className="pt-6">
+              <PatientLabsTab patientId={patientId} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="referrals">
+          <Card className="bg-white border-0 shadow-sm">
+            <CardContent className="pt-6">
+              <PatientReferralsTab patientId={patientId} />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="tasks">
+          <Card className="bg-white border-0 shadow-sm">
+            <CardContent className="pt-6">
+              <PatientTasksTab patientId={patientId} />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
