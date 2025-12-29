@@ -33,6 +33,7 @@ import Procurement from './pages/Procurement';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
 import AdminPermissionMatrix from './pages/AdminPermissionMatrix';
+import AdminBreakGlassReport from './pages/AdminBreakGlassReport';
 import __Layout from './Layout.jsx';
 
 
@@ -72,6 +73,7 @@ export const PAGES = {
     "Reports": Reports,
     "Settings": Settings,
     "AdminPermissionMatrix": AdminPermissionMatrix,
+    "AdminBreakGlassReport": AdminBreakGlassReport,
 }
 
 export const pagesConfig = {

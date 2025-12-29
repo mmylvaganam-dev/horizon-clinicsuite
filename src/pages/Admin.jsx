@@ -73,6 +73,13 @@ export default function Admin() {
       color: 'from-slate-500 to-slate-600'
     },
     {
+      title: 'Break-Glass Report',
+      description: 'Emergency access audit',
+      icon: Shield,
+      page: 'AdminBreakGlassReport',
+      color: 'from-red-500 to-red-600'
+    },
+    {
       title: 'Configuration',
       description: 'Organization settings',
       icon: Settings,
