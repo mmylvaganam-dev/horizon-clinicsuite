@@ -10,11 +10,25 @@ Deno.serve(async (req) => {
         }
 
         const payload = await req.json();
-        const { organization_id, location_id, bundle_type, date_from, date_to, notes } = payload;
+        const { bundleId } = payload;
 
-        if (!organization_id) {
-            return Response.json({ error: 'organization_id is required' }, { status: 400 });
+        if (!bundleId) {
+            return Response.json({ error: 'bundleId is required' }, { status: 400 });
         }
+
+        // Get the approved bundle
+        const bundles = await base44.asServiceRole.entities.ExportBundle.filter({ id: bundleId });
+        const bundle = bundles[0];
+
+        if (!bundle) {
+            return Response.json({ error: 'Bundle not found' }, { status: 404 });
+        }
+
+        if (bundle.status !== 'approved') {
+            return Response.json({ error: 'Bundle must be approved before generation' }, { status: 400 });
+        }
+
+        const { organization_id, location_id, bundle_type, date_from, date_to } = bundle;
 
         // CRITICAL: No cross-organization export
         // Ensure all data fetched is scoped to the specified organization
@@ -168,18 +182,13 @@ Deno.serve(async (req) => {
         // Generate file reference (in production, this would be a zip file or similar)
         const fileRef = `export_${bundle_type}_${organization_id}_${new Date().toISOString()}.zip`;
 
-        // Create export bundle
-        const bundle = await base44.asServiceRole.entities.ExportBundle.create({
-            organization_id,
-            location_id: location_id || '',
-            bundle_type,
-            date_from,
-            date_to,
+        // Update bundle to generated status
+        const updatedBundle = await base44.asServiceRole.entities.ExportBundle.update(bundleId, {
+            status: 'generated',
             generated_by: user.id,
             generated_by_email: user.email,
             generated_at: new Date().toISOString(),
             file_ref: fileRef,
-            notes: notes || '',
             summary_json: summary
         });
 
@@ -190,7 +199,7 @@ Deno.serve(async (req) => {
             patient_ref: '',
             artifact_type: 'export_bundle',
             source_type: 'ExportBundle',
-            source_id: bundle.id,
+            source_id: bundleId,
             file_ref: fileRef,
             created_by: user.id,
             created_by_email: user.email,
@@ -205,10 +214,10 @@ Deno.serve(async (req) => {
             organization_id,
             location_id: location_id || '',
             patient_id: '',
-            module: 'DATA_EXPORT',
+            module: 'EXPORT_CONTROL',
             action: 'generate_export_bundle',
             record_type: 'ExportBundle',
-            record_id: bundle.id,
+            record_id: bundleId,
             metadata: {
                 bundle_type,
                 period: `${date_from} to ${date_to}`,
@@ -228,10 +237,10 @@ Deno.serve(async (req) => {
                 organization_id,
                 location_id: location_id || '',
                 patient_id: patientId,
-                module: 'DATA_EXPORT',
+                module: 'EXPORT_CONTROL',
                 action: 'patient_data_exported',
                 record_type: 'ExportBundle',
-                record_id: bundle.id,
+                record_id: bundleId,
                 metadata: {
                     bundle_type,
                     export_date: new Date().toISOString()
@@ -240,7 +249,7 @@ Deno.serve(async (req) => {
         }
 
         return Response.json({ 
-            bundle, 
+            bundle: updatedBundle, 
             summary,
             artifact_id: artifact.id
         });

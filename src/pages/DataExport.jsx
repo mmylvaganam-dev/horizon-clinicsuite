@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Download, Package, FileText, Loader2, Database } from 'lucide-react';
+import { Download, Package, FileText, Loader2, Database, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -33,7 +33,8 @@ export default function DataExport() {
     bundle_type: 'patient_records',
     date_from: '',
     date_to: '',
-    notes: ''
+    notes: '',
+    export_reason: ''
   });
 
   const queryClient = useQueryClient();
@@ -45,14 +46,14 @@ export default function DataExport() {
 
   const { data: bundles = [], isLoading: loadingBundles } = useQuery({
     queryKey: ['exportBundles'],
-    queryFn: () => base44.entities.ExportBundle.list('-generated_at'),
+    queryFn: () => base44.entities.ExportBundle.list('-requested_at'),
   });
 
   const generateMutation = useMutation({
-    mutationFn: (data) => base44.functions.invoke('generateExportBundle', data),
+    mutationFn: (data) => base44.functions.invoke('createExportRequest', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['exportBundles'] });
-      toast.success('Export bundle generated successfully');
+      toast.success('Export request submitted for approval');
       setOpen(false);
       setFormData({
         organization_id: '',
@@ -60,17 +61,22 @@ export default function DataExport() {
         bundle_type: 'patient_records',
         date_from: '',
         date_to: '',
-        notes: ''
+        notes: '',
+        export_reason: ''
       });
     },
     onError: (error) => {
-      toast.error(error.message || 'Failed to generate export bundle');
+      toast.error(error.message || 'Failed to submit export request');
     },
   });
 
   const handleGenerate = () => {
     if (!formData.organization_id || !formData.date_from || !formData.date_to) {
       toast.error('Organization and date range are required');
+      return;
+    }
+    if (!formData.export_reason.trim()) {
+      toast.error('Export reason is required for audit compliance');
       return;
     }
 
@@ -157,11 +163,28 @@ export default function DataExport() {
               </div>
 
               <div>
+                <Label>Export Reason (Required) *</Label>
+                <Textarea 
+                  value={formData.export_reason}
+                  onChange={(e) => setFormData({...formData, export_reason: e.target.value})}
+                  placeholder="Provide a detailed reason for this export request (audit requirement)..."
+                  rows={3}
+                />
+                {!formData.export_reason.trim() && (
+                  <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3" />
+                    Export reason is required for audit compliance
+                  </p>
+                )}
+              </div>
+
+              <div>
                 <Label>Notes</Label>
                 <Textarea 
                   value={formData.notes}
                   onChange={(e) => setFormData({...formData, notes: e.target.value})}
                   placeholder="Optional notes about this export..."
+                  rows={2}
                 />
               </div>
 
@@ -196,7 +219,7 @@ export default function DataExport() {
                   ) : (
                     <>
                       <Download className="w-4 h-4 mr-2" />
-                      Generate
+                      Submit Request
                     </>
                   )}
                 </Button>
@@ -239,13 +262,36 @@ export default function DataExport() {
                           {org.name}
                         </Badge>
                       )}
+                      {bundle.status && (
+                        <Badge 
+                          variant="outline" 
+                          className={
+                            bundle.status === 'generated' ? 'bg-emerald-100 text-emerald-700' :
+                            bundle.status === 'approved' ? 'bg-blue-100 text-blue-700' :
+                            bundle.status === 'rejected' ? 'bg-rose-100 text-rose-700' :
+                            'bg-amber-100 text-amber-700'
+                          }
+                        >
+                          {bundle.status}
+                        </Badge>
+                      )}
                     </div>
                     <p className="text-sm text-slate-600">
                       Period: {format(new Date(bundle.date_from), 'MMM d, yyyy')} - {format(new Date(bundle.date_to), 'MMM d, yyyy')}
                     </p>
                     <p className="text-sm text-slate-600">
-                      Generated by: {bundle.generated_by_email} • {format(new Date(bundle.generated_at), 'MMM d, yyyy h:mm a')}
+                      Requested by: {bundle.requested_by_email} • {format(new Date(bundle.requested_at), 'MMM d, yyyy h:mm a')}
                     </p>
+                    {bundle.status === 'generated' && bundle.generated_at && (
+                      <p className="text-sm text-emerald-600">
+                        Generated: {format(new Date(bundle.generated_at), 'MMM d, yyyy h:mm a')}
+                      </p>
+                    )}
+                    {bundle.status === 'approved' && bundle.approved_at && (
+                      <p className="text-sm text-blue-600">
+                        Approved by: {bundle.approved_by_email} • {format(new Date(bundle.approved_at), 'MMM d, h:mm a')}
+                      </p>
+                    )}
                     {bundle.summary_json && (
                       <div className="mt-2 flex flex-wrap gap-2">
                         {bundle.summary_json.total_patients > 0 && (
