@@ -241,6 +241,19 @@ Deno.serve(async (req) => {
             }
         }
 
+        // Auto-post journal entry if posting rules exist
+        try {
+            await base44.asServiceRole.functions.invoke('postJournalEntry', {
+                sourceType: 'PharmacySale',
+                sourceId: sale.id,
+                organizationId: saleData.organization_id,
+                locationId: saleData.location_id
+            });
+        } catch (journalError) {
+            console.error('Journal posting error:', journalError);
+            // Continue even if journal posting fails
+        }
+
         // Audit log
         await base44.asServiceRole.entities.AuditLog.create({
             timestamp: new Date().toISOString(),

@@ -23,6 +23,8 @@ import AdminServiceCatalog from './pages/AdminServiceCatalog';
 import AdminTaxRules from './pages/AdminTaxRules';
 import AdminNumberingRules from './pages/AdminNumberingRules';
 import Billing from './pages/Billing';
+import AdminPostingRules from './pages/AdminPostingRules';
+import AdminChartOfAccounts from './pages/AdminChartOfAccounts';
 import __Layout from './Layout.jsx';
 
 
@@ -52,6 +54,8 @@ export const PAGES = {
     "AdminTaxRules": AdminTaxRules,
     "AdminNumberingRules": AdminNumberingRules,
     "Billing": Billing,
+    "AdminPostingRules": AdminPostingRules,
+    "AdminChartOfAccounts": AdminChartOfAccounts,
 }
 
 export const pagesConfig = {

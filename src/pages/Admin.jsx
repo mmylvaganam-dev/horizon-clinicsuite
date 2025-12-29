@@ -99,6 +99,20 @@ export default function Admin() {
       icon: Key,
       page: 'AdminNumberingRules',
       color: 'from-pink-500 to-pink-600'
+    },
+    {
+      title: 'Chart of Accounts',
+      description: 'Accounting accounts',
+      icon: Grid3X3,
+      page: 'AdminChartOfAccounts',
+      color: 'from-violet-500 to-violet-600'
+    },
+    {
+      title: 'Posting Rules',
+      description: 'Accounting automation',
+      icon: Settings,
+      page: 'AdminPostingRules',
+      color: 'from-fuchsia-500 to-fuchsia-600'
     }
   ];
 
