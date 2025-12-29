@@ -182,6 +182,22 @@ export default function AdminRetentionPolicies() {
       return;
     }
 
+    // Validate against deployment profile limits if set
+    if (deploymentProfile?.retention_profile) {
+      const profileLimits = JSON.parse(deploymentProfile.retention_profile || '{}');
+      const maxYears = profileLimits.max_retention_years || 100;
+      const minYears = profileLimits.min_retention_years || 1;
+      
+      if (formData.retention_years > maxYears) {
+        toast.error(`Retention years cannot exceed deployment limit of ${maxYears} years`);
+        return;
+      }
+      if (formData.retention_years < minYears) {
+        toast.error(`Retention years must be at least ${minYears} years per deployment policy`);
+        return;
+      }
+    }
+
     saveMutation.mutate(formData);
   };
 
@@ -225,6 +241,13 @@ export default function AdminRetentionPolicies() {
         <div>
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Retention Policies</h1>
           <p className="text-slate-500 mt-1">Manage data retention and archival policies</p>
+          {deploymentProfile?.retention_profile && (
+            <div className="flex items-center gap-2 mt-2">
+              <Badge variant="outline" className="bg-blue-50 text-blue-700">
+                Deployment limits: {JSON.parse(deploymentProfile.retention_profile || '{}').min_retention_years || 1}-{JSON.parse(deploymentProfile.retention_profile || '{}').max_retention_years || 100} years
+              </Badge>
+            </div>
+          )}
         </div>
         <Dialog open={open} onOpenChange={(o) => {
           setOpen(o);
@@ -297,6 +320,11 @@ export default function AdminRetentionPolicies() {
                   value={formData.retention_years}
                   onChange={(e) => setFormData({...formData, retention_years: parseInt(e.target.value) || 1})}
                 />
+                {deploymentProfile?.retention_profile && (
+                  <p className="text-xs text-slate-500 mt-1">
+                    Deployment allows: {JSON.parse(deploymentProfile.retention_profile || '{}').min_retention_years || 1}-{JSON.parse(deploymentProfile.retention_profile || '{}').max_retention_years || 100} years
+                  </p>
+                )}
               </div>
 
               <div>
