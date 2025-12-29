@@ -78,6 +78,27 @@ export default function Admin() {
       icon: Activity,
       page: 'AdminSystemHealth',
       color: 'from-emerald-500 to-emerald-600'
+    },
+    {
+      title: 'Service Catalog',
+      description: 'Manage services and pricing',
+      icon: Grid3X3,
+      page: 'AdminServiceCatalog',
+      color: 'from-cyan-500 to-cyan-600'
+    },
+    {
+      title: 'Tax Rules',
+      description: 'Configure tax rates',
+      icon: Settings,
+      page: 'AdminTaxRules',
+      color: 'from-orange-500 to-orange-600'
+    },
+    {
+      title: 'Numbering Rules',
+      description: 'Document numbering formats',
+      icon: Key,
+      page: 'AdminNumberingRules',
+      color: 'from-pink-500 to-pink-600'
     }
   ];
 

@@ -19,6 +19,9 @@ import PharmacyInventory from './pages/PharmacyInventory';
 import PharmacyPOS from './pages/PharmacyPOS';
 import Procurement from './pages/Procurement';
 import Settings from './pages/Settings';
+import AdminServiceCatalog from './pages/AdminServiceCatalog';
+import AdminTaxRules from './pages/AdminTaxRules';
+import AdminNumberingRules from './pages/AdminNumberingRules';
 import __Layout from './Layout.jsx';
 
 
@@ -44,6 +47,9 @@ export const PAGES = {
     "PharmacyPOS": PharmacyPOS,
     "Procurement": Procurement,
     "Settings": Settings,
+    "AdminServiceCatalog": AdminServiceCatalog,
+    "AdminTaxRules": AdminTaxRules,
+    "AdminNumberingRules": AdminNumberingRules,
 }
 
 export const pagesConfig = {
