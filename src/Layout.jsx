@@ -29,7 +29,7 @@ export default function Layout({ children, currentPageName }) {
 
   const navigation = [
     { name: '─ DASHBOARDS ─', page: null, icon: null, divider: true },
-    { name: 'Dashboard', page: 'Dashboard', icon: LayoutDashboard },
+    { name: 'Home', page: 'Home', icon: LayoutDashboard },
     { name: 'Daily Ops', page: 'DailyOps', icon: Activity },
 
     { name: '─ CLINICAL ─', page: null, icon: null, divider: true },

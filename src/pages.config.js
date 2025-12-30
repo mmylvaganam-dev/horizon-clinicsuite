@@ -80,6 +80,8 @@ import FrontDeskWorkspace from './pages/FrontDeskWorkspace';
 import PharmacyWorkspace from './pages/PharmacyWorkspace';
 import LabWorkspace from './pages/LabWorkspace';
 import OwnerWorkspace from './pages/OwnerWorkspace';
+import Home from './pages/Home';
+import DiagnosticsWorkspace from './pages/DiagnosticsWorkspace';
 import __Layout from './Layout.jsx';
 
 
@@ -166,6 +168,8 @@ export const PAGES = {
     "PharmacyWorkspace": PharmacyWorkspace,
     "LabWorkspace": LabWorkspace,
     "OwnerWorkspace": OwnerWorkspace,
+    "Home": Home,
+    "DiagnosticsWorkspace": DiagnosticsWorkspace,
 }
 
 export const pagesConfig = {
