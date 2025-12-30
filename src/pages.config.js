@@ -74,6 +74,7 @@ import SOAPNotes from './pages/SOAPNotes';
 import Settings from './pages/Settings';
 import TaskManagement from './pages/TaskManagement';
 import AssignMyRoles from './pages/AssignMyRoles';
+import VitalsTrend from './pages/VitalsTrend';
 import __Layout from './Layout.jsx';
 
 
@@ -154,6 +155,7 @@ export const PAGES = {
     "Settings": Settings,
     "TaskManagement": TaskManagement,
     "AssignMyRoles": AssignMyRoles,
+    "VitalsTrend": VitalsTrend,
 }
 
 export const pagesConfig = {
