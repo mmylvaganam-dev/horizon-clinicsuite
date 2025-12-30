@@ -45,8 +45,10 @@ import DiagnosticsWorkspace from './pages/DiagnosticsWorkspace';
 import EMR from './pages/EMR';
 import FinanceCompanies from './pages/FinanceCompanies';
 import FinanceDashboard from './pages/FinanceDashboard';
+import FinanceLedger from './pages/FinanceLedger';
 import FrontDeskWorkspace from './pages/FrontDeskWorkspace';
 import GovernmentReporting from './pages/GovernmentReporting';
+import HRDashboard from './pages/HRDashboard';
 import Home from './pages/Home';
 import LISAdmin from './pages/LISAdmin';
 import LISAnalyzerInbox from './pages/LISAnalyzerInbox';
@@ -60,6 +62,7 @@ import LabWorkspace from './pages/LabWorkspace';
 import ManagementReports from './pages/ManagementReports';
 import MedicalRecords from './pages/MedicalRecords';
 import Messaging from './pages/Messaging';
+import OperationsReports from './pages/OperationsReports';
 import OrdersResults from './pages/OrdersResults';
 import OrganizationUserManagement from './pages/OrganizationUserManagement';
 import OwnerWorkspace from './pages/OwnerWorkspace';
@@ -67,6 +70,7 @@ import PartnerManagement from './pages/PartnerManagement';
 import PatientDetails from './pages/PatientDetails';
 import PatientPortal from './pages/PatientPortal';
 import Patients from './pages/Patients';
+import PayrollManagement from './pages/PayrollManagement';
 import PharmacyDashboard from './pages/PharmacyDashboard';
 import PharmacyInventory from './pages/PharmacyInventory';
 import PharmacyPOS from './pages/PharmacyPOS';
@@ -82,13 +86,9 @@ import Reports from './pages/Reports';
 import SOAPNotes from './pages/SOAPNotes';
 import SalesWorkspace from './pages/SalesWorkspace';
 import Settings from './pages/Settings';
+import StaffDirectory from './pages/StaffDirectory';
 import TaskManagement from './pages/TaskManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import StaffDirectory from './pages/StaffDirectory';
-import PayrollManagement from './pages/PayrollManagement';
-import FinanceLedger from './pages/FinanceLedger';
-import OperationsReports from './pages/OperationsReports';
-import HRDashboard from './pages/HRDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -140,8 +140,10 @@ export const PAGES = {
     "EMR": EMR,
     "FinanceCompanies": FinanceCompanies,
     "FinanceDashboard": FinanceDashboard,
+    "FinanceLedger": FinanceLedger,
     "FrontDeskWorkspace": FrontDeskWorkspace,
     "GovernmentReporting": GovernmentReporting,
+    "HRDashboard": HRDashboard,
     "Home": Home,
     "LISAdmin": LISAdmin,
     "LISAnalyzerInbox": LISAnalyzerInbox,
@@ -155,6 +157,7 @@ export const PAGES = {
     "ManagementReports": ManagementReports,
     "MedicalRecords": MedicalRecords,
     "Messaging": Messaging,
+    "OperationsReports": OperationsReports,
     "OrdersResults": OrdersResults,
     "OrganizationUserManagement": OrganizationUserManagement,
     "OwnerWorkspace": OwnerWorkspace,
@@ -162,6 +165,7 @@ export const PAGES = {
     "PatientDetails": PatientDetails,
     "PatientPortal": PatientPortal,
     "Patients": Patients,
+    "PayrollManagement": PayrollManagement,
     "PharmacyDashboard": PharmacyDashboard,
     "PharmacyInventory": PharmacyInventory,
     "PharmacyPOS": PharmacyPOS,
@@ -177,13 +181,9 @@ export const PAGES = {
     "SOAPNotes": SOAPNotes,
     "SalesWorkspace": SalesWorkspace,
     "Settings": Settings,
+    "StaffDirectory": StaffDirectory,
     "TaskManagement": TaskManagement,
     "VitalsTrend": VitalsTrend,
-    "StaffDirectory": StaffDirectory,
-    "PayrollManagement": PayrollManagement,
-    "FinanceLedger": FinanceLedger,
-    "OperationsReports": OperationsReports,
-    "HRDashboard": HRDashboard,
 }
 
 export const pagesConfig = {
