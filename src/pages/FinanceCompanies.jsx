@@ -185,10 +185,19 @@ export default function FinanceCompanies() {
                     <SelectValue placeholder="Select..." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="US">US</SelectItem>
-                    <SelectItem value="CA">CA</SelectItem>
-                    <SelectItem value="UK">UK</SelectItem>
-                    <SelectItem value="AU">AU</SelectItem>
+                    <SelectItem value="US">United States (US)</SelectItem>
+                    <SelectItem value="CA">Canada (CA)</SelectItem>
+                    <SelectItem value="UK">United Kingdom (UK)</SelectItem>
+                    <SelectItem value="AU">Australia (AU)</SelectItem>
+                    <SelectItem value="LK">Sri Lanka (LK)</SelectItem>
+                    <SelectItem value="IN">India (IN)</SelectItem>
+                    <SelectItem value="AE">UAE (AE)</SelectItem>
+                    <SelectItem value="SG">Singapore (SG)</SelectItem>
+                    <SelectItem value="MY">Malaysia (MY)</SelectItem>
+                    <SelectItem value="PK">Pakistan (PK)</SelectItem>
+                    <SelectItem value="BD">Bangladesh (BD)</SelectItem>
+                    <SelectItem value="NZ">New Zealand (NZ)</SelectItem>
+                    <SelectItem value="ZA">South Africa (ZA)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -200,10 +209,20 @@ export default function FinanceCompanies() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="USD">USD</SelectItem>
-                    <SelectItem value="CAD">CAD</SelectItem>
-                    <SelectItem value="GBP">GBP</SelectItem>
-                    <SelectItem value="EUR">EUR</SelectItem>
+                    <SelectItem value="USD">USD - US Dollar</SelectItem>
+                    <SelectItem value="CAD">CAD - Canadian Dollar</SelectItem>
+                    <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                    <SelectItem value="EUR">EUR - Euro</SelectItem>
+                    <SelectItem value="LKR">LKR - Sri Lankan Rupee</SelectItem>
+                    <SelectItem value="INR">INR - Indian Rupee</SelectItem>
+                    <SelectItem value="AED">AED - UAE Dirham</SelectItem>
+                    <SelectItem value="SGD">SGD - Singapore Dollar</SelectItem>
+                    <SelectItem value="MYR">MYR - Malaysian Ringgit</SelectItem>
+                    <SelectItem value="PKR">PKR - Pakistani Rupee</SelectItem>
+                    <SelectItem value="BDT">BDT - Bangladeshi Taka</SelectItem>
+                    <SelectItem value="NZD">NZD - New Zealand Dollar</SelectItem>
+                    <SelectItem value="ZAR">ZAR - South African Rand</SelectItem>
+                    <SelectItem value="AUD">AUD - Australian Dollar</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
