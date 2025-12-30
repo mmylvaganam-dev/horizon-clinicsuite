@@ -180,9 +180,14 @@ export default function Billing() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Billing</h1>
-          <p className="text-slate-500 mt-1">Invoice and payment management</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Billing</h1>
+            <p className="text-slate-500 mt-1">Invoice and payment management</p>
+          </div>
+          <Button variant="outline" onClick={() => navigate(createPageUrl('FinanceDashboard'))}>
+            Open Accounting →
+          </Button>
         </div>
         <Button onClick={() => setShowInvoiceDialog(true)}>
           <Plus className="w-4 h-4 mr-2" />

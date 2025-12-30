@@ -27,15 +27,21 @@ export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navigation = [
+    { name: '─ DASHBOARDS ─', page: null, icon: null, divider: true },
     { name: 'Dashboard', page: 'Dashboard', icon: LayoutDashboard },
+    { name: 'Daily Ops', page: 'DailyOps', icon: Activity },
+
+    { name: '─ CLINICAL ─', page: null, icon: null, divider: true },
     { name: 'Appointments', page: 'Appointments', icon: Calendar },
     { name: 'Patients', page: 'Patients', icon: Users },
     { name: 'EMR', page: 'EMR', icon: FileText },
     { name: 'Medical Records', page: 'MedicalRecords', icon: FileText },
+    { name: 'Task Management', page: 'TaskManagement', icon: CheckSquare },
+
+    { name: '─ LAB & DIAGNOSTICS ─', page: null, icon: null, divider: true },
     { name: 'Orders & Results', page: 'OrdersResults', icon: FileText },
     { name: 'Release Queue', page: 'ReleaseQueue', icon: FileText },
     { name: 'Critical Queue', page: 'CriticalQueue', icon: Activity },
-    { name: 'Task Management', page: 'TaskManagement', icon: CheckSquare },
 
     { name: '─ PHARMACY ─', page: null, icon: null, divider: true },
     { name: 'Pharmacy Dashboard', page: 'PharmacyDashboard', icon: Activity },
@@ -46,19 +52,17 @@ export default function Layout({ children, currentPageName }) {
     { name: '─ FINANCE ─', page: null, icon: null, divider: true },
     { name: 'Finance Dashboard', page: 'FinanceDashboard', icon: DollarSign },
     { name: 'Companies', page: 'FinanceCompanies', icon: Building2 },
-    { name: 'Billing', page: 'Billing', icon: DollarSign },
 
     { name: '─ COMMUNICATIONS ─', page: null, icon: null, divider: true },
     { name: 'Messages', page: 'Messaging', icon: MessageSquare },
     { name: 'Communications', page: 'Communications', icon: Mail },
 
     { name: '─ REPORTS ─', page: null, icon: null, divider: true },
-    { name: 'Daily Ops', page: 'DailyOps', icon: Activity },
     { name: 'Reports', page: 'Reports', icon: FileText },
     { name: 'Management Reports', page: 'ManagementReports', icon: FileText },
     { name: 'Analytics', page: 'Analytics', icon: BarChart3 },
 
-    { name: '─ ADMIN ─', page: null, icon: null, divider: true },
+    { name: '─ ADMINISTRATION ─', page: null, icon: null, divider: true },
     { name: 'Admin', page: 'Admin', icon: Settings },
   ];
 

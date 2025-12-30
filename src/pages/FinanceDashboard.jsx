@@ -58,9 +58,14 @@ export default function FinanceDashboard() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Finance Control Tower</h1>
-        <p className="text-slate-500 mt-1">Multi-company financial overview</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Finance Control Tower</h1>
+          <p className="text-slate-500 mt-1">Multi-company financial overview</p>
+        </div>
+        <Button variant="outline" onClick={() => navigate(createPageUrl('Billing'))}>
+          ← Open Billing
+        </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

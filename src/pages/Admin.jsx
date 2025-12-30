@@ -51,25 +51,26 @@ export default function Admin() {
 
   const adminModules = [
     {
-      title: 'Organizations',
-      description: 'Manage tenant organizations',
+      title: 'Companies & Organizations',
+      description: 'Manage organizations and locations',
       icon: Building2,
-      page: 'AdminOrganizations',
-      color: 'from-blue-500 to-blue-600'
+      page: 'AdminCompanies',
+      color: 'from-blue-500 to-blue-600',
+      ownerOnly: true
     },
     {
-      title: 'Locations',
-      description: 'Manage sites and branches',
-      icon: MapPin,
-      page: 'AdminLocations',
-      color: 'from-green-500 to-green-600'
-    },
-    {
-      title: 'Departments',
-      description: 'Manage departments',
+      title: 'Module Toggles',
+      description: 'Enable/disable modules',
       icon: Grid3X3,
-      page: 'AdminDepartments',
+      page: 'AdminModuleToggles',
       color: 'from-purple-500 to-purple-600'
+    },
+    {
+      title: 'Billing',
+      description: 'Invoice and payment management',
+      icon: DollarSign,
+      page: 'Billing',
+      color: 'from-green-500 to-green-600'
     },
     {
       title: 'Organization Users',
@@ -338,22 +339,29 @@ export default function Admin() {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {adminModules.map((module) => (
-          <Link key={module.page} to={createPageUrl(module.page)}>
-            <Card className="hover:shadow-lg transition-all duration-300 group cursor-pointer border-0 overflow-hidden">
-              <div className={`h-2 bg-gradient-to-r ${module.color}`} />
-              <CardHeader className="pb-4">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${module.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                  <module.icon className="w-6 h-6 text-white" />
-                </div>
-                <CardTitle className="text-lg">{module.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-slate-500">{module.description}</p>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+        {adminModules.map((module) => {
+          if (module.ownerOnly && !isPlatformOwner) return null;
+
+          return (
+            <Link key={module.page} to={createPageUrl(module.page)}>
+              <Card className="hover:shadow-lg transition-all duration-300 group cursor-pointer border-0 overflow-hidden">
+                <div className={`h-2 bg-gradient-to-r ${module.color}`} />
+                <CardHeader className="pb-4">
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${module.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                    <module.icon className="w-6 h-6 text-white" />
+                  </div>
+                  <CardTitle className="text-lg">
+                    {module.title}
+                    {module.ownerOnly && <Badge className="ml-2 bg-rose-100 text-rose-700 text-xs">Owner Only</Badge>}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-slate-500">{module.description}</p>
+                </CardContent>
+              </Card>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

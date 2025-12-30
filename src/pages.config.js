@@ -12,19 +12,25 @@ import AdminGoLiveChecklist from './pages/AdminGoLiveChecklist';
 import AdminLocations from './pages/AdminLocations';
 import AdminModules from './pages/AdminModules';
 import AdminNumberingRules from './pages/AdminNumberingRules';
+import AdminOrganizationActivity from './pages/AdminOrganizationActivity';
+import AdminOrganizationBranding from './pages/AdminOrganizationBranding';
 import AdminOrganizations from './pages/AdminOrganizations';
 import AdminPatientPortal from './pages/AdminPatientPortal';
 import AdminPermissionMatrix from './pages/AdminPermissionMatrix';
 import AdminPermissions from './pages/AdminPermissions';
 import AdminPostingRules from './pages/AdminPostingRules';
 import AdminRetentionPolicies from './pages/AdminRetentionPolicies';
+import AdminRolePermissions from './pages/AdminRolePermissions';
+import AdminRoleStandards from './pages/AdminRoleStandards';
 import AdminSecurityPosture from './pages/AdminSecurityPosture';
+import AdminSecurityValidation from './pages/AdminSecurityValidation';
 import AdminServiceCatalog from './pages/AdminServiceCatalog';
 import AdminSystemHealth from './pages/AdminSystemHealth';
 import AdminSystemVersion from './pages/AdminSystemVersion';
 import AdminTaxRules from './pages/AdminTaxRules';
 import AdminUsers from './pages/AdminUsers';
 import Analytics from './pages/Analytics';
+import AppAdministration from './pages/AppAdministration';
 import Appointments from './pages/Appointments';
 import Billing from './pages/Billing';
 import Communications from './pages/Communications';
@@ -40,6 +46,7 @@ import ManagementReports from './pages/ManagementReports';
 import MedicalRecords from './pages/MedicalRecords';
 import Messaging from './pages/Messaging';
 import OrdersResults from './pages/OrdersResults';
+import OrganizationUserManagement from './pages/OrganizationUserManagement';
 import PartnerManagement from './pages/PartnerManagement';
 import PatientDetails from './pages/PatientDetails';
 import PatientPortal from './pages/PatientPortal';
@@ -47,6 +54,8 @@ import Patients from './pages/Patients';
 import PharmacyDashboard from './pages/PharmacyDashboard';
 import PharmacyInventory from './pages/PharmacyInventory';
 import PharmacyPOS from './pages/PharmacyPOS';
+import PlatformConfiguration from './pages/PlatformConfiguration';
+import PlatformSettings from './pages/PlatformSettings';
 import Prescriptions from './pages/Prescriptions';
 import Procurement from './pages/Procurement';
 import ReleaseQueue from './pages/ReleaseQueue';
@@ -54,15 +63,8 @@ import Reports from './pages/Reports';
 import SOAPNotes from './pages/SOAPNotes';
 import Settings from './pages/Settings';
 import TaskManagement from './pages/TaskManagement';
-import AdminSecurityValidation from './pages/AdminSecurityValidation';
-import PlatformSettings from './pages/PlatformSettings';
-import AppAdministration from './pages/AppAdministration';
-import PlatformConfiguration from './pages/PlatformConfiguration';
-import AdminRoleStandards from './pages/AdminRoleStandards';
-import OrganizationUserManagement from './pages/OrganizationUserManagement';
-import AdminRolePermissions from './pages/AdminRolePermissions';
-import AdminOrganizationBranding from './pages/AdminOrganizationBranding';
-import AdminOrganizationActivity from './pages/AdminOrganizationActivity';
+import AdminCompanies from './pages/AdminCompanies';
+import AdminModuleToggles from './pages/AdminModuleToggles';
 import __Layout from './Layout.jsx';
 
 
@@ -81,19 +83,25 @@ export const PAGES = {
     "AdminLocations": AdminLocations,
     "AdminModules": AdminModules,
     "AdminNumberingRules": AdminNumberingRules,
+    "AdminOrganizationActivity": AdminOrganizationActivity,
+    "AdminOrganizationBranding": AdminOrganizationBranding,
     "AdminOrganizations": AdminOrganizations,
     "AdminPatientPortal": AdminPatientPortal,
     "AdminPermissionMatrix": AdminPermissionMatrix,
     "AdminPermissions": AdminPermissions,
     "AdminPostingRules": AdminPostingRules,
     "AdminRetentionPolicies": AdminRetentionPolicies,
+    "AdminRolePermissions": AdminRolePermissions,
+    "AdminRoleStandards": AdminRoleStandards,
     "AdminSecurityPosture": AdminSecurityPosture,
+    "AdminSecurityValidation": AdminSecurityValidation,
     "AdminServiceCatalog": AdminServiceCatalog,
     "AdminSystemHealth": AdminSystemHealth,
     "AdminSystemVersion": AdminSystemVersion,
     "AdminTaxRules": AdminTaxRules,
     "AdminUsers": AdminUsers,
     "Analytics": Analytics,
+    "AppAdministration": AppAdministration,
     "Appointments": Appointments,
     "Billing": Billing,
     "Communications": Communications,
@@ -109,6 +117,7 @@ export const PAGES = {
     "MedicalRecords": MedicalRecords,
     "Messaging": Messaging,
     "OrdersResults": OrdersResults,
+    "OrganizationUserManagement": OrganizationUserManagement,
     "PartnerManagement": PartnerManagement,
     "PatientDetails": PatientDetails,
     "PatientPortal": PatientPortal,
@@ -116,6 +125,8 @@ export const PAGES = {
     "PharmacyDashboard": PharmacyDashboard,
     "PharmacyInventory": PharmacyInventory,
     "PharmacyPOS": PharmacyPOS,
+    "PlatformConfiguration": PlatformConfiguration,
+    "PlatformSettings": PlatformSettings,
     "Prescriptions": Prescriptions,
     "Procurement": Procurement,
     "ReleaseQueue": ReleaseQueue,
@@ -123,15 +134,8 @@ export const PAGES = {
     "SOAPNotes": SOAPNotes,
     "Settings": Settings,
     "TaskManagement": TaskManagement,
-    "AdminSecurityValidation": AdminSecurityValidation,
-    "PlatformSettings": PlatformSettings,
-    "AppAdministration": AppAdministration,
-    "PlatformConfiguration": PlatformConfiguration,
-    "AdminRoleStandards": AdminRoleStandards,
-    "OrganizationUserManagement": OrganizationUserManagement,
-    "AdminRolePermissions": AdminRolePermissions,
-    "AdminOrganizationBranding": AdminOrganizationBranding,
-    "AdminOrganizationActivity": AdminOrganizationActivity,
+    "AdminCompanies": AdminCompanies,
+    "AdminModuleToggles": AdminModuleToggles,
 }
 
 export const pagesConfig = {
