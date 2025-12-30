@@ -18,7 +18,8 @@ import {
   MessageSquare,
   Mail,
   Building2,
-  CheckSquare
+  CheckSquare,
+  TestTube
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -38,7 +39,17 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Medical Records', page: 'MedicalRecords', icon: FileText },
     { name: 'Task Management', page: 'TaskManagement', icon: CheckSquare },
 
-    { name: '─ LAB & DIAGNOSTICS ─', page: null, icon: null, divider: true },
+    { name: '─ LABORATORY ─', page: null, icon: null, divider: true },
+    { name: 'LIS Dashboard', page: 'LISDashboard', icon: Activity },
+    { name: 'Orders & Accessioning', page: 'LISOrders', icon: FileText },
+    { name: 'Specimens', page: 'LISSpecimens', icon: TestTube },
+    { name: 'Results', page: 'LISResults', icon: FileText },
+    { name: 'Analyzer Inbox', page: 'LISAnalyzerInbox', icon: Activity },
+    { name: 'QC & Maintenance', page: 'LISQC', icon: CheckSquare },
+    { name: 'LIS Reports', page: 'LISReports', icon: BarChart3 },
+    { name: 'LIS Administration', page: 'LISAdmin', icon: Settings },
+    
+    { name: '─ DIAGNOSTICS ─', page: null, icon: null, divider: true },
     { name: 'Orders & Results', page: 'OrdersResults', icon: FileText },
     { name: 'Release Queue', page: 'ReleaseQueue', icon: FileText },
     { name: 'Critical Queue', page: 'CriticalQueue', icon: Activity },

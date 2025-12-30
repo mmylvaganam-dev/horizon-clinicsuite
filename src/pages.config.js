@@ -65,6 +65,14 @@ import Settings from './pages/Settings';
 import TaskManagement from './pages/TaskManagement';
 import AdminCompanies from './pages/AdminCompanies';
 import AdminModuleToggles from './pages/AdminModuleToggles';
+import LISDashboard from './pages/LISDashboard';
+import LISOrders from './pages/LISOrders';
+import LISSpecimens from './pages/LISSpecimens';
+import LISResults from './pages/LISResults';
+import LISAnalyzerInbox from './pages/LISAnalyzerInbox';
+import LISQC from './pages/LISQC';
+import LISReports from './pages/LISReports';
+import LISAdmin from './pages/LISAdmin';
 import __Layout from './Layout.jsx';
 
 
@@ -136,6 +144,14 @@ export const PAGES = {
     "TaskManagement": TaskManagement,
     "AdminCompanies": AdminCompanies,
     "AdminModuleToggles": AdminModuleToggles,
+    "LISDashboard": LISDashboard,
+    "LISOrders": LISOrders,
+    "LISSpecimens": LISSpecimens,
+    "LISResults": LISResults,
+    "LISAnalyzerInbox": LISAnalyzerInbox,
+    "LISQC": LISQC,
+    "LISReports": LISReports,
+    "LISAdmin": LISAdmin,
 }
 
 export const pagesConfig = {
