@@ -75,6 +75,11 @@ import Settings from './pages/Settings';
 import TaskManagement from './pages/TaskManagement';
 import AssignMyRoles from './pages/AssignMyRoles';
 import VitalsTrend from './pages/VitalsTrend';
+import PhysicianWorkspace from './pages/PhysicianWorkspace';
+import FrontDeskWorkspace from './pages/FrontDeskWorkspace';
+import PharmacyWorkspace from './pages/PharmacyWorkspace';
+import LabWorkspace from './pages/LabWorkspace';
+import OwnerWorkspace from './pages/OwnerWorkspace';
 import __Layout from './Layout.jsx';
 
 
@@ -156,6 +161,11 @@ export const PAGES = {
     "TaskManagement": TaskManagement,
     "AssignMyRoles": AssignMyRoles,
     "VitalsTrend": VitalsTrend,
+    "PhysicianWorkspace": PhysicianWorkspace,
+    "FrontDeskWorkspace": FrontDeskWorkspace,
+    "PharmacyWorkspace": PharmacyWorkspace,
+    "LabWorkspace": LabWorkspace,
+    "OwnerWorkspace": OwnerWorkspace,
 }
 
 export const pagesConfig = {
