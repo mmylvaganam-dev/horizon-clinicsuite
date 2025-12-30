@@ -82,6 +82,8 @@ import LabWorkspace from './pages/LabWorkspace';
 import OwnerWorkspace from './pages/OwnerWorkspace';
 import Home from './pages/Home';
 import DiagnosticsWorkspace from './pages/DiagnosticsWorkspace';
+import SalesWorkspace from './pages/SalesWorkspace';
+import PricingCatalogs from './pages/PricingCatalogs';
 import __Layout from './Layout.jsx';
 
 
@@ -170,6 +172,8 @@ export const PAGES = {
     "OwnerWorkspace": OwnerWorkspace,
     "Home": Home,
     "DiagnosticsWorkspace": DiagnosticsWorkspace,
+    "SalesWorkspace": SalesWorkspace,
+    "PricingCatalogs": PricingCatalogs,
 }
 
 export const pagesConfig = {

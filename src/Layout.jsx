@@ -32,6 +32,9 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Home', page: 'Home', icon: LayoutDashboard },
     { name: 'Daily Ops', page: 'DailyOps', icon: Activity },
 
+    { name: '─ WORKSPACES ─', page: null, icon: null, divider: true },
+    { name: 'Sales', page: 'SalesWorkspace', icon: DollarSign },
+
     { name: '─ CLINICAL ─', page: null, icon: null, divider: true },
     { name: 'Appointments', page: 'Appointments', icon: Calendar },
     { name: 'Patients', page: 'Patients', icon: Users },
@@ -74,6 +77,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Analytics', page: 'Analytics', icon: BarChart3 },
 
     { name: '─ ADMINISTRATION ─', page: null, icon: null, divider: true },
+    { name: 'Pricing & Catalogs', page: 'PricingCatalogs', icon: DollarSign },
     { name: 'Admin', page: 'Admin', icon: Settings },
   ];
 
