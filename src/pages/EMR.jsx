@@ -17,6 +17,10 @@ import PatientLabsTab from '../components/patient/PatientLabsTab';
 import MedicationList from '../components/emr/MedicationList';
 import PastSurgicalHistory from '../components/emr/PastSurgicalHistory';
 import SpecialistChart from '../components/emr/SpecialistChart';
+import VitalsHeader from '../components/emr/VitalsHeader';
+import SmartBox from '../components/emr/SmartBox';
+import DiagnosticsTab from '../components/emr/DiagnosticsTab';
+import CPPManager from '../components/emr/CPPManager';
 
 export default function EMR() {
   const navigate = useNavigate();
@@ -199,76 +203,24 @@ export default function EMR() {
             </CardContent>
           </Card>
 
+          <VitalsHeader patientId={selectedPatient.id} />
+
+          <SmartBox patientId={selectedPatient.id} />
+
           <Tabs defaultValue="cpp" className="space-y-6">
-            <TabsList className="grid grid-cols-2 lg:grid-cols-7 w-full">
+            <TabsList className="grid grid-cols-2 lg:grid-cols-8 w-full">
               {access.canViewClinicalNotes && <TabsTrigger value="cpp">CPP</TabsTrigger>}
               {access.canViewPrescriptions && <TabsTrigger value="medications">Medications</TabsTrigger>}
               {access.canViewClinicalNotes && <TabsTrigger value="history">History</TabsTrigger>}
               {access.canViewClinicalNotes && <TabsTrigger value="soap">SOAP Notes</TabsTrigger>}
-              {access.canViewLabResults && <TabsTrigger value="labs">Labs</TabsTrigger>}
+              {access.canViewLabResults && <TabsTrigger value="diagnostics">Diagnostics</TabsTrigger>}
+              {access.canViewLabResults && <TabsTrigger value="labs">Labs (LIS)</TabsTrigger>}
               {access.canViewReferrals && <TabsTrigger value="referrals">Specialists</TabsTrigger>}
               {access.canViewClinicalNotes && <TabsTrigger value="records">Records</TabsTrigger>}
             </TabsList>
 
             {access.canViewClinicalNotes && <TabsContent value="cpp">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="bg-white border-0 shadow-sm">
-                  <CardHeader>
-                    <CardTitle className="text-lg">Current Patient Profile (CPP)</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <p className="text-sm font-semibold text-slate-700 mb-2">Chief Complaints / Active Issues</p>
-                      <div className="space-y-2">
-                        {selectedPatient.chronic_conditions ? (
-                          <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                            <p className="text-sm text-blue-900">{selectedPatient.chronic_conditions}</p>
-                          </div>
-                        ) : (
-                          <p className="text-sm text-slate-500 italic">No active issues documented</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <p className="text-sm font-semibold text-slate-700 mb-2">Current Plans</p>
-                      {soapNotes.length > 0 ? (
-                        <div className="space-y-2">
-                          {soapNotes.slice(0, 3).map(note => (
-                            <div key={note.id} className="p-3 bg-slate-50 rounded-lg border">
-                              <p className="text-xs text-slate-500 mb-1">{format(new Date(note.note_date), 'MMM d, yyyy')}</p>
-                              <p className="text-sm text-slate-700"><span className="font-semibold">Plan:</span> {note.plan?.substring(0, 150)}...</p>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-sm text-slate-500 italic">No current plans documented</p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-white border-0 shadow-sm">
-                  <CardHeader>
-                    <CardTitle className="text-lg">Allergies & Alerts</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {selectedPatient.allergies ? (
-                      <div className="p-4 bg-amber-50 rounded-lg border-2 border-amber-300">
-                        <div className="flex items-center gap-2 text-amber-800 mb-2">
-                          <span className="text-2xl">⚠️</span>
-                          <p className="font-bold text-lg">ALLERGIES</p>
-                        </div>
-                        <p className="text-amber-900">{selectedPatient.allergies}</p>
-                      </div>
-                    ) : (
-                      <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-                        <p className="text-emerald-800">✓ No known allergies</p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
+              <CPPManager patientId={selectedPatient.id} />
             </TabsContent>}
 
             {access.canViewPrescriptions && <TabsContent value="medications">
@@ -331,6 +283,14 @@ export default function EMR() {
               <Card className="bg-white border-0 shadow-sm">
                 <CardContent className="pt-6">
                   <PatientSOAPTab patientId={selectedPatient.id} />
+                </CardContent>
+              </Card>
+            </TabsContent>}
+
+            {access.canViewLabResults && <TabsContent value="diagnostics">
+              <Card className="bg-white border-0 shadow-sm">
+                <CardContent className="pt-6">
+                  <DiagnosticsTab patientId={selectedPatient.id} />
                 </CardContent>
               </Card>
             </TabsContent>}
