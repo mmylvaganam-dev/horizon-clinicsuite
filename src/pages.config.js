@@ -89,6 +89,8 @@ import Settings from './pages/Settings';
 import StaffDirectory from './pages/StaffDirectory';
 import TaskManagement from './pages/TaskManagement';
 import VitalsTrend from './pages/VitalsTrend';
+import VendorManagement from './pages/VendorManagement';
+import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import __Layout from './Layout.jsx';
 
 
@@ -184,6 +186,8 @@ export const PAGES = {
     "StaffDirectory": StaffDirectory,
     "TaskManagement": TaskManagement,
     "VitalsTrend": VitalsTrend,
+    "VendorManagement": VendorManagement,
+    "ThirdPartyProviders": ThirdPartyProviders,
 }
 
 export const pagesConfig = {
