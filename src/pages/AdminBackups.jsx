@@ -1,11 +1,13 @@
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Database, CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
+import { Database, CheckCircle, XCircle, Clock, AlertTriangle, Play } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import { Skeleton } from '@/components/ui/skeleton';
+import toast from 'react-hot-toast';
 
 const runTypeColors = {
   nightly: 'from-blue-500 to-blue-600',
@@ -21,10 +23,34 @@ const statusColors = {
 };
 
 export default function AdminBackups() {
+  const queryClient = useQueryClient();
+  const [runningBackup, setRunningBackup] = useState(false);
+
   const { data: backupLogs = [], isLoading } = useQuery({
     queryKey: ['backupRunLogs'],
-    queryFn: () => base44.entities.BackupRunLog.list('-started_at'),
+    queryFn: () => base44.entities.BackupRunLog.list('-run_at'),
   });
+
+  const runBackupMutation = useMutation({
+    mutationFn: async () => {
+      const response = await base44.functions.invoke('performBackup', {});
+      return response.data;
+    },
+    onSuccess: (data) => {
+      toast.success(`Backup completed! ${data.backup_summary?.total_records || 0} records backed up`);
+      queryClient.invalidateQueries(['backupRunLogs']);
+      setRunningBackup(false);
+    },
+    onError: (error) => {
+      toast.error(`Backup failed: ${error.message}`);
+      setRunningBackup(false);
+    }
+  });
+
+  const handleRunBackup = () => {
+    setRunningBackup(true);
+    runBackupMutation.mutate();
+  };
 
   const { data: deploymentProfile } = useQuery({
     queryKey: ['deploymentProfile'],
@@ -54,9 +80,19 @@ export default function AdminBackups() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Backup Management</h1>
-        <p className="text-slate-500 mt-1">Monitor backup operations and status</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Backup Management</h1>
+          <p className="text-slate-500 mt-1">Monitor backup operations and status</p>
+        </div>
+        <Button 
+          onClick={handleRunBackup}
+          disabled={runningBackup}
+          className="bg-blue-600 hover:bg-blue-700"
+        >
+          <Play className="w-4 h-4 mr-2" />
+          {runningBackup ? 'Running Backup...' : 'Run Manual Backup'}
+        </Button>
       </div>
 
       {deploymentProfile && (
