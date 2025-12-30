@@ -255,7 +255,7 @@ export default function AdminModuleToggles() {
             </SelectTrigger>
             <SelectContent>
               {organizations.map(org => (
-                <SelectItem key={org.id} value={org.id}>{org.organization_name}</SelectItem>
+                <SelectItem key={org.id} value={org.id}>{org.organization_name || org.name || `Org-${org.id.substring(0, 8)}`}</SelectItem>
               ))}
             </SelectContent>
           </Select>

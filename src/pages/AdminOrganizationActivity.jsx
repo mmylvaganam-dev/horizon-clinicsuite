@@ -255,7 +255,7 @@ export default function AdminOrganizationActivity() {
               <SelectItem value="all">All Organizations</SelectItem>
               {organizations.map(org => (
                 <SelectItem key={org.id} value={org.id}>
-                  {org.organization_name}
+                  {org.organization_name || org.name || `Org-${org.id.substring(0, 8)}`}
                 </SelectItem>
               ))}
             </SelectContent>

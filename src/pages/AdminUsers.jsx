@@ -19,6 +19,11 @@ export default function AdminUsers() {
     role_id: '', organization_id: '', location_id: '', department_id: '', is_primary: false
   });
 
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['users'],
     queryFn: () => base44.entities.User.list('-created_date'),
@@ -189,7 +194,15 @@ export default function AdminUsers() {
               <Select value={roleFormData.role_id} onValueChange={(v) => setRoleFormData({...roleFormData, role_id: v})} required>
                 <SelectTrigger><SelectValue placeholder="Select role" /></SelectTrigger>
                 <SelectContent>
-                  {roles.map(role => (
+                  {roles.filter(role => {
+                    const currentUserRoles = getUserRoles(user.id);
+                    const isPlatformOwner = currentUserRoles.some(ur => {
+                      const r = roles.find(rl => rl.id === ur.role_id);
+                      return r?.code === 'PLATFORM_OWNER';
+                    });
+                    if (!isPlatformOwner && role.code === 'PLATFORM_OWNER') return false;
+                    return true;
+                  }).map(role => (
                     <SelectItem key={role.id} value={role.id}>
                       {role.name}
                       {(role.code === 'PLATFORM_OWNER' || role.code === 'APP_ADMIN') && ' (Global)'}
