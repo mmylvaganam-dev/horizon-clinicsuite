@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DollarSign, Users, Receipt, Plus, Trash2, Search, TrendingUp } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
+import { createPageUrl } from '../utils';
 
 export default function SalesWorkspace() {
   const queryClient = useQueryClient();
@@ -271,7 +272,7 @@ export default function SalesWorkspace() {
               <Receipt className="w-4 h-4 mr-2" />
               End-of-Day Report
             </Button>
-            <Button className="w-full justify-start" variant="outline">
+            <Button className="w-full justify-start" variant="outline" onClick={() => window.open(createPageUrl('Patients'), '_blank')}>
               <Users className="w-4 h-4 mr-2" />
               Register Patient
             </Button>
