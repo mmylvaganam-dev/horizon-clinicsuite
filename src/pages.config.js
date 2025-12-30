@@ -34,16 +34,20 @@ import AdminUsers from './pages/AdminUsers';
 import Analytics from './pages/Analytics';
 import AppAdministration from './pages/AppAdministration';
 import Appointments from './pages/Appointments';
+import AssignMyRoles from './pages/AssignMyRoles';
 import Billing from './pages/Billing';
 import Communications from './pages/Communications';
 import CriticalQueue from './pages/CriticalQueue';
 import DailyOps from './pages/DailyOps';
 import Dashboard from './pages/Dashboard';
 import DataExport from './pages/DataExport';
+import DiagnosticsWorkspace from './pages/DiagnosticsWorkspace';
 import EMR from './pages/EMR';
 import FinanceCompanies from './pages/FinanceCompanies';
 import FinanceDashboard from './pages/FinanceDashboard';
+import FrontDeskWorkspace from './pages/FrontDeskWorkspace';
 import GovernmentReporting from './pages/GovernmentReporting';
+import Home from './pages/Home';
 import LISAdmin from './pages/LISAdmin';
 import LISAnalyzerInbox from './pages/LISAnalyzerInbox';
 import LISDashboard from './pages/LISDashboard';
@@ -52,11 +56,13 @@ import LISQC from './pages/LISQC';
 import LISReports from './pages/LISReports';
 import LISResults from './pages/LISResults';
 import LISSpecimens from './pages/LISSpecimens';
+import LabWorkspace from './pages/LabWorkspace';
 import ManagementReports from './pages/ManagementReports';
 import MedicalRecords from './pages/MedicalRecords';
 import Messaging from './pages/Messaging';
 import OrdersResults from './pages/OrdersResults';
 import OrganizationUserManagement from './pages/OrganizationUserManagement';
+import OwnerWorkspace from './pages/OwnerWorkspace';
 import PartnerManagement from './pages/PartnerManagement';
 import PatientDetails from './pages/PatientDetails';
 import PatientPortal from './pages/PatientPortal';
@@ -64,26 +70,20 @@ import Patients from './pages/Patients';
 import PharmacyDashboard from './pages/PharmacyDashboard';
 import PharmacyInventory from './pages/PharmacyInventory';
 import PharmacyPOS from './pages/PharmacyPOS';
+import PharmacyWorkspace from './pages/PharmacyWorkspace';
+import PhysicianWorkspace from './pages/PhysicianWorkspace';
 import PlatformConfiguration from './pages/PlatformConfiguration';
 import PlatformSettings from './pages/PlatformSettings';
 import Prescriptions from './pages/Prescriptions';
+import PricingCatalogs from './pages/PricingCatalogs';
 import Procurement from './pages/Procurement';
 import ReleaseQueue from './pages/ReleaseQueue';
 import Reports from './pages/Reports';
 import SOAPNotes from './pages/SOAPNotes';
+import SalesWorkspace from './pages/SalesWorkspace';
 import Settings from './pages/Settings';
 import TaskManagement from './pages/TaskManagement';
-import AssignMyRoles from './pages/AssignMyRoles';
 import VitalsTrend from './pages/VitalsTrend';
-import PhysicianWorkspace from './pages/PhysicianWorkspace';
-import FrontDeskWorkspace from './pages/FrontDeskWorkspace';
-import PharmacyWorkspace from './pages/PharmacyWorkspace';
-import LabWorkspace from './pages/LabWorkspace';
-import OwnerWorkspace from './pages/OwnerWorkspace';
-import Home from './pages/Home';
-import DiagnosticsWorkspace from './pages/DiagnosticsWorkspace';
-import SalesWorkspace from './pages/SalesWorkspace';
-import PricingCatalogs from './pages/PricingCatalogs';
 import __Layout from './Layout.jsx';
 
 
@@ -124,16 +124,20 @@ export const PAGES = {
     "Analytics": Analytics,
     "AppAdministration": AppAdministration,
     "Appointments": Appointments,
+    "AssignMyRoles": AssignMyRoles,
     "Billing": Billing,
     "Communications": Communications,
     "CriticalQueue": CriticalQueue,
     "DailyOps": DailyOps,
     "Dashboard": Dashboard,
     "DataExport": DataExport,
+    "DiagnosticsWorkspace": DiagnosticsWorkspace,
     "EMR": EMR,
     "FinanceCompanies": FinanceCompanies,
     "FinanceDashboard": FinanceDashboard,
+    "FrontDeskWorkspace": FrontDeskWorkspace,
     "GovernmentReporting": GovernmentReporting,
+    "Home": Home,
     "LISAdmin": LISAdmin,
     "LISAnalyzerInbox": LISAnalyzerInbox,
     "LISDashboard": LISDashboard,
@@ -142,11 +146,13 @@ export const PAGES = {
     "LISReports": LISReports,
     "LISResults": LISResults,
     "LISSpecimens": LISSpecimens,
+    "LabWorkspace": LabWorkspace,
     "ManagementReports": ManagementReports,
     "MedicalRecords": MedicalRecords,
     "Messaging": Messaging,
     "OrdersResults": OrdersResults,
     "OrganizationUserManagement": OrganizationUserManagement,
+    "OwnerWorkspace": OwnerWorkspace,
     "PartnerManagement": PartnerManagement,
     "PatientDetails": PatientDetails,
     "PatientPortal": PatientPortal,
@@ -154,26 +160,20 @@ export const PAGES = {
     "PharmacyDashboard": PharmacyDashboard,
     "PharmacyInventory": PharmacyInventory,
     "PharmacyPOS": PharmacyPOS,
+    "PharmacyWorkspace": PharmacyWorkspace,
+    "PhysicianWorkspace": PhysicianWorkspace,
     "PlatformConfiguration": PlatformConfiguration,
     "PlatformSettings": PlatformSettings,
     "Prescriptions": Prescriptions,
+    "PricingCatalogs": PricingCatalogs,
     "Procurement": Procurement,
     "ReleaseQueue": ReleaseQueue,
     "Reports": Reports,
     "SOAPNotes": SOAPNotes,
+    "SalesWorkspace": SalesWorkspace,
     "Settings": Settings,
     "TaskManagement": TaskManagement,
-    "AssignMyRoles": AssignMyRoles,
     "VitalsTrend": VitalsTrend,
-    "PhysicianWorkspace": PhysicianWorkspace,
-    "FrontDeskWorkspace": FrontDeskWorkspace,
-    "PharmacyWorkspace": PharmacyWorkspace,
-    "LabWorkspace": LabWorkspace,
-    "OwnerWorkspace": OwnerWorkspace,
-    "Home": Home,
-    "DiagnosticsWorkspace": DiagnosticsWorkspace,
-    "SalesWorkspace": SalesWorkspace,
-    "PricingCatalogs": PricingCatalogs,
 }
 
 export const pagesConfig = {
