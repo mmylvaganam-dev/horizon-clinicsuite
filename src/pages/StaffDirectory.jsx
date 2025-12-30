@@ -48,10 +48,32 @@ export default function StaffDirectory() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.StaffProfile.create({
-      organization_id: user.organization_id || '',
-      ...data
-    }),
+    mutationFn: async (data) => {
+      const result = await base44.entities.StaffProfile.create({
+        organization_id: user.organization_id || '',
+        ...data
+      });
+
+      // Sync to PayeeDirectory
+      await base44.functions.invoke('syncStaffToPayee', { staff_id: result.id });
+
+      // Audit log
+      await base44.entities.AuditLog.create({
+        timestamp: new Date().toISOString(),
+        user_id: user.id,
+        user_email: user.email,
+        organization_id: user?.organization_id || '',
+        location_id: '',
+        patient_id: '',
+        module: 'OPERATIONS',
+        action: 'create_staff',
+        record_type: 'StaffProfile',
+        record_id: result.id,
+        metadata: { staff_name: `${data.first_name} ${data.last_name}` }
+      });
+
+      return result;
+    },
     onSuccess: () => {
       toast.success('Staff member added');
       queryClient.invalidateQueries(['staff']);
@@ -61,7 +83,29 @@ export default function StaffDirectory() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.StaffProfile.update(id, data),
+    mutationFn: async ({ id, data }) => {
+      const result = await base44.entities.StaffProfile.update(id, data);
+
+      // Sync to PayeeDirectory
+      await base44.functions.invoke('syncStaffToPayee', { staff_id: result.id });
+
+      // Audit log
+      await base44.entities.AuditLog.create({
+        timestamp: new Date().toISOString(),
+        user_id: user.id,
+        user_email: user.email,
+        organization_id: user?.organization_id || '',
+        location_id: '',
+        patient_id: '',
+        module: 'OPERATIONS',
+        action: 'update_staff',
+        record_type: 'StaffProfile',
+        record_id: result.id,
+        metadata: { staff_name: `${data.first_name} ${data.last_name}` }
+      });
+
+      return result;
+    },
     onSuccess: () => {
       toast.success('Staff member updated');
       queryClient.invalidateQueries(['staff']);
