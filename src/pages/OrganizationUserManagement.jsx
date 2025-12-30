@@ -55,12 +55,12 @@ export default function OrganizationUserManagement() {
 
   const isPlatformOwner = userRoles.some(ur => {
     const role = allRoles.find(r => r.id === ur.role_id);
-    return role?.role_name === 'PLATFORM_OWNER';
+    return role?.code === 'PLATFORM_OWNER';
   });
 
   const isOrgSuperUser = userRoles.some(ur => {
     const role = allRoles.find(r => r.id === ur.role_id);
-    return role?.role_name === 'ORG_SUPER_USER';
+    return role?.code === 'ORG_SUPER_USER';
   });
 
   const canAccess = isPlatformOwner || isOrgSuperUser;
@@ -141,7 +141,7 @@ export default function OrganizationUserManagement() {
 
       const roleNames = roles.map(rId => {
         const role = allRoles.find(r => r.id === rId);
-        return role?.role_name;
+        return role?.name || role?.code;
       });
 
       await base44.entities.AuditLog.create({
@@ -234,7 +234,7 @@ export default function OrganizationUserManagement() {
     if (isOrgSuperUser && !isPlatformOwner) {
       const platformRoles = selectedRoles.filter(roleId => {
         const role = allRoles.find(r => r.id === roleId);
-        return role?.role_name === 'PLATFORM_OWNER' || role?.role_name === 'APP_ADMIN';
+        return role?.code === 'PLATFORM_OWNER' || role?.code === 'APP_ADMIN';
       });
 
       if (platformRoles.length > 0) {
@@ -249,7 +249,7 @@ export default function OrganizationUserManagement() {
   const availableRoles = allRoles.filter(role => {
     // If ORG_SUPER_USER (not PLATFORM_OWNER), exclude platform-level roles
     if (isOrgSuperUser && !isPlatformOwner) {
-      return role.role_name !== 'PLATFORM_OWNER' && role.role_name !== 'APP_ADMIN';
+      return role.code !== 'PLATFORM_OWNER' && role.code !== 'APP_ADMIN';
     }
     return true;
   });
@@ -378,7 +378,7 @@ export default function OrganizationUserManagement() {
                     }}
                   />
                   <div className="flex-1">
-                    <p className="font-medium text-slate-900">{role.role_name}</p>
+                    <p className="font-medium text-slate-900">{role.name || role.code}</p>
                     {role.description && <p className="text-sm text-slate-600">{role.description}</p>}
                   </div>
                 </label>
