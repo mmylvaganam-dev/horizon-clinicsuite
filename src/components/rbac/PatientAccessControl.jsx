@@ -23,7 +23,7 @@ export function usePatientAccess() {
 
   const roleNames = userRoles.map(ur => {
     const role = allRoles.find(r => r.id === ur.role_id);
-    return role?.role_name;
+    return role?.code || role?.role_name;
   }).filter(Boolean);
 
   const hasRole = (roleName) => roleNames.includes(roleName);

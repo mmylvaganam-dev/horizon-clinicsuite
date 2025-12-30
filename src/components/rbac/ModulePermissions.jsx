@@ -96,7 +96,7 @@ export function useModulePermissions() {
 
   const roleNames = userRoles.map(ur => {
     const role = allRoles.find(r => r.id === ur.role_id);
-    return role?.role_name;
+    return role?.code || role?.role_name;
   }).filter(Boolean);
 
   const hasPermission = (module, action) => {
