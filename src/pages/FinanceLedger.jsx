@@ -19,6 +19,9 @@ export default function FinanceLedger() {
     expense_date: format(new Date(), 'yyyy-MM-dd'),
     category: 'supplies',
     vendor_name: '',
+    payee_type: '',
+    payee_ref_id: '',
+    payee_name_cache: '',
     description: '',
     amount: '',
     payment_method: 'transfer',
@@ -79,6 +82,9 @@ export default function FinanceLedger() {
         expense_date: format(new Date(), 'yyyy-MM-dd'),
         category: 'supplies',
         vendor_name: '',
+        payee_type: '',
+        payee_ref_id: '',
+        payee_name_cache: '',
         description: '',
         amount: '',
         payment_method: 'transfer',
@@ -114,10 +120,17 @@ export default function FinanceLedger() {
       toast.error('Cheque number required');
       return;
     }
+    const requiresPayee = ['salary', 'payroll', 'physician_payment', 'contractor_payment'].includes(expenseForm.category);
+    if (requiresPayee && !expenseForm.payee_ref_id && expenseForm.payee_type !== 'OTHER') {
+      toast.error('Please select a payee for this expense category');
+      return;
+    }
     createExpenseMutation.mutate({
       ...expenseForm,
       amount: parseFloat(expenseForm.amount),
-      currency: 'USD'
+      currency: 'USD',
+      payee_type: expenseForm.payee_type || 'OTHER',
+      payee_name_cache: expenseForm.payee_name_cache || expenseForm.vendor_name
     });
   };
 
@@ -278,16 +291,22 @@ export default function FinanceLedger() {
 
             <div>
               <label className="text-sm font-medium">Category *</label>
-              <Select value={expenseForm.category} onValueChange={(v) => setExpenseForm({...expenseForm, category: v})}>
+              <Select value={expenseForm.category} onValueChange={(v) => {
+                const newForm = { ...expenseForm, category: v };
+                if (v === 'salary' || v === 'payroll') newForm.payee_type = 'STAFF';
+                else if (v === 'physician_payment' || v === 'contractor_payment') newForm.payee_type = 'THIRDPARTY';
+                setExpenseForm(newForm);
+              }}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="rent">Rent</SelectItem>
                   <SelectItem value="salary">Salary</SelectItem>
+                  <SelectItem value="payroll">Payroll</SelectItem>
+                  <SelectItem value="physician_payment">Physician Payment</SelectItem>
+                  <SelectItem value="contractor_payment">Contractor Payment</SelectItem>
+                  <SelectItem value="rent">Rent</SelectItem>
                   <SelectItem value="supplies">Supplies</SelectItem>
-                  <SelectItem value="vendor">Vendor</SelectItem>
-                  <SelectItem value="contractor">Contractor</SelectItem>
                   <SelectItem value="maintenance">Maintenance</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
@@ -295,12 +314,52 @@ export default function FinanceLedger() {
             </div>
 
             <div>
-              <label className="text-sm font-medium">Vendor Name</label>
-              <Input
-                value={expenseForm.vendor_name}
-                onChange={(e) => setExpenseForm({...expenseForm, vendor_name: e.target.value})}
-              />
+              <label className="text-sm font-medium">Payee Type</label>
+              <Select value={expenseForm.payee_type} onValueChange={(v) => setExpenseForm({ ...expenseForm, payee_type: v, payee_ref_id: '', payee_name_cache: '' })}>
+                <SelectTrigger><SelectValue placeholder="Select payee type" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="STAFF">Staff</SelectItem>
+                  <SelectItem value="VENDOR">Vendor</SelectItem>
+                  <SelectItem value="THIRDPARTY">Third-Party Provider</SelectItem>
+                  <SelectItem value="OTHER">Other</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
+            {expenseForm.payee_type && expenseForm.payee_type !== 'OTHER' && (
+              <div>
+                <label className="text-sm font-medium">Payee</label>
+                <Select value={expenseForm.payee_ref_id} onValueChange={(v) => {
+                  const selectedPayee = payees.find(p => p.id === v);
+                  setExpenseForm({ 
+                    ...expenseForm, 
+                    payee_ref_id: v, 
+                    payee_name_cache: selectedPayee?.display_name || '',
+                    vendor_name: selectedPayee?.display_name || ''
+                  });
+                }}>
+                  <SelectTrigger><SelectValue placeholder="Select payee" /></SelectTrigger>
+                  <SelectContent>
+                    {payees.map(payee => (
+                      <SelectItem key={payee.id} value={payee.id}>
+                        {payee.display_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {expenseForm.payee_type === 'OTHER' && (
+              <div>
+                <label className="text-sm font-medium">Payee Name</label>
+                <Input
+                  value={expenseForm.vendor_name}
+                  onChange={(e) => setExpenseForm({ ...expenseForm, vendor_name: e.target.value, payee_name_cache: e.target.value })}
+                  placeholder="Enter payee name"
+                />
+              </div>
+            )}
 
             <div>
               <label className="text-sm font-medium">Description *</label>
