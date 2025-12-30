@@ -14,7 +14,8 @@ import {
   Settings,
   FileText,
   Key,
-  Activity
+  Activity,
+  DollarSign
 } from 'lucide-react';
 
 export default function Admin() {
