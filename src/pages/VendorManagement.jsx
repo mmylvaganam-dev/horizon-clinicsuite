@@ -66,6 +66,21 @@ export default function VendorManagement() {
         await base44.entities.PayeeDirectory.create(payeeData);
       }
 
+      // Audit log
+      await base44.entities.AuditLog.create({
+        timestamp: new Date().toISOString(),
+        user_id: user.id,
+        user_email: user.email,
+        organization_id: user.organization_id || '',
+        location_id: '',
+        patient_id: '',
+        module: 'OPERATIONS',
+        action: editing ? 'update_vendor' : 'create_vendor',
+        record_type: 'VendorProfile',
+        record_id: result.id,
+        metadata: { vendor_name: result.vendor_name }
+      });
+
       return result;
     },
     onSuccess: () => {

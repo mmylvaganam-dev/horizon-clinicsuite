@@ -65,6 +65,21 @@ export default function ThirdPartyProviders() {
         await base44.entities.PayeeDirectory.create(payeeData);
       }
 
+      // Audit log
+      await base44.entities.AuditLog.create({
+        timestamp: new Date().toISOString(),
+        user_id: user.id,
+        user_email: user.email,
+        organization_id: user.organization_id || '',
+        location_id: '',
+        patient_id: '',
+        module: 'OPERATIONS',
+        action: editing ? 'update_third_party_provider' : 'create_third_party_provider',
+        record_type: 'ThirdPartyProviderProfile',
+        record_id: result.id,
+        metadata: { provider_name: result.provider_name }
+      });
+
       return result;
     },
     onSuccess: () => {

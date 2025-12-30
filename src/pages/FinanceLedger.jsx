@@ -68,15 +68,40 @@ export default function FinanceLedger() {
   });
 
   const createExpenseMutation = useMutation({
-    mutationFn: (data) => base44.entities.ExpenseEntry.create({
-      organization_id: user.organization_id || '',
-      ...data,
-      created_by: user.id,
-      created_by_email: user.email
-    }),
+    mutationFn: async (data) => {
+      const result = await base44.entities.ExpenseEntry.create({
+        organization_id: user.organization_id || '',
+        ...data,
+        created_by: user.id,
+        created_by_email: user.email
+      });
+
+      // Audit log
+      await base44.entities.AuditLog.create({
+        timestamp: new Date().toISOString(),
+        user_id: user.id,
+        user_email: user.email,
+        organization_id: user.organization_id || '',
+        location_id: '',
+        patient_id: '',
+        module: 'OPERATIONS',
+        action: 'create_expense',
+        record_type: 'ExpenseEntry',
+        record_id: result.id,
+        metadata: { 
+          category: data.category, 
+          payee_type: data.payee_type,
+          payee_name: data.payee_name_cache,
+          amount: data.amount 
+        }
+      });
+
+      return result;
+    },
     onSuccess: () => {
       toast.success('Expense recorded');
       queryClient.invalidateQueries(['expenses']);
+      queryClient.invalidateQueries(['payees']);
       setShowExpense(false);
       setExpenseForm({
         expense_date: format(new Date(), 'yyyy-MM-dd'),
