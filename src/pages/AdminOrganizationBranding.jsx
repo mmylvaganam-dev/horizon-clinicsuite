@@ -49,12 +49,12 @@ export default function AdminOrganizationBranding() {
 
   const isPlatformOwner = userRoles.some(ur => {
     const role = allRoles.find(r => r.id === ur.role_id);
-    return role?.role_name === 'PLATFORM_OWNER';
+    return role?.code === 'PLATFORM_OWNER';
   });
 
   const isOrgSuperUser = userRoles.some(ur => {
     const role = allRoles.find(r => r.id === ur.role_id);
-    return role?.role_name === 'ORG_SUPER_USER';
+    return role?.code === 'ORG_SUPER_USER';
   });
 
   const canAccess = isPlatformOwner || isOrgSuperUser;
