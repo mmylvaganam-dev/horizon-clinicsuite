@@ -84,6 +84,11 @@ import SalesWorkspace from './pages/SalesWorkspace';
 import Settings from './pages/Settings';
 import TaskManagement from './pages/TaskManagement';
 import VitalsTrend from './pages/VitalsTrend';
+import StaffDirectory from './pages/StaffDirectory';
+import PayrollManagement from './pages/PayrollManagement';
+import FinanceLedger from './pages/FinanceLedger';
+import OperationsReports from './pages/OperationsReports';
+import HRDashboard from './pages/HRDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -174,6 +179,11 @@ export const PAGES = {
     "Settings": Settings,
     "TaskManagement": TaskManagement,
     "VitalsTrend": VitalsTrend,
+    "StaffDirectory": StaffDirectory,
+    "PayrollManagement": PayrollManagement,
+    "FinanceLedger": FinanceLedger,
+    "OperationsReports": OperationsReports,
+    "HRDashboard": HRDashboard,
 }
 
 export const pagesConfig = {

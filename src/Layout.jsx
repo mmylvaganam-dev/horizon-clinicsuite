@@ -35,6 +35,13 @@ export default function Layout({ children, currentPageName }) {
     { name: '─ WORKSPACES ─', page: null, icon: null, divider: true },
     { name: 'Sales', page: 'SalesWorkspace', icon: DollarSign },
 
+    { name: '─ OPERATIONS ─', page: null, icon: null, divider: true },
+    { name: 'HR Dashboard', page: 'HRDashboard', icon: Users },
+    { name: 'Staff Directory', page: 'StaffDirectory', icon: Users },
+    { name: 'Payroll', page: 'PayrollManagement', icon: DollarSign },
+    { name: 'Finance Ledger', page: 'FinanceLedger', icon: DollarSign },
+    { name: 'Operations Reports', page: 'OperationsReports', icon: BarChart3 },
+
     { name: '─ CLINICAL ─', page: null, icon: null, divider: true },
     { name: 'Appointments', page: 'Appointments', icon: Calendar },
     { name: 'Patients', page: 'Patients', icon: Users },
