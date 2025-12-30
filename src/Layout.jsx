@@ -72,6 +72,8 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Staff Directory', page: 'StaffDirectory', icon: Users },
     { name: 'Payroll', page: 'PayrollManagement', icon: DollarSign },
     { name: 'Finance Ledger', page: 'FinanceLedger', icon: DollarSign },
+    { name: 'Vendors', page: 'VendorManagement', icon: Building2 },
+    { name: 'Third-Party Providers', page: 'ThirdPartyProviders', icon: Users },
     { name: 'Operations Reports', page: 'OperationsReports', icon: BarChart3 },
 
     { name: '─ REPORTS ─', page: null, icon: null, divider: true },

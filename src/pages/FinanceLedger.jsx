@@ -52,6 +52,18 @@ export default function FinanceLedger() {
     queryFn: () => base44.entities.BankAccount.filter({ status: 'active' }),
   });
 
+  const { data: payees = [] } = useQuery({
+    queryKey: ['payees', expenseForm.payee_type],
+    queryFn: async () => {
+      if (!expenseForm.payee_type) return [];
+      return await base44.entities.PayeeDirectory.filter({ 
+        payee_type: expenseForm.payee_type,
+        status: 'active'
+      });
+    },
+    enabled: !!expenseForm.payee_type,
+  });
+
   const createExpenseMutation = useMutation({
     mutationFn: (data) => base44.entities.ExpenseEntry.create({
       organization_id: user.organization_id || '',
