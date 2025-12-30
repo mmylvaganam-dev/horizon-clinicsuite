@@ -67,9 +67,16 @@ export default function AdminUsers() {
 
   const handleAssignRole = (e) => {
     e.preventDefault();
+    const selectedRole = roles.find(r => r.id === roleFormData.role_id);
+    const isGlobalRole = selectedRole?.code === 'PLATFORM_OWNER' || selectedRole?.code === 'APP_ADMIN';
+    
     assignRoleMutation.mutate({
       user_id: selectedUser.id,
-      ...roleFormData
+      role_id: roleFormData.role_id,
+      organization_id: isGlobalRole ? '' : roleFormData.organization_id,
+      location_id: isGlobalRole ? '' : roleFormData.location_id,
+      department_id: isGlobalRole ? '' : roleFormData.department_id,
+      is_primary: roleFormData.is_primary
     });
   };
 
@@ -133,19 +140,25 @@ export default function AdminUsers() {
                         {userRolesList.length === 0 ? (
                           <Badge variant="outline" className="text-slate-500">No roles assigned</Badge>
                         ) : (
-                          userRolesList.map((ur) => (
-                            <Badge key={ur.id} variant="outline" className="bg-teal-50 text-teal-700 border-teal-200 gap-2">
-                              <Shield className="w-3 h-3" />
-                              {getRoleName(ur.role_id)} @ {getOrgName(ur.organization_id)}
-                              {ur.is_primary && <span className="text-xs">(Primary)</span>}
-                              <button
-                                onClick={() => removeRoleMutation.mutate(ur.id)}
-                                className="ml-1 hover:text-rose-600"
-                              >
-                                <X className="w-3 h-3" />
-                              </button>
-                            </Badge>
-                          ))
+                          userRolesList.map((ur) => {
+                           const role = roles.find(r => r.id === ur.role_id);
+                           const isGlobal = role?.code === 'PLATFORM_OWNER' || role?.code === 'APP_ADMIN';
+                           return (
+                             <Badge key={ur.id} variant="outline" className="bg-teal-50 text-teal-700 border-teal-200 gap-2">
+                               <Shield className="w-3 h-3" />
+                               {getRoleName(ur.role_id)}
+                               {!isGlobal && ur.organization_id && ` @ ${getOrgName(ur.organization_id)}`}
+                               {isGlobal && ' (Global)'}
+                               {ur.is_primary && <span className="text-xs">(Primary)</span>}
+                               <button
+                                 onClick={() => removeRoleMutation.mutate(ur.id)}
+                                 className="ml-1 hover:text-rose-600"
+                               >
+                                 <X className="w-3 h-3" />
+                               </button>
+                             </Badge>
+                           );
+                          })
                         )}
                       </div>
                     </div>
@@ -177,46 +190,63 @@ export default function AdminUsers() {
                 <SelectTrigger><SelectValue placeholder="Select role" /></SelectTrigger>
                 <SelectContent>
                   {roles.map(role => (
-                    <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>
+                    <SelectItem key={role.id} value={role.id}>
+                      {role.name}
+                      {(role.code === 'PLATFORM_OWNER' || role.code === 'APP_ADMIN') && ' (Global)'}
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Organization *</label>
-              <Select value={roleFormData.organization_id} onValueChange={(v) => setRoleFormData({...roleFormData, organization_id: v, location_id: '', department_id: ''})} required>
-                <SelectTrigger><SelectValue placeholder="Select organization" /></SelectTrigger>
-                <SelectContent>
-                  {organizations.map(org => (
-                    <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Location (Optional)</label>
-              <Select value={roleFormData.location_id} onValueChange={(v) => setRoleFormData({...roleFormData, location_id: v})}>
-                <SelectTrigger><SelectValue placeholder="All locations" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={null}>All Locations</SelectItem>
-                  {filteredLocations.map(loc => (
-                    <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Department (Optional)</label>
-              <Select value={roleFormData.department_id} onValueChange={(v) => setRoleFormData({...roleFormData, department_id: v})}>
-                <SelectTrigger><SelectValue placeholder="All departments" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={null}>All Departments</SelectItem>
-                  {filteredDepartments.map(dept => (
-                    <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {roleFormData.role_id && !['PLATFORM_OWNER', 'APP_ADMIN'].includes(roles.find(r => r.id === roleFormData.role_id)?.code) && (
+              <>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Organization *</label>
+                  <Select value={roleFormData.organization_id} onValueChange={(v) => setRoleFormData({...roleFormData, organization_id: v, location_id: '', department_id: ''})} required>
+                    <SelectTrigger><SelectValue placeholder="Select organization" /></SelectTrigger>
+                    <SelectContent>
+                      {organizations.map(org => (
+                        <SelectItem key={org.id} value={org.id}>{org.organization_name || org.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
+            {roleFormData.role_id && ['PLATFORM_OWNER', 'APP_ADMIN'].includes(roles.find(r => r.id === roleFormData.role_id)?.code) && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-sm text-blue-900 font-semibold">Global Role</p>
+                <p className="text-xs text-blue-700 mt-1">This role applies across all organizations</p>
+              </div>
+            )}
+            {roleFormData.role_id && !['PLATFORM_OWNER', 'APP_ADMIN'].includes(roles.find(r => r.id === roleFormData.role_id)?.code) && roleFormData.organization_id && (
+              <>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Location (Optional)</label>
+                  <Select value={roleFormData.location_id} onValueChange={(v) => setRoleFormData({...roleFormData, location_id: v})}>
+                    <SelectTrigger><SelectValue placeholder="All locations" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={null}>All Locations</SelectItem>
+                      {filteredLocations.map(loc => (
+                        <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Department (Optional)</label>
+                  <Select value={roleFormData.department_id} onValueChange={(v) => setRoleFormData({...roleFormData, department_id: v})}>
+                    <SelectTrigger><SelectValue placeholder="All departments" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={null}>All Departments</SelectItem>
+                      {filteredDepartments.map(dept => (
+                        <SelectItem key={dept.id} value={dept.id}>{dept.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
             <div className="flex items-center gap-2">
               <input
                 type="checkbox"
