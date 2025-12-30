@@ -4,12 +4,14 @@ import AdminAuditLogs from './pages/AdminAuditLogs';
 import AdminBackups from './pages/AdminBackups';
 import AdminBreakGlassReport from './pages/AdminBreakGlassReport';
 import AdminChartOfAccounts from './pages/AdminChartOfAccounts';
+import AdminCompanies from './pages/AdminCompanies';
 import AdminComplianceChecklist from './pages/AdminComplianceChecklist';
 import AdminConfig from './pages/AdminConfig';
 import AdminDepartments from './pages/AdminDepartments';
 import AdminExportApprovals from './pages/AdminExportApprovals';
 import AdminGoLiveChecklist from './pages/AdminGoLiveChecklist';
 import AdminLocations from './pages/AdminLocations';
+import AdminModuleToggles from './pages/AdminModuleToggles';
 import AdminModules from './pages/AdminModules';
 import AdminNumberingRules from './pages/AdminNumberingRules';
 import AdminOrganizationActivity from './pages/AdminOrganizationActivity';
@@ -42,6 +44,14 @@ import EMR from './pages/EMR';
 import FinanceCompanies from './pages/FinanceCompanies';
 import FinanceDashboard from './pages/FinanceDashboard';
 import GovernmentReporting from './pages/GovernmentReporting';
+import LISAdmin from './pages/LISAdmin';
+import LISAnalyzerInbox from './pages/LISAnalyzerInbox';
+import LISDashboard from './pages/LISDashboard';
+import LISOrders from './pages/LISOrders';
+import LISQC from './pages/LISQC';
+import LISReports from './pages/LISReports';
+import LISResults from './pages/LISResults';
+import LISSpecimens from './pages/LISSpecimens';
 import ManagementReports from './pages/ManagementReports';
 import MedicalRecords from './pages/MedicalRecords';
 import Messaging from './pages/Messaging';
@@ -63,16 +73,7 @@ import Reports from './pages/Reports';
 import SOAPNotes from './pages/SOAPNotes';
 import Settings from './pages/Settings';
 import TaskManagement from './pages/TaskManagement';
-import AdminCompanies from './pages/AdminCompanies';
-import AdminModuleToggles from './pages/AdminModuleToggles';
-import LISDashboard from './pages/LISDashboard';
-import LISOrders from './pages/LISOrders';
-import LISSpecimens from './pages/LISSpecimens';
-import LISResults from './pages/LISResults';
-import LISAnalyzerInbox from './pages/LISAnalyzerInbox';
-import LISQC from './pages/LISQC';
-import LISReports from './pages/LISReports';
-import LISAdmin from './pages/LISAdmin';
+import AssignMyRoles from './pages/AssignMyRoles';
 import __Layout from './Layout.jsx';
 
 
@@ -83,12 +84,14 @@ export const PAGES = {
     "AdminBackups": AdminBackups,
     "AdminBreakGlassReport": AdminBreakGlassReport,
     "AdminChartOfAccounts": AdminChartOfAccounts,
+    "AdminCompanies": AdminCompanies,
     "AdminComplianceChecklist": AdminComplianceChecklist,
     "AdminConfig": AdminConfig,
     "AdminDepartments": AdminDepartments,
     "AdminExportApprovals": AdminExportApprovals,
     "AdminGoLiveChecklist": AdminGoLiveChecklist,
     "AdminLocations": AdminLocations,
+    "AdminModuleToggles": AdminModuleToggles,
     "AdminModules": AdminModules,
     "AdminNumberingRules": AdminNumberingRules,
     "AdminOrganizationActivity": AdminOrganizationActivity,
@@ -121,6 +124,14 @@ export const PAGES = {
     "FinanceCompanies": FinanceCompanies,
     "FinanceDashboard": FinanceDashboard,
     "GovernmentReporting": GovernmentReporting,
+    "LISAdmin": LISAdmin,
+    "LISAnalyzerInbox": LISAnalyzerInbox,
+    "LISDashboard": LISDashboard,
+    "LISOrders": LISOrders,
+    "LISQC": LISQC,
+    "LISReports": LISReports,
+    "LISResults": LISResults,
+    "LISSpecimens": LISSpecimens,
     "ManagementReports": ManagementReports,
     "MedicalRecords": MedicalRecords,
     "Messaging": Messaging,
@@ -142,16 +153,7 @@ export const PAGES = {
     "SOAPNotes": SOAPNotes,
     "Settings": Settings,
     "TaskManagement": TaskManagement,
-    "AdminCompanies": AdminCompanies,
-    "AdminModuleToggles": AdminModuleToggles,
-    "LISDashboard": LISDashboard,
-    "LISOrders": LISOrders,
-    "LISSpecimens": LISSpecimens,
-    "LISResults": LISResults,
-    "LISAnalyzerInbox": LISAnalyzerInbox,
-    "LISQC": LISQC,
-    "LISReports": LISReports,
-    "LISAdmin": LISAdmin,
+    "AssignMyRoles": AssignMyRoles,
 }
 
 export const pagesConfig = {
