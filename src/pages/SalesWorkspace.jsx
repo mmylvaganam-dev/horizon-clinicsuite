@@ -20,6 +20,9 @@ export default function SalesWorkspace() {
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [discount, setDiscount] = useState(0);
   const [discountReason, setDiscountReason] = useState('');
+  const [searchType, setSearchType] = useState('service');
+  const [itemSearch, setItemSearch] = useState('');
+  const [cashReceived, setCashReceived] = useState(0);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -29,6 +32,11 @@ export default function SalesWorkspace() {
   const { data: services = [] } = useQuery({
     queryKey: ['services'],
     queryFn: () => base44.entities.ServiceCatalog.filter({ active: true }),
+  });
+
+  const { data: packages = [] } = useQuery({
+    queryKey: ['healthPackages'],
+    queryFn: () => base44.entities.HealthPackage.filter({ active: true }),
   });
 
   const { data: patients = [] } = useQuery({
@@ -47,11 +55,14 @@ export default function SalesWorkspace() {
   const createSaleMutation = useMutation({
     mutationFn: async (data) => {
       const invoiceNumber = `INV-${Date.now()}`;
+      const accessionNumber = `ACC-${Date.now()}`;
       const subtotal = data.lines.reduce((sum, l) => sum + l.line_total, 0);
       const discountAmount = data.discount || 0;
       const taxableAmount = subtotal - discountAmount;
-      const taxTotal = taxableAmount * 0.1;
+      const taxTotal = 0;
       const total = taxableAmount + taxTotal;
+
+      const patient = patients.find(p => p.id === data.patient_ref);
 
       const invoice = await base44.entities.InvoiceHeader.create({
         organization_id: user.organization_id || '',
@@ -64,7 +75,7 @@ export default function SalesWorkspace() {
         tax_total: taxTotal,
         total,
         payment_status: 'paid',
-        notes: data.discount_reason ? `Discount: $${data.discount} - ${data.discount_reason}` : ''
+        notes: `Accession: ${accessionNumber} | Patient: ${patient?.first_name} ${patient?.last_name} | MRN: ${patient?.mrn}${data.discount_reason ? ` | Discount: ${data.discount} - ${data.discount_reason}` : ''}${data.payment_method === 'cash' && data.cash_received ? ` | Cash: Rs. ${data.cash_received} | Change: Rs. ${(data.cash_received - total).toFixed(2)}` : ''}`
       });
 
       for (const line of data.lines) {
@@ -93,19 +104,29 @@ export default function SalesWorkspace() {
         action: 'create_invoice',
         record_type: 'InvoiceHeader',
         record_id: invoice.id,
-        metadata: { invoice_number: invoiceNumber, total, payment_method: data.payment_method }
+        metadata: {
+          invoice_number: invoiceNumber,
+          accession_number: accessionNumber,
+          patient_name: `${patient?.first_name} ${patient?.last_name}`,
+          mrn: patient?.mrn,
+          total,
+          payment_method: data.payment_method,
+          cash_received: data.cash_received,
+          change_given: data.payment_method === 'cash' && data.cash_received ? (data.cash_received - total).toFixed(2) : 0
+        }
       });
 
-      return invoice;
+      return { invoice, accessionNumber };
     },
-    onSuccess: () => {
-      toast.success('Sale completed successfully');
+    onSuccess: (data) => {
+      toast.success(`Sale completed! Accession: ${data.accessionNumber}`);
       queryClient.invalidateQueries(['todayInvoices']);
       setShowSale(false);
       setSelectedPatient('');
       setSaleLines([]);
       setDiscount(0);
       setDiscountReason('');
+      setCashReceived(0);
     },
   });
 
@@ -138,6 +159,40 @@ export default function SalesWorkspace() {
     setSaleLines(saleLines.filter((_, i) => i !== index));
   };
 
+  const addPackage = (pkg) => {
+    const packageLine = {
+      item_code: pkg.package_code,
+      item_name_cache: pkg.package_name,
+      category: 'PACKAGE',
+      qty: 1,
+      unit_price: pkg.total_price,
+      line_total: pkg.total_price
+    };
+    setSaleLines([...saleLines, packageLine]);
+    setItemSearch('');
+    toast.success(`Added ${pkg.package_name}`);
+  };
+
+  const addService = (service) => {
+    const serviceLine = {
+      item_code: service.service_code,
+      item_name_cache: service.service_name,
+      category: service.category,
+      qty: 1,
+      unit_price: service.default_price,
+      line_total: service.default_price
+    };
+    setSaleLines([...saleLines, serviceLine]);
+    setItemSearch('');
+    toast.success(`Added ${service.service_name}`);
+  };
+
+  const filteredItems = itemSearch
+    ? searchType === 'package'
+      ? packages.filter(p => p.package_name.toLowerCase().includes(itemSearch.toLowerCase()) || p.package_code.includes(itemSearch))
+      : services.filter(s => s.service_name.toLowerCase().includes(itemSearch.toLowerCase()) || s.service_code.toLowerCase().includes(itemSearch.toLowerCase()))
+    : [];
+
   const handleCreateSale = () => {
     if (!selectedPatient || saleLines.length === 0) {
       toast.error('Please select patient and add items');
@@ -147,12 +202,17 @@ export default function SalesWorkspace() {
       toast.error('Please provide discount reason');
       return;
     }
+    if (paymentMethod === 'cash' && cashReceived < total) {
+      toast.error('Cash received is less than total amount');
+      return;
+    }
     createSaleMutation.mutate({
       patient_ref: selectedPatient,
       lines: saleLines,
       payment_method: paymentMethod,
       discount,
-      discount_reason: discountReason
+      discount_reason: discountReason,
+      cash_received: cashReceived
     });
   };
 
@@ -170,6 +230,7 @@ export default function SalesWorkspace() {
 
   const todayTotal = todayInvoices.reduce((sum, inv) => sum + (inv.total || 0), 0);
   const todayCount = todayInvoices.length;
+  const changeAmount = paymentMethod === 'cash' && cashReceived > 0 ? cashReceived - total : 0;
 
   return (
     <div className="space-y-6">
@@ -187,7 +248,7 @@ export default function SalesWorkspace() {
               </div>
               <div>
                 <p className="text-sm text-slate-500">Today's Revenue</p>
-                <p className="text-2xl font-bold">${todayTotal.toFixed(2)}</p>
+                <p className="text-2xl font-bold">Rs. {todayTotal.toFixed(2)}</p>
               </div>
             </div>
           </CardContent>
@@ -216,7 +277,7 @@ export default function SalesWorkspace() {
               <div>
                 <p className="text-sm text-slate-500">Avg Transaction</p>
                 <p className="text-2xl font-bold">
-                  ${todayCount > 0 ? (todayTotal / todayCount).toFixed(2) : '0.00'}
+                  Rs. {todayCount > 0 ? (todayTotal / todayCount).toFixed(2) : '0.00'}
                 </p>
               </div>
             </div>
@@ -249,7 +310,7 @@ export default function SalesWorkspace() {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-emerald-600">${inv.total.toFixed(2)}</p>
+                      <p className="font-bold text-emerald-600">Rs. {inv.total.toFixed(2)}</p>
                       <p className="text-xs text-slate-500">{inv.payment_status}</p>
                     </div>
                   </div>
@@ -323,62 +384,110 @@ export default function SalesWorkspace() {
             </div>
 
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-sm font-medium">Sale Items</label>
-                <Button onClick={addLine} size="sm" variant="outline">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Line
-                </Button>
+              <div className="flex items-center gap-2 mb-3">
+                <div className="flex gap-2 flex-1">
+                  <Select value={searchType} onValueChange={setSearchType}>
+                    <SelectTrigger className="w-32">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="service">Tests</SelectItem>
+                      <SelectItem value="package">Packages</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input
+                      placeholder={searchType === 'package' ? 'Search packages...' : 'Search tests...'}
+                      value={itemSearch}
+                      onChange={(e) => setItemSearch(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
               </div>
 
+              {itemSearch && filteredItems.length > 0 && (
+                <div className="mb-3 max-h-48 overflow-y-auto border rounded-lg">
+                  {searchType === 'package'
+                    ? filteredItems.map(pkg => (
+                        <div
+                          key={pkg.id}
+                          className="p-3 hover:bg-teal-50 cursor-pointer border-b last:border-0"
+                          onClick={() => addPackage(pkg)}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-semibold text-sm">{pkg.package_name}</p>
+                              <p className="text-xs text-slate-500">Code: {pkg.package_code}</p>
+                              {pkg.items_json && (
+                                <p className="text-xs text-slate-400 mt-1">{pkg.items_json.length} tests included</p>
+                              )}
+                            </div>
+                            <p className="font-bold text-teal-600">Rs. {pkg.total_price.toFixed(2)}</p>
+                          </div>
+                        </div>
+                      ))
+                    : filteredItems.map(svc => (
+                        <div
+                          key={svc.id}
+                          className="p-3 hover:bg-teal-50 cursor-pointer border-b last:border-0"
+                          onClick={() => addService(svc)}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <p className="font-semibold text-sm">{svc.service_name}</p>
+                              <p className="text-xs text-slate-500">{svc.category} • {svc.service_code}</p>
+                            </div>
+                            <p className="font-bold text-teal-600">Rs. {svc.default_price.toFixed(2)}</p>
+                          </div>
+                        </div>
+                      ))
+                  }
+                </div>
+              )}
+
+              <div className="mb-2">
+                <label className="text-sm font-medium">Selected Items</label>
+              </div>
+
+              {saleLines.length === 0 && (
+                <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                  <p className="text-slate-500">Search and add packages or tests above</p>
+                </div>
+              )}
+
               {saleLines.map((line, index) => (
-                <div key={index} className="grid grid-cols-12 gap-2 mb-2">
-                  <div className="col-span-5">
-                    <Select value={line.item_code} onValueChange={(v) => updateLine(index, 'item_code', v)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select service" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {services.map(s => (
-                          <SelectItem key={s.service_code} value={s.service_code}>
-                            {s.service_name} ({s.category}) - ${s.default_price}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                <div key={index} className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg mb-2">
+                  <div className="flex-1">
+                    <p className="font-semibold text-sm">{line.item_name_cache}</p>
+                    <p className="text-xs text-slate-500">{line.category} • {line.item_code}</p>
                   </div>
-                  <div className="col-span-2">
+                  <div className="w-20">
                     <Input
                       type="number"
-                      placeholder="Qty"
                       value={line.qty}
                       onChange={(e) => updateLine(index, 'qty', parseFloat(e.target.value) || 1)}
+                      className="text-center"
                     />
                   </div>
-                  <div className="col-span-2">
-                    <Input
-                      type="number"
-                      placeholder="Price"
-                      value={line.unit_price}
-                      onChange={(e) => updateLine(index, 'unit_price', parseFloat(e.target.value) || 0)}
-                    />
+                  <div className="w-28">
+                    <p className="text-sm text-slate-600">Rs. {line.unit_price.toFixed(2)}</p>
                   </div>
-                  <div className="col-span-2">
-                    <Input value={line.line_total.toFixed(2)} disabled />
+                  <div className="w-28 text-right">
+                    <p className="font-bold text-teal-600">Rs. {line.line_total.toFixed(2)}</p>
                   </div>
-                  <div className="col-span-1">
-                    <Button variant="ghost" size="sm" onClick={() => removeLine(index)}>
-                      <Trash2 className="w-4 h-4 text-rose-600" />
-                    </Button>
-                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => removeLine(index)}>
+                    <Trash2 className="w-4 h-4 text-rose-600" />
+                  </Button>
                 </div>
               ))}
             </div>
 
-            <div className="border-t pt-4 space-y-3">
+            <div className="border-t pt-4 space-y-3 bg-slate-50 p-4 rounded-lg">
               <div className="flex justify-between">
                 <span>Subtotal:</span>
-                <span className="font-semibold">${subtotal.toFixed(2)}</span>
+                <span className="font-semibold">Rs. {subtotal.toFixed(2)}</span>
               </div>
               
               <div className="flex items-center gap-2">
@@ -401,33 +510,51 @@ export default function SalesWorkspace() {
               {discount > 0 && (
                 <div className="flex justify-between text-sm text-amber-700">
                   <span>Discount:</span>
-                  <span>-${discount.toFixed(2)}</span>
+                  <span>-Rs. {discount.toFixed(2)}</span>
                 </div>
               )}
               
-              <div className="flex justify-between">
-                <span>Tax (10%):</span>
-                <span className="font-semibold">${taxTotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-lg font-bold">
+              <div className="flex justify-between text-xl font-bold border-t pt-2">
                 <span>Total:</span>
-                <span className="text-emerald-600">${total.toFixed(2)}</span>
+                <span className="text-emerald-600">Rs. {total.toFixed(2)}</span>
               </div>
             </div>
 
-            <div>
-              <label className="text-sm font-medium">Payment Method</label>
-              <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="cash">Cash</SelectItem>
-                  <SelectItem value="card">Card</SelectItem>
-                  <SelectItem value="transfer">Transfer</SelectItem>
-                  <SelectItem value="insurance">Insurance</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium">Payment Method</label>
+                <Select value={paymentMethod} onValueChange={(v) => { setPaymentMethod(v); if (v !== 'cash') setCashReceived(0); }}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="cash">Cash</SelectItem>
+                    <SelectItem value="card">Card (Credit/Debit)</SelectItem>
+                    <SelectItem value="transfer">Bank Transfer</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {paymentMethod === 'cash' && (
+                <div>
+                  <label className="text-sm font-medium">Cash Received</label>
+                  <Input
+                    type="number"
+                    placeholder="0.00"
+                    value={cashReceived}
+                    onChange={(e) => setCashReceived(parseFloat(e.target.value) || 0)}
+                    className="text-lg font-semibold"
+                  />
+                  {cashReceived > 0 && (
+                    <p className={`text-sm mt-1 ${cashReceived >= total ? 'text-emerald-600' : 'text-rose-600'}`}>
+                      {cashReceived >= total 
+                        ? `Change: Rs. ${(cashReceived - total).toFixed(2)}`
+                        : `Short: Rs. ${(total - cashReceived).toFixed(2)}`
+                      }
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="flex gap-2 justify-end">
