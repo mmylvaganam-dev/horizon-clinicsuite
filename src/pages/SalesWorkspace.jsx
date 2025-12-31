@@ -225,7 +225,7 @@ export default function SalesWorkspace() {
   const subtotal = saleLines.reduce((sum, l) => sum + l.line_total, 0);
   const discountAmount = discount || 0;
   const taxableAmount = subtotal - discountAmount;
-  const taxTotal = taxableAmount * 0.1;
+  const taxTotal = 0;
   const total = taxableAmount + taxTotal;
 
   const todayTotal = todayInvoices.reduce((sum, inv) => sum + (inv.total || 0), 0);
@@ -406,6 +406,23 @@ export default function SalesWorkspace() {
                   </div>
                 </div>
               </div>
+
+              {!itemSearch && (
+                <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
+                  {searchType === 'package'
+                    ? `${packages.length} packages available - start typing to search`
+                    : `${services.length} tests available - start typing to search`
+                  }
+                </div>
+              )}
+
+              {itemSearch && filteredItems.length === 0 && (
+                <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700">
+                  No {searchType === 'package' ? 'packages' : 'tests'} found matching "{itemSearch}"
+                  {searchType === 'service' && services.length === 0 && ' - No tests in catalog. Add tests in Admin → Service Catalog.'}
+                  {searchType === 'package' && packages.length === 0 && ' - No packages in catalog. Add packages in Pricing & Catalogs.'}
+                </div>
+              )}
 
               {itemSearch && filteredItems.length > 0 && (
                 <div className="mb-3 max-h-48 overflow-y-auto border rounded-lg">
