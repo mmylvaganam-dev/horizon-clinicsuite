@@ -51,7 +51,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'QC & Maintenance', page: 'LISQC', icon: CheckSquare },
     { name: 'LIS Reports', page: 'LISReports', icon: BarChart3 },
     { name: 'LIS Administration', page: 'LISAdmin', icon: Settings },
-    
+
     { name: '─ DIAGNOSTICS ─', page: null, icon: null, divider: true },
     { name: 'Orders & Results', page: 'OrdersResults', icon: FileText },
     { name: 'Release Queue', page: 'ReleaseQueue', icon: FileText },
@@ -63,17 +63,15 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Inventory', page: 'PharmacyInventory', icon: Activity },
     { name: 'Procurement', page: 'Procurement', icon: ShoppingBag },
 
-    { name: '─ FINANCE ─', page: null, icon: null, divider: true },
-    { name: 'Finance Dashboard', page: 'FinanceDashboard', icon: DollarSign },
-    { name: 'Companies', page: 'FinanceCompanies', icon: Building2 },
-
     { name: '─ OPERATIONS ─', page: null, icon: null, divider: true },
     { name: 'HR Dashboard', page: 'HRDashboard', icon: Users },
     { name: 'Staff Directory', page: 'StaffDirectory', icon: Users },
     { name: 'Payroll', page: 'PayrollManagement', icon: DollarSign },
-    { name: 'Finance Ledger', page: 'FinanceLedger', icon: DollarSign },
-    { name: 'Vendors', page: 'VendorManagement', icon: Building2 },
     { name: 'Third-Party Providers', page: 'ThirdPartyProviders', icon: Users },
+    { name: 'Vendors', page: 'VendorManagement', icon: Building2 },
+    { name: 'Finance Dashboard', page: 'FinanceDashboard', icon: DollarSign },
+    { name: 'Finance Ledger', page: 'FinanceLedger', icon: DollarSign },
+    { name: 'Company Profile', page: 'FinanceCompanies', icon: Building2 },
     { name: 'Operations Reports', page: 'OperationsReports', icon: BarChart3 },
 
     { name: '─ REPORTS ─', page: null, icon: null, divider: true },
