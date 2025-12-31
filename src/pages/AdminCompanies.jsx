@@ -84,7 +84,7 @@ export default function AdminCompanies() {
         action: 'create',
         record_type: 'Organization',
         record_id: result.id,
-        metadata: { organization_name: data.organization_name }
+        metadata: { organization_name: data.name }
       });
       return result;
     },
@@ -110,7 +110,7 @@ export default function AdminCompanies() {
         action: 'update',
         record_type: 'Organization',
         record_id: id,
-        metadata: { organization_name: data.organization_name, status: data.status }
+        metadata: { organization_name: data.name, status: data.status }
       });
       return result;
     },
@@ -176,8 +176,8 @@ export default function AdminCompanies() {
                 <div key={org.id} className="p-4 rounded-lg border bg-white hover:shadow-md transition-shadow">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-semibold text-slate-900">{org.organization_name}</p>
-                      <p className="text-sm text-slate-500">{org.type || 'Organization'}</p>
+                      <p className="font-semibold text-slate-900">{org.name}</p>
+                      <p className="text-sm text-slate-500">{org.type || 'Organization'} • {org.code}</p>
                     </div>
                     <div className="flex items-center gap-2">
                       <Badge variant={org.status === 'active' ? 'default' : 'secondary'}>
@@ -221,7 +221,7 @@ export default function AdminCompanies() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="font-semibold text-slate-900">{loc.name}</p>
-                        <p className="text-sm text-slate-500">{org?.organization_name || 'Unknown Org'}</p>
+                        <p className="text-sm text-slate-500">{org?.name || 'Unknown Org'}</p>
                         {loc.address && <p className="text-xs text-slate-400 mt-1">{loc.address}</p>}
                       </div>
                       <Badge variant={loc.status === 'active' ? 'default' : 'secondary'}>
@@ -248,8 +248,9 @@ export default function AdminCompanies() {
             e.preventDefault();
             const formData = new FormData(e.target);
             const data = {
-              organization_name: formData.get('organization_name'),
-              type: formData.get('type'),
+              name: formData.get('name'),
+              code: formData.get('code') || formData.get('name').toLowerCase().replace(/\s+/g, '_'),
+              type: formData.get('type') || 'clinic',
               status: formData.get('status'),
             };
             if (editingOrg) {
@@ -260,11 +261,28 @@ export default function AdminCompanies() {
           }} className="space-y-4">
             <div>
               <Label>Organization Name *</Label>
-              <Input name="organization_name" defaultValue={editingOrg?.organization_name} required />
+              <Input name="name" defaultValue={editingOrg?.name} required />
+            </div>
+            <div>
+              <Label>Code *</Label>
+              <Input name="code" defaultValue={editingOrg?.code} placeholder="e.g., clinic_main" required={!editingOrg} disabled={!!editingOrg} />
+              {editingOrg && <p className="text-xs text-slate-500 mt-1">Code cannot be changed after creation</p>}
             </div>
             <div>
               <Label>Type</Label>
-              <Input name="type" defaultValue={editingOrg?.type} placeholder="e.g., Clinic, Hospital" />
+              <Select name="type" defaultValue={editingOrg?.type || 'clinic'}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="hospital">Hospital</SelectItem>
+                  <SelectItem value="clinic">Clinic</SelectItem>
+                  <SelectItem value="diagnostic_center">Diagnostic Center</SelectItem>
+                  <SelectItem value="pharmacy">Pharmacy</SelectItem>
+                  <SelectItem value="lab">Lab</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label>Status</Label>
@@ -308,7 +326,7 @@ export default function AdminCompanies() {
                 </SelectTrigger>
                 <SelectContent>
                   {organizations.map(org => (
-                    <SelectItem key={org.id} value={org.id}>{org.organization_name}</SelectItem>
+                    <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>

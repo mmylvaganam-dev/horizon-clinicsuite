@@ -264,7 +264,7 @@ export default function AdminUsers() {
                 <SelectTrigger><SelectValue placeholder="Select organization" /></SelectTrigger>
                 <SelectContent>
                   {organizations.map(org => (
-                    <SelectItem key={org.id} value={org.id}>{org.organization_name || org.name}</SelectItem>
+                    <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -319,7 +319,7 @@ export default function AdminUsers() {
                     <SelectTrigger><SelectValue placeholder="Select organization" /></SelectTrigger>
                     <SelectContent>
                       {organizations.map(org => (
-                        <SelectItem key={org.id} value={org.id}>{org.organization_name || org.name}</SelectItem>
+                        <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
