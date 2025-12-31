@@ -14,9 +14,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 export default function AdminUsers() {
   const queryClient = useQueryClient();
   const [assignRoleOpen, setAssignRoleOpen] = useState(false);
+  const [createUserOpen, setCreateUserOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [roleFormData, setRoleFormData] = useState({
     role_id: '', organization_id: '', location_id: '', department_id: '', is_primary: false
+  });
+  const [newUserForm, setNewUserForm] = useState({
+    email: '', full_name: '', organization_id: ''
   });
 
   const { data: user } = useQuery({
@@ -70,6 +74,24 @@ export default function AdminUsers() {
     },
   });
 
+  const createUserMutation = useMutation({
+    mutationFn: async (data) => {
+      const newUser = await base44.entities.User.create({
+        email: data.email,
+        full_name: data.full_name,
+        organization_id: data.organization_id,
+        role: 'user',
+        status: 'active'
+      });
+      return newUser;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      setCreateUserOpen(false);
+      setNewUserForm({ email: '', full_name: '', organization_id: '' });
+    },
+  });
+
   const handleAssignRole = (e) => {
     e.preventDefault();
     const selectedRole = roles.find(r => r.id === roleFormData.role_id);
@@ -109,16 +131,22 @@ export default function AdminUsers() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Link to={createPageUrl('Admin')}>
-          <Button variant="ghost" size="icon">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Users & Roles</h1>
-          <p className="text-slate-500 mt-1">{users.length} users</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link to={createPageUrl('Admin')}>
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Users & Roles</h1>
+            <p className="text-slate-500 mt-1">{users.length} users</p>
+          </div>
         </div>
+        <Button onClick={() => setCreateUserOpen(true)}>
+          <Plus className="w-4 h-4 mr-2" />
+          Add User
+        </Button>
       </div>
 
       {isLoading ? (
@@ -182,6 +210,59 @@ export default function AdminUsers() {
           })}
         </div>
       )}
+
+      <Dialog open={createUserOpen} onOpenChange={setCreateUserOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New User</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Email *</label>
+              <input
+                type="email"
+                className="w-full px-3 py-2 border rounded-lg"
+                value={newUserForm.email}
+                onChange={(e) => setNewUserForm({...newUserForm, email: e.target.value})}
+                placeholder="user@example.com"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Full Name *</label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 border rounded-lg"
+                value={newUserForm.full_name}
+                onChange={(e) => setNewUserForm({...newUserForm, full_name: e.target.value})}
+                placeholder="John Doe"
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Organization *</label>
+              <Select value={newUserForm.organization_id} onValueChange={(v) => setNewUserForm({...newUserForm, organization_id: v})} required>
+                <SelectTrigger><SelectValue placeholder="Select organization" /></SelectTrigger>
+                <SelectContent>
+                  {organizations.map(org => (
+                    <SelectItem key={org.id} value={org.id}>{org.organization_name || org.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-3 pt-4">
+              <Button type="button" variant="outline" onClick={() => setCreateUserOpen(false)}>Cancel</Button>
+              <Button 
+                onClick={() => createUserMutation.mutate(newUserForm)}
+                disabled={!newUserForm.email || !newUserForm.full_name || !newUserForm.organization_id || createUserMutation.isPending}
+                className="bg-teal-600 hover:bg-teal-700"
+              >
+                {createUserMutation.isPending ? 'Creating...' : 'Create User'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={assignRoleOpen} onOpenChange={setAssignRoleOpen}>
         <DialogContent>

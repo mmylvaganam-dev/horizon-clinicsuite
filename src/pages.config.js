@@ -88,9 +88,9 @@ import SalesWorkspace from './pages/SalesWorkspace';
 import Settings from './pages/Settings';
 import StaffDirectory from './pages/StaffDirectory';
 import TaskManagement from './pages/TaskManagement';
-import VitalsTrend from './pages/VitalsTrend';
-import VendorManagement from './pages/VendorManagement';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
+import VendorManagement from './pages/VendorManagement';
+import VitalsTrend from './pages/VitalsTrend';
 import __Layout from './Layout.jsx';
 
 
@@ -185,9 +185,9 @@ export const PAGES = {
     "Settings": Settings,
     "StaffDirectory": StaffDirectory,
     "TaskManagement": TaskManagement,
-    "VitalsTrend": VitalsTrend,
-    "VendorManagement": VendorManagement,
     "ThirdPartyProviders": ThirdPartyProviders,
+    "VendorManagement": VendorManagement,
+    "VitalsTrend": VitalsTrend,
 }
 
 export const pagesConfig = {
