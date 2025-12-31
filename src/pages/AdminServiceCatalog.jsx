@@ -16,16 +16,17 @@ import toast from 'react-hot-toast';
 export default function AdminServiceCatalog() {
   const queryClient = useQueryClient();
   const [showDialog, setShowDialog] = useState(false);
+  const [showBulkImport, setShowBulkImport] = useState(false);
   const [editingService, setEditingService] = useState(null);
+  const [bulkData, setBulkData] = useState('');
   const [form, setForm] = useState({
     organization_id: '',
-    code: '',
-    name: '',
-    category: 'consultation',
+    service_code: '',
+    service_name: '',
+    category: 'TEST',
     default_price: 0,
-    taxable: false,
-    is_active: true,
-    description: ''
+    currency: 'LKR',
+    active: true
   });
 
   const { data: services = [] } = useQuery({
@@ -72,7 +73,7 @@ export default function AdminServiceCatalog() {
         action: 'update_service',
         record_type: 'ServiceCatalog',
         record_id: id,
-        metadata: { code: data.code, name: data.name }
+        metadata: { code: data.service_code, name: data.service_name }
       });
       return service;
     },
@@ -83,19 +84,63 @@ export default function AdminServiceCatalog() {
     }
   });
 
+  const bulkImportMutation = useMutation({
+    mutationFn: async (items) => {
+      const user = await base44.auth.me();
+      for (const item of items) {
+        await base44.entities.ServiceCatalog.create({
+          organization_id: user.organization_id || '',
+          service_code: item.code,
+          service_name: item.name,
+          category: 'TEST',
+          default_price: item.price,
+          currency: 'LKR',
+          active: true
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['serviceCatalog'] });
+      setShowBulkImport(false);
+      setBulkData('');
+      toast.success('Services imported successfully!');
+    }
+  });
+
   const resetForm = () => {
     setShowDialog(false);
     setEditingService(null);
     setForm({
       organization_id: '',
-      code: '',
-      name: '',
-      category: 'consultation',
+      service_code: '',
+      service_name: '',
+      category: 'TEST',
       default_price: 0,
-      taxable: false,
-      is_active: true,
-      description: ''
+      currency: 'LKR',
+      active: true
     });
+  };
+
+  const handleBulkImport = () => {
+    const lines = bulkData.split('\n').filter(l => l.trim());
+    const items = lines.map(line => {
+      const parts = line.split('\t');
+      if (parts.length >= 2) {
+        const name = parts[0].trim();
+        const priceStr = parts[1].replace(/Rs\.|,/g, '').trim();
+        const price = parseFloat(priceStr) || 0;
+        const code = name.toUpperCase().replace(/[^A-Z0-9]/g, '_').substring(0, 20);
+        return { name, price, code };
+      }
+      return null;
+    }).filter(Boolean);
+
+    if (items.length === 0) {
+      toast.error('No valid items found');
+      return;
+    }
+
+    bulkImportMutation.mutate(items);
   };
 
   const handleEdit = (service) => {
@@ -105,7 +150,7 @@ export default function AdminServiceCatalog() {
   };
 
   const handleSubmit = () => {
-    if (!form.code || !form.name) {
+    if (!form.service_code || !form.service_name) {
       toast.error('Code and name are required');
       return;
     }
@@ -134,48 +179,45 @@ export default function AdminServiceCatalog() {
           <h1 className="text-3xl font-bold text-slate-900">Service Catalog</h1>
           <p className="text-slate-500 mt-1">Manage services and pricing</p>
         </div>
-        <Button onClick={() => setShowDialog(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Add Service
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowBulkImport(true)}>
+            Bulk Import
+          </Button>
+          <Button onClick={() => setShowDialog(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Add Service
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {services.map((service) => (
           <Card key={service.id} className="p-5 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between mb-3">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <Badge variant="outline" className="font-mono">{service.code}</Badge>
-                  <Badge variant="outline" className={categoryColors[service.category]}>
-                    {service.category}
-                  </Badge>
-                </div>
-                <h3 className="font-semibold text-slate-900">{service.name}</h3>
-              </div>
-              <Button variant="ghost" size="icon" onClick={() => handleEdit(service)}>
-                <Edit className="w-4 h-4" />
-              </Button>
-            </div>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-slate-500">Price:</span>
-                <span className="font-semibold">${service.default_price.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Taxable:</span>
-                {service.taxable ? (
-                  <Check className="w-4 h-4 text-green-600" />
-                ) : (
-                  <X className="w-4 h-4 text-slate-400" />
-                )}
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Status:</span>
-                <Badge variant={service.is_active ? 'default' : 'outline'}>
-                  {service.is_active ? 'Active' : 'Inactive'}
+            <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <Badge variant="outline" className="font-mono">{service.service_code}</Badge>
+                <Badge variant="outline" className={categoryColors[service.category] || 'bg-slate-100 text-slate-700'}>
+                  {service.category}
                 </Badge>
               </div>
+              <h3 className="font-semibold text-slate-900">{service.service_name}</h3>
+            </div>
+            <Button variant="ghost" size="icon" onClick={() => handleEdit(service)}>
+              <Edit className="w-4 h-4" />
+            </Button>
+            </div>
+            <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-slate-500">Price:</span>
+              <span className="font-semibold">Rs. {service.default_price.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500">Status:</span>
+              <Badge variant={service.active ? 'default' : 'outline'}>
+                {service.active ? 'Active' : 'Inactive'}
+              </Badge>
+            </div>
             </div>
           </Card>
         ))}
@@ -191,8 +233,8 @@ export default function AdminServiceCatalog() {
               <div>
                 <Label>Code *</Label>
                 <Input
-                  value={form.code}
-                  onChange={(e) => setForm({ ...form, code: e.target.value })}
+                  value={form.service_code}
+                  onChange={(e) => setForm({ ...form, service_code: e.target.value })}
                 />
               </div>
               <div>
@@ -202,13 +244,12 @@ export default function AdminServiceCatalog() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="consultation">Consultation</SelectItem>
-                    <SelectItem value="lab">Lab</SelectItem>
-                    <SelectItem value="cardiology">Cardiology</SelectItem>
-                    <SelectItem value="pft">PFT</SelectItem>
-                    <SelectItem value="radiology">Radiology</SelectItem>
-                    <SelectItem value="pharmacy">Pharmacy</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
+                    <SelectItem value="CONSULT_GP">Consult GP</SelectItem>
+                    <SelectItem value="CONSULT_SPECIALIST">Consult Specialist</SelectItem>
+                    <SelectItem value="TEST">Test</SelectItem>
+                    <SelectItem value="IMAGING">Imaging</SelectItem>
+                    <SelectItem value="LAB_COLLECTION">Lab Collection</SelectItem>
+                    <SelectItem value="OTHER">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -216,12 +257,12 @@ export default function AdminServiceCatalog() {
             <div>
               <Label>Name *</Label>
               <Input
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                value={form.service_name}
+                onChange={(e) => setForm({ ...form, service_name: e.target.value })}
               />
             </div>
             <div>
-              <Label>Default Price *</Label>
+              <Label>Default Price (Rs.) *</Label>
               <Input
                 type="number"
                 min="0"
@@ -230,26 +271,11 @@ export default function AdminServiceCatalog() {
                 onChange={(e) => setForm({ ...form, default_price: parseFloat(e.target.value) || 0 })}
               />
             </div>
-            <div>
-              <Label>Description</Label>
-              <Textarea
-                value={form.description}
-                onChange={(e) => setForm({ ...form, description: e.target.value })}
-                rows={2}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label>Taxable</Label>
-              <Switch
-                checked={form.taxable}
-                onCheckedChange={(val) => setForm({ ...form, taxable: val })}
-              />
-            </div>
             <div className="flex items-center justify-between">
               <Label>Active</Label>
               <Switch
-                checked={form.is_active}
-                onCheckedChange={(val) => setForm({ ...form, is_active: val })}
+                checked={form.active}
+                onCheckedChange={(val) => setForm({ ...form, active: val })}
               />
             </div>
             <div className="flex justify-end gap-3 pt-4">
@@ -258,6 +284,34 @@ export default function AdminServiceCatalog() {
               </Button>
               <Button onClick={handleSubmit} disabled={createMutation.isPending || updateMutation.isPending}>
                 {editingService ? 'Update' : 'Create'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showBulkImport} onOpenChange={setShowBulkImport}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Bulk Import Services</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-slate-600">
+              Paste tab-separated data: Test Name [TAB] Rs. Price
+            </p>
+            <Textarea
+              placeholder="Fasting Blood Sugar&#9;Rs. 530.00&#10;Lipid Profile&#9;Rs. 2,100.00&#10;Full Blood Count&#9;Rs. 400.00"
+              value={bulkData}
+              onChange={(e) => setBulkData(e.target.value)}
+              rows={15}
+              className="font-mono text-sm"
+            />
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setShowBulkImport(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleBulkImport} disabled={bulkImportMutation.isPending || !bulkData.trim()}>
+                {bulkImportMutation.isPending ? 'Importing...' : 'Import Services'}
               </Button>
             </div>
           </div>
