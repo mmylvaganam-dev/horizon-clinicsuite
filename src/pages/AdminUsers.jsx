@@ -76,17 +76,36 @@ export default function AdminUsers() {
 
   const createUserMutation = useMutation({
     mutationFn: async (data) => {
+      // Create the user first
       const newUser = await base44.entities.User.create({
         email: data.email,
         full_name: data.full_name,
-        organization_id: data.organization_id,
-        role: 'user',
-        status: 'active'
+        role: 'user'
       });
+
+      // Find a default user role for the organization
+      const defaultRole = roles.find(r => r.code === 'ORG_USER' || r.name?.toLowerCase().includes('user'));
+      
+      // Assign the user to the organization via UserRole
+      if (defaultRole && data.organization_id) {
+        await base44.entities.UserRole.create({
+          user_id: newUser.id,
+          role_id: defaultRole.id,
+          organization_id: data.organization_id,
+          location_id: '',
+          department_id: '',
+          is_primary: true,
+          assigned_at: new Date().toISOString(),
+          assigned_by: user.id,
+          assigned_by_email: user.email
+        });
+      }
+
       return newUser;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['userRoles'] });
       setCreateUserOpen(false);
       setNewUserForm({ email: '', full_name: '', organization_id: '' });
     },
