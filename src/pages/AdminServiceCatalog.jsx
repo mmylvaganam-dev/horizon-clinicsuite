@@ -34,21 +34,30 @@ export default function AdminServiceCatalog() {
     queryFn: () => base44.entities.ServiceCatalog.list('-created_date'),
   });
 
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const createMutation = useMutation({
     mutationFn: async (data) => {
-      const service = await base44.entities.ServiceCatalog.create(data);
+      const serviceData = {
+        ...data,
+        organization_id: user?.organization_id || ''
+      };
+      const service = await base44.entities.ServiceCatalog.create(serviceData);
       await base44.entities.AuditLog.create({
         timestamp: new Date().toISOString(),
-        user_id: (await base44.auth.me()).id,
-        user_email: (await base44.auth.me()).email,
-        organization_id: data.organization_id || '',
+        user_id: user.id,
+        user_email: user.email,
+        organization_id: user?.organization_id || '',
         location_id: '',
         patient_id: '',
         module: 'ADMIN',
         action: 'create_service',
         record_type: 'ServiceCatalog',
         record_id: service.id,
-        metadata: { code: data.code, name: data.name }
+        metadata: { code: data.service_code, name: data.service_name }
       });
       return service;
     },
@@ -61,12 +70,16 @@ export default function AdminServiceCatalog() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }) => {
-      const service = await base44.entities.ServiceCatalog.update(id, data);
+      const updateData = {
+        ...data,
+        organization_id: user?.organization_id || data.organization_id
+      };
+      const service = await base44.entities.ServiceCatalog.update(id, updateData);
       await base44.entities.AuditLog.create({
         timestamp: new Date().toISOString(),
-        user_id: (await base44.auth.me()).id,
-        user_email: (await base44.auth.me()).email,
-        organization_id: data.organization_id || '',
+        user_id: user.id,
+        user_email: user.email,
+        organization_id: user?.organization_id || '',
         location_id: '',
         patient_id: '',
         module: 'ADMIN',
@@ -86,10 +99,9 @@ export default function AdminServiceCatalog() {
 
   const bulkImportMutation = useMutation({
     mutationFn: async (items) => {
-      const user = await base44.auth.me();
       for (const item of items) {
         await base44.entities.ServiceCatalog.create({
-          organization_id: user.organization_id || '',
+          organization_id: user?.organization_id || '',
           service_code: item.code,
           service_name: item.name,
           category: 'TEST',
