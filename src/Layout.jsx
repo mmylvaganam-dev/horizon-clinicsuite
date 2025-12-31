@@ -72,10 +72,10 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Finance Dashboard', page: 'FinanceDashboard', icon: DollarSign },
     { name: 'Finance Ledger', page: 'FinanceLedger', icon: DollarSign },
     { name: 'Company Profile', page: 'FinanceCompanies', icon: Building2 },
-    { name: 'Operations Reports', page: 'OperationsReports', icon: BarChart3 },
 
     { name: '─ REPORTS ─', page: null, icon: null, divider: true },
     { name: 'Reports', page: 'Reports', icon: FileText },
+    { name: 'Operations Reports', page: 'OperationsReports', icon: BarChart3 },
     { name: 'Management Reports', page: 'ManagementReports', icon: FileText },
     { name: 'Analytics', page: 'Analytics', icon: BarChart3 },
 
