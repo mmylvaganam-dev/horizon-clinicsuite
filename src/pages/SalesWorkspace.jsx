@@ -23,6 +23,7 @@ export default function SalesWorkspace() {
   const [searchType, setSearchType] = useState('service');
   const [itemSearch, setItemSearch] = useState('');
   const [cashReceived, setCashReceived] = useState(0);
+  const [viewInvoiceId, setViewInvoiceId] = useState(null);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -50,6 +51,12 @@ export default function SalesWorkspace() {
       const today = format(new Date(), 'yyyy-MM-dd');
       return base44.entities.InvoiceHeader.list('-created_date');
     },
+  });
+
+  const { data: viewInvoiceLines = [] } = useQuery({
+    queryKey: ['invoiceLines', viewInvoiceId],
+    queryFn: () => base44.entities.InvoiceLine.filter({ invoice_ref: viewInvoiceId }),
+    enabled: !!viewInvoiceId,
   });
 
   const createSaleMutation = useMutation({
@@ -123,19 +130,24 @@ export default function SalesWorkspace() {
       
       // Generate and download PDF receipt
       try {
-        const response = await base44.functions.invoke('generateReceiptPDF', { invoice_id: data.invoice.id });
-        const blob = new Blob([response.data], { type: 'application/pdf' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `receipt-${data.invoice.invoice_number}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        a.remove();
-        toast.success(`Sale completed! Receipt downloaded. Accession: ${data.accessionNumber}`);
+        const { data: pdfData } = await base44.functions.invoke('generateReceiptPDF', { invoice_id: data.invoice.id });
+        
+        if (pdfData instanceof ArrayBuffer || pdfData instanceof Uint8Array) {
+          const blob = new Blob([pdfData], { type: 'application/pdf' });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `receipt-${data.invoice.invoice_number}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          a.remove();
+          toast.success(`Sale completed! Receipt downloaded. Accession: ${data.accessionNumber}`);
+        } else {
+          throw new Error('Invalid PDF data received');
+        }
       } catch (error) {
-        toast.success(`Sale completed! Accession: ${data.accessionNumber}`);
+        toast.error('PDF generation failed. Sale completed without receipt.');
         console.error('PDF generation failed:', error);
       }
       
@@ -320,7 +332,11 @@ export default function SalesWorkspace() {
             ) : (
               <div className="space-y-2">
                 {todayInvoices.slice(0, 10).map((inv) => (
-                  <div key={inv.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div 
+                    key={inv.id} 
+                    className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-slate-50 transition-colors"
+                    onClick={() => setViewInvoiceId(inv.id)}
+                  >
                     <div>
                       <p className="font-semibold">{inv.invoice_number}</p>
                       <p className="text-sm text-slate-500">
@@ -616,6 +632,103 @@ export default function SalesWorkspace() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!viewInvoiceId} onOpenChange={() => setViewInvoiceId(null)}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Invoice Details</DialogTitle>
+          </DialogHeader>
+          {viewInvoiceId && (() => {
+            const invoice = todayInvoices.find(i => i.id === viewInvoiceId);
+            const patient = patients.find(p => p.id === invoice?.patient_ref);
+            return (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg">
+                  <div>
+                    <p className="text-sm text-slate-500">Invoice Number</p>
+                    <p className="font-semibold">{invoice?.invoice_number}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Date & Time</p>
+                    <p className="font-semibold">{format(new Date(invoice?.invoice_date), 'dd/MM/yyyy HH:mm')}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">Patient</p>
+                    <p className="font-semibold">{patient?.first_name} {patient?.last_name}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-slate-500">MRN</p>
+                    <p className="font-semibold">{patient?.mrn || 'N/A'}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="font-semibold mb-2">Items</h3>
+                  <div className="border rounded-lg overflow-hidden">
+                    {viewInvoiceLines.map((line, idx) => (
+                      <div key={idx} className="flex justify-between p-3 border-b last:border-0 bg-white">
+                        <div>
+                          <p className="font-medium">{line.item_name_cache}</p>
+                          <p className="text-xs text-slate-500">{line.category} • Qty: {line.qty}</p>
+                        </div>
+                        <p className="font-semibold text-teal-600">Rs. {line.line_total.toFixed(2)}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="border-t pt-3 space-y-2">
+                  <div className="flex justify-between">
+                    <span>Subtotal:</span>
+                    <span className="font-semibold">Rs. {invoice?.subtotal.toFixed(2)}</span>
+                  </div>
+                  {invoice?.subtotal !== invoice?.total && (
+                    <div className="flex justify-between text-amber-700">
+                      <span>Discount:</span>
+                      <span>-Rs. {(invoice?.subtotal - invoice?.total).toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-xl font-bold border-t pt-2">
+                    <span>Total:</span>
+                    <span className="text-emerald-600">Rs. {invoice?.total.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                {invoice?.notes && (
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <p className="text-sm text-slate-700">{invoice.notes}</p>
+                  </div>
+                )}
+
+                <Button 
+                  className="w-full"
+                  onClick={async () => {
+                    try {
+                      const { data: pdfData } = await base44.functions.invoke('generateReceiptPDF', { invoice_id: viewInvoiceId });
+                      const blob = new Blob([pdfData], { type: 'application/pdf' });
+                      const url = window.URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `receipt-${invoice.invoice_number}.pdf`;
+                      document.body.appendChild(a);
+                      a.click();
+                      window.URL.revokeObjectURL(url);
+                      a.remove();
+                      toast.success('Receipt downloaded');
+                    } catch (error) {
+                      toast.error('Failed to download receipt');
+                      console.error('PDF error:', error);
+                    }
+                  }}
+                >
+                  <Receipt className="w-4 h-4 mr-2" />
+                  Download Receipt PDF
+                </Button>
+              </div>
+            );
+          })()}
         </DialogContent>
       </Dialog>
     </div>
