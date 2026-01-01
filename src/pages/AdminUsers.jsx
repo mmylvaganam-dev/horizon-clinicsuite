@@ -81,38 +81,33 @@ export default function AdminUsers() {
     },
   });
 
-  const createUserMutation = useMutation({
+  const inviteUserMutation = useMutation({
     mutationFn: async (data) => {
-      // Create the user first
-      const newUser = await base44.entities.User.create({
-        email: data.email,
-        full_name: data.full_name,
-        role: 'user'
+      // Invite user via email
+      await base44.users.inviteUser(data.email, 'user');
+
+      // Log the invitation
+      await base44.entities.AuditLog.create({
+        timestamp: new Date().toISOString(),
+        user_id: user.id,
+        user_email: user.email,
+        organization_id: data.organization_id || '',
+        location_id: '',
+        patient_id: '',
+        module: 'USER_ADMIN',
+        action: 'invite_user',
+        record_type: 'User',
+        record_id: '',
+        metadata: {
+          invited_email: data.email,
+          organization_id: data.organization_id
+        }
       });
 
-      // Find a default user role for the organization
-      const defaultRole = roles.find(r => r.code === 'ORG_USER' || r.name?.toLowerCase().includes('user'));
-      
-      // Assign the user to the organization via UserRole
-      if (defaultRole && data.organization_id) {
-        await base44.entities.UserRole.create({
-          user_id: newUser.id,
-          role_id: defaultRole.id,
-          organization_id: data.organization_id,
-          location_id: '',
-          department_id: '',
-          is_primary: true,
-          assigned_at: new Date().toISOString(),
-          assigned_by: user.id,
-          assigned_by_email: user.email
-        });
-      }
-
-      return newUser;
+      return { email: data.email };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      queryClient.invalidateQueries({ queryKey: ['userRoles'] });
       setCreateUserOpen(false);
       setNewUserForm({ email: '', full_name: '', organization_id: '' });
     },
@@ -177,7 +172,7 @@ export default function AdminUsers() {
         </div>
         <Button onClick={() => setCreateUserOpen(true)}>
           <Plus className="w-4 h-4 mr-2" />
-          Add User
+          Invite User
         </Button>
       </div>
 
@@ -246,9 +241,12 @@ export default function AdminUsers() {
       <Dialog open={createUserOpen} onOpenChange={setCreateUserOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add New User</DialogTitle>
+            <DialogTitle>Invite New User</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+              <p className="text-sm text-blue-900">User will receive an invitation email to register. After registration, you can assign roles.</p>
+            </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Email *</label>
               <input
@@ -261,19 +259,8 @@ export default function AdminUsers() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Full Name *</label>
-              <input
-                type="text"
-                className="w-full px-3 py-2 border rounded-lg"
-                value={newUserForm.full_name}
-                onChange={(e) => setNewUserForm({...newUserForm, full_name: e.target.value})}
-                placeholder="John Doe"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Organization *</label>
-              <Select value={newUserForm.organization_id} onValueChange={(v) => setNewUserForm({...newUserForm, organization_id: v})} required>
+              <label className="text-sm font-medium">Organization (Optional)</label>
+              <Select value={newUserForm.organization_id} onValueChange={(v) => setNewUserForm({...newUserForm, organization_id: v})}>
                 <SelectTrigger><SelectValue placeholder="Select organization" /></SelectTrigger>
                 <SelectContent>
                   {organizations.map(org => (
@@ -281,15 +268,16 @@ export default function AdminUsers() {
                   ))}
                 </SelectContent>
               </Select>
+              <p className="text-xs text-slate-500">For reference only - roles will be assigned after registration</p>
             </div>
             <div className="flex justify-end gap-3 pt-4">
               <Button type="button" variant="outline" onClick={() => setCreateUserOpen(false)}>Cancel</Button>
               <Button 
-                onClick={() => createUserMutation.mutate(newUserForm)}
-                disabled={!newUserForm.email || !newUserForm.full_name || !newUserForm.organization_id || createUserMutation.isPending}
+                onClick={() => inviteUserMutation.mutate(newUserForm)}
+                disabled={!newUserForm.email || inviteUserMutation.isPending}
                 className="bg-teal-600 hover:bg-teal-700"
               >
-                {createUserMutation.isPending ? 'Creating...' : 'Create User'}
+                {inviteUserMutation.isPending ? 'Sending...' : 'Send Invitation'}
               </Button>
             </div>
           </div>
