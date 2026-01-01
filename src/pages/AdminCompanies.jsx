@@ -46,20 +46,13 @@ export default function AdminCompanies() {
     return role?.code === 'PLATFORM_OWNER';
   });
 
-  const isOrgSuperUser = userRoles.some(ur => {
-    const role = allRoles.find(r => r.id === ur.role_id);
-    return role?.code === 'ORG_SUPER_USER';
-  });
-
-  const canAccess = isPlatformOwner || isOrgSuperUser;
-
-  if (currentUser && !canAccess) {
+  if (currentUser && !isPlatformOwner) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Card className="p-8 text-center max-w-md">
           <Lock className="w-16 h-16 text-rose-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
-          <p className="text-slate-600">PLATFORM_OWNER or ORG_SUPER_USER role required</p>
+          <p className="text-slate-600">PLATFORM_OWNER role required</p>
         </Card>
       </div>
     );
@@ -68,13 +61,13 @@ export default function AdminCompanies() {
   const { data: organizations = [] } = useQuery({
     queryKey: ['organizations'],
     queryFn: () => base44.entities.Organization.list(),
-    enabled: canAccess,
+    enabled: isPlatformOwner,
   });
 
   const { data: locations = [] } = useQuery({
     queryKey: ['locations'],
     queryFn: () => base44.entities.Location.list(),
-    enabled: canAccess,
+    enabled: isPlatformOwner,
   });
 
   const createOrgMutation = useMutation({
@@ -160,11 +153,9 @@ export default function AdminCompanies() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Companies & Organizations</h1>
-          <p className="text-slate-500 mt-1">Manage organizations and locations</p>
+          <p className="text-slate-500 mt-1">Manage organizations and locations (PLATFORM_OWNER only)</p>
         </div>
-        <Badge className="bg-blue-100 text-blue-700">
-          {isPlatformOwner ? 'PLATFORM_OWNER' : 'ORG_SUPER_USER'}
-        </Badge>
+        <Badge className="bg-rose-100 text-rose-700">PLATFORM_OWNER ONLY</Badge>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
