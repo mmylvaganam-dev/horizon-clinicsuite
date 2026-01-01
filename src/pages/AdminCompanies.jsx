@@ -8,13 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Building2, Plus, Edit, Lock, MapPin } from 'lucide-react';
+import { Building2, Plus, Edit, MapPin } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from '../utils';
 
 export default function AdminCompanies() {
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [orgDialogOpen, setOrgDialogOpen] = useState(false);
   const [locationDialogOpen, setLocationDialogOpen] = useState(false);
@@ -27,47 +24,14 @@ export default function AdminCompanies() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: userRoles = [] } = useQuery({
-    queryKey: ['userRoles', currentUser?.id],
-    queryFn: async () => {
-      const roles = await base44.entities.UserRole.filter({ user_id: currentUser.id });
-      return roles;
-    },
-    enabled: !!currentUser,
-  });
-
-  const { data: allRoles = [] } = useQuery({
-    queryKey: ['allRoles'],
-    queryFn: () => base44.entities.Role.list(),
-  });
-
-  const isPlatformOwner = userRoles.some(ur => {
-    const role = allRoles.find(r => r.id === ur.role_id);
-    return role?.code === 'PLATFORM_OWNER';
-  });
-
-  if (currentUser && !isPlatformOwner) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Card className="p-8 text-center max-w-md">
-          <Lock className="w-16 h-16 text-rose-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
-          <p className="text-slate-600">PLATFORM_OWNER role required</p>
-        </Card>
-      </div>
-    );
-  }
-
   const { data: organizations = [] } = useQuery({
     queryKey: ['organizations'],
     queryFn: () => base44.entities.Organization.list(),
-    enabled: isPlatformOwner,
   });
 
   const { data: locations = [] } = useQuery({
     queryKey: ['locations'],
     queryFn: () => base44.entities.Location.list(),
-    enabled: isPlatformOwner,
   });
 
   const createOrgMutation = useMutation({
@@ -153,9 +117,8 @@ export default function AdminCompanies() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Companies & Organizations</h1>
-          <p className="text-slate-500 mt-1">Manage organizations and locations (PLATFORM_OWNER only)</p>
+          <p className="text-slate-500 mt-1">Manage organizations and locations</p>
         </div>
-        <Badge className="bg-rose-100 text-rose-700">PLATFORM_OWNER ONLY</Badge>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -314,6 +277,7 @@ export default function AdminCompanies() {
             createLocationMutation.mutate({
               organization_id: formData.get('organization_id'),
               name: formData.get('name'),
+              code: formData.get('code') || formData.get('name').toLowerCase().replace(/\s+/g, '_'),
               address: formData.get('address'),
               status: 'active',
             });
@@ -334,6 +298,10 @@ export default function AdminCompanies() {
             <div>
               <Label>Location Name *</Label>
               <Input name="name" required />
+            </div>
+            <div>
+              <Label>Location Code</Label>
+              <Input name="code" placeholder="Auto-generated from name" />
             </div>
             <div>
               <Label>Address</Label>
