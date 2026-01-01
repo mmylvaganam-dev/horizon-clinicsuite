@@ -91,7 +91,6 @@ import TaskManagement from './pages/TaskManagement';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import InitialSetup from './pages/InitialSetup';
 import __Layout from './Layout.jsx';
 
 
@@ -189,7 +188,6 @@ export const PAGES = {
     "ThirdPartyProviders": ThirdPartyProviders,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "InitialSetup": InitialSetup,
 }
 
 export const pagesConfig = {
