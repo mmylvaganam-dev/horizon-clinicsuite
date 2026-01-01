@@ -432,6 +432,61 @@ export default function Admin() {
         </Card>
       )}
 
+      {isPlatformOwner && (
+        <Card className="border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50">
+          <CardContent className="pt-6">
+            <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-blue-600" />
+              Quick Actions
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <button
+                onClick={() => navigate(createPageUrl('AdminCompanies'))}
+                className="p-4 rounded-lg border-2 border-blue-300 bg-white hover:bg-blue-50 transition-all text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                    <Building2 className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-slate-900">Add Organization</p>
+                    <p className="text-xs text-slate-500">Create new company</p>
+                  </div>
+                </div>
+              </button>
+              <button
+                onClick={() => navigate(createPageUrl('OrganizationUserManagement'))}
+                className="p-4 rounded-lg border-2 border-teal-300 bg-white hover:bg-teal-50 transition-all text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center">
+                    <Users className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-slate-900">Add User</p>
+                    <p className="text-xs text-slate-500">Invite organization user</p>
+                  </div>
+                </div>
+              </button>
+              <button
+                onClick={() => navigate(createPageUrl('AdminRoleStandards'))}
+                className="p-4 rounded-lg border-2 border-indigo-300 bg-white hover:bg-indigo-50 transition-all text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
+                    <Shield className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-slate-900">Setup Roles</p>
+                    <p className="text-xs text-slate-500">Initialize standard roles</p>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       <div className="space-y-8">
         {adminCategories.map((category, idx) => (
           <div key={idx}>
