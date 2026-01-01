@@ -118,9 +118,27 @@ export default function SalesWorkspace() {
 
       return { invoice, accessionNumber };
     },
-    onSuccess: (data) => {
-      toast.success(`Sale completed! Accession: ${data.accessionNumber}`);
+    onSuccess: async (data) => {
       queryClient.invalidateQueries(['todayInvoices']);
+      
+      // Generate and download PDF receipt
+      try {
+        const response = await base44.functions.invoke('generateReceiptPDF', { invoice_id: data.invoice.id });
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `receipt-${data.invoice.invoice_number}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        a.remove();
+        toast.success(`Sale completed! Receipt downloaded. Accession: ${data.accessionNumber}`);
+      } catch (error) {
+        toast.success(`Sale completed! Accession: ${data.accessionNumber}`);
+        console.error('PDF generation failed:', error);
+      }
+      
       setShowSale(false);
       setSelectedPatient('');
       setSaleLines([]);
