@@ -93,7 +93,14 @@ export default function AdminRoleStandards() {
 
   const createRoleMutation = useMutation({
     mutationFn: async (roleData) => {
-      const role = await base44.entities.Role.create(roleData);
+      const role = await base44.entities.Role.create({
+        name: roleData.role_name,
+        code: roleData.role_name,
+        description: roleData.description,
+        organization_id: null,
+        is_system_role: true,
+        status: 'active'
+      });
 
       await base44.entities.AuditLog.create({
         timestamp: new Date().toISOString(),
@@ -125,7 +132,7 @@ export default function AdminRoleStandards() {
     let created = 0;
 
     for (const standardRole of standardRoles) {
-      const exists = roles.find(r => r.role_name === standardRole.role_name);
+      const exists = roles.find(r => r.code === standardRole.role_name || r.name === standardRole.role_name);
       if (!exists) {
         try {
           await createRoleMutation.mutateAsync(standardRole);
