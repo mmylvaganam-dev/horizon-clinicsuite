@@ -23,6 +23,11 @@ export default function AdminOrganizationBranding() {
     app_display_name: '',
     primary_logo_file_ref: '',
     secondary_logo_file_ref: '',
+    phone_number: '',
+    phone_number_2: '',
+    email: '',
+    address: '',
+    website: '',
     primary_color: '',
     secondary_color: '',
     footer_text: ''
@@ -87,6 +92,11 @@ export default function AdminOrganizationBranding() {
         app_display_name: branding.app_display_name || '',
         primary_logo_file_ref: branding.primary_logo_file_ref || '',
         secondary_logo_file_ref: branding.secondary_logo_file_ref || '',
+        phone_number: branding.phone_number || '',
+        phone_number_2: branding.phone_number_2 || '',
+        email: branding.email || '',
+        address: branding.address || '',
+        website: branding.website || '',
         primary_color: branding.primary_color || '',
         secondary_color: branding.secondary_color || '',
         footer_text: branding.footer_text || ''
@@ -222,7 +232,7 @@ export default function AdminOrganizationBranding() {
           <CardContent>
             <div className="space-y-6">
               <div>
-                <Label>Application Display Name *</Label>
+                <Label>Clinic/Health Center Name *</Label>
                 <Input
                   placeholder="e.g., Premier Medical Center"
                   value={brandingForm.app_display_name}
@@ -231,9 +241,62 @@ export default function AdminOrganizationBranding() {
                 />
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>Primary Phone Number</Label>
+                  <Input
+                    placeholder="+94 11 234 5678"
+                    value={brandingForm.phone_number}
+                    onChange={(e) => setBrandingForm({ ...brandingForm, phone_number: e.target.value })}
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label>Secondary Phone Number (Optional)</Label>
+                  <Input
+                    placeholder="+94 77 123 4567"
+                    value={brandingForm.phone_number_2}
+                    onChange={(e) => setBrandingForm({ ...brandingForm, phone_number_2: e.target.value })}
+                    className="mt-2"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label>Email Address</Label>
+                <Input
+                  type="email"
+                  placeholder="info@premiermedical.lk"
+                  value={brandingForm.email}
+                  onChange={(e) => setBrandingForm({ ...brandingForm, email: e.target.value })}
+                  className="mt-2"
+                />
+              </div>
+
+              <div>
+                <Label>Physical Address</Label>
+                <Textarea
+                  placeholder="123 Main Street, Colombo 03, Sri Lanka"
+                  value={brandingForm.address}
+                  onChange={(e) => setBrandingForm({ ...brandingForm, address: e.target.value })}
+                  rows={2}
+                  className="mt-2"
+                />
+              </div>
+
+              <div>
+                <Label>Website (Optional)</Label>
+                <Input
+                  placeholder="www.premiermedical.lk"
+                  value={brandingForm.website}
+                  onChange={(e) => setBrandingForm({ ...brandingForm, website: e.target.value })}
+                  className="mt-2"
+                />
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label>Primary Logo</Label>
+                  <Label>Primary Logo (Main Clinic Logo) *</Label>
                   <div className="mt-2 border-2 border-dashed rounded-lg p-6 text-center">
                     {brandingForm.primary_logo_file_ref ? (
                       <div className="space-y-2">
@@ -273,7 +336,7 @@ export default function AdminOrganizationBranding() {
                 </div>
 
                 <div>
-                  <Label>Secondary Logo (Optional)</Label>
+                  <Label>Secondary Logo (Optional - e.g., Partner Logo)</Label>
                   <div className="mt-2 border-2 border-dashed rounded-lg p-6 text-center">
                     {brandingForm.secondary_logo_file_ref ? (
                       <div className="space-y-2">
