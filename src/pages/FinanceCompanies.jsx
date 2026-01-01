@@ -15,6 +15,14 @@ import toast from 'react-hot-toast';
 export default function FinanceCompanies() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingCompany, setEditingCompany] = useState(null);
+  const [orgDialogOpen, setOrgDialogOpen] = useState(false);
+  const [editingOrg, setEditingOrg] = useState(null);
+  const [orgFormData, setOrgFormData] = useState({
+    name: '',
+    code: '',
+    type: 'clinic',
+    status: 'active'
+  });
   const [formData, setFormData] = useState({
     company_legal_name: '',
     company_trade_name: '',
@@ -35,6 +43,31 @@ export default function FinanceCompanies() {
   const { data: companies = [], isLoading } = useQuery({
     queryKey: ['companies'],
     queryFn: () => base44.entities.CompanyProfile.list('-created_date'),
+  });
+
+  const { data: userRoles = [] } = useQuery({
+    queryKey: ['userRoles', user?.id],
+    queryFn: async () => {
+      const roles = await base44.entities.UserRole.filter({ user_id: user.id });
+      return roles;
+    },
+    enabled: !!user,
+  });
+
+  const { data: allRoles = [] } = useQuery({
+    queryKey: ['allRoles'],
+    queryFn: () => base44.entities.Role.list(),
+  });
+
+  const isPlatformOwner = userRoles.some(ur => {
+    const role = allRoles.find(r => r.id === ur.role_id);
+    return role?.code === 'PLATFORM_OWNER';
+  });
+
+  const { data: organizations = [] } = useQuery({
+    queryKey: ['organizations'],
+    queryFn: () => base44.entities.Organization.list(),
+    enabled: isPlatformOwner,
   });
 
   const saveMutation = useMutation({
@@ -91,6 +124,53 @@ export default function FinanceCompanies() {
       status: company.status
     });
     setDialogOpen(true);
+  };
+
+  const saveOrgMutation = useMutation({
+    mutationFn: async (data) => {
+      const org = editingOrg
+        ? await base44.entities.Organization.update(editingOrg.id, data)
+        : await base44.entities.Organization.create(data);
+
+      await base44.entities.AuditLog.create({
+        timestamp: new Date().toISOString(),
+        user_id: user.id,
+        user_email: user.email,
+        organization_id: org.id,
+        location_id: '',
+        patient_id: '',
+        module: 'ADMIN_COMPANY',
+        action: editingOrg ? 'update_organization' : 'create_organization',
+        record_type: 'Organization',
+        record_id: org.id,
+        metadata: {}
+      });
+
+      return org;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['organizations'] });
+      setOrgDialogOpen(false);
+      setEditingOrg(null);
+      setOrgFormData({
+        name: '',
+        code: '',
+        type: 'clinic',
+        status: 'active'
+      });
+      toast.success(editingOrg ? 'Organization updated' : 'Organization created');
+    },
+  });
+
+  const handleEditOrg = (org) => {
+    setEditingOrg(org);
+    setOrgFormData({
+      name: org.name,
+      code: org.code,
+      type: org.type || 'clinic',
+      status: org.status
+    });
+    setOrgDialogOpen(true);
   };
 
   return (
