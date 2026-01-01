@@ -71,7 +71,6 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Vendors', page: 'VendorManagement', icon: Building2 },
     { name: 'Finance Dashboard', page: 'FinanceDashboard', icon: DollarSign },
     { name: 'Finance Ledger', page: 'FinanceLedger', icon: DollarSign },
-    { name: 'Company Profile', page: 'FinanceCompanies', icon: Building2 },
 
     { name: '─ REPORTS ─', page: null, icon: null, divider: true },
     { name: 'Reports', page: 'Reports', icon: FileText },
@@ -84,6 +83,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Communications', page: 'Communications', icon: Mail },
 
     { name: '─ ADMINISTRATION ─', page: null, icon: null, divider: true },
+    { name: 'Company Profile', page: 'FinanceCompanies', icon: Building2 },
     { name: 'Pricing & Catalogs', page: 'PricingCatalogs', icon: DollarSign },
     { name: 'Admin', page: 'Admin', icon: Settings },
   ];
