@@ -59,7 +59,14 @@ export default function AdminUsers() {
   });
 
   const assignRoleMutation = useMutation({
-    mutationFn: (data) => base44.entities.UserRole.create(data),
+    mutationFn: async (data) => {
+      await base44.entities.UserRole.create({
+        ...data,
+        assigned_at: new Date().toISOString(),
+        assigned_by: user.id,
+        assigned_by_email: user.email
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userRoles'] });
       setAssignRoleOpen(false);
@@ -116,12 +123,18 @@ export default function AdminUsers() {
     const selectedRole = roles.find(r => r.id === roleFormData.role_id);
     const isGlobalRole = selectedRole?.code === 'PLATFORM_OWNER' || selectedRole?.code === 'APP_ADMIN';
     
+    // Auto-fill organization if not global and not set
+    let orgId = roleFormData.organization_id;
+    if (!isGlobalRole && !orgId && user?.organization_id) {
+      orgId = user.organization_id;
+    }
+    
     assignRoleMutation.mutate({
       user_id: selectedUser.id,
       role_id: roleFormData.role_id,
-      organization_id: isGlobalRole ? '' : roleFormData.organization_id,
-      location_id: isGlobalRole ? '' : roleFormData.location_id,
-      department_id: isGlobalRole ? '' : roleFormData.department_id,
+      organization_id: isGlobalRole ? '' : orgId,
+      location_id: isGlobalRole ? '' : (roleFormData.location_id || ''),
+      department_id: isGlobalRole ? '' : (roleFormData.department_id || ''),
       is_primary: roleFormData.is_primary
     });
   };
@@ -314,15 +327,24 @@ export default function AdminUsers() {
             {roleFormData.role_id && !['PLATFORM_OWNER', 'APP_ADMIN'].includes(roles.find(r => r.id === roleFormData.role_id)?.code) && (
               <>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Organization *</label>
-                  <Select value={roleFormData.organization_id} onValueChange={(v) => setRoleFormData({...roleFormData, organization_id: v, location_id: '', department_id: ''})} required>
-                    <SelectTrigger><SelectValue placeholder="Select organization" /></SelectTrigger>
+                  <label className="text-sm font-medium">Organization {organizations.length > 0 ? '*' : '(Optional)'}</label>
+                  <Select 
+                    value={roleFormData.organization_id || user?.organization_id || ''} 
+                    onValueChange={(v) => setRoleFormData({...roleFormData, organization_id: v, location_id: '', department_id: ''})}
+                  >
+                    <SelectTrigger><SelectValue placeholder={organizations.length === 0 ? "No organizations available" : "Select organization"} /></SelectTrigger>
                     <SelectContent>
+                      {organizations.length === 0 && (
+                        <SelectItem value={null} disabled>No organizations found</SelectItem>
+                      )}
                       {organizations.map(org => (
                         <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  {organizations.length === 0 && (
+                    <p className="text-xs text-amber-600">⚠️ No organizations configured. Role will be assigned without organization scope.</p>
+                  )}
                 </div>
               </>
             )}
