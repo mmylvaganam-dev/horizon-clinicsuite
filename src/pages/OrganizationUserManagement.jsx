@@ -200,9 +200,16 @@ export default function OrganizationUserManagement() {
 
       // Add new roles
       for (const roleId of roles) {
+        const role = allRoles.find(r => r.id === roleId);
+        const isGlobalRole = role?.code === 'PLATFORM_OWNER' || role?.code === 'APP_ADMIN';
+        
         await base44.entities.UserRole.create({
           user_id: userId,
           role_id: roleId,
+          organization_id: isGlobalRole ? '' : (currentUser.organization_id || ''),
+          location_id: '',
+          department_id: '',
+          is_primary: false,
           assigned_at: new Date().toISOString(),
           assigned_by: currentUser.id,
           assigned_by_email: currentUser.email
@@ -234,6 +241,8 @@ export default function OrganizationUserManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['allUserRoles'] });
+      queryClient.invalidateQueries({ queryKey: ['userRoles'] });
+      queryClient.invalidateQueries({ queryKey: ['allUsers'] });
       setRoleDialog(false);
       setSelectedUser(null);
       setSelectedRoles([]);
