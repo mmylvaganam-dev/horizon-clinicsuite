@@ -425,62 +425,79 @@ export default function SalesWorkspace() {
                 </div>
               </div>
 
-              {!itemSearch && (
-                <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700">
-                  {searchType === 'package'
-                    ? `${packages.length} packages available - start typing to search`
-                    : `${services.length} tests available - start typing to search`
-                  }
-                </div>
-              )}
-
-              {itemSearch && filteredItems.length === 0 && (
-                <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-700">
-                  No {searchType === 'package' ? 'packages' : 'tests'} found matching "{itemSearch}"
-                  {searchType === 'service' && services.length === 0 && ' - No tests in catalog. Add tests in Admin → Service Catalog.'}
-                  {searchType === 'package' && packages.length === 0 && ' - No packages in catalog. Add packages in Pricing & Catalogs.'}
-                </div>
-              )}
-
-              {itemSearch && filteredItems.length > 0 && (
-                <div className="mb-3 max-h-48 overflow-y-auto border rounded-lg">
-                  {searchType === 'package'
-                    ? filteredItems.map(pkg => (
-                        <div
-                          key={pkg.id}
-                          className="p-3 hover:bg-teal-50 cursor-pointer border-b last:border-0"
-                          onClick={() => addPackage(pkg)}
-                        >
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <p className="font-semibold text-sm">{pkg.package_name}</p>
-                              <p className="text-xs text-slate-500">Code: {pkg.package_code}</p>
-                              {pkg.items_json && (
-                                <p className="text-xs text-slate-400 mt-1">{pkg.items_json.length} tests included</p>
-                              )}
-                            </div>
-                            <p className="font-bold text-teal-600">Rs. {pkg.total_price.toFixed(2)}</p>
+              <div className="mb-3 max-h-64 overflow-y-auto border rounded-lg">
+                {searchType === 'package' ? (
+                  filteredItems.length === 0 && !itemSearch ? (
+                    packages.map(pkg => (
+                      <div
+                        key={pkg.id}
+                        className="p-3 hover:bg-teal-50 cursor-pointer border-b last:border-0"
+                        onClick={() => addPackage(pkg)}
+                      >
+                        <div className="flex justify-between items-start gap-3">
+                          <div className="flex-1">
+                            <p className="font-semibold text-sm">{pkg.package_name}</p>
+                            <p className="text-xs text-slate-500 mt-0.5">{pkg.description}</p>
+                            {pkg.items_json && (
+                              <p className="text-xs text-slate-400 mt-1">{pkg.items_json.length} tests included</p>
+                            )}
                           </div>
+                          <p className="font-bold text-teal-600 whitespace-nowrap">Rs. {pkg.total_price.toFixed(2)}</p>
                         </div>
-                      ))
-                    : filteredItems.map(svc => (
-                        <div
-                          key={svc.id}
-                          className="p-3 hover:bg-teal-50 cursor-pointer border-b last:border-0"
-                          onClick={() => addService(svc)}
-                        >
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <p className="font-semibold text-sm">{svc.service_name}</p>
-                              <p className="text-xs text-slate-500">{svc.category} • {svc.service_code}</p>
-                            </div>
-                            <p className="font-bold text-teal-600">Rs. {svc.default_price.toFixed(2)}</p>
+                      </div>
+                    ))
+                  ) : filteredItems.length > 0 ? (
+                    filteredItems.map(pkg => (
+                      <div
+                        key={pkg.id}
+                        className="p-3 hover:bg-teal-50 cursor-pointer border-b last:border-0"
+                        onClick={() => addPackage(pkg)}
+                      >
+                        <div className="flex justify-between items-start gap-3">
+                          <div className="flex-1">
+                            <p className="font-semibold text-sm">{pkg.package_name}</p>
+                            <p className="text-xs text-slate-500 mt-0.5">{pkg.description}</p>
+                            {pkg.items_json && (
+                              <p className="text-xs text-slate-400 mt-1">{pkg.items_json.length} tests included</p>
+                            )}
                           </div>
+                          <p className="font-bold text-teal-600 whitespace-nowrap">Rs. {pkg.total_price.toFixed(2)}</p>
                         </div>
-                      ))
-                  }
-                </div>
-              )}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-6 text-center text-slate-500">
+                      No packages found matching "{itemSearch}"
+                    </div>
+                  )
+                ) : (
+                  filteredItems.length === 0 && !itemSearch ? (
+                    <div className="p-6 text-center text-slate-500">
+                      Start typing to search tests...
+                    </div>
+                  ) : filteredItems.length > 0 ? (
+                    filteredItems.map(svc => (
+                      <div
+                        key={svc.id}
+                        className="p-3 hover:bg-teal-50 cursor-pointer border-b last:border-0"
+                        onClick={() => addService(svc)}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-semibold text-sm">{svc.service_name}</p>
+                            <p className="text-xs text-slate-500">{svc.category} • {svc.service_code}</p>
+                          </div>
+                          <p className="font-bold text-teal-600">Rs. {svc.default_price.toFixed(2)}</p>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-6 text-center text-slate-500">
+                      No tests found matching "{itemSearch}"
+                    </div>
+                  )
+                )}
+              </div>
 
               <div className="mb-2">
                 <label className="text-sm font-medium">Selected Items</label>
