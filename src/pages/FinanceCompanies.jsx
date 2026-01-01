@@ -356,6 +356,134 @@ export default function FinanceCompanies() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
-}
+
+      {isPlatformOwner && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Organization Profiles</CardTitle>
+            <Button onClick={() => {
+              setEditingOrg(null);
+              setOrgFormData({
+                name: '',
+                code: '',
+                type: 'clinic',
+                status: 'active'
+              });
+              setOrgDialogOpen(true);
+            }} className="bg-blue-600 hover:bg-blue-700">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Organization
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {organizations.length === 0 ? (
+              <div className="text-center py-12">
+                <Building2 className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+                <p className="text-slate-500">No organizations yet</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {organizations.map((org) => (
+                  <div key={org.id} className="flex items-start justify-between p-4 rounded-lg border bg-white hover:shadow-md transition-shadow">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center">
+                        <Building2 className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-slate-900">{org.name}</h3>
+                          <Badge className={org.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}>
+                            {org.status}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-slate-600">{org.type || 'clinic'}</p>
+                        <p className="text-xs text-slate-500 mt-1">Code: {org.code}</p>
+                      </div>
+                    </div>
+                    <Button variant="ghost" size="sm" onClick={() => handleEditOrg(org)}>
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      <Dialog open={orgDialogOpen} onOpenChange={setOrgDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{editingOrg ? 'Edit Organization' : 'Add Organization'}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label>Organization Name *</Label>
+              <Input
+                value={orgFormData.name}
+                onChange={(e) => setOrgFormData({...orgFormData, name: e.target.value})}
+                placeholder="Organization name"
+              />
+            </div>
+
+            <div>
+              <Label>Code *</Label>
+              <Input
+                value={orgFormData.code}
+                onChange={(e) => setOrgFormData({...orgFormData, code: e.target.value})}
+                placeholder="Unique code"
+                disabled={!!editingOrg}
+              />
+              {editingOrg && <p className="text-xs text-slate-500 mt-1">Code cannot be changed</p>}
+            </div>
+
+            <div>
+              <Label>Type</Label>
+              <Select value={orgFormData.type} onValueChange={(value) => setOrgFormData({...orgFormData, type: value})}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="hospital">Hospital</SelectItem>
+                  <SelectItem value="clinic">Clinic</SelectItem>
+                  <SelectItem value="diagnostic_center">Diagnostic Center</SelectItem>
+                  <SelectItem value="pharmacy">Pharmacy</SelectItem>
+                  <SelectItem value="lab">Lab</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Status</Label>
+              <Select value={orgFormData.status} onValueChange={(value) => setOrgFormData({...orgFormData, status: value})}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={() => {
+                setOrgDialogOpen(false);
+                setEditingOrg(null);
+              }}>
+                Cancel
+              </Button>
+              <Button
+                onClick={() => saveOrgMutation.mutate(orgFormData)}
+                disabled={!orgFormData.name || !orgFormData.code || saveOrgMutation.isPending}
+              >
+                {editingOrg ? 'Update' : 'Create'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      </div>
+      );
+      }
