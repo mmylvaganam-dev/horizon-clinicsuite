@@ -65,6 +65,76 @@ export default function OrganizationUserManagement() {
 
   const canAccess = isPlatformOwner || isOrgSuperUser;
 
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['allUsers'],
+    queryFn: () => base44.entities.User.list('-created_date'),
+    enabled: canAccess,
+  });
+
+  const { data: allUserRoles = [] } = useQuery({
+    queryKey: ['allUserRoles'],
+    queryFn: () => base44.entities.UserRole.list(),
+    enabled: canAccess,
+  });
+
+  const getUserRoles = (userId) => {
+    return allUserRoles.filter(ur => ur.user_id === userId);
+  };
+
+  const getRoleName = (roleId) => {
+    const role = allRoles.find(r => r.id === roleId);
+    return role?.name || role?.code || 'Unknown';
+  };
+
+  const UsersListSection = () => (
+    <div className="space-y-3">
+      {allUsers.map((u) => {
+        const userRolesList = getUserRoles(u.id);
+        return (
+          <div key={u.id} className="p-4 border rounded-lg hover:bg-slate-50">
+            <div className="flex items-start justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center">
+                    <Users className="w-5 h-5 text-teal-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-slate-900">{u.full_name}</h3>
+                    <p className="text-sm text-slate-500">{u.email}</p>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-3 ml-13">
+                  {userRolesList.length === 0 ? (
+                    <Badge variant="outline" className="text-slate-500">No roles assigned</Badge>
+                  ) : (
+                    userRolesList.map((ur) => (
+                      <Badge key={ur.id} variant="outline" className="bg-teal-50 text-teal-700 border-teal-200">
+                        <Shield className="w-3 h-3 mr-1" />
+                        {getRoleName(ur.role_id)}
+                      </Badge>
+                    ))
+                  )}
+                </div>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setSelectedUser(u);
+                  setSelectedRoles(userRolesList.map(ur => ur.role_id));
+                  setRoleDialog(true);
+                }}
+              >
+                <Edit className="w-4 h-4 mr-1" />
+                Assign Roles
+              </Button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
   useEffect(() => {
     if (currentUser && !canAccess) {
       toast.error('Access denied: ORG_SUPER_USER or PLATFORM_OWNER role required');
@@ -299,10 +369,10 @@ export default function OrganizationUserManagement() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Users</CardTitle>
+          <CardTitle>Organization Users</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-slate-500">User management functionality - invite users via the button above</p>
+          <UsersListSection />
         </CardContent>
       </Card>
 
