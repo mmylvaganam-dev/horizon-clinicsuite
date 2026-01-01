@@ -50,6 +50,99 @@ export default function Admin() {
     return role?.role_name === 'APP_ADMIN';
   });
 
+  const adminCategories = [
+    {
+      category: 'Organization Setup',
+      description: 'Companies, locations, and structure',
+      icon: Building2,
+      color: 'from-blue-500 to-blue-600',
+      modules: [
+        { title: 'Companies & Organizations', description: 'Manage organizations and locations', icon: Building2, page: 'AdminCompanies', ownerOnly: true },
+        { title: 'Module Toggles', description: 'Enable/disable modules', icon: Grid3X3, page: 'AdminModuleToggles' },
+        { title: 'Configuration', description: 'Organization settings', icon: Settings, page: 'AdminConfig' },
+        { title: 'Organization Branding', description: 'White-label branding', icon: Settings, page: 'AdminOrganizationBranding' },
+      ]
+    },
+    {
+      category: 'Users & Access Control',
+      description: 'User management and permissions',
+      icon: Users,
+      color: 'from-teal-500 to-teal-600',
+      modules: [
+        { title: 'Organization Users', description: 'Manage organization users', icon: Users, page: 'OrganizationUserManagement' },
+        { title: 'Users & Roles', description: 'Manage user roles and permissions', icon: Users, page: 'AdminUsers' },
+        { title: 'Role Standards', description: 'Standardized RBAC roles', icon: Shield, page: 'AdminRoleStandards' },
+        { title: 'Role Permissions', description: 'View role permission matrix', icon: Shield, page: 'AdminRolePermissions' },
+        { title: 'Permissions', description: 'Configure role permissions', icon: Shield, page: 'AdminPermissions' },
+        { title: 'Permission Matrix', description: 'Visual permission editor', icon: Grid3X3, page: 'AdminPermissionMatrix' },
+        { title: 'Modules', description: 'Manage module access', icon: Grid3X3, page: 'AdminModules' },
+      ]
+    },
+    {
+      category: 'Financial Configuration',
+      description: 'Billing, accounting, and pricing',
+      icon: DollarSign,
+      color: 'from-green-500 to-green-600',
+      modules: [
+        { title: 'Billing', description: 'Invoice and payment management', icon: DollarSign, page: 'Billing' },
+        { title: 'Service Catalog', description: 'Manage services and pricing', icon: Grid3X3, page: 'AdminServiceCatalog' },
+        { title: 'Tax Rules', description: 'Configure tax rates', icon: Settings, page: 'AdminTaxRules' },
+        { title: 'Numbering Rules', description: 'Document numbering formats', icon: Key, page: 'AdminNumberingRules' },
+        { title: 'Chart of Accounts', description: 'Accounting accounts', icon: Grid3X3, page: 'AdminChartOfAccounts' },
+        { title: 'Posting Rules', description: 'Accounting automation', icon: Settings, page: 'AdminPostingRules' },
+      ]
+    },
+    {
+      category: 'Security & Compliance',
+      description: 'Audit, monitoring, and validation',
+      icon: Shield,
+      color: 'from-indigo-500 to-indigo-600',
+      modules: [
+        { title: 'Audit Logs', description: 'View system audit logs', icon: FileText, page: 'AdminAuditLogs' },
+        { title: 'Break-Glass Report', description: 'Emergency access audit', icon: Shield, page: 'AdminBreakGlassReport' },
+        { title: 'Security Posture', description: 'Access controls & monitoring', icon: Shield, page: 'AdminSecurityPosture' },
+        { title: 'Security Validation', description: 'Verify security controls', icon: Shield, page: 'AdminSecurityValidation' },
+        { title: 'Compliance Checklist', description: 'Deployment validation', icon: Shield, page: 'AdminComplianceChecklist' },
+        { title: 'Go-Live Checklist', description: 'Production readiness validation', icon: Shield, page: 'AdminGoLiveChecklist' },
+      ]
+    },
+    {
+      category: 'System Operations',
+      description: 'Monitoring, backups, and maintenance',
+      icon: Activity,
+      color: 'from-emerald-500 to-emerald-600',
+      modules: [
+        { title: 'System Health', description: 'Data integrity monitoring', icon: Activity, page: 'AdminSystemHealth' },
+        { title: 'Organization Activity', description: 'Aggregate activity metrics', icon: Activity, page: 'AdminOrganizationActivity' },
+        { title: 'System Version', description: 'Version control & schema lock', icon: Shield, page: 'AdminSystemVersion' },
+        { title: 'Backup Status', description: 'Backup operations', icon: Activity, page: 'AdminBackups' },
+      ]
+    },
+    {
+      category: 'Data Management',
+      description: 'Export, retention, and archival',
+      icon: FileText,
+      color: 'from-purple-500 to-purple-600',
+      modules: [
+        { title: 'Data Export', description: 'Export bundles', icon: FileText, page: 'DataExport' },
+        { title: 'Export Approvals', description: 'Review export requests', icon: Shield, page: 'AdminExportApprovals' },
+        { title: 'Retention Policies', description: 'Data retention rules', icon: Activity, page: 'AdminRetentionPolicies' },
+        { title: 'Archive Management', description: 'Archived records', icon: FileText, page: 'AdminArchive' },
+      ]
+    },
+    {
+      category: 'External Integration',
+      description: 'Partners, portals, and reporting',
+      icon: Users,
+      color: 'from-cyan-500 to-cyan-600',
+      modules: [
+        { title: 'Patient Portal', description: 'Portal account management', icon: Users, page: 'AdminPatientPortal' },
+        { title: 'Government Reporting', description: 'Regulatory reports', icon: FileText, page: 'GovernmentReporting' },
+        { title: 'Partner Management', description: 'Referral partners', icon: Users, page: 'PartnerManagement' },
+      ]
+    },
+  ];
+
   const adminModules = [
     {
       title: 'Companies & Organizations',
@@ -339,30 +432,49 @@ export default function Admin() {
         </Card>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {adminModules.map((module) => {
-          if (module.ownerOnly && !isPlatformOwner) return null;
+      <div className="space-y-8">
+        {adminCategories.map((category, idx) => (
+          <div key={idx}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center`}>
+                <category.icon className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-slate-900">{category.category}</h2>
+                <p className="text-sm text-slate-500">{category.description}</p>
+              </div>
+            </div>
 
-          return (
-            <Link key={module.page} to={createPageUrl(module.page)}>
-              <Card className="hover:shadow-lg transition-all duration-300 group cursor-pointer border-0 overflow-hidden">
-                <div className={`h-2 bg-gradient-to-r ${module.color}`} />
-                <CardHeader className="pb-4">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${module.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                    <module.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <CardTitle className="text-lg">
-                    {module.title}
-                    {module.ownerOnly && <Badge className="ml-2 bg-rose-100 text-rose-700 text-xs">Owner Only</Badge>}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-slate-500">{module.description}</p>
-                </CardContent>
-              </Card>
-            </Link>
-          );
-        })}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+              {category.modules.map((module) => {
+                if (module.ownerOnly && !isPlatformOwner) return null;
+
+                return (
+                  <Link key={module.page} to={createPageUrl(module.page)}>
+                    <Card className="hover:shadow-lg transition-all duration-200 group cursor-pointer border overflow-hidden h-full">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start gap-3">
+                          <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                            <module.icon className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex-1">
+                            <CardTitle className="text-sm leading-tight">
+                              {module.title}
+                              {module.ownerOnly && <Badge className="ml-1 bg-rose-100 text-rose-700 text-[10px] px-1">Owner</Badge>}
+                            </CardTitle>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="pt-0">
+                        <p className="text-xs text-slate-500">{module.description}</p>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
