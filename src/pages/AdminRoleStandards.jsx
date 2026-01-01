@@ -10,6 +10,7 @@ import toast from 'react-hot-toast';
 export default function AdminRoleStandards() {
   const queryClient = useQueryClient();
   const [initializing, setInitializing] = useState(false);
+  const [seeding, setSeeding] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -40,155 +41,41 @@ export default function AdminRoleStandards() {
       level: 'organization',
       restrictions: 'Cannot disable AuditLog, cannot change DeploymentProfile, cannot bypass organization scoping'
     },
-    // Clinical Roles
+    {
+      role_name: 'CLINIC_ADMIN_STAFF',
+      description: 'Clinic administrative staff',
+      level: 'organization',
+      restrictions: 'Organization-scoped administrative access'
+    },
     {
       role_name: 'PHYSICIAN',
-      description: 'Medical doctor - full clinical access',
+      description: 'Medical doctor with clinical access',
       level: 'organization',
       restrictions: 'Clinical data access within organization'
     },
     {
-      role_name: 'SPECIALIST',
-      description: 'Specialist Doctor',
-      level: 'organization',
-      restrictions: 'Specialist clinical access'
-    },
-    {
-      role_name: 'NURSE',
-      description: 'Nursing staff - patient care',
-      level: 'organization',
-      restrictions: 'Nursing care access'
-    },
-    {
-      role_name: 'NURSE_PRACTITIONER',
-      description: 'Advanced practice nurse',
-      level: 'organization',
-      restrictions: 'Advanced nursing practice access'
-    },
-    // Diagnostic Roles
-    {
-      role_name: 'LAB_TECHNICIAN',
-      description: 'Laboratory technician - sample processing',
+      role_name: 'LAB_TECH',
+      description: 'Laboratory technician',
       level: 'organization',
       restrictions: 'Lab module access only'
     },
     {
-      role_name: 'LAB_MANAGER',
-      description: 'Laboratory manager - oversight and approval',
-      level: 'organization',
-      restrictions: 'Lab management access'
-    },
-    {
-      role_name: 'PATHOLOGIST',
-      description: 'Pathologist - result interpretation and sign-off',
-      level: 'organization',
-      restrictions: 'Lab result sign-off access'
-    },
-    {
-      role_name: 'RADIOLOGIST',
-      description: 'Radiology specialist',
-      level: 'organization',
-      restrictions: 'Radiology module access'
-    },
-    {
-      role_name: 'CARDIO_TECH',
-      description: 'Cardiology technician - ECG, echo',
-      level: 'organization',
-      restrictions: 'Cardiology module access'
-    },
-    {
-      role_name: 'CARDIOLOGIST',
-      description: 'Cardiologist - cardiology reports',
-      level: 'organization',
-      restrictions: 'Cardiology report sign-off'
-    },
-    // Pharmacy Roles
-    {
       role_name: 'PHARMACIST',
-      description: 'Licensed pharmacist - dispensing',
+      description: 'Pharmacy staff',
       level: 'organization',
-      restrictions: 'Pharmacy module access'
+      restrictions: 'Pharmacy module access only'
     },
     {
-      role_name: 'PHARMACY_ASSISTANT',
-      description: 'Pharmacy support staff',
+      role_name: 'DIAGNOSTICS_TECH',
+      description: 'Diagnostics technician (Cardio/PFT/Radiology)',
       level: 'organization',
-      restrictions: 'Pharmacy assistant access'
+      restrictions: 'Diagnostics module access only'
     },
     {
-      role_name: 'PHARMACY_MANAGER',
-      description: 'Pharmacy operations manager',
+      role_name: 'FINANCE_USER',
+      description: 'Finance and accounting staff',
       level: 'organization',
-      restrictions: 'Pharmacy management access'
-    },
-    // Administrative Roles
-    {
-      role_name: 'RECEPTIONIST',
-      description: 'Front desk - appointments and registration',
-      level: 'organization',
-      restrictions: 'Front desk access'
-    },
-    {
-      role_name: 'MEDICAL_RECORDS',
-      description: 'Medical records management',
-      level: 'organization',
-      restrictions: 'Medical records access'
-    },
-    {
-      role_name: 'BILLING_CLERK',
-      description: 'Billing and invoicing',
-      level: 'organization',
-      restrictions: 'Billing module access'
-    },
-    {
-      role_name: 'CASHIER',
-      description: 'Payment collection',
-      level: 'organization',
-      restrictions: 'Payment collection access'
-    },
-    // Management Roles
-    {
-      role_name: 'CLINIC_MANAGER',
-      description: 'Clinic operations manager',
-      level: 'organization',
-      restrictions: 'Clinic management access'
-    },
-    {
-      role_name: 'DEPARTMENT_HEAD',
-      description: 'Department manager',
-      level: 'organization',
-      restrictions: 'Department management access'
-    },
-    {
-      role_name: 'HR_MANAGER',
-      description: 'Human resources manager',
-      level: 'organization',
-      restrictions: 'HR module access'
-    },
-    {
-      role_name: 'FINANCE_MANAGER',
-      description: 'Financial operations manager',
-      level: 'organization',
-      restrictions: 'Finance module access'
-    },
-    // Support Roles
-    {
-      role_name: 'PHLEBOTOMIST',
-      description: 'Blood collection specialist',
-      level: 'organization',
-      restrictions: 'Sample collection access'
-    },
-    {
-      role_name: 'MEDICAL_ASSISTANT',
-      description: 'Clinical support assistant',
-      level: 'organization',
-      restrictions: 'Clinical support access'
-    },
-    {
-      role_name: 'IT_SUPPORT',
-      description: 'Technical support staff',
-      level: 'organization',
-      restrictions: 'System support access'
+      restrictions: 'Finance module access only'
     },
     {
       role_name: 'DIRECTOR_REPORT_VIEWER',
@@ -258,7 +145,20 @@ export default function AdminRoleStandards() {
   };
 
   const getRoleStatus = (roleName) => {
-    return roles.find(r => r.role_name === roleName);
+    return roles.find(r => r.role_name === roleName || r.code === roleName);
+  };
+
+  const seedFunctionalRoles = async () => {
+    setSeeding(true);
+    try {
+      const response = await base44.functions.invoke('seedFunctionalRoles', {});
+      toast.success(response.data.message);
+      queryClient.invalidateQueries({ queryKey: ['allRoles'] });
+    } catch (error) {
+      toast.error('Failed to seed roles: ' + error.message);
+    } finally {
+      setSeeding(false);
+    }
   };
 
   return (
@@ -286,9 +186,14 @@ export default function AdminRoleStandards() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Standard Roles</CardTitle>
-          <Button onClick={initializeStandardRoles} disabled={initializing}>
-            {initializing ? 'Initializing...' : 'Initialize Missing Roles'}
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={initializeStandardRoles} disabled={initializing} variant="outline">
+              {initializing ? 'Initializing...' : 'Initialize Missing Roles'}
+            </Button>
+            <Button onClick={seedFunctionalRoles} disabled={seeding}>
+              {seeding ? 'Seeding...' : 'Seed Functional Roles'}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
