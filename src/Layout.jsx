@@ -23,9 +23,18 @@ import {
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
 
 export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const { data: branding } = useQuery({
+    queryKey: ['organizationBranding'],
+    queryFn: async () => {
+      const brandings = await base44.entities.OrganizationBranding.list();
+      return brandings[0];
+    },
+  });
 
   const navigation = [
     { name: '─ DASHBOARDS ─', page: null, icon: null, divider: true },
@@ -185,10 +194,19 @@ export default function Layout({ children, currentPageName }) {
             <div className="flex-1 lg:flex-none" />
             
             <div className="flex items-center gap-4">
-              <div className="hidden sm:block text-right">
-                <p className="text-sm font-medium text-slate-900">Horizon ClinicSuite</p>
-                <p className="text-xs text-slate-500">Electronic Medical Records</p>
-              </div>
+              {branding?.primary_logo_file_ref && (
+                <img 
+                  src={branding.primary_logo_file_ref} 
+                  alt="Organization Logo" 
+                  className="h-12 w-auto object-contain"
+                />
+              )}
+              {!branding?.primary_logo_file_ref && (
+                <div className="hidden sm:block text-right">
+                  <p className="text-sm font-medium text-slate-900">Horizon ClinicSuite</p>
+                  <p className="text-xs text-slate-500">Electronic Medical Records</p>
+                </div>
+              )}
             </div>
           </div>
         </header>
