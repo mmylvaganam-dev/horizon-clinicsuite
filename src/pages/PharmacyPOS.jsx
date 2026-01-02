@@ -38,6 +38,7 @@ export default function PharmacyPOS() {
   const [refundType, setRefundType] = useState('refund');
   const [refundReason, setRefundReason] = useState('');
   const [expandedSale, setExpandedSale] = useState(null);
+  const [barcodeInput, setBarcodeInput] = useState('');
 
   const { data: patients = [] } = useQuery({
     queryKey: ['patients'],
@@ -135,6 +136,37 @@ export default function PharmacyPOS() {
     setCart(cart.filter(item => item.id !== id));
   };
 
+  const handleBarcodeSearch = (barcode) => {
+    if (!barcode.trim()) return;
+    
+    const stockItem = pharmacyStock.find(s => s.barcode === barcode.trim());
+    if (stockItem) {
+      // Check if item already in cart
+      const existingItem = cart.find(c => c.stock_id === stockItem.id);
+      if (existingItem) {
+        // Increase quantity
+        updateCartItem(existingItem.id, 'quantity', existingItem.quantity + 1);
+        toast.success(`Increased quantity of ${stockItem.display_name}`);
+      } else {
+        // Add new item
+        setCart([...cart, {
+          id: Date.now(),
+          item_name: stockItem.display_name,
+          drug_id: '',
+          stock_id: stockItem.id,
+          barcode: stockItem.barcode,
+          quantity: 1,
+          unit_price: stockItem.mrp || stockItem.unit_price || 0,
+          line_total: stockItem.mrp || stockItem.unit_price || 0
+        }]);
+        toast.success(`Added ${stockItem.display_name} to cart`);
+      }
+      setBarcodeInput('');
+    } else {
+      toast.error('Barcode not found in stock');
+    }
+  };
+
   const subtotal = cart.reduce((sum, item) => sum + item.line_total, 0);
   const tax = subtotal * (taxRate / 100);
   const total = subtotal + tax;
@@ -225,6 +257,30 @@ export default function PharmacyPOS() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Cart Items */}
             <div className="lg:col-span-2 space-y-4">
+              <Card className="bg-gradient-to-br from-teal-50 to-cyan-50 border-teal-200">
+                <CardContent className="pt-6">
+                  <Label className="text-base font-semibold mb-3 block">Scan or Enter Barcode</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={barcodeInput}
+                      onChange={(e) => setBarcodeInput(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          handleBarcodeSearch(barcodeInput);
+                        }
+                      }}
+                      placeholder="Scan barcode or type and press Enter"
+                      className="text-lg font-mono"
+                      autoFocus
+                    />
+                    <Button onClick={() => handleBarcodeSearch(barcodeInput)}>
+                      Search
+                    </Button>
+                  </div>
+                  <p className="text-xs text-slate-600 mt-2">Scanning a barcode will automatically add the item to cart</p>
+                </CardContent>
+              </Card>
+
               <Card className="bg-white border-0 shadow-sm">
                 <CardHeader>
                   <div className="flex items-center justify-between">
