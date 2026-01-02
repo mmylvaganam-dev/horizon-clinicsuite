@@ -49,6 +49,11 @@ export default function PharmacyPOS() {
     queryFn: () => base44.entities.DrugCatalog.list(),
   });
 
+  const { data: pharmacyStock = [] } = useQuery({
+    queryKey: ['pharmacyStock'],
+    queryFn: () => base44.entities.PharmacyStock.filter({ quality_status: 'usable' }),
+  });
+
   const { data: sales = [] } = useQuery({
     queryKey: ['pharmacySales'],
     queryFn: () => base44.entities.PharmacySale.list('-sale_date'),
@@ -105,6 +110,8 @@ export default function PharmacyPOS() {
       id: Date.now(),
       item_name: '',
       drug_id: '',
+      stock_id: '',
+      barcode: '',
       quantity: 1,
       unit_price: 0,
       line_total: 0
@@ -152,7 +159,15 @@ export default function PharmacyPOS() {
         tax,
         notes
       },
-      items: cart.map(({ id, ...item }) => item),
+      items: cart.map(({ id, ...item }) => ({
+        item_name: item.item_name,
+        drug_id: item.drug_id || null,
+        stock_id: item.stock_id || null,
+        barcode: item.barcode || null,
+        quantity: item.quantity,
+        unit_price: item.unit_price,
+        line_total: item.line_total
+      })),
       prescriptionId: prescriptionId || null
     });
   };
@@ -228,34 +243,39 @@ export default function PharmacyPOS() {
                       <Card key={item.id} className="p-4 bg-slate-50">
                         <div className="space-y-3">
                           <div className="flex items-start gap-3">
-                            <div className="flex-1 grid grid-cols-2 gap-3">
+                            <div className="flex-1 space-y-3">
                               <div>
-                                <Label>Item Name</Label>
-                                <Input
-                                  value={item.item_name}
-                                  onChange={(e) => updateCartItem(item.id, 'item_name', e.target.value)}
-                                  placeholder="Enter item name"
-                                />
-                              </div>
-                              <div>
-                                <Label>Drug (Optional)</Label>
+                                <Label>Select Product *</Label>
                                 <Select 
-                                  value={item.drug_id} 
-                                  onValueChange={(val) => updateCartItem(item.id, 'drug_id', val)}
+                                  value={item.stock_id} 
+                                  onValueChange={(val) => {
+                                    const stockItem = pharmacyStock.find(s => s.id === val);
+                                    if (stockItem) {
+                                      updateCartItem(item.id, 'stock_id', val);
+                                      updateCartItem(item.id, 'item_name', stockItem.display_name);
+                                      updateCartItem(item.id, 'barcode', stockItem.barcode);
+                                      updateCartItem(item.id, 'unit_price', stockItem.mrp || stockItem.unit_price);
+                                    }
+                                  }}
                                 >
                                   <SelectTrigger>
-                                    <SelectValue placeholder="Select drug" />
+                                    <SelectValue placeholder="Search by name or barcode" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value={null}>None</SelectItem>
-                                    {drugs.map(drug => (
-                                      <SelectItem key={drug.id} value={drug.id}>
-                                        {drug.drug_name}
+                                    {pharmacyStock.map(stock => (
+                                      <SelectItem key={stock.id} value={stock.id}>
+                                        {stock.display_name} - {stock.barcode} (Qty: {stock.quantity})
                                       </SelectItem>
                                     ))}
                                   </SelectContent>
                                 </Select>
                               </div>
+                              {item.item_name && (
+                                <div className="text-sm text-slate-600 bg-slate-50 p-2 rounded">
+                                  <p className="font-medium">{item.item_name}</p>
+                                  {item.barcode && <p className="text-xs text-slate-500">Barcode: {item.barcode}</p>}
+                                </div>
+                              )}
                             </div>
                             <Button
                               variant="ghost"
