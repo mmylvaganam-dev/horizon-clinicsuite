@@ -58,6 +58,11 @@ export default function PharmacyInventory() {
     queryFn: () => base44.entities.InventoryBalance.list('-updated_at'),
   });
 
+  const { data: pharmacyStock = [] } = useQuery({
+    queryKey: ['pharmacyStock'],
+    queryFn: () => base44.entities.PharmacyStock.list('-created_date'),
+  });
+
   const { data: transactions = [] } = useQuery({
     queryKey: ['inventoryTxns'],
     queryFn: () => base44.entities.InventoryTxn.list('-created_at', 100),
@@ -195,8 +200,12 @@ export default function PharmacyInventory() {
         </Card>
       )}
 
-      <Tabs defaultValue="balances" className="space-y-6">
+      <Tabs defaultValue="stock" className="space-y-6">
         <TabsList>
+          <TabsTrigger value="stock">
+            <Package className="w-4 h-4 mr-2" />
+            Pharmacy Stock ({pharmacyStock.length})
+          </TabsTrigger>
           <TabsTrigger value="balances">
             <Package className="w-4 h-4 mr-2" />
             Stock Balances
@@ -210,6 +219,76 @@ export default function PharmacyInventory() {
             Transaction History
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="stock" className="space-y-3">
+          {pharmacyStock.length === 0 ? (
+            <Card className="p-12 text-center bg-white">
+              <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+              <h3 className="text-lg font-medium text-slate-900">No pharmacy stock</h3>
+              <p className="text-slate-500 mt-1">Import stock data from Stock Import page</p>
+            </Card>
+          ) : (
+            pharmacyStock.map((item) => {
+              const isExpired = item.quality_status === 'expired';
+              const isExpiringSoon = item.expire_date && new Date(item.expire_date) <= new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+              
+              return (
+                <Card key={item.id} className={`p-5 ${isExpired ? 'bg-rose-50 border-rose-200' : isExpiringSoon ? 'bg-amber-50 border-amber-200' : 'bg-white'}`}>
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="font-semibold text-slate-900">{item.display_name}</h3>
+                        <Badge variant="outline" className="font-mono text-xs">
+                          {item.barcode}
+                        </Badge>
+                        {isExpired && (
+                          <Badge variant="outline" className="bg-rose-100 text-rose-700 border-rose-200">
+                            <AlertTriangle className="w-3 h-3 mr-1" />
+                            Expired
+                          </Badge>
+                        )}
+                        {!isExpired && isExpiringSoon && (
+                          <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200">
+                            <AlertTriangle className="w-3 h-3 mr-1" />
+                            Expiring Soon
+                          </Badge>
+                        )}
+                        <Badge className={item.quality_status === 'usable' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}>
+                          {item.quality_status}
+                        </Badge>
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+                        <div>
+                          <p className="text-slate-500">Batch No</p>
+                          <p className="font-medium">{item.batch_no}</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-500">Quantity</p>
+                          <p className="font-medium text-lg">{item.quantity}</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-500">Unit Cost</p>
+                          <p className="font-medium">{item.unit_cost?.toFixed(2)}</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-500">MRP</p>
+                          <p className="font-medium">{item.mrp?.toFixed(2)}</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-500">Expiry Date</p>
+                          <p className="font-medium">{item.expire_date ? format(new Date(item.expire_date), 'MMM d, yyyy') : 'N/A'}</p>
+                        </div>
+                      </div>
+                      {item.supplier && (
+                        <p className="text-xs text-slate-500 mt-2">Supplier: {item.supplier}</p>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              );
+            })
+          )}
+        </TabsContent>
 
         <TabsContent value="balances" className="space-y-3">
           {balances.length === 0 ? (
