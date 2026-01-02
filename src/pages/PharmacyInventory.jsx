@@ -49,6 +49,8 @@ export default function PharmacyInventory() {
   });
 
   const [expiryAlertDays, setExpiryAlertDays] = useState(90);
+  const [lowStockThreshold, setLowStockThreshold] = useState(10);
+  const [criticalStockThreshold, setCriticalStockThreshold] = useState(5);
 
   const [adjustForm, setAdjustForm] = useState({
     qty: 0,
@@ -71,7 +73,22 @@ export default function PharmacyInventory() {
 
   // Filter low stock items from pharmacy stock
   const lowStockPharmacyItems = pharmacyStock.filter(item => 
-    item.quantity <= 10 && item.quality_status === 'usable'
+    item.quantity > 0 && item.quantity <= lowStockThreshold && item.quality_status === 'usable'
+  );
+
+  const criticalStockItems = pharmacyStock.filter(item => 
+    item.quantity > 0 && item.quantity <= criticalStockThreshold && item.quality_status === 'usable'
+  );
+
+  const expiredItems = pharmacyStock.filter(item =>
+    item.expire_date && new Date(item.expire_date) < new Date() && item.quality_status !== 'expired'
+  );
+
+  const expiringItems = pharmacyStock.filter(item =>
+    item.expire_date && 
+    new Date(item.expire_date) > new Date() &&
+    new Date(item.expire_date) <= new Date(Date.now() + expiryAlertDays * 24 * 60 * 60 * 1000) &&
+    item.quality_status === 'usable'
   );
 
   const displayedStock = showLowStockOnly ? lowStockPharmacyItems : pharmacyStock;
@@ -209,6 +226,122 @@ export default function PharmacyInventory() {
         </Button>
       </div>
 
+      {criticalStockItems.length > 0 && (
+        <Card className="bg-rose-50 border-rose-300 border-2">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-6 h-6 text-rose-600 animate-pulse" />
+              <div>
+                <p className="font-bold text-rose-900 text-lg">CRITICAL STOCK ALERT</p>
+                <p className="text-sm text-rose-700 mt-1">
+                  {criticalStockItems.length} item(s) at critical level (≤{criticalStockThreshold} units)
+                </p>
+                <div className="mt-2 space-y-1">
+                  {criticalStockItems.slice(0, 3).map(item => (
+                    <p key={item.id} className="text-xs text-rose-800">
+                      • {item.display_name}: <strong>{item.quantity} units left</strong>
+                    </p>
+                  ))}
+                  {criticalStockItems.length > 3 && (
+                    <p className="text-xs text-rose-700">+ {criticalStockItems.length - 3} more items</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {expiredItems.length > 0 && (
+        <Card className="bg-red-50 border-red-300 border-2">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-6 h-6 text-red-600" />
+              <div>
+                <p className="font-bold text-red-900 text-lg">EXPIRED ITEMS</p>
+                <p className="text-sm text-red-700 mt-1">
+                  {expiredItems.length} item(s) have expired - remove from usable stock
+                </p>
+                <div className="mt-2 space-y-1">
+                  {expiredItems.slice(0, 3).map(item => (
+                    <p key={item.id} className="text-xs text-red-800">
+                      • {item.display_name}: Expired {format(new Date(item.expire_date), 'MMM d, yyyy')}
+                    </p>
+                  ))}
+                  {expiredItems.length > 3 && (
+                    <p className="text-xs text-red-700">+ {expiredItems.length - 3} more items</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {expiringItems.length > 0 && (
+        <Card className="bg-orange-50 border-orange-300 border-2">
+          <CardContent className="p-4">
+            <div className="flex items-start gap-3">
+              <Calendar className="w-6 h-6 text-orange-600" />
+              <div>
+                <p className="font-bold text-orange-900 text-lg">EXPIRING SOON</p>
+                <p className="text-sm text-orange-700 mt-1">
+                  {expiringItems.length} item(s) expiring within {expiryAlertDays} days
+                </p>
+                <div className="mt-2 space-y-1">
+                  {expiringItems.slice(0, 3).map(item => (
+                    <p key={item.id} className="text-xs text-orange-800">
+                      • {item.display_name}: Expires {format(new Date(item.expire_date), 'MMM d, yyyy')}
+                    </p>
+                  ))}
+                  {expiringItems.length > 3 && (
+                    <p className="text-xs text-orange-700">+ {expiringItems.length - 3} more items</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card className="bg-slate-50">
+        <CardContent className="p-4">
+          <p className="text-sm font-medium text-slate-700 mb-3">Alert Thresholds</p>
+          <div className="space-y-3">
+            <div>
+              <Label className="text-xs">Critical Stock (≤ units)</Label>
+              <Input
+                type="number"
+                min="1"
+                value={criticalStockThreshold}
+                onChange={(e) => setCriticalStockThreshold(parseInt(e.target.value) || 5)}
+                className="mt-1 h-8"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Low Stock (≤ units)</Label>
+              <Input
+                type="number"
+                min="1"
+                value={lowStockThreshold}
+                onChange={(e) => setLowStockThreshold(parseInt(e.target.value) || 10)}
+                className="mt-1 h-8"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Expiry Warning (days)</Label>
+              <Input
+                type="number"
+                min="1"
+                value={expiryAlertDays}
+                onChange={(e) => setExpiryAlertDays(parseInt(e.target.value) || 90)}
+                className="mt-1 h-8"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg">
           <CardContent className="p-6">
@@ -243,15 +376,22 @@ export default function PharmacyInventory() {
           </CardContent>
         </Card>
 
-        <Card className={`bg-gradient-to-br ${lowStockPharmacyItems.length > 0 ? 'from-amber-500 to-amber-600' : 'from-slate-500 to-slate-600'} text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform`}
+        <Card className={`bg-gradient-to-br ${criticalStockItems.length > 0 ? 'from-rose-500 to-rose-600' : lowStockPharmacyItems.length > 0 ? 'from-amber-500 to-amber-600' : 'from-slate-500 to-slate-600'} text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform`}
           onClick={() => setShowLowStockOnly(!showLowStockOnly)}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-2">
-              <AlertTriangle className="w-8 h-8 opacity-80" />
+              <AlertTriangle className={`w-8 h-8 opacity-80 ${criticalStockItems.length > 0 ? 'animate-pulse' : ''}`} />
             </div>
-            <p className="text-sm opacity-90">Low Stock Items</p>
-            <p className="text-3xl font-bold mt-1">{lowStockPharmacyItems.length}</p>
-            <p className="text-xs opacity-80 mt-1">{showLowStockOnly ? 'Click to show all' : 'Click to filter'}</p>
+            <p className="text-sm opacity-90">
+              {criticalStockItems.length > 0 ? 'Critical Stock' : 'Low Stock Items'}
+            </p>
+            <p className="text-3xl font-bold mt-1">
+              {criticalStockItems.length > 0 ? criticalStockItems.length : lowStockPharmacyItems.length}
+            </p>
+            <p className="text-xs opacity-80 mt-1">
+              {criticalStockItems.length > 0 && `${criticalStockItems.length} critical, `}
+              {lowStockPharmacyItems.length} low
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -277,14 +417,17 @@ export default function PharmacyInventory() {
         </TabsList>
 
         <TabsContent value="stock" className="space-y-3">
-          {showLowStockOnly && lowStockPharmacyItems.length > 0 && (
+          {showLowStockOnly && (criticalStockItems.length > 0 || lowStockPharmacyItems.length > 0) && (
             <Card className="bg-amber-50 border-amber-200">
               <CardContent className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <AlertTriangle className="w-5 h-5 text-amber-600" />
                   <div>
                     <p className="font-medium text-amber-900">
-                      Showing {lowStockPharmacyItems.length} low stock items (≤10 units)
+                      Showing {criticalStockItems.length + lowStockPharmacyItems.length} items below threshold
+                    </p>
+                    <p className="text-xs text-amber-700">
+                      {criticalStockItems.length} critical (≤{criticalStockThreshold}), {lowStockPharmacyItems.length} low (≤{lowStockThreshold})
                     </p>
                   </div>
                 </div>
@@ -307,7 +450,8 @@ export default function PharmacyInventory() {
             </Card>
           ) : (
             displayedStock.map((item) => {
-              const isLowStock = item.quantity <= 10;
+              const isCritical = item.quantity > 0 && item.quantity <= criticalStockThreshold;
+              const isLowStock = item.quantity > criticalStockThreshold && item.quantity <= lowStockThreshold;
               const isExpired = item.quality_status === 'expired';
               const isExpiringSoon = item.expire_date && new Date(item.expire_date) <= new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
               
@@ -317,7 +461,7 @@ export default function PharmacyInventory() {
               const itemProfitPercent = itemValue > 0 ? ((itemProfit / itemValue) * 100) : 0;
 
               return (
-                <Card key={item.id} className={`p-5 ${isExpired ? 'bg-rose-50 border-rose-200' : isExpiringSoon ? 'bg-amber-50 border-amber-200' : isLowStock ? 'bg-amber-50 border-amber-300' : 'bg-white'}`}>
+                <Card key={item.id} className={`p-5 ${isExpired ? 'bg-red-50 border-red-300 border-2' : isCritical ? 'bg-rose-50 border-rose-300 border-2' : isExpiringSoon ? 'bg-orange-50 border-orange-200' : isLowStock ? 'bg-amber-50 border-amber-200' : 'bg-white'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
@@ -325,7 +469,13 @@ export default function PharmacyInventory() {
                         <Badge variant="outline" className="font-mono text-xs">
                           {item.barcode}
                         </Badge>
-                        {isLowStock && (
+                        {isCritical && (
+                          <Badge variant="outline" className="bg-rose-100 text-rose-700 border-rose-200 animate-pulse">
+                            <AlertTriangle className="w-3 h-3 mr-1" />
+                            CRITICAL ({item.quantity} left)
+                          </Badge>
+                        )}
+                        {isLowStock && !isCritical && (
                           <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200">
                             <AlertTriangle className="w-3 h-3 mr-1" />
                             Low Stock
@@ -354,7 +504,9 @@ export default function PharmacyInventory() {
                         </div>
                         <div>
                           <p className="text-slate-500">Quantity</p>
-                          <p className={`font-medium text-lg ${isLowStock ? 'text-amber-700' : ''}`}>{item.quantity}</p>
+                          <p className={`font-bold text-xl ${isCritical ? 'text-rose-700' : isLowStock ? 'text-amber-700' : 'text-slate-900'}`}>
+                            {item.quantity}
+                          </p>
                         </div>
                         <div>
                           <p className="text-slate-500">Unit Cost</p>
