@@ -15,7 +15,9 @@ import {
   Plus,
   Edit,
   History,
-  Calendar
+  Calendar,
+  DollarSign,
+  TrendingDown as Loss
 } from 'lucide-react';
 import BatchesTab from '../components/inventory/BatchesTab';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -52,6 +54,27 @@ export default function PharmacyInventory() {
     qty: 0,
     reason: ''
   });
+
+  const [showLowStockOnly, setShowLowStockOnly] = useState(false);
+
+  // Calculate stock metrics
+  const totalStockValue = pharmacyStock.reduce((sum, item) => 
+    sum + ((item.unit_cost || 0) * (item.quantity || 0)), 0
+  );
+
+  const totalPotentialRevenue = pharmacyStock.reduce((sum, item) => 
+    sum + ((item.mrp || 0) * (item.quantity || 0)), 0
+  );
+
+  const totalPotentialProfit = totalPotentialRevenue - totalStockValue;
+  const profitMargin = totalStockValue > 0 ? ((totalPotentialProfit / totalStockValue) * 100) : 0;
+
+  // Filter low stock items from pharmacy stock
+  const lowStockPharmacyItems = pharmacyStock.filter(item => 
+    item.quantity <= 10 && item.quality_status === 'usable'
+  );
+
+  const displayedStock = showLowStockOnly ? lowStockPharmacyItems : pharmacyStock;
 
   const { data: balances = [] } = useQuery({
     queryKey: ['inventoryBalances'],
@@ -186,19 +209,52 @@ export default function PharmacyInventory() {
         </Button>
       </div>
 
-      {lowStockItems.length > 0 && (
-        <Card className="bg-amber-50 border-amber-200">
-          <CardContent className="p-4 flex items-center gap-3">
-            <AlertTriangle className="w-5 h-5 text-amber-600" />
-            <div>
-              <p className="font-medium text-amber-900">
-                {lowStockItems.length} item{lowStockItems.length > 1 ? 's' : ''} below reorder level
-              </p>
-              <p className="text-sm text-amber-700">Review and restock items marked with low stock</p>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-2">
+              <DollarSign className="w-8 h-8 opacity-80" />
             </div>
+            <p className="text-sm opacity-90">Total Stock Value</p>
+            <p className="text-3xl font-bold mt-1">${totalStockValue.toFixed(2)}</p>
+            <p className="text-xs opacity-80 mt-1">{pharmacyStock.length} items</p>
           </CardContent>
         </Card>
-      )}
+
+        <Card className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-0 shadow-lg">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-2">
+              <TrendingUp className="w-8 h-8 opacity-80" />
+            </div>
+            <p className="text-sm opacity-90">Potential Revenue</p>
+            <p className="text-3xl font-bold mt-1">${totalPotentialRevenue.toFixed(2)}</p>
+            <p className="text-xs opacity-80 mt-1">If all sold at MRP</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-teal-500 to-teal-600 text-white border-0 shadow-lg">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-2">
+              <DollarSign className="w-8 h-8 opacity-80" />
+            </div>
+            <p className="text-sm opacity-90">Potential Profit</p>
+            <p className="text-3xl font-bold mt-1">${totalPotentialProfit.toFixed(2)}</p>
+            <p className="text-xs opacity-80 mt-1">{profitMargin.toFixed(1)}% margin</p>
+          </CardContent>
+        </Card>
+
+        <Card className={`bg-gradient-to-br ${lowStockPharmacyItems.length > 0 ? 'from-amber-500 to-amber-600' : 'from-slate-500 to-slate-600'} text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform`}
+          onClick={() => setShowLowStockOnly(!showLowStockOnly)}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-2">
+              <AlertTriangle className="w-8 h-8 opacity-80" />
+            </div>
+            <p className="text-sm opacity-90">Low Stock Items</p>
+            <p className="text-3xl font-bold mt-1">{lowStockPharmacyItems.length}</p>
+            <p className="text-xs opacity-80 mt-1">{showLowStockOnly ? 'Click to show all' : 'Click to filter'}</p>
+          </CardContent>
+        </Card>
+      </div>
 
       <Tabs defaultValue="stock" className="space-y-6">
         <TabsList>
@@ -221,19 +277,47 @@ export default function PharmacyInventory() {
         </TabsList>
 
         <TabsContent value="stock" className="space-y-3">
-          {pharmacyStock.length === 0 ? (
+          {showLowStockOnly && lowStockPharmacyItems.length > 0 && (
+            <Card className="bg-amber-50 border-amber-200">
+              <CardContent className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <AlertTriangle className="w-5 h-5 text-amber-600" />
+                  <div>
+                    <p className="font-medium text-amber-900">
+                      Showing {lowStockPharmacyItems.length} low stock items (≤10 units)
+                    </p>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => setShowLowStockOnly(false)}>
+                  Show All
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+          
+          {displayedStock.length === 0 ? (
             <Card className="p-12 text-center bg-white">
               <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-              <h3 className="text-lg font-medium text-slate-900">No pharmacy stock</h3>
-              <p className="text-slate-500 mt-1">Import stock data from Stock Import page</p>
+              <h3 className="text-lg font-medium text-slate-900">
+                {showLowStockOnly ? 'No low stock items' : 'No pharmacy stock'}
+              </h3>
+              <p className="text-slate-500 mt-1">
+                {showLowStockOnly ? 'All items are above 10 units' : 'Import stock data from Stock Import page'}
+              </p>
             </Card>
           ) : (
-            pharmacyStock.map((item) => {
+            displayedStock.map((item) => {
+              const isLowStock = item.quantity <= 10;
               const isExpired = item.quality_status === 'expired';
               const isExpiringSoon = item.expire_date && new Date(item.expire_date) <= new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
               
+              const itemValue = (item.unit_cost || 0) * (item.quantity || 0);
+              const itemRevenue = (item.mrp || 0) * (item.quantity || 0);
+              const itemProfit = itemRevenue - itemValue;
+              const itemProfitPercent = itemValue > 0 ? ((itemProfit / itemValue) * 100) : 0;
+
               return (
-                <Card key={item.id} className={`p-5 ${isExpired ? 'bg-rose-50 border-rose-200' : isExpiringSoon ? 'bg-amber-50 border-amber-200' : 'bg-white'}`}>
+                <Card key={item.id} className={`p-5 ${isExpired ? 'bg-rose-50 border-rose-200' : isExpiringSoon ? 'bg-amber-50 border-amber-200' : isLowStock ? 'bg-amber-50 border-amber-300' : 'bg-white'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
@@ -241,6 +325,12 @@ export default function PharmacyInventory() {
                         <Badge variant="outline" className="font-mono text-xs">
                           {item.barcode}
                         </Badge>
+                        {isLowStock && (
+                          <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200">
+                            <AlertTriangle className="w-3 h-3 mr-1" />
+                            Low Stock
+                          </Badge>
+                        )}
                         {isExpired && (
                           <Badge variant="outline" className="bg-rose-100 text-rose-700 border-rose-200">
                             <AlertTriangle className="w-3 h-3 mr-1" />
@@ -257,30 +347,47 @@ export default function PharmacyInventory() {
                           {item.quality_status}
                         </Badge>
                       </div>
-                      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+                      <div className="grid grid-cols-2 md:grid-cols-6 gap-4 text-sm">
                         <div>
                           <p className="text-slate-500">Batch No</p>
                           <p className="font-medium">{item.batch_no}</p>
                         </div>
                         <div>
                           <p className="text-slate-500">Quantity</p>
-                          <p className="font-medium text-lg">{item.quantity}</p>
+                          <p className={`font-medium text-lg ${isLowStock ? 'text-amber-700' : ''}`}>{item.quantity}</p>
                         </div>
                         <div>
                           <p className="text-slate-500">Unit Cost</p>
-                          <p className="font-medium">{item.unit_cost?.toFixed(2)}</p>
+                          <p className="font-medium">${item.unit_cost?.toFixed(2)}</p>
                         </div>
                         <div>
                           <p className="text-slate-500">MRP</p>
-                          <p className="font-medium">{item.mrp?.toFixed(2)}</p>
+                          <p className="font-medium text-emerald-600">${item.mrp?.toFixed(2)}</p>
                         </div>
                         <div>
-                          <p className="text-slate-500">Expiry Date</p>
-                          <p className="font-medium">{item.expire_date ? format(new Date(item.expire_date), 'MMM d, yyyy') : 'N/A'}</p>
+                          <p className="text-slate-500">Stock Value</p>
+                          <p className="font-medium">${itemValue.toFixed(2)}</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-500">Profit Margin</p>
+                          <p className="font-medium text-teal-600">{itemProfitPercent.toFixed(1)}%</p>
                         </div>
                       </div>
+                      <div className="grid grid-cols-2 gap-4 text-sm mt-3">
+                        <div>
+                          <p className="text-slate-500">Potential Revenue</p>
+                          <p className="font-medium text-emerald-600">${itemRevenue.toFixed(2)}</p>
+                        </div>
+                        <div>
+                          <p className="text-slate-500">Potential Profit</p>
+                          <p className="font-medium text-teal-600">${itemProfit.toFixed(2)}</p>
+                        </div>
+                      </div>
+                      {item.expire_date && (
+                        <p className="text-xs text-slate-500 mt-2">Expiry: {format(new Date(item.expire_date), 'MMM d, yyyy')}</p>
+                      )}
                       {item.supplier && (
-                        <p className="text-xs text-slate-500 mt-2">Supplier: {item.supplier}</p>
+                        <p className="text-xs text-slate-500">Supplier: {item.supplier}</p>
                       )}
                     </div>
                   </div>
