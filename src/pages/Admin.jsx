@@ -440,7 +440,7 @@ export default function Admin() {
               Company & Organization Setup
             </h3>
             <p className="text-sm text-slate-500 mb-4">Manage companies, organizations, and users</p>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
               <button
                 onClick={() => navigate(createPageUrl('FinanceCompanies'))}
                 className="p-4 rounded-lg border-2 border-blue-300 bg-white hover:bg-blue-50 transition-all text-left"
@@ -466,6 +466,20 @@ export default function Admin() {
                   <div>
                     <p className="font-semibold text-slate-900">Organizations</p>
                     <p className="text-xs text-slate-500">Create & manage</p>
+                  </div>
+                </div>
+              </button>
+              <button
+                onClick={() => navigate(createPageUrl('CompanyHierarchy'))}
+                className="p-4 rounded-lg border-2 border-cyan-300 bg-white hover:bg-cyan-50 transition-all text-left"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
+                    <Building2 className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-slate-900">Hierarchy</p>
+                    <p className="text-xs text-slate-500">Company structure</p>
                   </div>
                 </div>
               </button>
