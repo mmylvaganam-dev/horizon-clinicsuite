@@ -70,6 +70,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Pharmacy Dashboard', page: 'PharmacyDashboard', icon: Activity },
     { name: 'Point of Sale', page: 'PharmacyPOS', icon: ShoppingBag },
     { name: 'Inventory', page: 'PharmacyInventory', icon: Activity },
+    { name: 'Stock Import', page: 'PharmacyStockImport', icon: FileText },
     { name: 'Procurement', page: 'Procurement', icon: ShoppingBag },
 
     { name: '─ OPERATIONS ─', page: null, icon: null, divider: true },
