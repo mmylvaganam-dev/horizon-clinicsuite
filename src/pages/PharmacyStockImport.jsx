@@ -27,11 +27,11 @@ export default function PharmacyStockImport() {
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
-      if (selectedFile.name.endsWith('.xlsx') || selectedFile.name.endsWith('.xls') || selectedFile.name.endsWith('.csv')) {
+      if (selectedFile.name.endsWith('.csv')) {
         setFile(selectedFile);
         setImportResult(null);
       } else {
-        toast.error('Please upload an Excel file (.xlsx, .xls) or CSV file');
+        toast.error('Please upload a CSV file (.csv)');
       }
     }
   };
@@ -146,7 +146,7 @@ DC0700017699,INV0000121682,43049510B1,S-26 GOLD Powder No2,2026-10-30,3,3153.15,
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pharmacy Stock Import</h1>
-        <p className="text-slate-500 mt-1">Upload Excel files to update inventory</p>
+        <p className="text-slate-500 mt-1">Upload CSV files to update inventory</p>
       </div>
 
       <Card className="bg-blue-50 border-blue-200">
@@ -154,9 +154,9 @@ DC0700017699,INV0000121682,43049510B1,S-26 GOLD Powder No2,2026-10-30,3,3153.15,
           <div className="flex items-start gap-3">
             <FileSpreadsheet className="w-5 h-5 text-blue-600 mt-0.5" />
             <div>
-              <p className="font-semibold text-blue-900 mb-2">Excel File Format</p>
+              <p className="font-semibold text-blue-900 mb-2">CSV File Format</p>
               <p className="text-sm text-blue-700">
-                Your Excel file should contain the following columns: Legacy Id, Barcode, Batch No, Display Name, 
+                Your CSV file should contain the following columns: Legacy Id, Barcode, Batch No, Display Name, 
                 Expire date, Quantity, Unit Price, Unit Cost, MRP, Quality Status, Storage Status, Purchased from supplier
               </p>
               <Button variant="outline" size="sm" onClick={downloadTemplate} className="mt-3">
@@ -176,7 +176,7 @@ DC0700017699,INV0000121682,43049510B1,S-26 GOLD Powder No2,2026-10-30,3,3153.15,
           <div>
             <Input
               type="file"
-              accept=".xlsx,.xls,.csv"
+              accept=".csv"
               onChange={handleFileChange}
               className="cursor-pointer"
             />
@@ -247,7 +247,7 @@ DC0700017699,INV0000121682,43049510B1,S-26 GOLD Powder No2,2026-10-30,3,3153.15,
           ) : stockItems.length === 0 ? (
             <div className="text-center py-12">
               <FileSpreadsheet className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-              <p className="text-slate-500">No stock items yet. Upload an Excel file to get started.</p>
+              <p className="text-slate-500">No stock items yet. Upload a CSV file to get started.</p>
             </div>
           ) : (
             <div className="space-y-2">
