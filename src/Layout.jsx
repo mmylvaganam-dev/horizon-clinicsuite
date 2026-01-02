@@ -219,7 +219,7 @@ export default function Layout({ children, currentPageName }) {
 
         {/* Footer with version */}
         <footer className="border-t border-slate-200 p-4 text-center text-xs text-slate-500">
-          Asia ClinicSuite v1.0 — Production Ready
+          {branding?.footer_text || 'Healthcare Management System'}
         </footer>
         </div>
         </div>

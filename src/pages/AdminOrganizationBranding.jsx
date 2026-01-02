@@ -26,6 +26,12 @@ export default function AdminOrganizationBranding() {
     phone_number: '',
     phone_number_2: '',
     email: '',
+    custom_domain: '',
+    smtp_host: '',
+    smtp_port: 587,
+    smtp_username: '',
+    smtp_from_email: '',
+    smtp_from_name: '',
     address: '',
     website: '',
     primary_color: '',
@@ -95,6 +101,12 @@ export default function AdminOrganizationBranding() {
         phone_number: branding.phone_number || '',
         phone_number_2: branding.phone_number_2 || '',
         email: branding.email || '',
+        custom_domain: branding.custom_domain || '',
+        smtp_host: branding.smtp_host || '',
+        smtp_port: branding.smtp_port || 587,
+        smtp_username: branding.smtp_username || '',
+        smtp_from_email: branding.smtp_from_email || '',
+        smtp_from_name: branding.smtp_from_name || '',
         address: branding.address || '',
         website: branding.website || '',
         primary_color: branding.primary_color || '',
@@ -197,7 +209,7 @@ export default function AdminOrganizationBranding() {
             <div>
               <p className="font-semibold text-blue-900">Branding Application</p>
               <p className="text-sm text-blue-700 mt-1">
-                Branding applies to: login screen, navigation header, and all PDFs (lab reports, diagnostics, invoices, receipts)
+                Complete white-label: Custom domain, emails from your domain, branded PDFs, no Base44 references visible to users
               </p>
             </div>
           </div>
@@ -293,6 +305,88 @@ export default function AdminOrganizationBranding() {
                   className="mt-2"
                 />
               </div>
+
+              <div>
+                <Label>Custom Domain (Optional)</Label>
+                <Input
+                  placeholder="portal.yourclinic.com"
+                  value={brandingForm.custom_domain}
+                  onChange={(e) => setBrandingForm({ ...brandingForm, custom_domain: e.target.value })}
+                  className="mt-2"
+                />
+                <p className="text-xs text-slate-500 mt-1">Custom domain for white-label access</p>
+              </div>
+
+              <Card className="bg-slate-50 border-slate-200">
+                <CardHeader>
+                  <CardTitle className="text-base">Custom Email Settings (SMTP)</CardTitle>
+                  <p className="text-xs text-slate-500">Configure custom domain email for sending notifications</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label>SMTP Host</Label>
+                      <Input
+                        placeholder="smtp.gmail.com"
+                        value={brandingForm.smtp_host}
+                        onChange={(e) => setBrandingForm({ ...brandingForm, smtp_host: e.target.value })}
+                        className="mt-2"
+                      />
+                    </div>
+                    <div>
+                      <Label>SMTP Port</Label>
+                      <Input
+                        type="number"
+                        placeholder="587"
+                        value={brandingForm.smtp_port}
+                        onChange={(e) => setBrandingForm({ ...brandingForm, smtp_port: parseInt(e.target.value) || 587 })}
+                        className="mt-2"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>SMTP Username</Label>
+                    <Input
+                      placeholder="your-email@yourclinic.com"
+                      value={brandingForm.smtp_username}
+                      onChange={(e) => setBrandingForm({ ...brandingForm, smtp_username: e.target.value })}
+                      className="mt-2"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label>From Email Address</Label>
+                      <Input
+                        type="email"
+                        placeholder="noreply@yourclinic.com"
+                        value={brandingForm.smtp_from_email}
+                        onChange={(e) => setBrandingForm({ ...brandingForm, smtp_from_email: e.target.value })}
+                        className="mt-2"
+                      />
+                    </div>
+                    <div>
+                      <Label>From Name</Label>
+                      <Input
+                        placeholder="Premier Medical Center"
+                        value={brandingForm.smtp_from_name}
+                        onChange={(e) => setBrandingForm({ ...brandingForm, smtp_from_name: e.target.value })}
+                        className="mt-2"
+                      />
+                    </div>
+                  </div>
+
+                  <Card className="bg-blue-50 border-blue-200">
+                    <CardContent className="pt-4">
+                      <p className="text-xs text-blue-800">
+                        <strong>Note:</strong> SMTP password should be configured securely via environment variables. 
+                        Contact your system administrator to set SMTP_PASSWORD_[ORG_ID] environment variable.
+                      </p>
+                    </CardContent>
+                  </Card>
+                </CardContent>
+              </Card>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
