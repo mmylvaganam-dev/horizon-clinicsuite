@@ -1,295 +1,447 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { DollarSign, Package, TrendingUp, AlertTriangle, Activity, Pill, ShoppingCart } from 'lucide-react';
-import { format, startOfMonth, startOfWeek, parseISO } from 'date-fns';
-import { Link } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  ShoppingCart,
+  Package,
+  TrendingUp,
+  AlertTriangle,
+  FileText,
+  RefreshCw,
+  Calendar,
+  Search,
+  Filter,
+  Eye,
+  Download,
+  ChevronLeft,
+  ChevronRight
+} from 'lucide-react';
+import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 
 export default function PharmacyDashboard() {
+  const navigate = useNavigate();
+  const [dateFrom, setDateFrom] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [dateTo, setDateTo] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [easyView, setEasyView] = useState(false);
+
   const { data: sales = [] } = useQuery({
     queryKey: ['pharmacySales'],
-    queryFn: () => base44.entities.PharmacySale.list('-sale_date', 100),
+    queryFn: () => base44.entities.PharmacySale.list('-sale_date'),
   });
 
-  const { data: inventory = [] } = useQuery({
-    queryKey: ['inventoryBalances'],
-    queryFn: () => base44.entities.InventoryBalance.list(),
+  const { data: patients = [] } = useQuery({
+    queryKey: ['patients'],
+    queryFn: () => base44.entities.Patient.list(),
   });
 
-  const { data: prescriptions = [] } = useQuery({
-    queryKey: ['prescriptions'],
-    queryFn: () => base44.entities.Prescription.list('-prescribed_date', 50),
+  const { data: pharmacyStock = [] } = useQuery({
+    queryKey: ['pharmacyStock'],
+    queryFn: () => base44.entities.PharmacyStock.list('-created_date'),
   });
 
-  const { data: drugCatalog = [] } = useQuery({
-    queryKey: ['drugCatalog'],
-    queryFn: () => base44.entities.DrugCatalog.list(),
+  const { data: receipts = [] } = useQuery({
+    queryKey: ['pharmacyReceipts'],
+    queryFn: () => base44.entities.PharmacyReceipt.list(),
   });
 
-  // Calculate metrics
-  const today = new Date();
-  const startOfThisMonth = startOfMonth(today);
-  const startOfThisWeek = startOfWeek(today);
+  const getPatientName = (patientId) => {
+    if (!patientId) return 'Walk-in Customer';
+    const patient = patients.find(p => p.id === patientId);
+    return patient ? `${patient.first_name} ${patient.last_name}` : 'Unknown';
+  };
 
+  const getReceiptNumber = (saleId) => {
+    const receipt = receipts.find(r => r.sale_id === saleId);
+    return receipt?.receipt_number || 'N/A';
+  };
+
+  // Filter sales by date and search
+  const filteredSales = sales.filter(sale => {
+    const saleDate = new Date(sale.sale_date);
+    const fromDate = new Date(dateFrom);
+    const toDate = new Date(dateTo);
+    toDate.setHours(23, 59, 59);
+
+    const dateMatch = saleDate >= fromDate && saleDate <= toDate;
+    
+    const searchMatch = searchQuery === '' || 
+      getPatientName(sale.patient_id).toLowerCase().includes(searchQuery.toLowerCase()) ||
+      getReceiptNumber(sale.id).toLowerCase().includes(searchQuery.toLowerCase());
+
+    return dateMatch && searchMatch;
+  });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredSales.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedSales = filteredSales.slice(startIndex, startIndex + itemsPerPage);
+
+  // Stats
   const todaySales = sales.filter(s => {
-    const saleDate = parseISO(s.sale_date);
-    return saleDate.toDateString() === today.toDateString();
+    const saleDate = new Date(s.sale_date);
+    const today = new Date();
+    return saleDate.toDateString() === today.toDateString() && s.status === 'completed';
   });
 
-  const monthSales = sales.filter(s => {
-    const saleDate = parseISO(s.sale_date);
-    return saleDate >= startOfThisMonth;
-  });
+  const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total || 0), 0);
+  
+  const lowStockCount = pharmacyStock.filter(item => 
+    item.quantity <= 10 && item.quality_status === 'usable'
+  ).length;
 
-  const weekSales = sales.filter(s => {
-    const saleDate = parseISO(s.sale_date);
-    return saleDate >= startOfThisWeek;
-  });
+  const expiredCount = pharmacyStock.filter(item =>
+    item.expire_date && new Date(item.expire_date) < new Date()
+  ).length;
 
-  const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total_amount || 0), 0);
-  const monthRevenue = monthSales.reduce((sum, s) => sum + (s.total_amount || 0), 0);
-  const weekRevenue = weekSales.reduce((sum, s) => sum + (s.total_amount || 0), 0);
-
-  const lowStock = inventory.filter(i => i.quantity_on_hand < 20);
-  const outOfStock = inventory.filter(i => i.quantity_on_hand === 0);
-
-  const pendingPrescriptions = prescriptions.filter(p => p.status === 'Pending');
-  const verifiedPrescriptions = prescriptions.filter(p => p.status === 'Verified');
-
-  const topSellingItems = sales
-    .slice(0, 20)
-    .reduce((acc, sale) => {
-      const items = sale.items_json || [];
-      items.forEach(item => {
-        const key = item.drug_name;
-        if (!acc[key]) {
-          acc[key] = { name: item.drug_name, qty: 0, revenue: 0 };
-        }
-        acc[key].qty += item.quantity;
-        acc[key].revenue += item.total_price;
-      });
-      return acc;
-    }, {});
-
-  const topItems = Object.values(topSellingItems)
-    .sort((a, b) => b.revenue - a.revenue)
-    .slice(0, 5);
+  const statusColors = {
+    completed: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    refunded: 'bg-amber-100 text-amber-700 border-amber-200',
+    voided: 'bg-rose-100 text-rose-700 border-rose-200'
+  };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pharmacy Dashboard</h1>
-        <p className="text-slate-500 mt-1">Real-time pharmacy operations overview</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pharmacy Dashboard</h1>
+          <p className="text-slate-500 mt-1">Sales, orders, and inventory management</p>
+        </div>
       </div>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-0">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-emerald-100 text-sm">Today's Sales</p>
-                <p className="text-3xl font-bold mt-1">${todayRevenue.toFixed(2)}</p>
-                <p className="text-emerald-100 text-xs mt-1">{todaySales.length} transactions</p>
-              </div>
-              <DollarSign className="w-12 h-12 text-emerald-200" />
-            </div>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg">
+          <CardContent className="p-6">
+            <ShoppingCart className="w-8 h-8 mb-2 opacity-80" />
+            <p className="text-sm opacity-90">Today's Sales</p>
+            <p className="text-3xl font-bold mt-1">{todaySales.length}</p>
+            <p className="text-xs opacity-80 mt-1">${todayRevenue.toFixed(2)}</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-blue-100 text-sm">This Week</p>
-                <p className="text-3xl font-bold mt-1">${weekRevenue.toFixed(2)}</p>
-                <p className="text-blue-100 text-xs mt-1">{weekSales.length} transactions</p>
-              </div>
-              <TrendingUp className="w-12 h-12 text-blue-200" />
-            </div>
+        <Card className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-0 shadow-lg">
+          <CardContent className="p-6">
+            <Package className="w-8 h-8 mb-2 opacity-80" />
+            <p className="text-sm opacity-90">Stock Items</p>
+            <p className="text-3xl font-bold mt-1">{pharmacyStock.length}</p>
+            <p className="text-xs opacity-80 mt-1">Total inventory</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white border-0">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-purple-100 text-sm">This Month</p>
-                <p className="text-3xl font-bold mt-1">${monthRevenue.toFixed(2)}</p>
-                <p className="text-purple-100 text-xs mt-1">{monthSales.length} transactions</p>
-              </div>
-              <Activity className="w-12 h-12 text-purple-200" />
-            </div>
+        <Card 
+          className={`bg-gradient-to-br ${lowStockCount > 0 ? 'from-amber-500 to-amber-600' : 'from-slate-500 to-slate-600'} text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform`}
+          onClick={() => navigate(createPageUrl('PharmacyInventory'))}
+        >
+          <CardContent className="p-6">
+            <AlertTriangle className="w-8 h-8 mb-2 opacity-80" />
+            <p className="text-sm opacity-90">Low Stock</p>
+            <p className="text-3xl font-bold mt-1">{lowStockCount}</p>
+            <p className="text-xs opacity-80 mt-1">Items need reorder</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-amber-500 to-amber-600 text-white border-0">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-amber-100 text-sm">Low Stock Items</p>
-                <p className="text-3xl font-bold mt-1">{lowStock.length}</p>
-                <p className="text-amber-100 text-xs mt-1">{outOfStock.length} out of stock</p>
-              </div>
-              <AlertTriangle className="w-12 h-12 text-amber-200" />
-            </div>
+        <Card 
+          className={`bg-gradient-to-br ${expiredCount > 0 ? 'from-rose-500 to-rose-600' : 'from-slate-500 to-slate-600'} text-white border-0 shadow-lg`}
+        >
+          <CardContent className="p-6">
+            <Calendar className="w-8 h-8 mb-2 opacity-80" />
+            <p className="text-sm opacity-90">Expired Items</p>
+            <p className="text-3xl font-bold mt-1">{expiredCount}</p>
+            <p className="text-xs opacity-80 mt-1">Remove from stock</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Prescriptions & Inventory */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="border-0 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Pill className="w-5 h-5 text-blue-600" />
-              Pending Prescriptions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {pendingPrescriptions.length === 0 ? (
-              <p className="text-sm text-slate-500 text-center py-4">No pending prescriptions</p>
-            ) : (
-              <div className="space-y-2">
-                {pendingPrescriptions.slice(0, 5).map((rx) => (
-                  <div key={rx.id} className="p-3 rounded-lg border bg-white hover:shadow-md transition-shadow">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-slate-900">{rx.drug_name}</p>
-                        <p className="text-sm text-slate-500">Patient ID: {rx.patient_id}</p>
-                      </div>
-                      <Badge className="bg-amber-100 text-amber-700">Pending</Badge>
-                    </div>
-                  </div>
-                ))}
-                {pendingPrescriptions.length > 5 && (
-                  <Link to={createPageUrl('PharmacyPOS')}>
-                    <p className="text-sm text-blue-600 text-center pt-2 hover:underline">
-                      View all {pendingPrescriptions.length} prescriptions →
-                    </p>
-                  </Link>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      {/* Main Navigation Tabs */}
+      <Card className="border-0 shadow-lg">
+        <Tabs defaultValue="salesforce" className="w-full">
+          <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-3">
+            <TabsList className="bg-transparent border-b border-white/20 w-full justify-start rounded-none">
+              <TabsTrigger value="salesforce" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">
+                Salesforce
+              </TabsTrigger>
+              <TabsTrigger value="order" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">
+                Order
+              </TabsTrigger>
+              <TabsTrigger value="stock" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">
+                Stock
+              </TabsTrigger>
+              <TabsTrigger value="stock-taking" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">
+                Stock Taking
+              </TabsTrigger>
+              <TabsTrigger value="bill-card" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">
+                Bill Card
+              </TabsTrigger>
+              <TabsTrigger value="refund" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">
+                Refund
+              </TabsTrigger>
+              <TabsTrigger value="med-return" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">
+                Med. Return
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-        <Card className="border-0 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5 text-amber-600" />
-              Stock Alerts
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {lowStock.length === 0 ? (
-              <p className="text-sm text-slate-500 text-center py-4">All items well stocked</p>
-            ) : (
-              <div className="space-y-2">
-                {lowStock.slice(0, 5).map((item) => (
-                  <div key={item.id} className="p-3 rounded-lg border bg-white">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="font-medium text-slate-900">{item.item_name || 'Item'}</p>
-                        <p className="text-sm text-slate-500">Quantity: {item.quantity_on_hand}</p>
-                      </div>
-                      <Badge className={item.quantity_on_hand === 0 ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}>
-                        {item.quantity_on_hand === 0 ? 'Out of Stock' : 'Low'}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-                {lowStock.length > 5 && (
-                  <Link to={createPageUrl('PharmacyInventory')}>
-                    <p className="text-sm text-blue-600 text-center pt-2 hover:underline">
-                      View all {lowStock.length} alerts →
-                    </p>
-                  </Link>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Top Selling Items */}
-      <Card className="border-0 shadow-sm">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-emerald-600" />
-            Top Selling Items (Recent)
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {topItems.length === 0 ? (
-            <p className="text-sm text-slate-500 text-center py-4">No sales data yet</p>
-          ) : (
-            <div className="space-y-2">
-              {topItems.map((item, idx) => (
-                <div key={idx} className="p-3 rounded-lg border bg-white flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center font-bold text-emerald-700">
-                      #{idx + 1}
-                    </div>
-                    <div>
-                      <p className="font-medium text-slate-900">{item.name}</p>
-                      <p className="text-sm text-slate-500">{item.qty} units sold</p>
-                    </div>
-                  </div>
-                  <p className="text-lg font-semibold text-emerald-600">${item.revenue.toFixed(2)}</p>
+          <CardContent className="p-6">
+            <TabsContent value="salesforce" className="mt-0 space-y-4">
+              {/* Filters */}
+              <div className="flex flex-wrap gap-4 items-end">
+                <div className="flex-1 min-w-[200px]">
+                  <label className="text-sm font-medium mb-2 block">From Date</label>
+                  <Input
+                    type="date"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                  />
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
+                <div className="flex-1 min-w-[200px]">
+                  <label className="text-sm font-medium mb-2 block">To Date</label>
+                  <Input
+                    type="date"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                  />
+                </div>
+                <div className="flex-1 min-w-[200px]">
+                  <label className="text-sm font-medium mb-2 block">Search</label>
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input
+                      placeholder="Search by name or receipt..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+                <Button variant="outline">
+                  <Filter className="w-4 h-4 mr-2" />
+                  Advanced Filter
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => setEasyView(!easyView)}
+                  className={easyView ? 'bg-indigo-50 border-indigo-300' : ''}
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  Easy View
+                </Button>
+                <Button variant="outline">
+                  <Download className="w-4 h-4 mr-2" />
+                  Export
+                </Button>
+              </div>
+
+              {/* Sales List */}
+              <div className="border rounded-lg overflow-hidden">
+                <div className="bg-slate-50 border-b px-4 py-3">
+                  <div className="grid grid-cols-12 gap-4 text-sm font-semibold text-slate-700">
+                    <div className="col-span-2">Date & Time</div>
+                    <div className="col-span-2">Receipt #</div>
+                    <div className="col-span-3">Customer</div>
+                    <div className="col-span-2">Amount</div>
+                    <div className="col-span-1">Status</div>
+                    <div className="col-span-2 text-right">Actions</div>
+                  </div>
+                </div>
+
+                <div className="divide-y">
+                  {paginatedSales.length === 0 ? (
+                    <div className="p-12 text-center">
+                      <ShoppingCart className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+                      <p className="text-slate-500">No sales found for selected criteria</p>
+                    </div>
+                  ) : (
+                    paginatedSales.map((sale) => (
+                      <div key={sale.id} className="px-4 py-4 hover:bg-slate-50 transition-colors">
+                        <div className="grid grid-cols-12 gap-4 items-center">
+                          <div className="col-span-2">
+                            <p className="text-sm font-medium text-slate-900">
+                              {format(new Date(sale.sale_date), 'dd MMM, yyyy')}
+                            </p>
+                            <p className="text-xs text-slate-500">
+                              {format(new Date(sale.sale_date), 'hh:mm a')}
+                            </p>
+                          </div>
+                          <div className="col-span-2">
+                            <Badge variant="outline" className="font-mono">
+                              {getReceiptNumber(sale.id)}
+                            </Badge>
+                          </div>
+                          <div className="col-span-3">
+                            <p className="text-sm font-medium text-slate-900">
+                              {getPatientName(sale.patient_id)}
+                            </p>
+                          </div>
+                          <div className="col-span-2">
+                            <p className="text-lg font-bold text-slate-900">
+                              ${sale.total?.toFixed(2)}
+                            </p>
+                          </div>
+                          <div className="col-span-1">
+                            <Badge className={statusColors[sale.status]}>
+                              {sale.status}
+                            </Badge>
+                          </div>
+                          <div className="col-span-2 flex justify-end gap-2">
+                            {sale.status === 'completed' && (
+                              <>
+                                <Button size="sm" variant="outline">
+                                  In Progress
+                                </Button>
+                                <Button size="sm" variant="outline" className="text-amber-600 hover:text-amber-700">
+                                  <RefreshCw className="w-3 h-3 mr-1" />
+                                  Refund
+                                </Button>
+                              </>
+                            )}
+                            <Button size="sm" variant="outline">
+                              <FileText className="w-3 h-3 mr-1" />
+                              View
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Pagination */}
+              {filteredSales.length > 0 && (
+                <div className="flex items-center justify-between pt-4">
+                  <p className="text-sm text-slate-600">
+                    Showing {startIndex + 1} - {Math.min(startIndex + itemsPerPage, filteredSales.length)} of {filteredSales.length}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </Button>
+                    <span className="text-sm">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                      disabled={currentPage === totalPages}
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="order">
+              <div className="text-center py-12">
+                <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+                <p className="text-slate-500 mb-4">Order management coming soon</p>
+                <Button onClick={() => navigate(createPageUrl('PharmacyPOS'))}>
+                  Go to Point of Sale
+                </Button>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="stock">
+              <div className="text-center py-12">
+                <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+                <p className="text-slate-500 mb-4">Stock management</p>
+                <Button onClick={() => navigate(createPageUrl('PharmacyInventory'))}>
+                  View Inventory
+                </Button>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="stock-taking">
+              <div className="text-center py-12">
+                <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+                <p className="text-slate-500">Stock taking functionality</p>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="bill-card">
+              <div className="text-center py-12">
+                <FileText className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+                <p className="text-slate-500">Bill card management</p>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="refund">
+              <div className="text-center py-12">
+                <RefreshCw className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+                <p className="text-slate-500 mb-4">Refund processing</p>
+                <div className="space-y-3 max-w-lg mx-auto">
+                  {sales.filter(s => s.status === 'refunded').slice(0, 5).map(sale => (
+                    <Card key={sale.id} className="p-4 text-left">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <p className="font-medium">{getReceiptNumber(sale.id)}</p>
+                          <p className="text-sm text-slate-500">{getPatientName(sale.patient_id)}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-rose-600">${sale.total?.toFixed(2)}</p>
+                          <Badge className="bg-rose-100 text-rose-700 mt-1">Refunded</Badge>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="med-return">
+              <div className="text-center py-12">
+                <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+                <p className="text-slate-500">Medicine return processing</p>
+              </div>
+            </TabsContent>
+          </CardContent>
+        </Tabs>
       </Card>
 
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Link to={createPageUrl('PharmacyPOS')}>
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-0 bg-gradient-to-br from-blue-50 to-blue-100">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <ShoppingCart className="w-10 h-10 text-blue-600" />
-                <div>
-                  <p className="font-semibold text-slate-900">Point of Sale</p>
-                  <p className="text-sm text-slate-600">Process sales & dispense Rx</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
+        <Card 
+          className="p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-blue-200 bg-blue-50"
+          onClick={() => navigate(createPageUrl('PharmacyPOS'))}
+        >
+          <ShoppingCart className="w-8 h-8 text-blue-600 mb-3" />
+          <h3 className="font-bold text-slate-900 mb-1">New Sale</h3>
+          <p className="text-sm text-slate-600">Process a new sale transaction</p>
+        </Card>
 
-        <Link to={createPageUrl('PharmacyInventory')}>
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-0 bg-gradient-to-br from-purple-50 to-purple-100">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <Package className="w-10 h-10 text-purple-600" />
-                <div>
-                  <p className="font-semibold text-slate-900">Inventory</p>
-                  <p className="text-sm text-slate-600">Manage stock & batches</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
+        <Card 
+          className="p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-emerald-200 bg-emerald-50"
+          onClick={() => navigate(createPageUrl('PharmacyInventory'))}
+        >
+          <Package className="w-8 h-8 text-emerald-600 mb-3" />
+          <h3 className="font-bold text-slate-900 mb-1">Manage Stock</h3>
+          <p className="text-sm text-slate-600">View and update inventory</p>
+        </Card>
 
-        <Link to={createPageUrl('Procurement')}>
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer border-0 bg-gradient-to-br from-emerald-50 to-emerald-100">
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <TrendingUp className="w-10 h-10 text-emerald-600" />
-                <div>
-                  <p className="font-semibold text-slate-900">Procurement</p>
-                  <p className="text-sm text-slate-600">Purchase orders & receiving</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Link>
+        <Card 
+          className="p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-amber-200 bg-amber-50"
+          onClick={() => navigate(createPageUrl('PharmacyStockImport'))}
+        >
+          <TrendingUp className="w-8 h-8 text-amber-600 mb-3" />
+          <h3 className="font-bold text-slate-900 mb-1">Import Stock</h3>
+          <p className="text-sm text-slate-600">Bulk import stock data</p>
+        </Card>
       </div>
     </div>
   );
