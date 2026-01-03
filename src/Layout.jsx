@@ -42,10 +42,9 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Daily Ops', page: 'DailyOps', icon: Activity },
 
     { name: '─ PHARMACY ─', page: null, icon: null, divider: true },
-    { name: 'Pharmacy Dashboard', page: 'PharmacyDashboard', icon: Activity },
-    { name: 'Billing', page: 'PharmacyBilling', icon: ShoppingBag },
-    { name: 'Point of Sale', page: 'PharmacyPOS', icon: ShoppingBag },
-    { name: 'Inventory', page: 'PharmacyInventory', icon: Activity },
+    { name: 'Dashboard', page: 'PharmacyDashboard', icon: Activity },
+    { name: 'Point of Sale', page: 'PharmacyBilling', icon: ShoppingBag },
+    { name: 'Inventory', page: 'PharmacyInventory', icon: Package },
     { name: 'Stock Import', page: 'PharmacyStockImport', icon: FileText },
     { name: 'Stock Taking', page: 'PharmacyStockTaking', icon: CheckSquare },
     { name: 'Requests', page: 'PharmacyRequests', icon: FileText },

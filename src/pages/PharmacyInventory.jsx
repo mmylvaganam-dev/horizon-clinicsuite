@@ -59,6 +59,36 @@ export default function PharmacyInventory() {
 
   const [showLowStockOnly, setShowLowStockOnly] = useState(false);
 
+  const { data: balances = [] } = useQuery({
+    queryKey: ['inventoryBalances'],
+    queryFn: () => base44.entities.InventoryBalance.list('-updated_at'),
+  });
+
+  const { data: pharmacyStock = [] } = useQuery({
+    queryKey: ['pharmacyStock'],
+    queryFn: () => base44.entities.PharmacyStock.list('-created_date'),
+  });
+
+  const { data: transactions = [] } = useQuery({
+    queryKey: ['inventoryTxns'],
+    queryFn: () => base44.entities.InventoryTxn.list('-created_at', 100),
+  });
+
+  const { data: drugs = [] } = useQuery({
+    queryKey: ['drugs'],
+    queryFn: () => base44.entities.DrugCatalog.list(),
+  });
+
+  const { data: locations = [] } = useQuery({
+    queryKey: ['locations'],
+    queryFn: () => base44.entities.Location.list(),
+  });
+
+  const { data: batches = [] } = useQuery({
+    queryKey: ['stockBatches'],
+    queryFn: () => base44.entities.StockBatch.list('-expiry_date'),
+  });
+
   // Calculate stock metrics
   const totalStockValue = pharmacyStock.reduce((sum, item) => 
     sum + ((item.unit_cost || 0) * (item.quantity || 0)), 0
@@ -92,36 +122,6 @@ export default function PharmacyInventory() {
   );
 
   const displayedStock = showLowStockOnly ? lowStockPharmacyItems : pharmacyStock;
-
-  const { data: balances = [] } = useQuery({
-    queryKey: ['inventoryBalances'],
-    queryFn: () => base44.entities.InventoryBalance.list('-updated_at'),
-  });
-
-  const { data: pharmacyStock = [] } = useQuery({
-    queryKey: ['pharmacyStock'],
-    queryFn: () => base44.entities.PharmacyStock.list('-created_date'),
-  });
-
-  const { data: transactions = [] } = useQuery({
-    queryKey: ['inventoryTxns'],
-    queryFn: () => base44.entities.InventoryTxn.list('-created_at', 100),
-  });
-
-  const { data: drugs = [] } = useQuery({
-    queryKey: ['drugs'],
-    queryFn: () => base44.entities.DrugCatalog.list(),
-  });
-
-  const { data: locations = [] } = useQuery({
-    queryKey: ['locations'],
-    queryFn: () => base44.entities.Location.list(),
-  });
-
-  const { data: batches = [] } = useQuery({
-    queryKey: ['stockBatches'],
-    queryFn: () => base44.entities.StockBatch.list('-expiry_date'),
-  });
 
   const receiveInventoryMutation = useMutation({
     mutationFn: (data) => {

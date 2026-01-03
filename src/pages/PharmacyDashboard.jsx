@@ -358,26 +358,47 @@ export default function PharmacyDashboard() {
             </TabsContent>
 
             <TabsContent value="stock">
-              <div className="text-center py-12">
-                <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-                <p className="text-slate-500 mb-4">Stock management</p>
-                <Button onClick={() => navigate(createPageUrl('PharmacyInventory'))}>
-                  View Inventory
-                </Button>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">Stock Overview</h3>
+                  <Button onClick={() => navigate(createPageUrl('PharmacyInventory'))}>
+                    View Full Inventory
+                  </Button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {pharmacyStock.slice(0, 9).map((item) => (
+                    <Card key={item.id} className="p-4">
+                      <h4 className="font-semibold text-sm">{item.display_name}</h4>
+                      <div className="flex justify-between items-center mt-2">
+                        <Badge variant="outline">{item.barcode}</Badge>
+                        <span className="font-bold text-lg">{item.quantity}</span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-1">
+                        ${item.mrp?.toFixed(2)} • {item.quality_status}
+                      </p>
+                    </Card>
+                  ))}
+                </div>
               </div>
             </TabsContent>
 
             <TabsContent value="stock-taking">
               <div className="text-center py-12">
                 <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-                <p className="text-slate-500">Stock taking functionality</p>
+                <p className="text-slate-500 mb-4">Physical inventory counting</p>
+                <Button onClick={() => navigate(createPageUrl('PharmacyStockTaking'))}>
+                  Go to Stock Taking
+                </Button>
               </div>
             </TabsContent>
 
             <TabsContent value="bill-card">
               <div className="text-center py-12">
                 <FileText className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-                <p className="text-slate-500">Bill card management</p>
+                <p className="text-slate-500 mb-4">Bill card reports and tracking</p>
+                <Button onClick={() => navigate(createPageUrl('PharmacyBillCardReports'))}>
+                  View Bill Card Reports
+                </Button>
               </div>
             </TabsContent>
 
