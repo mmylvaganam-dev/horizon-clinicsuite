@@ -89,6 +89,13 @@ export default function PharmacyInventory() {
     queryFn: () => base44.entities.StockBatch.list('-expiry_date'),
   });
 
+  const { data: companies = [] } = useQuery({
+    queryKey: ['companies'],
+    queryFn: () => base44.entities.CompanyProfile.list(),
+  });
+
+  const currency = companies[0]?.base_currency || 'LKR';
+
   // Calculate stock metrics
   const totalStockValue = pharmacyStock.reduce((sum, item) => 
     sum + ((item.unit_cost || 0) * (item.quantity || 0)), 0
@@ -349,7 +356,7 @@ export default function PharmacyInventory() {
               <DollarSign className="w-8 h-8 opacity-80" />
             </div>
             <p className="text-sm opacity-90">Total Stock Value</p>
-            <p className="text-3xl font-bold mt-1">${totalStockValue.toFixed(2)}</p>
+            <p className="text-3xl font-bold mt-1">{currency} {totalStockValue.toFixed(2)}</p>
             <p className="text-xs opacity-80 mt-1">{pharmacyStock.length} items</p>
           </CardContent>
         </Card>
@@ -360,7 +367,7 @@ export default function PharmacyInventory() {
               <TrendingUp className="w-8 h-8 opacity-80" />
             </div>
             <p className="text-sm opacity-90">Potential Revenue</p>
-            <p className="text-3xl font-bold mt-1">${totalPotentialRevenue.toFixed(2)}</p>
+            <p className="text-3xl font-bold mt-1">{currency} {totalPotentialRevenue.toFixed(2)}</p>
             <p className="text-xs opacity-80 mt-1">If all sold at MRP</p>
           </CardContent>
         </Card>
@@ -371,7 +378,7 @@ export default function PharmacyInventory() {
               <DollarSign className="w-8 h-8 opacity-80" />
             </div>
             <p className="text-sm opacity-90">Potential Profit</p>
-            <p className="text-3xl font-bold mt-1">${totalPotentialProfit.toFixed(2)}</p>
+            <p className="text-3xl font-bold mt-1">{currency} {totalPotentialProfit.toFixed(2)}</p>
             <p className="text-xs opacity-80 mt-1">{profitMargin.toFixed(1)}% margin</p>
           </CardContent>
         </Card>
@@ -510,15 +517,15 @@ export default function PharmacyInventory() {
                         </div>
                         <div>
                           <p className="text-slate-500">Unit Cost</p>
-                          <p className="font-medium">${item.unit_cost?.toFixed(2)}</p>
+                          <p className="font-medium">{currency} {item.unit_cost?.toFixed(2)}</p>
                         </div>
                         <div>
                           <p className="text-slate-500">MRP</p>
-                          <p className="font-medium text-emerald-600">${item.mrp?.toFixed(2)}</p>
+                          <p className="font-medium text-emerald-600">{currency} {item.mrp?.toFixed(2)}</p>
                         </div>
                         <div>
                           <p className="text-slate-500">Stock Value</p>
-                          <p className="font-medium">${itemValue.toFixed(2)}</p>
+                          <p className="font-medium">{currency} {itemValue.toFixed(2)}</p>
                         </div>
                         <div>
                           <p className="text-slate-500">Profit Margin</p>
@@ -528,11 +535,11 @@ export default function PharmacyInventory() {
                       <div className="grid grid-cols-2 gap-4 text-sm mt-3">
                         <div>
                           <p className="text-slate-500">Potential Revenue</p>
-                          <p className="font-medium text-emerald-600">${itemRevenue.toFixed(2)}</p>
+                          <p className="font-medium text-emerald-600">{currency} {itemRevenue.toFixed(2)}</p>
                         </div>
                         <div>
                           <p className="text-slate-500">Potential Profit</p>
-                          <p className="font-medium text-teal-600">${itemProfit.toFixed(2)}</p>
+                          <p className="font-medium text-teal-600">{currency} {itemProfit.toFixed(2)}</p>
                         </div>
                       </div>
                       {item.expire_date && (
@@ -591,7 +598,7 @@ export default function PharmacyInventory() {
                         </div>
                         <div>
                           <p className="text-slate-500">Unit Cost</p>
-                          <p className="font-medium">${balance.unit_cost?.toFixed(2) || '0.00'}</p>
+                          <p className="font-medium">{currency} {balance.unit_cost?.toFixed(2) || '0.00'}</p>
                         </div>
                       </div>
                     </div>

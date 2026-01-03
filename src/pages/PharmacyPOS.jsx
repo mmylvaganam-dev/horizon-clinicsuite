@@ -75,6 +75,13 @@ export default function PharmacyPOS() {
     queryFn: () => base44.entities.Prescription.list(),
   });
 
+  const { data: companies = [] } = useQuery({
+    queryKey: ['companies'],
+    queryFn: () => base44.entities.CompanyProfile.list(),
+  });
+
+  const currency = companies[0]?.base_currency || 'LKR';
+
   const createSaleMutation = useMutation({
     mutationFn: (data) => base44.functions.invoke('createPharmacySale', data),
     onSuccess: () => {
@@ -447,16 +454,16 @@ export default function PharmacyPOS() {
                 <CardContent className="p-6 space-y-3">
                   <div className="flex justify-between text-sm">
                     <span>Subtotal:</span>
-                    <span className="font-semibold">${subtotal.toFixed(2)}</span>
+                    <span className="font-semibold">{currency} {subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Tax ({taxRate}%):</span>
-                    <span className="font-semibold">${tax.toFixed(2)}</span>
+                    <span className="font-semibold">{currency} {tax.toFixed(2)}</span>
                   </div>
                   <div className="border-t border-white/20 pt-3">
                     <div className="flex justify-between text-xl font-bold">
                       <span>Total:</span>
-                      <span>${total.toFixed(2)}</span>
+                      <span>{currency} {total.toFixed(2)}</span>
                     </div>
                   </div>
                   <Button
@@ -512,7 +519,7 @@ export default function PharmacyPOS() {
                         {new Date(sale.sale_date).toLocaleString()}
                       </p>
                       <p className="text-lg font-semibold text-teal-600 mt-2">
-                        ${sale.total.toFixed(2)}
+                        {currency} {sale.total.toFixed(2)}
                       </p>
                     </div>
                     {sale.status === 'completed' && (

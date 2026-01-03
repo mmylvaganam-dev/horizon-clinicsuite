@@ -54,6 +54,13 @@ export default function PharmacyDashboard() {
     queryFn: () => base44.entities.PharmacyReceipt.list(),
   });
 
+  const { data: companies = [] } = useQuery({
+    queryKey: ['companies'],
+    queryFn: () => base44.entities.CompanyProfile.list(),
+  });
+
+  const currency = companies[0]?.base_currency || 'LKR';
+
   const getPatientName = (patientId) => {
     if (!patientId) return 'Walk-in Customer';
     const patient = patients.find(p => p.id === patientId);
@@ -125,7 +132,7 @@ export default function PharmacyDashboard() {
             <ShoppingCart className="w-8 h-8 mb-2 opacity-80" />
             <p className="text-sm opacity-90">Today's Sales</p>
             <p className="text-3xl font-bold mt-1">{todaySales.length}</p>
-            <p className="text-xs opacity-80 mt-1">${todayRevenue.toFixed(2)}</p>
+            <p className="text-xs opacity-80 mt-1">{currency} {todayRevenue.toFixed(2)}</p>
           </CardContent>
         </Card>
 
@@ -284,7 +291,7 @@ export default function PharmacyDashboard() {
                           </div>
                           <div className="col-span-2">
                             <p className="text-lg font-bold text-slate-900">
-                              ${sale.total?.toFixed(2)}
+                              {currency} {sale.total?.toFixed(2)}
                             </p>
                           </div>
                           <div className="col-span-1">
@@ -374,7 +381,7 @@ export default function PharmacyDashboard() {
                         <span className="font-bold text-lg">{item.quantity}</span>
                       </div>
                       <p className="text-xs text-slate-500 mt-1">
-                        ${item.mrp?.toFixed(2)} • {item.quality_status}
+                        {currency} {item.mrp?.toFixed(2)} • {item.quality_status}
                       </p>
                     </Card>
                   ))}
@@ -415,7 +422,7 @@ export default function PharmacyDashboard() {
                           <p className="text-sm text-slate-500">{getPatientName(sale.patient_id)}</p>
                         </div>
                         <div className="text-right">
-                          <p className="font-bold text-rose-600">${sale.total?.toFixed(2)}</p>
+                          <p className="font-bold text-rose-600">{currency} {sale.total?.toFixed(2)}</p>
                           <Badge className="bg-rose-100 text-rose-700 mt-1">Refunded</Badge>
                         </div>
                       </div>
