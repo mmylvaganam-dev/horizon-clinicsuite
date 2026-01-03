@@ -41,8 +41,16 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Home', page: 'Home', icon: LayoutDashboard },
     { name: 'Daily Ops', page: 'DailyOps', icon: Activity },
 
-    { name: '─ WORKSPACES ─', page: null, icon: null, divider: true },
-    { name: 'Sales', page: 'SalesWorkspace', icon: DollarSign },
+    { name: '─ PHARMACY ─', page: null, icon: null, divider: true },
+    { name: 'Pharmacy Dashboard', page: 'PharmacyDashboard', icon: Activity },
+    { name: 'Billing', page: 'PharmacyBilling', icon: ShoppingBag },
+    { name: 'Point of Sale', page: 'PharmacyPOS', icon: ShoppingBag },
+    { name: 'Inventory', page: 'PharmacyInventory', icon: Activity },
+    { name: 'Stock Import', page: 'PharmacyStockImport', icon: FileText },
+    { name: 'Stock Taking', page: 'PharmacyStockTaking', icon: CheckSquare },
+    { name: 'Requests', page: 'PharmacyRequests', icon: FileText },
+    { name: 'Bill Card Reports', page: 'PharmacyBillCardReports', icon: BarChart3 },
+    { name: 'Procurement', page: 'Procurement', icon: ShoppingBag },
 
     { name: '─ CLINICAL ─', page: null, icon: null, divider: true },
     { name: 'Appointments', page: 'Appointments', icon: Calendar },
@@ -50,6 +58,10 @@ export default function Layout({ children, currentPageName }) {
     { name: 'EMR', page: 'EMR', icon: FileText },
     { name: 'Medical Records', page: 'MedicalRecords', icon: FileText },
     { name: 'Task Management', page: 'TaskManagement', icon: CheckSquare },
+
+    { name: '─ WORKSPACES ─', page: null, icon: null, divider: true },
+    { name: 'Provider Dashboard', page: 'ProviderDashboard', icon: Activity },
+    { name: 'Sales', page: 'SalesWorkspace', icon: DollarSign },
 
     { name: '─ LABORATORY ─', page: null, icon: null, divider: true },
     { name: 'LIS Dashboard', page: 'LISDashboard', icon: Activity },
@@ -65,13 +77,6 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Orders & Results', page: 'OrdersResults', icon: FileText },
     { name: 'Release Queue', page: 'ReleaseQueue', icon: FileText },
     { name: 'Critical Queue', page: 'CriticalQueue', icon: Activity },
-
-    { name: '─ PHARMACY ─', page: null, icon: null, divider: true },
-    { name: 'Pharmacy Dashboard', page: 'PharmacyDashboard', icon: Activity },
-    { name: 'Point of Sale', page: 'PharmacyPOS', icon: ShoppingBag },
-    { name: 'Inventory', page: 'PharmacyInventory', icon: Activity },
-    { name: 'Stock Import', page: 'PharmacyStockImport', icon: FileText },
-    { name: 'Procurement', page: 'Procurement', icon: ShoppingBag },
 
     { name: '─ OPERATIONS ─', page: null, icon: null, divider: true },
     { name: 'HR Dashboard', page: 'HRDashboard', icon: Users },
