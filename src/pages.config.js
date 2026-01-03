@@ -95,6 +95,8 @@ import VitalsTrend from './pages/VitalsTrend';
 import PharmacyRequests from './pages/PharmacyRequests';
 import PharmacyBillCardReports from './pages/PharmacyBillCardReports';
 import PharmacyStockTaking from './pages/PharmacyStockTaking';
+import PharmacyBilling from './pages/PharmacyBilling';
+import ProviderDashboard from './pages/ProviderDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -196,6 +198,8 @@ export const PAGES = {
     "PharmacyRequests": PharmacyRequests,
     "PharmacyBillCardReports": PharmacyBillCardReports,
     "PharmacyStockTaking": PharmacyStockTaking,
+    "PharmacyBilling": PharmacyBilling,
+    "ProviderDashboard": ProviderDashboard,
 }
 
 export const pagesConfig = {
