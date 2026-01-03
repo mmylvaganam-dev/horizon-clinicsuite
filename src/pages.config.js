@@ -92,6 +92,9 @@ import TaskManagement from './pages/TaskManagement';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
+import PharmacyRequests from './pages/PharmacyRequests';
+import PharmacyBillCardReports from './pages/PharmacyBillCardReports';
+import PharmacyStockTaking from './pages/PharmacyStockTaking';
 import __Layout from './Layout.jsx';
 
 
@@ -190,6 +193,9 @@ export const PAGES = {
     "ThirdPartyProviders": ThirdPartyProviders,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
+    "PharmacyRequests": PharmacyRequests,
+    "PharmacyBillCardReports": PharmacyBillCardReports,
+    "PharmacyStockTaking": PharmacyStockTaking,
 }
 
 export const pagesConfig = {
