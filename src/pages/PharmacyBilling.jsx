@@ -41,6 +41,13 @@ export default function PharmacyBilling() {
     queryFn: () => base44.entities.Patient.list(),
   });
 
+  const { data: companies = [] } = useQuery({
+    queryKey: ['companies'],
+    queryFn: () => base44.entities.CompanyProfile.list(),
+  });
+
+  const currency = companies[0]?.base_currency || 'LKR';
+
   // Product categories
   const categories = [
     '1-ACNE PRO TAX',
@@ -269,7 +276,7 @@ export default function PharmacyBilling() {
                         {item.barcode}
                       </Badge>
                       <p className="text-lg font-bold text-emerald-600">
-                        ${(item.mrp || item.unit_price || 0).toFixed(2)}
+                        {currency} {(item.mrp || item.unit_price || 0).toFixed(2)}
                       </p>
                       <p className="text-xs text-slate-500 mt-1">
                         Stock: {item.quantity}
@@ -332,7 +339,7 @@ export default function PharmacyBilling() {
                           <Plus className="w-3 h-3" />
                         </Button>
                       </div>
-                      <p className="font-bold text-emerald-600">${item.total.toFixed(2)}</p>
+                      <p className="font-bold text-emerald-600">{currency} {item.total.toFixed(2)}</p>
                     </div>
                   </div>
                 </Card>
@@ -344,15 +351,15 @@ export default function PharmacyBilling() {
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-600">Subtotal:</span>
-                <span className="font-semibold">${subtotal.toFixed(2)}</span>
+                <span className="font-semibold">{currency} {subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-600">Tax:</span>
-                <span className="font-semibold">${tax.toFixed(2)}</span>
+                <span className="font-semibold">{currency} {tax.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-lg pt-2 border-t">
                 <span className="font-bold">Total:</span>
-                <span className="font-bold text-indigo-600">${total.toFixed(2)}</span>
+                <span className="font-bold text-indigo-600">{currency} {total.toFixed(2)}</span>
               </div>
             </div>
             <Button className="w-full bg-indigo-600 hover:bg-indigo-700" disabled={cart.length === 0}>
