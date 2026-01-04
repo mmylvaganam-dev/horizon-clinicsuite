@@ -32,7 +32,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 
-export default function HomeCareManagement() {
+export default function HomeCareReports() {
   const queryClient = useQueryClient();
   const [showAddStaffDialog, setShowAddStaffDialog] = useState(false);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
@@ -221,8 +221,8 @@ export default function HomeCareManagement() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Home Care Management</h1>
-          <p className="text-slate-500 mt-1">Manage home care staff, divisions, and daily reports</p>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Home Care Daily Reports</h1>
+          <p className="text-slate-500 mt-1">Daily operation reports and documentation</p>
         </div>
       </div>
 

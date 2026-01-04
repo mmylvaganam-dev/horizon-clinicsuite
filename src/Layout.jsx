@@ -52,6 +52,13 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Bill Card Reports', page: 'PharmacyBillCardReports', icon: BarChart3 },
     { name: 'Procurement', page: 'Procurement', icon: ShoppingBag },
 
+    { name: '─ HOME CARE ─', page: null, icon: null, divider: true },
+    { name: 'Dashboard', page: 'HomeCareDashboard', icon: Activity },
+    { name: 'Patients', page: 'HomeCarePatients', icon: Users },
+    { name: 'Nursing Staff', page: 'HomeCareStaff', icon: Users },
+    { name: 'Scheduling', page: 'HomeCareScheduling', icon: Calendar },
+    { name: 'Daily Reports', page: 'HomeCareReports', icon: FileText },
+
     { name: '─ CLINICAL ─', page: null, icon: null, divider: true },
     { name: 'Appointments', page: 'Appointments', icon: Calendar },
     { name: 'Patients', page: 'Patients', icon: Users },
@@ -79,7 +86,6 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Critical Queue', page: 'CriticalQueue', icon: Activity },
 
     { name: '─ OPERATIONS ─', page: null, icon: null, divider: true },
-    { name: 'Home Care Management', page: 'HomeCareManagement', icon: Users },
     { name: 'HR Dashboard', page: 'HRDashboard', icon: Users },
     { name: 'Staff Directory', page: 'StaffDirectory', icon: Users },
     { name: 'Payroll', page: 'PayrollManagement', icon: DollarSign },

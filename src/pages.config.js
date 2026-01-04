@@ -98,6 +98,11 @@ import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
 import HomeCareManagement from './pages/HomeCareManagement';
+import HomeCareDashboard from './pages/HomeCareDashboard';
+import HomeCarePatients from './pages/HomeCarePatients';
+import HomeCareStaff from './pages/HomeCareStaff';
+import HomeCareScheduling from './pages/HomeCareScheduling';
+import HomeCareReports from './pages/HomeCareReports';
 import __Layout from './Layout.jsx';
 
 
@@ -202,6 +207,11 @@ export const PAGES = {
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
     "HomeCareManagement": HomeCareManagement,
+    "HomeCareDashboard": HomeCareDashboard,
+    "HomeCarePatients": HomeCarePatients,
+    "HomeCareStaff": HomeCareStaff,
+    "HomeCareScheduling": HomeCareScheduling,
+    "HomeCareReports": HomeCareReports,
 }
 
 export const pagesConfig = {
