@@ -50,13 +50,40 @@ export default function HomeCareManagement() {
   });
 
   const [reportForm, setReportForm] = useState({
-    date: format(new Date(), 'yyyy-MM-dd'),
-    staff_id: '',
-    patient_id: '',
-    visit_time: '',
-    services_provided: '',
-    notes: '',
-    next_visit: ''
+    report_date: format(new Date(), 'yyyy-MM-dd'),
+    shift_type: 'morning',
+    shift_time: '8:00am - 2:00pm',
+    incoming_nurse: '',
+    outgoing_nurse: '',
+    duty_doctor_morning: '',
+    duty_doctor_evening: '',
+    takeover_holistic_care: 0,
+    takeover_pharmacy: 0,
+    handover_holistic_care: 0,
+    handover_pharmacy: 0,
+    pharmacy_morning_income: 0,
+    opd_status: '',
+    lab_status: '',
+    home_care_notes: '',
+    patient_communication: '',
+    equipment_facility_check: '',
+    pharmacy_stock_notes: '',
+    special_notes: '',
+    handing_over_by: ''
+  });
+
+  const [patientVisitForm, setPatientVisitForm] = useState({
+    report_date: format(new Date(), 'yyyy-MM-dd'),
+    patient_name: '',
+    age: '',
+    address: '',
+    visit_time_from: '',
+    visit_time_to: '',
+    caretaker_name: '',
+    caretaker_age: '',
+    caretaker_experience: '',
+    caretaker_status: '',
+    notes: ''
   });
 
   const { data: staff = [] } = useQuery({
@@ -76,7 +103,51 @@ export default function HomeCareManagement() {
     queryFn: () => base44.entities.PatientDocument.list('-created_date'),
   });
 
+  const { data: reports = [] } = useQuery({
+    queryKey: ['homeCareReports'],
+    queryFn: () => base44.entities.HomeCareReport.list('-report_date'),
+  });
+
+  const { data: patientVisits = [] } = useQuery({
+    queryKey: ['homeCarePatientVisits'],
+    queryFn: () => base44.entities.HomeCarePatientVisit.list('-report_date'),
+  });
+
+  const { data: companies = [] } = useQuery({
+    queryKey: ['companies'],
+    queryFn: () => base44.entities.CompanyProfile.list(),
+  });
+
+  const currency = companies[0]?.base_currency || 'LKR';
+
   const divisions = ['North', 'South', 'East', 'West', 'Central'];
+
+  const createReportMutation = useMutation({
+    mutationFn: async (data) => {
+      return await base44.entities.HomeCareReport.create(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['homeCareReports'] });
+      setShowReportDialog(false);
+      toast.success('Daily report saved successfully!');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to save report');
+    }
+  });
+
+  const createPatientVisitMutation = useMutation({
+    mutationFn: async (data) => {
+      return await base44.entities.HomeCarePatientVisit.create(data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['homeCarePatientVisits'] });
+      toast.success('Patient visit added successfully!');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to add patient visit');
+    }
+  });
 
   const createStaffMutation = useMutation({
     mutationFn: async (data) => {
@@ -353,7 +424,7 @@ export default function HomeCareManagement() {
         {/* Daily Reports Tab */}
         <TabsContent value="reports" className="space-y-4">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-semibold">Daily Visit Reports</h3>
+            <h3 className="text-lg font-semibold">Daily Reports</h3>
             <div className="flex gap-3">
               <Input
                 type="date"
@@ -363,16 +434,163 @@ export default function HomeCareManagement() {
               />
               <Button onClick={() => setShowReportDialog(true)}>
                 <Plus className="w-4 h-4 mr-2" />
-                Add Report
+                New Daily Report
               </Button>
             </div>
           </div>
 
-          <Card className="p-12 text-center">
-            <Activity className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-            <p className="text-slate-500">No reports for selected date</p>
-            <p className="text-xs text-slate-400 mt-2">Add daily visit reports to track home care activities</p>
-          </Card>
+          {reports.filter(r => r.report_date === dateFilter).length === 0 ? (
+            <Card className="p-12 text-center">
+              <Activity className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+              <p className="text-slate-500">No report for {format(new Date(dateFilter), 'MMM d, yyyy')}</p>
+              <p className="text-xs text-slate-400 mt-2">Create a daily report to track operations</p>
+            </Card>
+          ) : (
+            reports.filter(r => r.report_date === dateFilter).map((report) => (
+              <Card key={report.id} className="p-6">
+                <div className="space-y-6">
+                  {/* Header */}
+                  <div className="flex items-center justify-between border-b pb-4">
+                    <div>
+                      <h3 className="text-xl font-bold">{format(new Date(report.report_date), 'EEEE, MMMM d, yyyy')}</h3>
+                      <p className="text-sm text-slate-500">{report.shift_type === 'morning' ? 'Morning Shift' : 'Evening Shift'} - {report.shift_time}</p>
+                    </div>
+                    <Badge className="bg-blue-100 text-blue-700">Daily Report</Badge>
+                  </div>
+
+                  {/* Duty Roster */}
+                  <div className="grid grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <h4 className="font-semibold text-sm uppercase text-slate-600">Duty Roster</h4>
+                      <div className="space-y-1 text-sm">
+                        <p><span className="text-slate-600">Incoming Nurse:</span> <span className="font-medium">{report.incoming_nurse || 'N/A'}</span></p>
+                        <p><span className="text-slate-600">Outgoing Nurse:</span> <span className="font-medium">{report.outgoing_nurse || 'N/A'}</span></p>
+                        <p><span className="text-slate-600">Duty Doctor (Morning):</span> <span className="font-medium">{report.duty_doctor_morning || 'N/A'}</span></p>
+                        <p><span className="text-slate-600">Duty Doctor (Evening):</span> <span className="font-medium">{report.duty_doctor_evening || 'N/A'}</span></p>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <h4 className="font-semibold text-sm uppercase text-slate-600">Opening Balance Summary</h4>
+                      <div className="space-y-2">
+                        <div>
+                          <p className="text-xs text-slate-500">Take Over:</p>
+                          <div className="text-sm space-y-1 ml-2">
+                            <p>• Holistic Care: <span className="font-bold text-emerald-600">{currency} {report.takeover_holistic_care?.toFixed(2) || '0.00'}</span></p>
+                            <p>• Pharmacy: <span className="font-bold text-emerald-600">{currency} {report.takeover_pharmacy?.toFixed(2) || '0.00'}</span></p>
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs text-slate-500">Hand Over:</p>
+                          <div className="text-sm space-y-1 ml-2">
+                            <p>• Holistic Care: <span className="font-bold text-blue-600">{currency} {report.handover_holistic_care?.toFixed(2) || '0.00'}</span></p>
+                            <p>• Pharmacy: <span className="font-bold text-blue-600">{currency} {report.handover_pharmacy?.toFixed(2) || '0.00'}</span></p>
+                          </div>
+                        </div>
+                        {report.pharmacy_morning_income > 0 && (
+                          <p className="text-sm">Morning Income: <span className="font-bold">{currency} {report.pharmacy_morning_income?.toFixed(2)}</span></p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Status Sections */}
+                  <div className="grid grid-cols-2 gap-6">
+                    <div>
+                      <h4 className="font-semibold text-sm uppercase text-slate-600 mb-2">OPD</h4>
+                      <p className="text-sm text-slate-700">{report.opd_status || 'Nil'}</p>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-sm uppercase text-slate-600 mb-2">LAB</h4>
+                      <p className="text-sm text-slate-700">{report.lab_status || 'Nil'}</p>
+                    </div>
+                  </div>
+
+                  {/* Home Care */}
+                  {report.home_care_notes && (
+                    <div>
+                      <h4 className="font-semibold text-sm uppercase text-slate-600 mb-2">Home Care</h4>
+                      <p className="text-sm text-slate-700 whitespace-pre-line">{report.home_care_notes}</p>
+                    </div>
+                  )}
+
+                  {/* Other Sections */}
+                  {report.patient_communication && (
+                    <div>
+                      <h4 className="font-semibold text-sm uppercase text-slate-600 mb-2">Patient Communication</h4>
+                      <p className="text-sm text-slate-700 whitespace-pre-line">{report.patient_communication}</p>
+                    </div>
+                  )}
+
+                  {report.equipment_facility_check && (
+                    <div>
+                      <h4 className="font-semibold text-sm uppercase text-slate-600 mb-2">Equipment & Facility Check</h4>
+                      <p className="text-sm text-slate-700 whitespace-pre-line">{report.equipment_facility_check}</p>
+                    </div>
+                  )}
+
+                  {report.pharmacy_stock_notes && (
+                    <div>
+                      <h4 className="font-semibold text-sm uppercase text-slate-600 mb-2">Pharmacy & Stock</h4>
+                      <p className="text-sm text-slate-700 whitespace-pre-line">{report.pharmacy_stock_notes}</p>
+                    </div>
+                  )}
+
+                  {report.special_notes && (
+                    <div>
+                      <h4 className="font-semibold text-sm uppercase text-slate-600 mb-2">Special Note</h4>
+                      <p className="text-sm text-slate-700 whitespace-pre-line">{report.special_notes}</p>
+                    </div>
+                  )}
+
+                  {/* Footer */}
+                  {report.handing_over_by && (
+                    <div className="border-t pt-4 text-right">
+                      <p className="text-sm text-slate-600">Handing Over: <span className="font-medium">{report.handing_over_by}</span></p>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            ))
+          )}
+
+          {/* Patient Visits for Selected Date */}
+          {patientVisits.filter(v => v.report_date === dateFilter).length > 0 && (
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold mb-4">Patient Visits - {format(new Date(dateFilter), 'MMM d, yyyy')}</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {patientVisits.filter(v => v.report_date === dateFilter).map((visit) => (
+                  <Card key={visit.id} className="p-4">
+                    <div className="space-y-2">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h4 className="font-semibold text-slate-900">{visit.patient_name}</h4>
+                          <p className="text-sm text-slate-600">Age: {visit.age}y</p>
+                        </div>
+                        <Badge variant="outline">{visit.visit_time_from} - {visit.visit_time_to}</Badge>
+                      </div>
+                      <p className="text-sm text-slate-600"><MapPin className="w-3 h-3 inline mr-1" />{visit.address}</p>
+                      {visit.caretaker_name && (
+                        <div className="border-t pt-2">
+                          <p className="text-xs text-slate-500 uppercase">Caretaker</p>
+                          <p className="text-sm font-medium">{visit.caretaker_name} ({visit.caretaker_age}y)</p>
+                          {visit.caretaker_experience && (
+                            <p className="text-xs text-slate-600">{visit.caretaker_experience}</p>
+                          )}
+                          {visit.caretaker_status && (
+                            <p className="text-xs text-amber-600 mt-1">{visit.caretaker_status}</p>
+                          )}
+                        </div>
+                      )}
+                      {visit.notes && (
+                        <p className="text-xs text-slate-600 border-t pt-2">{visit.notes}</p>
+                      )}
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
 
@@ -470,89 +688,231 @@ export default function HomeCareManagement() {
         </DialogContent>
       </Dialog>
 
-      {/* Add Report Dialog */}
+      {/* Add Daily Report Dialog */}
       <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Add Daily Visit Report</DialogTitle>
+            <DialogTitle>Daily Report</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 mt-4">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-6 mt-4">
+            {/* Date and Shift */}
+            <div className="grid grid-cols-3 gap-4">
               <div>
-                <Label>Date</Label>
+                <Label>Date *</Label>
                 <Input
                   type="date"
-                  value={reportForm.date}
-                  onChange={(e) => setReportForm({...reportForm, date: e.target.value})}
+                  value={reportForm.report_date}
+                  onChange={(e) => setReportForm({...reportForm, report_date: e.target.value})}
                 />
               </div>
               <div>
-                <Label>Visit Time</Label>
+                <Label>Shift Type</Label>
+                <Select value={reportForm.shift_type} onValueChange={(val) => setReportForm({...reportForm, shift_type: val})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="morning">Morning</SelectItem>
+                    <SelectItem value="evening">Evening</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Shift Time</Label>
                 <Input
-                  type="time"
-                  value={reportForm.visit_time}
-                  onChange={(e) => setReportForm({...reportForm, visit_time: e.target.value})}
+                  value={reportForm.shift_time}
+                  onChange={(e) => setReportForm({...reportForm, shift_time: e.target.value})}
+                  placeholder="e.g., 8:00am - 2:00pm"
                 />
               </div>
             </div>
-            <div>
-              <Label>Staff Member</Label>
-              <Select value={reportForm.staff_id} onValueChange={(val) => setReportForm({...reportForm, staff_id: val})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select staff" />
-                </SelectTrigger>
-                <SelectContent>
-                  {staff.map(s => (
-                    <SelectItem key={s.id} value={s.id}>{s.full_name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+
+            {/* Duty Roster */}
+            <div className="border-t pt-4">
+              <h4 className="font-semibold mb-3">Duty Roster</h4>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Incoming Nurse</Label>
+                  <Input
+                    value={reportForm.incoming_nurse}
+                    onChange={(e) => setReportForm({...reportForm, incoming_nurse: e.target.value})}
+                    placeholder="Ms./Mr. Name"
+                  />
+                </div>
+                <div>
+                  <Label>Outgoing Nurse</Label>
+                  <Input
+                    value={reportForm.outgoing_nurse}
+                    onChange={(e) => setReportForm({...reportForm, outgoing_nurse: e.target.value})}
+                    placeholder="Ms./Mr. Name"
+                  />
+                </div>
+                <div>
+                  <Label>Duty Doctor (Morning)</Label>
+                  <Input
+                    value={reportForm.duty_doctor_morning}
+                    onChange={(e) => setReportForm({...reportForm, duty_doctor_morning: e.target.value})}
+                    placeholder="Dr. Name"
+                  />
+                </div>
+                <div>
+                  <Label>Duty Doctor (Evening)</Label>
+                  <Input
+                    value={reportForm.duty_doctor_evening}
+                    onChange={(e) => setReportForm({...reportForm, duty_doctor_evening: e.target.value})}
+                    placeholder="Dr. Name"
+                  />
+                </div>
+              </div>
             </div>
-            <div>
-              <Label>Patient</Label>
-              <Select value={reportForm.patient_id} onValueChange={(val) => setReportForm({...reportForm, patient_id: val})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select patient" />
-                </SelectTrigger>
-                <SelectContent>
-                  {patients.map(p => (
-                    <SelectItem key={p.id} value={p.id}>{p.first_name} {p.last_name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+
+            {/* Opening Balance Summary */}
+            <div className="border-t pt-4">
+              <h4 className="font-semibold mb-3">Opening Balance Summary - Front Desk & Cash</h4>
+              <div className="grid grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <p className="text-sm font-medium text-slate-600">Take Over:</p>
+                  <div className="space-y-2 ml-4">
+                    <div>
+                      <Label className="text-xs">Holistic Care ({currency})</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={reportForm.takeover_holistic_care}
+                        onChange={(e) => setReportForm({...reportForm, takeover_holistic_care: parseFloat(e.target.value) || 0})}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Pharmacy ({currency})</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={reportForm.takeover_pharmacy}
+                        onChange={(e) => setReportForm({...reportForm, takeover_pharmacy: parseFloat(e.target.value) || 0})}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <p className="text-sm font-medium text-slate-600">Hand Over:</p>
+                  <div className="space-y-2 ml-4">
+                    <div>
+                      <Label className="text-xs">Holistic Care ({currency})</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={reportForm.handover_holistic_care}
+                        onChange={(e) => setReportForm({...reportForm, handover_holistic_care: parseFloat(e.target.value) || 0})}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Pharmacy ({currency})</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={reportForm.handover_pharmacy}
+                        onChange={(e) => setReportForm({...reportForm, handover_pharmacy: parseFloat(e.target.value) || 0})}
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs">Pharmacy Morning Income ({currency})</Label>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={reportForm.pharmacy_morning_income}
+                        onChange={(e) => setReportForm({...reportForm, pharmacy_morning_income: parseFloat(e.target.value) || 0})}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div>
-              <Label>Services Provided</Label>
-              <Textarea
-                value={reportForm.services_provided}
-                onChange={(e) => setReportForm({...reportForm, services_provided: e.target.value})}
-                placeholder="List services provided during visit"
-                rows={3}
-              />
+
+            {/* Status Sections */}
+            <div className="border-t pt-4 grid grid-cols-2 gap-4">
+              <div>
+                <Label>OPD Status</Label>
+                <Textarea
+                  value={reportForm.opd_status}
+                  onChange={(e) => setReportForm({...reportForm, opd_status: e.target.value})}
+                  placeholder="Enter OPD status or 'Nil'"
+                  rows={2}
+                />
+              </div>
+              <div>
+                <Label>LAB Status</Label>
+                <Textarea
+                  value={reportForm.lab_status}
+                  onChange={(e) => setReportForm({...reportForm, lab_status: e.target.value})}
+                  placeholder="Enter LAB status or 'Nil'"
+                  rows={2}
+                />
+              </div>
             </div>
-            <div>
-              <Label>Notes</Label>
-              <Textarea
-                value={reportForm.notes}
-                onChange={(e) => setReportForm({...reportForm, notes: e.target.value})}
-                placeholder="Additional notes or observations"
-                rows={3}
-              />
+
+            {/* Text Sections */}
+            <div className="border-t pt-4 space-y-4">
+              <div>
+                <Label>Home Care Notes</Label>
+                <Textarea
+                  value={reportForm.home_care_notes}
+                  onChange={(e) => setReportForm({...reportForm, home_care_notes: e.target.value})}
+                  placeholder="Care taker arrangements, patient details, etc."
+                  rows={4}
+                />
+              </div>
+              <div>
+                <Label>Patient Communication</Label>
+                <Textarea
+                  value={reportForm.patient_communication}
+                  onChange={(e) => setReportForm({...reportForm, patient_communication: e.target.value})}
+                  placeholder="Patient communication notes, followups needed"
+                  rows={3}
+                />
+              </div>
+              <div>
+                <Label>Equipment & Facility Check</Label>
+                <Textarea
+                  value={reportForm.equipment_facility_check}
+                  onChange={(e) => setReportForm({...reportForm, equipment_facility_check: e.target.value})}
+                  placeholder="Equipment status, facility issues"
+                  rows={2}
+                />
+              </div>
+              <div>
+                <Label>Pharmacy & Stock</Label>
+                <Textarea
+                  value={reportForm.pharmacy_stock_notes}
+                  onChange={(e) => setReportForm({...reportForm, pharmacy_stock_notes: e.target.value})}
+                  placeholder="Stock reminders, supplier visits, orders"
+                  rows={3}
+                />
+              </div>
+              <div>
+                <Label>Special Note</Label>
+                <Textarea
+                  value={reportForm.special_notes}
+                  onChange={(e) => setReportForm({...reportForm, special_notes: e.target.value})}
+                  placeholder="Any special notes, updates, or reminders"
+                  rows={4}
+                />
+              </div>
+              <div>
+                <Label>Handing Over By</Label>
+                <Input
+                  value={reportForm.handing_over_by}
+                  onChange={(e) => setReportForm({...reportForm, handing_over_by: e.target.value})}
+                  placeholder="Staff name handing over"
+                />
+              </div>
             </div>
-            <div>
-              <Label>Next Visit</Label>
-              <Input
-                type="date"
-                value={reportForm.next_visit}
-                onChange={(e) => setReportForm({...reportForm, next_visit: e.target.value})}
-              />
-            </div>
-            <div className="flex justify-end gap-3">
+
+            <div className="flex justify-end gap-3 border-t pt-4">
               <Button variant="outline" onClick={() => setShowReportDialog(false)}>
                 Cancel
               </Button>
-              <Button>
-                Save Report
+              <Button onClick={() => createReportMutation.mutate(reportForm)} disabled={createReportMutation.isPending}>
+                {createReportMutation.isPending ? 'Saving...' : 'Save Daily Report'}
               </Button>
             </div>
           </div>
