@@ -7,7 +7,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileDown, FileText, FileSpreadsheet } from 'lucide-react';
+import { 
+  FileText, 
+  FileSpreadsheet,
+  TrendingUp,
+  DollarSign,
+  Calendar,
+  Download,
+  Activity,
+  Users,
+  Package,
+  TestTube,
+  Stethoscope,
+  BarChart3
+} from 'lucide-react';
 import { format, parseISO, differenceInDays, startOfMonth, endOfMonth, startOfYear, endOfYear, subDays } from 'date-fns';
 import toast from 'react-hot-toast';
 import jsPDF from 'jspdf';
@@ -85,6 +98,66 @@ export default function Reports() {
     return matchDate && matchLocation;
   });
 
+  const getServiceWiseData = () => {
+    const labRevenue = filteredInvoices
+      .filter(i => i.status === 'paid' && i.invoice_type === 'LAB')
+      .reduce((sum, i) => sum + (i.total || 0), 0);
+
+    const gpRevenue = filteredInvoices
+      .filter(i => i.status === 'paid' && i.invoice_type === 'GP_CONSULTATION')
+      .reduce((sum, i) => sum + (i.total || 0), 0);
+
+    const specialistRevenue = filteredInvoices
+      .filter(i => i.status === 'paid' && i.invoice_type === 'SPECIALIST_CONSULTATION')
+      .reduce((sum, i) => sum + (i.total || 0), 0);
+
+    const pharmacyTotal = pharmacySales
+      .filter(s => s.status === 'completed' && s.sale_date >= filters.startDate && s.sale_date <= filters.endDate)
+      .reduce((sum, s) => sum + (s.total || 0), 0);
+
+    const homeCareTotal = homeCareServices
+      .filter(h => h.service_date >= filters.startDate && h.service_date <= filters.endDate)
+      .reduce((sum, h) => sum + (h.amount || 0), 0);
+
+    return [
+      { name: 'Pharmacy', value: pharmacyTotal, icon: Package, color: '#3b82f6' },
+      { name: 'Home Care', value: homeCareTotal, icon: Users, color: '#10b981' },
+      { name: 'Laboratory', value: labRevenue, icon: TestTube, color: '#8b5cf6' },
+      { name: 'GP', value: gpRevenue, icon: Stethoscope, color: '#f59e0b' },
+      { name: 'Specialist', value: specialistRevenue, icon: Activity, color: '#ec4899' }
+    ];
+  };
+
+  const getDailyData = () => {
+    const days = {};
+    const start = new Date(filters.startDate);
+    const end = new Date(filters.endDate);
+    
+    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+      const dateStr = format(d, 'yyyy-MM-dd');
+      days[dateStr] = { date: format(d, 'MMM d'), pharmacy: 0, homeCare: 0, lab: 0, gp: 0, specialist: 0 };
+    }
+
+    pharmacySales.filter(s => s.status === 'completed').forEach(s => {
+      if (days[s.sale_date]) days[s.sale_date].pharmacy += s.total || 0;
+    });
+
+    homeCareServices.forEach(s => {
+      if (days[s.service_date]) days[s.service_date].homeCare += s.amount || 0;
+    });
+
+    invoices.forEach(i => {
+      const date = i.issued_at ? i.issued_at.split('T')[0] : null;
+      if (date && days[date] && i.status === 'paid') {
+        if (i.invoice_type === 'LAB') days[date].lab += i.total || 0;
+        if (i.invoice_type === 'GP_CONSULTATION') days[date].gp += i.total || 0;
+        if (i.invoice_type === 'SPECIALIST_CONSULTATION') days[date].specialist += i.total || 0;
+      }
+    });
+
+    return Object.values(days);
+  };
+
   // Revenue by Service Line
   const revenueByServiceLine = () => {
     const categoryTotals = {};
@@ -140,66 +213,6 @@ export default function Reports() {
     };
   };
 
-  const getDailyData = () => {
-    const days = {};
-    const start = new Date(filters.startDate);
-    const end = new Date(filters.endDate);
-    
-    for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-      const dateStr = format(d, 'yyyy-MM-dd');
-      days[dateStr] = { date: format(d, 'MMM d'), pharmacy: 0, homeCare: 0, lab: 0, gp: 0, specialist: 0 };
-    }
-
-    pharmacySales.filter(s => s.status === 'completed').forEach(s => {
-      if (days[s.sale_date]) days[s.sale_date].pharmacy += s.total || 0;
-    });
-
-    homeCareServices.forEach(s => {
-      if (days[s.service_date]) days[s.service_date].homeCare += s.amount || 0;
-    });
-
-    invoices.forEach(i => {
-      const date = i.issued_at ? i.issued_at.split('T')[0] : null;
-      if (date && days[date]) {
-        if (i.invoice_type === 'LAB') days[date].lab += i.total || 0;
-        if (i.invoice_type === 'GP_CONSULTATION') days[date].gp += i.total || 0;
-        if (i.invoice_type === 'SPECIALIST_CONSULTATION') days[date].specialist += i.total || 0;
-      }
-    });
-
-    return Object.values(days);
-  };
-
-  const getServiceWiseData = () => {
-    const labRevenue = filteredInvoices
-      .filter(i => i.status === 'paid' && i.invoice_type === 'LAB')
-      .reduce((sum, i) => sum + (i.total || 0), 0);
-
-    const gpRevenue = filteredInvoices
-      .filter(i => i.status === 'paid' && i.invoice_type === 'GP_CONSULTATION')
-      .reduce((sum, i) => sum + (i.total || 0), 0);
-
-    const specialistRevenue = filteredInvoices
-      .filter(i => i.status === 'paid' && i.invoice_type === 'SPECIALIST_CONSULTATION')
-      .reduce((sum, i) => sum + (i.total || 0), 0);
-
-    const pharmacyTotal = pharmacySales
-      .filter(s => s.status === 'completed' && s.sale_date >= filters.startDate && s.sale_date <= filters.endDate)
-      .reduce((sum, s) => sum + (s.total || 0), 0);
-
-    const homeCareTotal = homeCareServices
-      .filter(h => h.service_date >= filters.startDate && h.service_date <= filters.endDate)
-      .reduce((sum, h) => sum + (h.amount || 0), 0);
-
-    return [
-      { name: 'Pharmacy', value: pharmacyTotal, icon: Package, color: '#3b82f6' },
-      { name: 'Home Care', value: homeCareTotal, icon: Users, color: '#10b981' },
-      { name: 'Laboratory', value: labRevenue, icon: TestTube, color: '#8b5cf6' },
-      { name: 'GP Consultation', value: gpRevenue, icon: Stethoscope, color: '#f59e0b' },
-      { name: 'Specialist', value: specialistRevenue, icon: Activity, color: '#ec4899' }
-    ];
-  };
-
   // AR Aging
   const arAging = () => {
     const today = new Date();
@@ -234,138 +247,6 @@ export default function Reports() {
     const totalOutstanding = Object.values(buckets).reduce((sum, b) => sum + b.total, 0);
 
     return { buckets, totalOutstanding };
-  };
-
-  const exportToPDF = async (reportType) => {
-    const doc = new jsPDF();
-    
-    doc.setFontSize(18);
-    doc.text(reportType === 'revenue' ? 'Revenue Report' : 'AR Aging Report', 20, 20);
-    
-    doc.setFontSize(10);
-    doc.text(`Period: ${filters.startDate} to ${filters.endDate}`, 20, 30);
-    doc.text(`Generated: ${format(new Date(), 'yyyy-MM-dd HH:mm')}`, 20, 36);
-
-    if (reportType === 'revenue') {
-      const data = revenueByServiceLine();
-      let y = 50;
-      
-      doc.setFontSize(12);
-      doc.text('Revenue by Service Line', 20, y);
-      y += 10;
-
-      doc.setFontSize(10);
-      Object.entries(data.categories).forEach(([category, vals]) => {
-        doc.text(`${category}: $${vals.subtotal.toFixed(2)} (${vals.count} items)`, 25, y);
-        y += 6;
-      });
-
-      y += 5;
-      doc.text(`Pharmacy Revenue: $${data.pharmacyRevenue.toFixed(2)}`, 25, y);
-      y += 6;
-      doc.text(`Pharmacy Tax: $${data.pharmacyTax.toFixed(2)}`, 25, y);
-      y += 10;
-      
-      doc.setFontSize(12);
-      doc.text(`Grand Total: $${data.grandTotal.toFixed(2)}`, 20, y);
-    } else {
-      const data = arAging();
-      let y = 50;
-
-      doc.setFontSize(12);
-      doc.text('Accounts Receivable Aging', 20, y);
-      y += 10;
-
-      doc.setFontSize(10);
-      Object.entries(data.buckets).forEach(([bucket, vals]) => {
-        doc.text(`${bucket} days: $${vals.total.toFixed(2)} (${vals.count} invoices)`, 25, y);
-        y += 6;
-      });
-
-      y += 10;
-      doc.setFontSize(12);
-      doc.text(`Total Outstanding: $${data.totalOutstanding.toFixed(2)}`, 20, y);
-    }
-
-    const blob = doc.output('blob');
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${reportType}_report_${format(new Date(), 'yyyyMMdd')}.pdf`;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    // Audit log
-    await base44.entities.AuditLog.create({
-      timestamp: new Date().toISOString(),
-      user_id: (await base44.auth.me()).id,
-      user_email: (await base44.auth.me()).email,
-      organization_id: filters.organizationId || '',
-      location_id: filters.locationId || '',
-      patient_id: '',
-      module: 'REPORTS',
-      action: 'export_pdf',
-      record_type: 'Report',
-      record_id: '',
-      metadata: {
-        report_type: reportType,
-        format: 'pdf',
-        date_range: `${filters.startDate} to ${filters.endDate}`
-      }
-    });
-
-    toast.success('PDF exported!');
-  };
-
-  const exportToCSV = async (reportType) => {
-    let csvContent = '';
-
-    if (reportType === 'revenue') {
-      const data = revenueByServiceLine();
-      csvContent = 'Category,Subtotal,Count\n';
-      Object.entries(data.categories).forEach(([category, vals]) => {
-        csvContent += `${category},${vals.subtotal.toFixed(2)},${vals.count}\n`;
-      });
-      csvContent += `\nPharmacy Revenue,${data.pharmacyRevenue.toFixed(2)}\n`;
-      csvContent += `Pharmacy Tax,${data.pharmacyTax.toFixed(2)}\n`;
-      csvContent += `Grand Total,${data.grandTotal.toFixed(2)}\n`;
-    } else {
-      const data = arAging();
-      csvContent = 'Age Bucket,Count,Total\n';
-      Object.entries(data.buckets).forEach(([bucket, vals]) => {
-        csvContent += `${bucket},${vals.count},${vals.total.toFixed(2)}\n`;
-      });
-      csvContent += `\nTotal Outstanding,,${data.totalOutstanding.toFixed(2)}\n`;
-    }
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${reportType}_report_${format(new Date(), 'yyyyMMdd')}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-
-    // Audit log
-    await base44.entities.AuditLog.create({
-      timestamp: new Date().toISOString(),
-      user_id: (await base44.auth.me()).id,
-      user_email: (await base44.auth.me()).email,
-      organization_id: filters.organizationId || '',
-      location_id: filters.locationId || '',
-      patient_id: '',
-      module: 'REPORTS',
-      action: 'export_csv',
-      record_type: 'Report',
-      record_id: '',
-      metadata: {
-        report_type: reportType,
-        format: 'csv',
-        date_range: `${filters.startDate} to ${filters.endDate}`
-      }
-    });
-
-    toast.success('CSV exported!');
   };
 
   const revenueData = revenueByServiceLine();
@@ -501,7 +382,7 @@ export default function Reports() {
           <TabsTrigger value="overview">Service Overview</TabsTrigger>
           <TabsTrigger value="daily">Daily Trend</TabsTrigger>
           <TabsTrigger value="charts">Visual Charts</TabsTrigger>
-          <TabsTrigger value="revenue">Revenue Details</TabsTrigger>
+          <TabsTrigger value="details">Revenue Details</TabsTrigger>
           <TabsTrigger value="aging">AR Aging</TabsTrigger>
         </TabsList>
 
@@ -592,7 +473,7 @@ export default function Reports() {
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={serviceWiseData.filter(d => d.value > 0)}>
                     <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
+                    <XAxis dataKey="name" angle={-15} textAnchor="end" height={80} />
                     <YAxis />
                     <Tooltip />
                     <Bar dataKey="value" fill="#3b82f6">
@@ -607,18 +488,7 @@ export default function Reports() {
           </div>
         </TabsContent>
 
-        <TabsContent value="revenue" className="space-y-4 mt-6">
-          <div className="flex justify-end gap-2">
-            <Button onClick={() => exportToPDF('revenue')} variant="outline">
-              <FileText className="w-4 h-4 mr-2" />
-              Export PDF
-            </Button>
-            <Button onClick={() => exportToCSV('revenue')} variant="outline">
-              <FileSpreadsheet className="w-4 h-4 mr-2" />
-              Export CSV
-            </Button>
-          </div>
-
+        <TabsContent value="details" className="space-y-4 mt-6">
           <Card>
             <CardHeader>
               <CardTitle>Revenue by Category</CardTitle>
@@ -673,17 +543,6 @@ export default function Reports() {
         </TabsContent>
 
         <TabsContent value="aging" className="space-y-4 mt-6">
-          <div className="flex justify-end gap-2">
-            <Button onClick={() => exportToPDF('aging')} variant="outline">
-              <FileText className="w-4 h-4 mr-2" />
-              Export PDF
-            </Button>
-            <Button onClick={() => exportToCSV('aging')} variant="outline">
-              <FileSpreadsheet className="w-4 h-4 mr-2" />
-              Export CSV
-            </Button>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             {Object.entries(agingData.buckets).map(([bucket, vals]) => (
               <Card key={bucket}>
