@@ -71,10 +71,14 @@ import PatientDetails from './pages/PatientDetails';
 import PatientPortal from './pages/PatientPortal';
 import Patients from './pages/Patients';
 import PayrollManagement from './pages/PayrollManagement';
+import PharmacyBillCardReports from './pages/PharmacyBillCardReports';
+import PharmacyBilling from './pages/PharmacyBilling';
 import PharmacyDashboard from './pages/PharmacyDashboard';
 import PharmacyInventory from './pages/PharmacyInventory';
 import PharmacyPOS from './pages/PharmacyPOS';
+import PharmacyRequests from './pages/PharmacyRequests';
 import PharmacyStockImport from './pages/PharmacyStockImport';
+import PharmacyStockTaking from './pages/PharmacyStockTaking';
 import PharmacyWorkspace from './pages/PharmacyWorkspace';
 import PhysicianWorkspace from './pages/PhysicianWorkspace';
 import PlatformConfiguration from './pages/PlatformConfiguration';
@@ -82,6 +86,7 @@ import PlatformSettings from './pages/PlatformSettings';
 import Prescriptions from './pages/Prescriptions';
 import PricingCatalogs from './pages/PricingCatalogs';
 import Procurement from './pages/Procurement';
+import ProviderDashboard from './pages/ProviderDashboard';
 import ReleaseQueue from './pages/ReleaseQueue';
 import Reports from './pages/Reports';
 import SOAPNotes from './pages/SOAPNotes';
@@ -92,11 +97,7 @@ import TaskManagement from './pages/TaskManagement';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import PharmacyRequests from './pages/PharmacyRequests';
-import PharmacyBillCardReports from './pages/PharmacyBillCardReports';
-import PharmacyStockTaking from './pages/PharmacyStockTaking';
-import PharmacyBilling from './pages/PharmacyBilling';
-import ProviderDashboard from './pages/ProviderDashboard';
+import HomeCareManagement from './pages/HomeCareManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -174,10 +175,14 @@ export const PAGES = {
     "PatientPortal": PatientPortal,
     "Patients": Patients,
     "PayrollManagement": PayrollManagement,
+    "PharmacyBillCardReports": PharmacyBillCardReports,
+    "PharmacyBilling": PharmacyBilling,
     "PharmacyDashboard": PharmacyDashboard,
     "PharmacyInventory": PharmacyInventory,
     "PharmacyPOS": PharmacyPOS,
+    "PharmacyRequests": PharmacyRequests,
     "PharmacyStockImport": PharmacyStockImport,
+    "PharmacyStockTaking": PharmacyStockTaking,
     "PharmacyWorkspace": PharmacyWorkspace,
     "PhysicianWorkspace": PhysicianWorkspace,
     "PlatformConfiguration": PlatformConfiguration,
@@ -185,6 +190,7 @@ export const PAGES = {
     "Prescriptions": Prescriptions,
     "PricingCatalogs": PricingCatalogs,
     "Procurement": Procurement,
+    "ProviderDashboard": ProviderDashboard,
     "ReleaseQueue": ReleaseQueue,
     "Reports": Reports,
     "SOAPNotes": SOAPNotes,
@@ -195,11 +201,7 @@ export const PAGES = {
     "ThirdPartyProviders": ThirdPartyProviders,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "PharmacyRequests": PharmacyRequests,
-    "PharmacyBillCardReports": PharmacyBillCardReports,
-    "PharmacyStockTaking": PharmacyStockTaking,
-    "PharmacyBilling": PharmacyBilling,
-    "ProviderDashboard": ProviderDashboard,
+    "HomeCareManagement": HomeCareManagement,
 }
 
 export const pagesConfig = {
