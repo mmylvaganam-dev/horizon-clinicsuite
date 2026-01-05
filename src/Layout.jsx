@@ -46,6 +46,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Dashboard', page: 'PharmacyDashboard', icon: Activity },
     { name: 'Point of Sale', page: 'PharmacyBilling', icon: ShoppingBag },
     { name: 'Inventory', page: 'PharmacyInventory', icon: Package },
+    { name: 'Operations', page: 'PharmacyOperations', icon: Activity },
     { name: 'Stock Import', page: 'PharmacyStockImport', icon: FileText },
     { name: 'Stock Taking', page: 'PharmacyStockTaking', icon: CheckSquare },
     { name: 'Requests', page: 'PharmacyRequests', icon: FileText },

@@ -105,6 +105,7 @@ import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
 import HomeCareBatchManagement from './pages/HomeCareBatchManagement';
+import PharmacyOperations from './pages/PharmacyOperations';
 import __Layout from './Layout.jsx';
 
 
@@ -216,6 +217,7 @@ export const PAGES = {
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
     "HomeCareBatchManagement": HomeCareBatchManagement,
+    "PharmacyOperations": PharmacyOperations,
 }
 
 export const pagesConfig = {
