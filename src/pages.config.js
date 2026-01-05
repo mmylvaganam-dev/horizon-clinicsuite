@@ -106,6 +106,7 @@ import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
 import HomeCareBatchManagement from './pages/HomeCareBatchManagement';
 import PharmacyOperations from './pages/PharmacyOperations';
+import DailyClose from './pages/DailyClose';
 import __Layout from './Layout.jsx';
 
 
@@ -218,6 +219,7 @@ export const PAGES = {
     "VitalsTrend": VitalsTrend,
     "HomeCareBatchManagement": HomeCareBatchManagement,
     "PharmacyOperations": PharmacyOperations,
+    "DailyClose": DailyClose,
 }
 
 export const pagesConfig = {

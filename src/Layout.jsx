@@ -89,6 +89,7 @@ export default function Layout({ children, currentPageName }) {
 
     { name: '─ OPERATIONS ─', page: null, icon: null, divider: true },
     { name: 'Shift Handover Book', page: 'ShiftHandover', icon: FileText },
+    { name: 'Daily Close', page: 'DailyClose', icon: DollarSign },
     { name: 'HR Dashboard', page: 'HRDashboard', icon: Users },
     { name: 'Staff Directory', page: 'StaffDirectory', icon: Users },
     { name: 'Payroll', page: 'PayrollManagement', icon: DollarSign },
