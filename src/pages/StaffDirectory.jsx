@@ -271,9 +271,14 @@ export default function StaffDirectory() {
       </div>
 
       <Dialog open={showForm} onOpenChange={(open) => { setShowForm(open); if (!open) resetForm(); }}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingStaff ? 'Edit Staff Member' : 'Add Staff Member'}</DialogTitle>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-gradient-to-br from-blue-50 via-white to-cyan-50 border-2 border-blue-200 shadow-2xl">
+          <DialogHeader className="pb-4 border-b border-blue-100">
+            <DialogTitle className="text-2xl font-bold text-slate-900 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center">
+                <Users className="w-5 h-5 text-white" />
+              </div>
+              {editingStaff ? 'Edit Staff Member' : 'Add Staff Member'}
+            </DialogTitle>
           </DialogHeader>
           
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -402,12 +407,12 @@ export default function StaffDirectory() {
               />
             </div>
 
-            <div className="flex gap-2 justify-end">
-              <Button type="button" variant="outline" onClick={() => { setShowForm(false); resetForm(); }}>
+            <div className="flex gap-2 justify-end pt-4 border-t border-blue-100">
+              <Button type="button" variant="outline" onClick={() => { setShowForm(false); resetForm(); }} className="border-slate-300">
                 Cancel
               </Button>
-              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending}>
-                {editingStaff ? 'Update' : 'Create'}
+              <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700">
+                {editingStaff ? 'Update Staff' : 'Add Staff'}
               </Button>
             </div>
           </form>
