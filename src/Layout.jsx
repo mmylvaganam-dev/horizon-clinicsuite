@@ -54,6 +54,7 @@ export default function Layout({ children, currentPageName }) {
 
     { name: '─ HOME CARE ─', page: null, icon: null, divider: true },
     { name: 'Dashboard', page: 'HomeCareDashboard', icon: Activity },
+    { name: 'Batch Management', page: 'HomeCareBatchManagement', icon: Users },
     { name: 'Patients', page: 'HomeCarePatients', icon: Users },
     { name: 'Nursing Staff', page: 'HomeCareStaff', icon: Users },
     { name: 'Scheduling', page: 'HomeCareScheduling', icon: Calendar },

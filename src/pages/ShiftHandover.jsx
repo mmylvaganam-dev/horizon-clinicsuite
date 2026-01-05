@@ -391,6 +391,16 @@ export default function ShiftHandover() {
                     {selectedShift.shift_name} - {format(new Date(selectedShift.shift_date), 'dd MMM yyyy')}
                   </CardTitle>
                   <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        window.location.href = `/homecarebatchmanagement?shiftLogId=${selectedShift.id}&date=${selectedShift.shift_date}`;
+                      }}
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Home Care Batch
+                    </Button>
                     <Button size="sm" variant="outline" onClick={() => generatePDF(selectedShift)}>
                       <Printer className="w-4 h-4 mr-2" />
                       Print A4

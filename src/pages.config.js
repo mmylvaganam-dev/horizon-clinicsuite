@@ -98,12 +98,13 @@ import Reports from './pages/Reports';
 import SOAPNotes from './pages/SOAPNotes';
 import SalesWorkspace from './pages/SalesWorkspace';
 import Settings from './pages/Settings';
+import ShiftHandover from './pages/ShiftHandover';
 import StaffDirectory from './pages/StaffDirectory';
 import TaskManagement from './pages/TaskManagement';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import ShiftHandover from './pages/ShiftHandover';
+import HomeCareBatchManagement from './pages/HomeCareBatchManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -208,12 +209,13 @@ export const PAGES = {
     "SOAPNotes": SOAPNotes,
     "SalesWorkspace": SalesWorkspace,
     "Settings": Settings,
+    "ShiftHandover": ShiftHandover,
     "StaffDirectory": StaffDirectory,
     "TaskManagement": TaskManagement,
     "ThirdPartyProviders": ThirdPartyProviders,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "ShiftHandover": ShiftHandover,
+    "HomeCareBatchManagement": HomeCareBatchManagement,
 }
 
 export const pagesConfig = {
