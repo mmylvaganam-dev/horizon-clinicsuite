@@ -50,6 +50,12 @@ import FrontDeskWorkspace from './pages/FrontDeskWorkspace';
 import GovernmentReporting from './pages/GovernmentReporting';
 import HRDashboard from './pages/HRDashboard';
 import Home from './pages/Home';
+import HomeCareDashboard from './pages/HomeCareDashboard';
+import HomeCareManagement from './pages/HomeCareManagement';
+import HomeCarePatients from './pages/HomeCarePatients';
+import HomeCareReports from './pages/HomeCareReports';
+import HomeCareScheduling from './pages/HomeCareScheduling';
+import HomeCareStaff from './pages/HomeCareStaff';
 import LISAdmin from './pages/LISAdmin';
 import LISAnalyzerInbox from './pages/LISAnalyzerInbox';
 import LISDashboard from './pages/LISDashboard';
@@ -97,12 +103,7 @@ import TaskManagement from './pages/TaskManagement';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import HomeCareManagement from './pages/HomeCareManagement';
-import HomeCareDashboard from './pages/HomeCareDashboard';
-import HomeCarePatients from './pages/HomeCarePatients';
-import HomeCareStaff from './pages/HomeCareStaff';
-import HomeCareScheduling from './pages/HomeCareScheduling';
-import HomeCareReports from './pages/HomeCareReports';
+import ShiftHandover from './pages/ShiftHandover';
 import __Layout from './Layout.jsx';
 
 
@@ -159,6 +160,12 @@ export const PAGES = {
     "GovernmentReporting": GovernmentReporting,
     "HRDashboard": HRDashboard,
     "Home": Home,
+    "HomeCareDashboard": HomeCareDashboard,
+    "HomeCareManagement": HomeCareManagement,
+    "HomeCarePatients": HomeCarePatients,
+    "HomeCareReports": HomeCareReports,
+    "HomeCareScheduling": HomeCareScheduling,
+    "HomeCareStaff": HomeCareStaff,
     "LISAdmin": LISAdmin,
     "LISAnalyzerInbox": LISAnalyzerInbox,
     "LISDashboard": LISDashboard,
@@ -206,12 +213,7 @@ export const PAGES = {
     "ThirdPartyProviders": ThirdPartyProviders,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "HomeCareManagement": HomeCareManagement,
-    "HomeCareDashboard": HomeCareDashboard,
-    "HomeCarePatients": HomeCarePatients,
-    "HomeCareStaff": HomeCareStaff,
-    "HomeCareScheduling": HomeCareScheduling,
-    "HomeCareReports": HomeCareReports,
+    "ShiftHandover": ShiftHandover,
 }
 
 export const pagesConfig = {
