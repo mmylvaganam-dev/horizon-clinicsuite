@@ -65,6 +65,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Appointments', page: 'Appointments', icon: Calendar },
     { name: 'Patients', page: 'Patients', icon: Users },
     { name: 'EMR', page: 'EMR', icon: FileText },
+    { name: 'Dental', page: 'DentalModule', icon: Activity },
     { name: 'Medical Records', page: 'MedicalRecords', icon: FileText },
     { name: 'Task Management', page: 'TaskManagement', icon: CheckSquare },
 
