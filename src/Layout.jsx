@@ -68,6 +68,8 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Dental', page: 'DentalModule', icon: Activity },
     { name: 'Dental Schedule', page: 'DentalSchedule', icon: Calendar },
     { name: 'Dental Billing', page: 'DentalBilling', icon: DollarSign },
+    { name: 'Sterilization', page: 'DentalSterilization', icon: Activity },
+    { name: 'Recalls', page: 'DentalRecalls', icon: Calendar },
     { name: 'Medical Records', page: 'MedicalRecords', icon: FileText },
     { name: 'Task Management', page: 'TaskManagement', icon: CheckSquare },
 

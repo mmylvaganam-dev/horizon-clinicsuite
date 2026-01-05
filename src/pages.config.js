@@ -110,6 +110,8 @@ import DailyClose from './pages/DailyClose';
 import DentalModule from './pages/DentalModule';
 import DentalSchedule from './pages/DentalSchedule';
 import DentalBilling from './pages/DentalBilling';
+import DentalSterilization from './pages/DentalSterilization';
+import DentalRecalls from './pages/DentalRecalls';
 import __Layout from './Layout.jsx';
 
 
@@ -226,6 +228,8 @@ export const PAGES = {
     "DentalModule": DentalModule,
     "DentalSchedule": DentalSchedule,
     "DentalBilling": DentalBilling,
+    "DentalSterilization": DentalSterilization,
+    "DentalRecalls": DentalRecalls,
 }
 
 export const pagesConfig = {

@@ -74,6 +74,11 @@ export default function DentalPatientTab({ patientId }) {
     queryFn: () => base44.entities.DentalAttachment.filter({ patient_ref: patientId }),
   });
 
+  const { data: recalls = [] } = useQuery({
+    queryKey: ['dentalRecalls', patientId],
+    queryFn: () => base44.entities.DentalRecallEntry.filter({ patient_ref: patientId }),
+  });
+
   const { data: staff = [] } = useQuery({
     queryKey: ['staff'],
     queryFn: () => base44.entities.StaffProfile.list(),
@@ -215,6 +220,24 @@ export default function DentalPatientTab({ patientId }) {
               </>
             ) : (
               <p className="text-sm text-slate-500">No active plan</p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Recalls Due</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {recalls.filter(r => r.status === 'due').length > 0 ? (
+              <>
+                <p className="text-2xl font-bold text-amber-600">
+                  {recalls.filter(r => r.status === 'due').length}
+                </p>
+                <p className="text-xs text-slate-500 mt-1">Recalls pending</p>
+              </>
+            ) : (
+              <p className="text-sm text-slate-500">No recalls due</p>
             )}
           </CardContent>
         </Card>
