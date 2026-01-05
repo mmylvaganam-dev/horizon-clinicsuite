@@ -108,6 +108,7 @@ import HomeCareBatchManagement from './pages/HomeCareBatchManagement';
 import PharmacyOperations from './pages/PharmacyOperations';
 import DailyClose from './pages/DailyClose';
 import DentalModule from './pages/DentalModule';
+import DentalSchedule from './pages/DentalSchedule';
 import __Layout from './Layout.jsx';
 
 
@@ -222,6 +223,7 @@ export const PAGES = {
     "PharmacyOperations": PharmacyOperations,
     "DailyClose": DailyClose,
     "DentalModule": DentalModule,
+    "DentalSchedule": DentalSchedule,
 }
 
 export const pagesConfig = {
