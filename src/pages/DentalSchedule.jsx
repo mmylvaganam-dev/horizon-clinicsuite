@@ -138,7 +138,8 @@ export default function DentalSchedule() {
 
   const getStaffName = (staffId) => {
     const member = staff.find(s => s.id === staffId);
-    return member?.name || 'Unknown';
+    if (!member) return 'Unknown';
+    return member.name || `${member.first_name || ''} ${member.last_name || ''}`.trim() || 'Unknown';
   };
 
   const getChairName = (chairRef) => {
@@ -475,7 +476,9 @@ export default function DentalSchedule() {
                   </SelectTrigger>
                   <SelectContent>
                     {staff.map(s => (
-                      <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                      <SelectItem key={s.id} value={s.id}>
+                        {s.name || `${s.first_name || ''} ${s.last_name || ''}`.trim() || 'Unknown'}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
