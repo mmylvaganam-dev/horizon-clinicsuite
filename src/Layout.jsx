@@ -42,6 +42,10 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Home', page: 'Home', icon: LayoutDashboard },
     { name: 'Daily Ops', page: 'DailyOps', icon: Activity },
 
+    { name: '─ WORKSPACES ─', page: null, icon: null, divider: true },
+    { name: 'Provider Dashboard', page: 'ProviderDashboard', icon: Activity },
+    { name: 'Sales', page: 'SalesWorkspace', icon: DollarSign },
+
     { name: '─ PHARMACY ─', page: null, icon: null, divider: true },
     { name: 'Dashboard', page: 'PharmacyDashboard', icon: Activity },
     { name: 'Point of Sale', page: 'PharmacyBilling', icon: ShoppingBag },
@@ -72,10 +76,6 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Recalls', page: 'DentalRecalls', icon: Calendar },
     { name: 'Medical Records', page: 'MedicalRecords', icon: FileText },
     { name: 'Task Management', page: 'TaskManagement', icon: CheckSquare },
-
-    { name: '─ WORKSPACES ─', page: null, icon: null, divider: true },
-    { name: 'Provider Dashboard', page: 'ProviderDashboard', icon: Activity },
-    { name: 'Sales', page: 'SalesWorkspace', icon: DollarSign },
 
     { name: '─ LABORATORY ─', page: null, icon: null, divider: true },
     { name: 'LIS Dashboard', page: 'LISDashboard', icon: Activity },
