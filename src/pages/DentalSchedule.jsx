@@ -153,23 +153,33 @@ export default function DentalSchedule() {
 
   // Filter appointments by date and location
   const filteredAppointments = appointments.filter(apt => {
-    const aptDate = new Date(apt.start_time).toISOString().split('T')[0];
-    const dateMatch = aptDate === selectedDate;
-    const locationMatch = !selectedLocation || apt.location_id === selectedLocation;
-    
-    let chairMatch = true;
-    if (selectedChair !== 'all') {
-      const ext = getDentalExtension(apt.id);
-      chairMatch = ext?.chair_ref === selectedChair;
+    if (!apt.start_time) return false;
+    try {
+      const aptDate = new Date(apt.start_time).toISOString().split('T')[0];
+      const dateMatch = aptDate === selectedDate;
+      const locationMatch = !selectedLocation || apt.location_id === selectedLocation;
+      
+      let chairMatch = true;
+      if (selectedChair !== 'all') {
+        const ext = getDentalExtension(apt.id);
+        chairMatch = ext?.chair_ref === selectedChair;
+      }
+      
+      return dateMatch && locationMatch && chairMatch;
+    } catch {
+      return false;
     }
-    
-    return dateMatch && locationMatch && chairMatch;
   });
 
-  const missedAppointments = appointments.filter(apt => 
-    apt.status === 'no-show' || 
-    (apt.status === 'scheduled' && new Date(apt.start_time) < new Date())
-  );
+  const missedAppointments = appointments.filter(apt => {
+    if (apt.status === 'no-show') return true;
+    if (!apt.start_time) return false;
+    try {
+      return apt.status === 'scheduled' && new Date(apt.start_time) < new Date();
+    } catch {
+      return false;
+    }
+  });
 
   const statusColors = {
     scheduled: 'bg-blue-100 text-blue-700',
@@ -349,7 +359,7 @@ export default function DentalSchedule() {
                             Time
                           </p>
                           <p className="font-medium text-slate-900">
-                            {format(new Date(apt.start_time), 'h:mm a')} - {format(new Date(apt.end_time), 'h:mm a')}
+                            {apt.start_time ? format(new Date(apt.start_time), 'h:mm a') : 'N/A'} - {apt.end_time ? format(new Date(apt.end_time), 'h:mm a') : 'N/A'}
                           </p>
                         </div>
                         <div>
@@ -411,7 +421,7 @@ export default function DentalSchedule() {
                   <Badge className={statusColors[apt.status]}>{apt.status}</Badge>
                   <p className="font-semibold text-slate-900 mt-2">{getPatientName(apt.patient_id)}</p>
                   <p className="text-sm text-slate-600">
-                    {format(new Date(apt.start_time), 'MMM d, yyyy h:mm a')}
+                    {apt.start_time ? format(new Date(apt.start_time), 'MMM d, yyyy h:mm a') : 'No date'}
                   </p>
                   <p className="text-sm text-slate-600">Provider: {getStaffName(apt.provider_id)}</p>
                 </div>
