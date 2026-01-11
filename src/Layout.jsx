@@ -113,6 +113,9 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Messages', page: 'Messaging', icon: MessageSquare },
     { name: 'Communications', page: 'Communications', icon: Mail },
 
+    { name: '─ AI ASSISTANT ─', page: null, icon: null, divider: true },
+    { name: 'AI Assistant', page: 'AIAssistant', icon: Sparkles },
+
     { name: '─ ADMINISTRATION ─', page: null, icon: null, divider: true },
     { name: 'Company Profile', page: 'FinanceCompanies', icon: Building2 },
     { name: 'Pricing & Catalogs', page: 'PricingCatalogs', icon: DollarSign },
