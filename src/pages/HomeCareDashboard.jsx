@@ -158,6 +158,38 @@ export default function HomeCareDashboard() {
         </Card>
       </div>
 
+      {/* Service Categories */}
+      <Card>
+        <CardContent className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Home Care Services</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="p-5 bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-200">
+              <h4 className="font-bold text-lg text-blue-900 mb-2">Nursing Officer Services</h4>
+              <p className="text-sm text-slate-600 mb-3">One-time clinical procedures</p>
+              <div className="space-y-1 text-sm">
+                <p className="text-slate-700">• NG Tubing</p>
+                <p className="text-slate-700">• Urinary Catheter Insertion/Changing</p>
+                <p className="text-slate-700">• IV Injection/Infusion</p>
+                <p className="text-slate-700">• Wound Care</p>
+                <p className="text-slate-700">• Medication Administration</p>
+              </div>
+            </Card>
+
+            <Card className="p-5 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200">
+              <h4 className="font-bold text-lg text-emerald-900 mb-2">Home Care Worker Services</h4>
+              <p className="text-sm text-slate-600 mb-3">Long-term care (days to months)</p>
+              <div className="space-y-1 text-sm">
+                <p className="text-slate-700">• ADL Support (Day & Night / Day / Night)</p>
+                <p className="text-slate-700">• Part-time ADL Support</p>
+                <p className="text-slate-700">• Housekeeping</p>
+                <p className="text-slate-700">• Personal Care Assistance</p>
+                <p className="text-xs text-emerald-700 mt-2 font-medium">Duration: Days to Months</p>
+              </div>
+            </Card>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Today's Schedule */}
       <Card>
         <CardContent className="p-6">

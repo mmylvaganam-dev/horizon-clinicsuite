@@ -300,21 +300,34 @@ export default function PharmacyDashboard() {
                             </Badge>
                           </div>
                           <div className="col-span-2 flex justify-end gap-2">
-                            {sale.status === 'completed' && (
-                              <>
-                                <Button size="sm" variant="outline">
-                                  In Progress
-                                </Button>
-                                <Button size="sm" variant="outline" className="text-amber-600 hover:text-amber-700">
-                                  <RefreshCw className="w-3 h-3 mr-1" />
-                                  Refund
-                                </Button>
-                              </>
-                            )}
-                            <Button size="sm" variant="outline">
-                              <FileText className="w-3 h-3 mr-1" />
-                              View
-                            </Button>
+                           {sale.status === 'completed' && (
+                             <>
+                               <Button 
+                                 size="sm" 
+                                 variant="outline"
+                                 onClick={() => navigate(createPageUrl('PharmacyPOS'))}
+                               >
+                                 In Progress
+                               </Button>
+                               <Button 
+                                 size="sm" 
+                                 variant="outline" 
+                                 className="text-amber-600 hover:text-amber-700"
+                                 onClick={() => navigate(createPageUrl('PharmacyPOS'))}
+                               >
+                                 <RefreshCw className="w-3 h-3 mr-1" />
+                                 Refund
+                               </Button>
+                             </>
+                           )}
+                           <Button 
+                             size="sm" 
+                             variant="outline"
+                             onClick={() => navigate(createPageUrl('PharmacyPOS'))}
+                           >
+                             <FileText className="w-3 h-3 mr-1" />
+                             View
+                           </Button>
                           </div>
                         </div>
                       </div>

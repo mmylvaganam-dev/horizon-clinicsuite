@@ -38,9 +38,15 @@ import Billing from './pages/Billing';
 import Communications from './pages/Communications';
 import CompanyHierarchy from './pages/CompanyHierarchy';
 import CriticalQueue from './pages/CriticalQueue';
+import DailyClose from './pages/DailyClose';
 import DailyOps from './pages/DailyOps';
 import Dashboard from './pages/Dashboard';
 import DataExport from './pages/DataExport';
+import DentalBilling from './pages/DentalBilling';
+import DentalModule from './pages/DentalModule';
+import DentalRecalls from './pages/DentalRecalls';
+import DentalSchedule from './pages/DentalSchedule';
+import DentalSterilization from './pages/DentalSterilization';
 import DiagnosticsWorkspace from './pages/DiagnosticsWorkspace';
 import EMR from './pages/EMR';
 import FinanceCompanies from './pages/FinanceCompanies';
@@ -50,6 +56,7 @@ import FrontDeskWorkspace from './pages/FrontDeskWorkspace';
 import GovernmentReporting from './pages/GovernmentReporting';
 import HRDashboard from './pages/HRDashboard';
 import Home from './pages/Home';
+import HomeCareBatchManagement from './pages/HomeCareBatchManagement';
 import HomeCareDashboard from './pages/HomeCareDashboard';
 import HomeCareManagement from './pages/HomeCareManagement';
 import HomeCarePatients from './pages/HomeCarePatients';
@@ -81,6 +88,7 @@ import PharmacyBillCardReports from './pages/PharmacyBillCardReports';
 import PharmacyBilling from './pages/PharmacyBilling';
 import PharmacyDashboard from './pages/PharmacyDashboard';
 import PharmacyInventory from './pages/PharmacyInventory';
+import PharmacyOperations from './pages/PharmacyOperations';
 import PharmacyPOS from './pages/PharmacyPOS';
 import PharmacyRequests from './pages/PharmacyRequests';
 import PharmacyStockImport from './pages/PharmacyStockImport';
@@ -104,14 +112,6 @@ import TaskManagement from './pages/TaskManagement';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import HomeCareBatchManagement from './pages/HomeCareBatchManagement';
-import PharmacyOperations from './pages/PharmacyOperations';
-import DailyClose from './pages/DailyClose';
-import DentalModule from './pages/DentalModule';
-import DentalSchedule from './pages/DentalSchedule';
-import DentalBilling from './pages/DentalBilling';
-import DentalSterilization from './pages/DentalSterilization';
-import DentalRecalls from './pages/DentalRecalls';
 import __Layout from './Layout.jsx';
 
 
@@ -156,9 +156,15 @@ export const PAGES = {
     "Communications": Communications,
     "CompanyHierarchy": CompanyHierarchy,
     "CriticalQueue": CriticalQueue,
+    "DailyClose": DailyClose,
     "DailyOps": DailyOps,
     "Dashboard": Dashboard,
     "DataExport": DataExport,
+    "DentalBilling": DentalBilling,
+    "DentalModule": DentalModule,
+    "DentalRecalls": DentalRecalls,
+    "DentalSchedule": DentalSchedule,
+    "DentalSterilization": DentalSterilization,
     "DiagnosticsWorkspace": DiagnosticsWorkspace,
     "EMR": EMR,
     "FinanceCompanies": FinanceCompanies,
@@ -168,6 +174,7 @@ export const PAGES = {
     "GovernmentReporting": GovernmentReporting,
     "HRDashboard": HRDashboard,
     "Home": Home,
+    "HomeCareBatchManagement": HomeCareBatchManagement,
     "HomeCareDashboard": HomeCareDashboard,
     "HomeCareManagement": HomeCareManagement,
     "HomeCarePatients": HomeCarePatients,
@@ -199,6 +206,7 @@ export const PAGES = {
     "PharmacyBilling": PharmacyBilling,
     "PharmacyDashboard": PharmacyDashboard,
     "PharmacyInventory": PharmacyInventory,
+    "PharmacyOperations": PharmacyOperations,
     "PharmacyPOS": PharmacyPOS,
     "PharmacyRequests": PharmacyRequests,
     "PharmacyStockImport": PharmacyStockImport,
@@ -222,14 +230,6 @@ export const PAGES = {
     "ThirdPartyProviders": ThirdPartyProviders,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "HomeCareBatchManagement": HomeCareBatchManagement,
-    "PharmacyOperations": PharmacyOperations,
-    "DailyClose": DailyClose,
-    "DentalModule": DentalModule,
-    "DentalSchedule": DentalSchedule,
-    "DentalBilling": DentalBilling,
-    "DentalSterilization": DentalSterilization,
-    "DentalRecalls": DentalRecalls,
 }
 
 export const pagesConfig = {
