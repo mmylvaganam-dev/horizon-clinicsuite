@@ -1,3 +1,4 @@
+import AIAssistant from './pages/AIAssistant';
 import Admin from './pages/Admin';
 import AdminArchive from './pages/AdminArchive';
 import AdminAuditLogs from './pages/AdminAuditLogs';
@@ -112,11 +113,11 @@ import TaskManagement from './pages/TaskManagement';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import AIAssistant from './pages/AIAssistant';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "AIAssistant": AIAssistant,
     "Admin": Admin,
     "AdminArchive": AdminArchive,
     "AdminAuditLogs": AdminAuditLogs,
@@ -231,7 +232,6 @@ export const PAGES = {
     "ThirdPartyProviders": ThirdPartyProviders,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "AIAssistant": AIAssistant,
 }
 
 export const pagesConfig = {
