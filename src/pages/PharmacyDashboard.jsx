@@ -125,55 +125,100 @@ export default function PharmacyDashboard() {
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card 
-          className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform"
-          onClick={() => navigate(createPageUrl('PharmacyBilling'))}
-        >
-          <CardContent className="p-6">
-            <ShoppingCart className="w-8 h-8 mb-2 opacity-80" />
-            <p className="text-sm opacity-90">Today's Sales</p>
-            <p className="text-3xl font-bold mt-1">{todaySales.length}</p>
-            <p className="text-xs opacity-80 mt-1">{currency} {todayRevenue.toFixed(2)}</p>
-          </CardContent>
-        </Card>
+      {/* Stats Cards - Sales & Operations */}
+      <div>
+        <h2 className="text-lg font-semibold text-slate-700 mb-3">Sales & Operations</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card 
+            className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform"
+            onClick={() => navigate(createPageUrl('PharmacyBilling'))}
+          >
+            <CardContent className="p-6">
+              <ShoppingCart className="w-8 h-8 mb-2 opacity-80" />
+              <p className="text-sm opacity-90">Today's Sales</p>
+              <p className="text-3xl font-bold mt-1">{todaySales.length}</p>
+              <p className="text-xs opacity-80 mt-1">{currency} {todayRevenue.toFixed(2)}</p>
+            </CardContent>
+          </Card>
 
-        <Card 
-          className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform"
-          onClick={() => navigate(createPageUrl('PharmacyInventory'))}
-        >
-          <CardContent className="p-6">
-            <Package className="w-8 h-8 mb-2 opacity-80" />
-            <p className="text-sm opacity-90">Stock Items</p>
-            <p className="text-3xl font-bold mt-1">{pharmacyStock.length}</p>
-            <p className="text-xs opacity-80 mt-1">Total inventory</p>
-          </CardContent>
-        </Card>
+          <Card 
+            className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform"
+            onClick={() => navigate(createPageUrl('PharmacyInventory'))}
+          >
+            <CardContent className="p-6">
+              <Package className="w-8 h-8 mb-2 opacity-80" />
+              <p className="text-sm opacity-90">Stock Items</p>
+              <p className="text-3xl font-bold mt-1">{pharmacyStock.length}</p>
+              <p className="text-xs opacity-80 mt-1">Total inventory</p>
+            </CardContent>
+          </Card>
 
-        <Card 
-          className={`bg-gradient-to-br ${lowStockCount > 0 ? 'from-amber-500 to-amber-600' : 'from-slate-500 to-slate-600'} text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform`}
-          onClick={() => navigate(createPageUrl('PharmacyInventory'))}
-        >
-          <CardContent className="p-6">
-            <AlertTriangle className="w-8 h-8 mb-2 opacity-80" />
-            <p className="text-sm opacity-90">Low Stock</p>
-            <p className="text-3xl font-bold mt-1">{lowStockCount}</p>
-            <p className="text-xs opacity-80 mt-1">Items need reorder</p>
-          </CardContent>
-        </Card>
+          <Card 
+            className={`bg-gradient-to-br ${lowStockCount > 0 ? 'from-amber-500 to-amber-600' : 'from-slate-500 to-slate-600'} text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform`}
+            onClick={() => navigate(createPageUrl('PharmacyInventory'))}
+          >
+            <CardContent className="p-6">
+              <AlertTriangle className="w-8 h-8 mb-2 opacity-80" />
+              <p className="text-sm opacity-90">Low Stock</p>
+              <p className="text-3xl font-bold mt-1">{lowStockCount}</p>
+              <p className="text-xs opacity-80 mt-1">Items need reorder</p>
+            </CardContent>
+          </Card>
 
-        <Card 
-          className={`bg-gradient-to-br ${expiredCount > 0 ? 'from-rose-500 to-rose-600' : 'from-slate-500 to-slate-600'} text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform`}
-          onClick={() => navigate(createPageUrl('PharmacyInventory'))}
-        >
-          <CardContent className="p-6">
-            <Calendar className="w-8 h-8 mb-2 opacity-80" />
-            <p className="text-sm opacity-90">Expired Items</p>
-            <p className="text-3xl font-bold mt-1">{expiredCount}</p>
-            <p className="text-xs opacity-80 mt-1">Remove from stock</p>
-          </CardContent>
-        </Card>
+          <Card 
+            className={`bg-gradient-to-br ${expiredCount > 0 ? 'from-rose-500 to-rose-600' : 'from-slate-500 to-slate-600'} text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform`}
+            onClick={() => navigate(createPageUrl('PharmacyInventory'))}
+          >
+            <CardContent className="p-6">
+              <Calendar className="w-8 h-8 mb-2 opacity-80" />
+              <p className="text-sm opacity-90">Expired Items</p>
+              <p className="text-3xl font-bold mt-1">{expiredCount}</p>
+              <p className="text-xs opacity-80 mt-1">Remove from stock</p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Financial Metrics */}
+      <div>
+        <h2 className="text-lg font-semibold text-slate-700 mb-3">Financial Overview</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card 
+            className="bg-gradient-to-br from-indigo-500 to-indigo-600 text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform"
+            onClick={() => navigate(createPageUrl('PharmacyInventory'))}
+          >
+            <CardContent className="p-6">
+              <DollarSign className="w-8 h-8 mb-2 opacity-80" />
+              <p className="text-sm opacity-90">Total Stock Value</p>
+              <p className="text-3xl font-bold mt-1">{currency} {pharmacyStock.reduce((sum, item) => sum + ((item.unit_cost || 0) * (item.quantity || 0)), 0).toFixed(2)}</p>
+              <p className="text-xs opacity-80 mt-1">Current inventory cost</p>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className="bg-gradient-to-br from-teal-500 to-teal-600 text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform"
+            onClick={() => navigate(createPageUrl('PharmacyInventory'))}
+          >
+            <CardContent className="p-6">
+              <TrendingUp className="w-8 h-8 mb-2 opacity-80" />
+              <p className="text-sm opacity-90">Potential Revenue</p>
+              <p className="text-3xl font-bold mt-1">{currency} {pharmacyStock.reduce((sum, item) => sum + ((item.mrp || 0) * (item.quantity || 0)), 0).toFixed(2)}</p>
+              <p className="text-xs opacity-80 mt-1">If all sold at MRP</p>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className="bg-gradient-to-br from-cyan-500 to-cyan-600 text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform"
+            onClick={() => navigate(createPageUrl('PharmacyInventory'))}
+          >
+            <CardContent className="p-6">
+              <TrendingUp className="w-8 h-8 mb-2 opacity-80" />
+              <p className="text-sm opacity-90">Potential Profit</p>
+              <p className="text-3xl font-bold mt-1">{currency} {(pharmacyStock.reduce((sum, item) => sum + ((item.mrp || 0) * (item.quantity || 0)), 0) - pharmacyStock.reduce((sum, item) => sum + ((item.unit_cost || 0) * (item.quantity || 0)), 0)).toFixed(2)}</p>
+              <p className="text-xs opacity-80 mt-1">Expected profit margin</p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Main Navigation Tabs */}
@@ -462,34 +507,46 @@ export default function PharmacyDashboard() {
         </Tabs>
       </Card>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card 
-          className="p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-blue-200 bg-blue-50"
-          onClick={() => navigate(createPageUrl('PharmacyPOS'))}
-        >
-          <ShoppingCart className="w-8 h-8 text-blue-600 mb-3" />
-          <h3 className="font-bold text-slate-900 mb-1">New Sale</h3>
-          <p className="text-sm text-slate-600">Process a new sale transaction</p>
-        </Card>
+      {/* Quick Actions - Standard Workflow */}
+      <div>
+        <h2 className="text-lg font-semibold text-slate-700 mb-3">Quick Actions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card 
+            className="p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-blue-200 bg-blue-50"
+            onClick={() => navigate(createPageUrl('PharmacyBilling'))}
+          >
+            <ShoppingCart className="w-8 h-8 text-blue-600 mb-3" />
+            <h3 className="font-bold text-slate-900 mb-1">1. New Sale</h3>
+            <p className="text-sm text-slate-600">Point of Sale</p>
+          </Card>
 
-        <Card 
-          className="p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-emerald-200 bg-emerald-50"
-          onClick={() => navigate(createPageUrl('PharmacyInventory'))}
-        >
-          <Package className="w-8 h-8 text-emerald-600 mb-3" />
-          <h3 className="font-bold text-slate-900 mb-1">Manage Stock</h3>
-          <p className="text-sm text-slate-600">View and update inventory</p>
-        </Card>
+          <Card 
+            className="p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-emerald-200 bg-emerald-50"
+            onClick={() => navigate(createPageUrl('PharmacyInventory'))}
+          >
+            <Package className="w-8 h-8 text-emerald-600 mb-3" />
+            <h3 className="font-bold text-slate-900 mb-1">2. Check Stock</h3>
+            <p className="text-sm text-slate-600">View inventory</p>
+          </Card>
 
-        <Card 
-          className="p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-amber-200 bg-amber-50"
-          onClick={() => navigate(createPageUrl('PharmacyStockImport'))}
-        >
-          <TrendingUp className="w-8 h-8 text-amber-600 mb-3" />
-          <h3 className="font-bold text-slate-900 mb-1">Import Stock</h3>
-          <p className="text-sm text-slate-600">Bulk import stock data</p>
-        </Card>
+          <Card 
+            className="p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-purple-200 bg-purple-50"
+            onClick={() => navigate(createPageUrl('PharmacyStockImport'))}
+          >
+            <FileText className="w-8 h-8 text-purple-600 mb-3" />
+            <h3 className="font-bold text-slate-900 mb-1">3. Import Stock</h3>
+            <p className="text-sm text-slate-600">Bulk stock entry</p>
+          </Card>
+
+          <Card 
+            className="p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-amber-200 bg-amber-50"
+            onClick={() => navigate(createPageUrl('PharmacyOperations'))}
+          >
+            <TrendingUp className="w-8 h-8 text-amber-600 mb-3" />
+            <h3 className="font-bold text-slate-900 mb-1">4. Operations</h3>
+            <p className="text-sm text-slate-600">Daily tasks</p>
+          </Card>
+        </div>
       </div>
     </div>
   );
