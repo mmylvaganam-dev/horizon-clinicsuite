@@ -127,7 +127,10 @@ export default function PharmacyDashboard() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg">
+        <Card 
+          className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform"
+          onClick={() => navigate(createPageUrl('PharmacyBilling'))}
+        >
           <CardContent className="p-6">
             <ShoppingCart className="w-8 h-8 mb-2 opacity-80" />
             <p className="text-sm opacity-90">Today's Sales</p>
@@ -136,7 +139,10 @@ export default function PharmacyDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-0 shadow-lg">
+        <Card 
+          className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform"
+          onClick={() => navigate(createPageUrl('PharmacyInventory'))}
+        >
           <CardContent className="p-6">
             <Package className="w-8 h-8 mb-2 opacity-80" />
             <p className="text-sm opacity-90">Stock Items</p>
@@ -158,7 +164,8 @@ export default function PharmacyDashboard() {
         </Card>
 
         <Card 
-          className={`bg-gradient-to-br ${expiredCount > 0 ? 'from-rose-500 to-rose-600' : 'from-slate-500 to-slate-600'} text-white border-0 shadow-lg`}
+          className={`bg-gradient-to-br ${expiredCount > 0 ? 'from-rose-500 to-rose-600' : 'from-slate-500 to-slate-600'} text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform`}
+          onClick={() => navigate(createPageUrl('PharmacyInventory'))}
         >
           <CardContent className="p-6">
             <Calendar className="w-8 h-8 mb-2 opacity-80" />
