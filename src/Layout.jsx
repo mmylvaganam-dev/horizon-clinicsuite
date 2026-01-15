@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { 
   LayoutDashboard, 
@@ -21,7 +21,8 @@ import {
   CheckSquare,
   TestTube,
   Package,
-  Sparkles
+  Sparkles,
+  ArrowLeft
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -29,6 +30,7 @@ import { useQuery } from '@tanstack/react-query';
 
 export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
 
   const { data: branding } = useQuery({
     queryKey: ['organizationBranding'],
@@ -210,13 +212,22 @@ export default function Layout({ children, currentPageName }) {
         {/* Top bar */}
         <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/50">
           <div className="flex items-center justify-between h-16 px-4 lg:px-8">
-            <button
-              onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
-            >
-              <Menu className="w-6 h-6" />
-            </button>
-            
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+              >
+                <Menu className="w-6 h-6" />
+              </button>
+              <button
+                onClick={() => navigate(-1)}
+                className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+                title="Go back"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+            </div>
+
             <div className="flex-1 lg:flex-none" />
             
             <div className="flex items-center gap-4">
