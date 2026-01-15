@@ -24,6 +24,7 @@ import {
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
+import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 
 export default function PharmacyDashboard() {
   const navigate = useNavigate();

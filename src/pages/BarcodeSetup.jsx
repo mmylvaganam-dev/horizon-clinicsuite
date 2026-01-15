@@ -18,6 +18,7 @@ import {
   Printer
 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 
 export default function BarcodeSetup() {
   const queryClient = useQueryClient();
@@ -73,9 +74,30 @@ export default function BarcodeSetup() {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">Barcode Management</h1>
-        <p className="text-slate-600 mt-2">Manage product barcodes for inventory and sales</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">Barcode Management</h1>
+          <p className="text-slate-600 mt-2">Manage product barcodes for inventory and sales</p>
+        </div>
+        <PageInfoTooltip
+          title="Barcode Management"
+          description="Set up and manage product barcodes for quick scanning during sales and inventory operations. Essential for efficient pharmacy operations."
+          useCases={[
+            "Add barcodes to new products",
+            "Update existing product barcodes",
+            "Link manufacturer barcodes to products",
+            "Enable fast scanning during sales",
+            "Improve inventory accuracy"
+          ]}
+          bestPractices={[
+            "Add barcodes during initial stock setup",
+            "Use manufacturer barcodes when available",
+            "Scan to verify barcode before saving",
+            "Keep barcodes unique per product/batch",
+            "Test scanner with new barcodes",
+            "Print barcode labels for unlabeled items"
+          ]}
+        />
       </div>
 
       {/* Stats */}
