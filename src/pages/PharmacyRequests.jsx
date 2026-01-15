@@ -20,6 +20,8 @@ import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import toast from 'react-hot-toast';
+import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 
 export default function PharmacyRequests() {
   const queryClient = useQueryClient();
@@ -79,12 +81,61 @@ export default function PharmacyRequests() {
     urgent: 'bg-rose-100 text-rose-700'
   };
 
+  const createRequestMutation = useMutation({
+    mutationFn: async (data) => {
+      // Mock creation - replace with actual API call
+      return { id: Date.now().toString(), ...data };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pharmacyRequests'] });
+      setShowCreateDialog(false);
+      setRequestForm({
+        request_type: 'purchase',
+        requested_by: '',
+        items: [],
+        notes: '',
+        priority: 'normal',
+        status: 'pending'
+      });
+      toast.success('Request created successfully');
+    },
+    onError: () => {
+      toast.error('Failed to create request');
+    }
+  });
+
+  const handleCreateRequest = () => {
+    if (!requestForm.request_type) {
+      toast.error('Please select request type');
+      return;
+    }
+    createRequestMutation.mutate(requestForm);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pharmacy Requests</h1>
-          <p className="text-slate-500 mt-1">Manage purchase orders and stock requests</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pharmacy Requests</h1>
+            <p className="text-slate-500 mt-1">Manage purchase orders and stock requests</p>
+          </div>
+          <PageInfoTooltip
+            title="Pharmacy Requests"
+            description="Create and track purchase orders, stock transfer requests, and emergency supply requests."
+            useCases={[
+              "Request stock from suppliers when running low",
+              "Transfer stock between pharmacy locations",
+              "Emergency orders for critical medications",
+              "Scheduled bulk purchases for cost savings"
+            ]}
+            bestPractices={[
+              "Check existing stock before creating new requests",
+              "Set priority based on urgency and patient needs",
+              "Include clear notes for special requirements",
+              "Track approval status to follow up if delayed"
+            ]}
+          />
         </div>
         <Button onClick={() => setShowCreateDialog(true)}>
           <Plus className="w-4 h-4 mr-2" />
@@ -228,6 +279,70 @@ export default function PharmacyRequests() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Create Request Dialog */}
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Create New Request</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Request Type *</label>
+                <Select value={requestForm.request_type} onValueChange={(v) => setRequestForm({...requestForm, request_type: v})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="purchase">Purchase Order</SelectItem>
+                    <SelectItem value="transfer">Stock Transfer</SelectItem>
+                    <SelectItem value="emergency">Emergency Request</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Priority *</label>
+                <Select value={requestForm.priority} onValueChange={(v) => setRequestForm({...requestForm, priority: v})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="normal">Normal</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Requested By</label>
+              <Input
+                value={requestForm.requested_by}
+                onChange={(e) => setRequestForm({...requestForm, requested_by: e.target.value})}
+                placeholder="Your name"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Notes</label>
+              <Textarea
+                value={requestForm.notes}
+                onChange={(e) => setRequestForm({...requestForm, notes: e.target.value})}
+                placeholder="Add any special instructions or requirements..."
+                rows={4}
+              />
+            </div>
+            <div className="flex justify-end gap-3 pt-4">
+              <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleCreateRequest} disabled={createRequestMutation.isPending}>
+                {createRequestMutation.isPending ? 'Creating...' : 'Create Request'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

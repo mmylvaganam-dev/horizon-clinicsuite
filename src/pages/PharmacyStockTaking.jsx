@@ -22,6 +22,7 @@ import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import toast from 'react-hot-toast';
+import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 
 export default function PharmacyStockTaking() {
   const queryClient = useQueryClient();
@@ -93,9 +94,27 @@ export default function PharmacyStockTaking() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Stock Taking Sessions</h1>
-          <p className="text-slate-500 mt-1">Physical inventory count and verification</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Stock Taking Sessions</h1>
+            <p className="text-slate-500 mt-1">Physical inventory count and verification</p>
+          </div>
+          <PageInfoTooltip
+            title="Stock Taking"
+            description="Perform physical inventory counts to verify stock levels and identify discrepancies."
+            useCases={[
+              "Monthly or quarterly physical inventory audits",
+              "When system stock doesn't match physical count",
+              "After receiving large shipments to verify quantities",
+              "Before year-end financial closing"
+            ]}
+            bestPractices={[
+              "Schedule during low-traffic periods",
+              "Count items systematically (shelf by shelf)",
+              "Use two-person verification for accuracy",
+              "Record discrepancies immediately for investigation"
+            ]}
+          />
         </div>
         <div className="flex gap-2">
           <Button
