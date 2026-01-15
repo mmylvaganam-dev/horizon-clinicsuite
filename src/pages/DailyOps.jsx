@@ -15,6 +15,7 @@ import {
   MapPin
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 
 export default function DailyOps() {
   const [selectedOrgId, setSelectedOrgId] = useState('all');
@@ -143,9 +144,31 @@ export default function DailyOps() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Daily Operations</h1>
-        <p className="text-slate-500 mt-1">Real-time operational metrics and alerts</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Daily Operations</h1>
+          <p className="text-slate-500 mt-1">Real-time operational metrics and alerts</p>
+        </div>
+        <PageInfoTooltip
+          title="Daily Operations Dashboard"
+          description="Monitor all critical operational metrics in one place. Track appointments, unpaid invoices, inventory alerts, lab results, and refunds across your organization in real-time."
+          useCases={[
+            "Start-of-day operational review",
+            "Monitor outstanding tasks and alerts",
+            "Track financial metrics (unpaid invoices)",
+            "Review critical lab results requiring attention",
+            "Check inventory levels and low stock items",
+            "Filter by organization and location"
+          ]}
+          bestPractices={[
+            "Review this dashboard at the beginning of each shift",
+            "Address critical queue items immediately",
+            "Follow up on unpaid invoices daily",
+            "Monitor low stock items and reorder promptly",
+            "Use filters to focus on specific locations",
+            "Share urgent alerts with relevant staff"
+          ]}
+        />
       </div>
 
       <Card className="p-4 bg-white border-0 shadow-sm">

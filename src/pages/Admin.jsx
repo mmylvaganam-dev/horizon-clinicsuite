@@ -17,6 +17,7 @@ import {
   Activity,
   DollarSign
 } from 'lucide-react';
+import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -387,9 +388,34 @@ export default function Admin() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">System Administration</h1>
-        <p className="text-slate-500 mt-1">Manage organizations, users, roles, and system configuration</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">System Administration</h1>
+          <p className="text-slate-500 mt-1">Manage organizations, users, roles, and system configuration</p>
+        </div>
+        <PageInfoTooltip
+          title="System Administration"
+          description="Central hub for managing all system configuration, security, users, roles, billing, compliance, and operational settings. Access to admin functions varies based on user role (Platform Owner, App Admin, Organization Admin)."
+          useCases={[
+            "Set up new organizations and locations",
+            "Manage user accounts and permissions",
+            "Configure billing and pricing",
+            "Set up roles and access control",
+            "Monitor system health and security",
+            "Review audit logs and compliance",
+            "Configure integrations and modules"
+          ]}
+          bestPractices={[
+            "Complete Go-Live Checklist before production",
+            "Review security validation regularly",
+            "Monitor audit logs for suspicious activity",
+            "Keep role permissions up to date",
+            "Perform regular backups",
+            "Document all configuration changes",
+            "Restrict admin access appropriately",
+            "Test changes in non-production first"
+          ]}
+        />
       </div>
 
       {isPlatformOwner && (

@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Users, Plus, Search, Upload, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
+import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 
 export default function StaffDirectory() {
   const queryClient = useQueryClient();
@@ -176,9 +177,32 @@ export default function StaffDirectory() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Staff Directory</h1>
-          <p className="text-slate-500 mt-1">HR management and credentials tracking</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Staff Directory</h1>
+            <p className="text-slate-500 mt-1">HR management and credentials tracking</p>
+          </div>
+          <PageInfoTooltip
+            title="Staff Directory"
+            description="Complete staff management system for maintaining employee records, credentials, licenses, and professional information. Tracks all healthcare professionals, administrative staff, and support personnel."
+            useCases={[
+              "Add new staff members when hired",
+              "Update staff contact information",
+              "Track professional credentials and licenses",
+              "Monitor credential expiry dates",
+              "Maintain staff registration numbers",
+              "Filter staff by type and status"
+            ]}
+            bestPractices={[
+              "Add staff immediately upon hiring",
+              "Verify and record all professional credentials",
+              "Monitor credential expiry alerts regularly",
+              "Keep contact information current",
+              "Update status when staff leave",
+              "Maintain complete registration details",
+              "Link staff to payroll and scheduling"
+            ]}
+          />
         </div>
         <Button onClick={() => setShowForm(true)}>
           <Plus className="w-4 h-4 mr-2" />
