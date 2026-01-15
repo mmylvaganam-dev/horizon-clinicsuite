@@ -113,6 +113,7 @@ import TaskManagement from './pages/TaskManagement';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
+import BarcodeSetup from './pages/BarcodeSetup';
 import __Layout from './Layout.jsx';
 
 
@@ -232,6 +233,7 @@ export const PAGES = {
     "ThirdPartyProviders": ThirdPartyProviders,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
+    "BarcodeSetup": BarcodeSetup,
 }
 
 export const pagesConfig = {
