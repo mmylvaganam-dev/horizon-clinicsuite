@@ -35,6 +35,7 @@ import Analytics from './pages/Analytics';
 import AppAdministration from './pages/AppAdministration';
 import Appointments from './pages/Appointments';
 import AssignMyRoles from './pages/AssignMyRoles';
+import BarcodeSetup from './pages/BarcodeSetup';
 import Billing from './pages/Billing';
 import Communications from './pages/Communications';
 import CompanyHierarchy from './pages/CompanyHierarchy';
@@ -113,7 +114,6 @@ import TaskManagement from './pages/TaskManagement';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import BarcodeSetup from './pages/BarcodeSetup';
 import __Layout from './Layout.jsx';
 
 
@@ -155,6 +155,7 @@ export const PAGES = {
     "AppAdministration": AppAdministration,
     "Appointments": Appointments,
     "AssignMyRoles": AssignMyRoles,
+    "BarcodeSetup": BarcodeSetup,
     "Billing": Billing,
     "Communications": Communications,
     "CompanyHierarchy": CompanyHierarchy,
@@ -233,7 +234,6 @@ export const PAGES = {
     "ThirdPartyProviders": ThirdPartyProviders,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "BarcodeSetup": BarcodeSetup,
 }
 
 export const pagesConfig = {
