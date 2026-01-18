@@ -17,10 +17,13 @@ import {
   Plus,
   Minus,
   X,
-  Check
+  Check,
+  UserPlus
 } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 
 export default function PharmacyBilling() {
   const queryClient = useQueryClient();
@@ -28,6 +31,11 @@ export default function PharmacyBilling() {
   const [cart, setCart] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [patientSearch, setPatientSearch] = useState('');
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [selectedWalkIn, setSelectedWalkIn] = useState(null);
+  const [showPatientDialog, setShowPatientDialog] = useState(false);
+  const [showWalkInDialog, setShowWalkInDialog] = useState(false);
+  const [walkInForm, setWalkInForm] = useState({ name: '', phone: '', discount_percentage: 0 });
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [activeTab, setActiveTab] = useState('name');
 
@@ -49,6 +57,11 @@ export default function PharmacyBilling() {
   const { data: productUsage = [] } = useQuery({
     queryKey: ['productUsage'],
     queryFn: () => base44.entities.PharmacyProductUsage.list('-frequency_score', 20),
+  });
+
+  const { data: walkInPatients = [] } = useQuery({
+    queryKey: ['walkInPatients'],
+    queryFn: () => base44.entities.PharmacyWalkInPatient.list('-last_visit_date'),
   });
 
   const currency = companies[0]?.base_currency || 'LKR';
@@ -138,9 +151,64 @@ export default function PharmacyBilling() {
     setCart(cart.filter(item => item.stock_id !== stockId));
   };
 
+  const createWalkInMutation = useMutation({
+    mutationFn: (data) => base44.entities.PharmacyWalkInPatient.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['walkInPatients']);
+      toast.success('Walk-in patient created');
+      setShowWalkInDialog(false);
+      setWalkInForm({ name: '', phone: '', discount_percentage: 0 });
+    }
+  });
+
   const subtotal = cart.reduce((sum, item) => sum + item.total, 0);
+  
+  // Apply discount if walk-in patient with discount is selected
+  const discountPercentage = selectedWalkIn?.discount_percentage || 0;
+  const discountAmount = (subtotal * discountPercentage) / 100;
+  const afterDiscount = subtotal - discountAmount;
+  
   const tax = 0; // Can be configured
-  const total = subtotal + tax;
+  const total = afterDiscount + tax;
+
+  // Filter patients
+  const filteredPatients = patients.filter(p => {
+    const search = patientSearch.toLowerCase();
+    return search === '' ||
+      `${p.first_name} ${p.last_name}`.toLowerCase().includes(search) ||
+      p.mobile?.toLowerCase().includes(search) ||
+      p.patient_id?.toLowerCase().includes(search);
+  }).slice(0, 5);
+
+  // Filter walk-in patients
+  const filteredWalkIns = walkInPatients.filter(w => {
+    const search = patientSearch.toLowerCase();
+    return search === '' ||
+      w.name.toLowerCase().includes(search) ||
+      w.phone?.toLowerCase().includes(search);
+  }).slice(0, 5);
+
+  const handleSelectPatient = (patient) => {
+    setSelectedPatient(patient);
+    setSelectedWalkIn(null);
+    setPatientSearch(`${patient.first_name} ${patient.last_name}`);
+    setShowPatientDialog(false);
+  };
+
+  const handleSelectWalkIn = (walkIn) => {
+    setSelectedWalkIn(walkIn);
+    setSelectedPatient(null);
+    setPatientSearch(walkIn.name);
+    setShowPatientDialog(false);
+  };
+
+  const handleCreateWalkIn = () => {
+    if (!walkInForm.name) {
+      toast.error('Name is required');
+      return;
+    }
+    createWalkInMutation.mutate(walkInForm);
+  };
 
   return (
     <div className="h-screen flex flex-col bg-slate-50">
@@ -258,11 +326,17 @@ export default function PharmacyBilling() {
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <Input
-                  placeholder="Patient name, mobile, PAT ID, Home Nurse"
+                  placeholder="Search patient or walk-in customer"
                   value={patientSearch}
                   onChange={(e) => setPatientSearch(e.target.value)}
+                  onFocus={() => setShowPatientDialog(true)}
                   className="pl-10"
                 />
+                {(selectedPatient || selectedWalkIn) && (
+                  <Badge className="absolute right-2 top-1/2 -translate-y-1/2 bg-emerald-600">
+                    {selectedWalkIn && selectedWalkIn.discount_percentage > 0 ? `${selectedWalkIn.discount_percentage}% OFF` : '✓'}
+                  </Badge>
+                )}
               </div>
             </div>
 
@@ -382,6 +456,12 @@ export default function PharmacyBilling() {
                 <span className="text-slate-600">Subtotal:</span>
                 <span className="font-semibold">{currency} {subtotal.toFixed(2)}</span>
               </div>
+              {discountPercentage > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-emerald-600">Discount ({discountPercentage}%):</span>
+                  <span className="font-semibold text-emerald-600">- {currency} {discountAmount.toFixed(2)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-sm">
                 <span className="text-slate-600">Tax:</span>
                 <span className="font-semibold">{currency} {tax.toFixed(2)}</span>
@@ -398,6 +478,125 @@ export default function PharmacyBilling() {
           </div>
         </div>
       </div>
+
+      {/* Patient Search Dialog */}
+      <Dialog open={showPatientDialog} onOpenChange={setShowPatientDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Select Patient or Walk-In Customer</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            {/* Registered Patients */}
+            {filteredPatients.length > 0 && (
+              <div>
+                <h3 className="font-semibold text-sm text-slate-700 mb-2">Registered Patients</h3>
+                <div className="space-y-2">
+                  {filteredPatients.map(patient => (
+                    <Card
+                      key={patient.id}
+                      className="p-3 cursor-pointer hover:bg-slate-50 transition-colors"
+                      onClick={() => handleSelectPatient(patient)}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium">{patient.first_name} {patient.last_name}</p>
+                          <p className="text-sm text-slate-600">{patient.mobile}</p>
+                          <Badge variant="outline" className="mt-1 text-xs">{patient.patient_id}</Badge>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Walk-In Patients */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-semibold text-sm text-slate-700">Walk-In Customers</h3>
+                <Button size="sm" variant="outline" onClick={() => setShowWalkInDialog(true)}>
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  New Walk-In
+                </Button>
+              </div>
+              <div className="space-y-2">
+                {filteredWalkIns.length === 0 ? (
+                  <p className="text-sm text-slate-500 text-center py-4">No walk-in customers found</p>
+                ) : (
+                  filteredWalkIns.map(walkIn => (
+                    <Card
+                      key={walkIn.id}
+                      className="p-3 cursor-pointer hover:bg-slate-50 transition-colors"
+                      onClick={() => handleSelectWalkIn(walkIn)}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium">{walkIn.name}</p>
+                          <p className="text-sm text-slate-600">{walkIn.phone}</p>
+                          <div className="flex gap-2 mt-1">
+                            {walkIn.discount_percentage > 0 && (
+                              <Badge className="bg-emerald-600 text-xs">{walkIn.discount_percentage}% Discount</Badge>
+                            )}
+                            <Badge variant="outline" className="text-xs">{walkIn.total_visits || 0} visits</Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Create Walk-In Dialog */}
+      <Dialog open={showWalkInDialog} onOpenChange={setShowWalkInDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Walk-In Customer</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <Label>Name *</Label>
+              <Input
+                value={walkInForm.name}
+                onChange={(e) => setWalkInForm({...walkInForm, name: e.target.value})}
+                placeholder="Customer name"
+              />
+            </div>
+            <div>
+              <Label>Phone</Label>
+              <Input
+                value={walkInForm.phone}
+                onChange={(e) => setWalkInForm({...walkInForm, phone: e.target.value})}
+                placeholder="Phone number"
+              />
+            </div>
+            <div>
+              <Label>Special Discount (%)</Label>
+              <Input
+                type="number"
+                value={walkInForm.discount_percentage}
+                onChange={(e) => setWalkInForm({...walkInForm, discount_percentage: parseFloat(e.target.value) || 0})}
+                placeholder="0"
+                min="0"
+                max="100"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setShowWalkInDialog(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleCreateWalkIn}>
+                Create Customer
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -92,6 +92,7 @@ import PharmacyDashboard from './pages/PharmacyDashboard';
 import PharmacyInventory from './pages/PharmacyInventory';
 import PharmacyOperations from './pages/PharmacyOperations';
 import PharmacyPOS from './pages/PharmacyPOS';
+import PharmacyProductImport from './pages/PharmacyProductImport';
 import PharmacyRequests from './pages/PharmacyRequests';
 import PharmacyStockImport from './pages/PharmacyStockImport';
 import PharmacyStockTaking from './pages/PharmacyStockTaking';
@@ -115,7 +116,6 @@ import TaskManagement from './pages/TaskManagement';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import PharmacyProductImport from './pages/PharmacyProductImport';
 import __Layout from './Layout.jsx';
 
 
@@ -214,6 +214,7 @@ export const PAGES = {
     "PharmacyInventory": PharmacyInventory,
     "PharmacyOperations": PharmacyOperations,
     "PharmacyPOS": PharmacyPOS,
+    "PharmacyProductImport": PharmacyProductImport,
     "PharmacyRequests": PharmacyRequests,
     "PharmacyStockImport": PharmacyStockImport,
     "PharmacyStockTaking": PharmacyStockTaking,
@@ -237,7 +238,6 @@ export const PAGES = {
     "ThirdPartyProviders": ThirdPartyProviders,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "PharmacyProductImport": PharmacyProductImport,
 }
 
 export const pagesConfig = {
