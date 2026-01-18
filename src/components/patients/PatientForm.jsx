@@ -12,6 +12,7 @@ export default function PatientForm({ open, onOpenChange, patient, onSubmit, isL
   const [formData, setFormData] = useState(patient || {
     first_name: '',
     last_name: '',
+    nic: '',
     date_of_birth: '',
     gender: '',
     email: '',
@@ -25,6 +26,7 @@ export default function PatientForm({ open, onOpenChange, patient, onSubmit, isL
     insurance_provider: '',
     insurance_number: '',
     status: 'active',
+    patient_type: 'registered',
     notes: '',
   });
 
@@ -87,6 +89,15 @@ export default function PatientForm({ open, onOpenChange, patient, onSubmit, isL
                     required
                   />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="nic">NIC Number (National Identity Card)</Label>
+                <Input
+                  id="nic"
+                  value={formData.nic}
+                  onChange={(e) => updateField('nic', e.target.value)}
+                  placeholder="e.g., 199012345678"
+                />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">

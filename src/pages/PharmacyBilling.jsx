@@ -43,7 +43,8 @@ export default function PharmacyBilling() {
   const [selectedWalkIn, setSelectedWalkIn] = useState(null);
   const [showPatientDialog, setShowPatientDialog] = useState(false);
   const [showWalkInDialog, setShowWalkInDialog] = useState(false);
-  const [walkInForm, setWalkInForm] = useState({ name: '', phone: '', discount_percentage: 0 });
+  const [showPHNCard, setShowPHNCard] = useState(false);
+  const [walkInForm, setWalkInForm] = useState({ first_name: '', last_name: '', phone: '', date_of_birth: '', gender: '' });
   const [prescriptionFile, setPrescriptionFile] = useState(null);
   const [prescriptionUrl, setPrescriptionUrl] = useState(null);
   const [uploadingPrescription, setUploadingPrescription] = useState(false);
