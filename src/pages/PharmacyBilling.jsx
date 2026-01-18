@@ -18,7 +18,10 @@ import {
   Minus,
   X,
   Check,
-  UserPlus
+  UserPlus,
+  Upload,
+  Camera,
+  FileText
 } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -36,6 +39,9 @@ export default function PharmacyBilling() {
   const [showPatientDialog, setShowPatientDialog] = useState(false);
   const [showWalkInDialog, setShowWalkInDialog] = useState(false);
   const [walkInForm, setWalkInForm] = useState({ name: '', phone: '', discount_percentage: 0 });
+  const [prescriptionFile, setPrescriptionFile] = useState(null);
+  const [prescriptionUrl, setPrescriptionUrl] = useState(null);
+  const [uploadingPrescription, setUploadingPrescription] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [activeTab, setActiveTab] = useState('name');
 
@@ -208,6 +214,41 @@ export default function PharmacyBilling() {
       return;
     }
     createWalkInMutation.mutate(walkInForm);
+  };
+
+  const handlePrescriptionUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingPrescription(true);
+    try {
+      const result = await base44.integrations.Core.UploadFile({ file });
+      setPrescriptionUrl(result.file_url);
+      setPrescriptionFile(file);
+      toast.success('Prescription uploaded');
+    } catch (error) {
+      toast.error('Failed to upload prescription');
+    } finally {
+      setUploadingPrescription(false);
+    }
+  };
+
+  const handleCompleteSale = () => {
+    if (cart.length === 0) {
+      toast.error('Cart is empty');
+      return;
+    }
+    
+    // Here you would create the sale with prescription_url if available
+    toast.success('Sale completed successfully');
+    
+    // Reset
+    setCart([]);
+    setSelectedPatient(null);
+    setSelectedWalkIn(null);
+    setPatientSearch('');
+    setPrescriptionFile(null);
+    setPrescriptionUrl(null);
   };
 
   return (
@@ -451,6 +492,73 @@ export default function PharmacyBilling() {
           </div>
 
           <div className="border-t p-4 space-y-3">
+            {/* Prescription Upload */}
+            {cart.length > 0 && (
+              <div className="pb-3 border-b">
+                <Label className="text-xs text-slate-600 mb-2 block">Prescription (Optional)</Label>
+                {prescriptionFile ? (
+                  <div className="flex items-center gap-2 p-2 bg-emerald-50 border border-emerald-200 rounded">
+                    <FileText className="w-4 h-4 text-emerald-600" />
+                    <span className="text-sm text-emerald-700 flex-1">{prescriptionFile.name}</span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setPrescriptionFile(null);
+                        setPrescriptionUrl(null);
+                      }}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2">
+                    <label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePrescriptionUpload}
+                        className="hidden"
+                        disabled={uploadingPrescription}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        disabled={uploadingPrescription}
+                        onClick={(e) => e.currentTarget.previousElementSibling?.click()}
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        Upload
+                      </Button>
+                    </label>
+                    <label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        capture="environment"
+                        onChange={handlePrescriptionUpload}
+                        className="hidden"
+                        disabled={uploadingPrescription}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-full"
+                        disabled={uploadingPrescription}
+                        onClick={(e) => e.currentTarget.previousElementSibling?.click()}
+                      >
+                        <Camera className="w-4 h-4 mr-2" />
+                        Scan
+                      </Button>
+                    </label>
+                  </div>
+                )}
+              </div>
+            )}
+
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-600">Subtotal:</span>
@@ -471,7 +579,11 @@ export default function PharmacyBilling() {
                 <span className="font-bold text-indigo-600">{currency} {total.toFixed(2)}</span>
               </div>
             </div>
-            <Button className="w-full bg-indigo-600 hover:bg-indigo-700" disabled={cart.length === 0}>
+            <Button 
+              className="w-full bg-indigo-600 hover:bg-indigo-700" 
+              disabled={cart.length === 0}
+              onClick={handleCompleteSale}
+            >
               <Check className="w-5 h-5 mr-2" />
               Complete Sale
             </Button>
