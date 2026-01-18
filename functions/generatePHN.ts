@@ -9,6 +9,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Get company profile to get company code
+    const companies = await base44.asServiceRole.entities.CompanyProfile.list();
+    const company = companies[0];
+    
+    if (!company || !company.company_code) {
+      return Response.json({ error: 'Company code not configured' }, { status: 400 });
+    }
+    
     // Get all existing patients to check PHN uniqueness
     const patients = await base44.asServiceRole.entities.Patient.list();
     
@@ -18,9 +26,9 @@ Deno.serve(async (req) => {
     let attempts = 0;
     
     while (!isUnique && attempts < 10) {
-      // Generate PHN in format: PHN + 8 random digits
-      const randomDigits = Math.floor(10000000 + Math.random() * 90000000);
-      phn = `PHN${randomDigits}`;
+      // Generate PHN in format: COMPANY_CODE-PHN-6digits (e.g., AR-PHN-000001)
+      const randomDigits = Math.floor(100000 + Math.random() * 900000);
+      phn = `${company.company_code}-PHN-${randomDigits.toString().padStart(6, '0')}`;
       
       // Check if PHN already exists
       isUnique = !patients.some(p => p.phn === phn);
