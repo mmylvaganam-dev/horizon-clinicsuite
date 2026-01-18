@@ -46,6 +46,11 @@ export default function PharmacyBilling() {
     queryFn: () => base44.entities.CompanyProfile.list(),
   });
 
+  const { data: productUsage = [] } = useQuery({
+    queryKey: ['productUsage'],
+    queryFn: () => base44.entities.PharmacyProductUsage.list('-frequency_score', 20),
+  });
+
   const currency = companies[0]?.base_currency || 'LKR';
 
   // Product categories
@@ -79,8 +84,21 @@ export default function PharmacyBilling() {
     return matchesSearch && item.quality_status === 'usable';
   });
 
-  // Frequently used items (mock)
-  const frequentlyUsed = pharmacyStock.slice(0, 10);
+  // Get frequently used items based on actual usage
+  const frequentlyUsed = productUsage
+    .map(usage => pharmacyStock.find(item => item.id === usage.product_id))
+    .filter(item => item && item.quality_status === 'usable')
+    .slice(0, 20);
+
+  const updateUsageMutation = useMutation({
+    mutationFn: (product) => base44.functions.invoke('updateProductUsage', {
+      product_id: product.id,
+      product_name: product.display_name
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['productUsage']);
+    }
+  });
 
   const addToCart = (item) => {
     const existing = cart.find(c => c.stock_id === item.id);
@@ -99,6 +117,9 @@ export default function PharmacyBilling() {
         unit_price: item.mrp || item.unit_price || 0,
         total: item.mrp || item.unit_price || 0
       }]);
+      
+      // Update usage stats when item is added to cart
+      updateUsageMutation.mutate(item);
     }
     toast.success(`Added ${item.display_name}`);
   };
@@ -183,17 +204,24 @@ export default function PharmacyBilling() {
         {/* Left Sidebar - Categories & Frequently Used */}
         <div className="w-64 bg-white border-r overflow-y-auto">
           <div className="p-4 border-b">
-            <h3 className="font-semibold text-slate-900 mb-3">FREQUENTLY USED</h3>
+            <h3 className="font-semibold text-slate-900 mb-3">FREQUENTLY USED (Top 20)</h3>
             <div className="space-y-1">
-              {frequentlyUsed.map((item, idx) => (
-                <button
-                  key={item.id}
-                  onClick={() => addToCart(item)}
-                  className="w-full text-left px-3 py-2 text-sm rounded hover:bg-slate-100 transition-colors"
-                >
-                  {item.display_name || '[N/A]'}
-                </button>
-              ))}
+              {frequentlyUsed.length === 0 ? (
+                <p className="text-xs text-slate-500 px-3 py-2">Start selling to build your frequently used list</p>
+              ) : (
+                frequentlyUsed.map((item, idx) => (
+                  <button
+                    key={item.id}
+                    onClick={() => addToCart(item)}
+                    className="w-full text-left px-3 py-2 text-sm rounded hover:bg-slate-100 transition-colors flex items-center justify-between group"
+                  >
+                    <span className="flex-1">{item.display_name}</span>
+                    <Badge variant="outline" className="text-xs opacity-0 group-hover:opacity-100 transition-opacity">
+                      #{idx + 1}
+                    </Badge>
+                  </button>
+                ))
+              )}
             </div>
           </div>
           
