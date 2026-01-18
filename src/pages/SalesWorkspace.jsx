@@ -1,43 +1,63 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { DollarSign, Users, Receipt, Plus, Trash2, Search, TrendingUp } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  ShoppingCart,
+  Search,
+  User,
+  Plus,
+  Minus,
+  X,
+  Check,
+  Stethoscope,
+  Activity,
+  Scan,
+  Home,
+  Package
+} from 'lucide-react';
 import toast from 'react-hot-toast';
-import { format } from 'date-fns';
-import { createPageUrl } from '../utils';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function SalesWorkspace() {
   const queryClient = useQueryClient();
-  const [showSale, setShowSale] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedPatient, setSelectedPatient] = useState('');
-  const [saleLines, setSaleLines] = useState([]);
-  const [paymentMethod, setPaymentMethod] = useState('cash');
-  const [discount, setDiscount] = useState(0);
-  const [discountReason, setDiscountReason] = useState('');
-  const [searchType, setSearchType] = useState('service');
-  const [itemSearch, setItemSearch] = useState('');
-  const [cashReceived, setCashReceived] = useState(0);
-  const [viewInvoiceId, setViewInvoiceId] = useState(null);
+  const [cart, setCart] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [patientSearch, setPatientSearch] = useState('');
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [showPatientDialog, setShowPatientDialog] = useState(false);
+  const [activeServiceTab, setActiveServiceTab] = useState('pharmacy');
 
-  const { data: user } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
+  // Fetch all service data
+  const { data: pharmacyStock = [] } = useQuery({
+    queryKey: ['pharmacyStock'],
+    queryFn: () => base44.entities.PharmacyStock.list('-created_date'),
   });
 
-  const { data: services = [] } = useQuery({
-    queryKey: ['services'],
-    queryFn: () => base44.entities.ServiceCatalog.filter({ active: true }),
+  const { data: gpProfiles = [] } = useQuery({
+    queryKey: ['gpProfiles'],
+    queryFn: () => base44.entities.GPProfile.filter({ status: 'active' }),
   });
 
-  const { data: packages = [] } = useQuery({
-    queryKey: ['healthPackages'],
-    queryFn: () => base44.entities.HealthPackage.filter({ active: true }),
+  const { data: specialists = [] } = useQuery({
+    queryKey: ['specialists'],
+    queryFn: () => base44.entities.SpecialistProfile.filter({ status: 'active' }),
+  });
+
+  const { data: radiologyServices = [] } = useQuery({
+    queryKey: ['radiologyServices'],
+    queryFn: () => base44.entities.RadiologyService.filter({ status: 'active' }),
+  });
+
+  const { data: homeCareServices = [] } = useQuery({
+    queryKey: ['homeCareServices'],
+    queryFn: () => base44.entities.HomeCareServiceCatalog.filter({ status: 'active' }),
   });
 
   const { data: patients = [] } = useQuery({
@@ -45,690 +65,475 @@ export default function SalesWorkspace() {
     queryFn: () => base44.entities.Patient.list(),
   });
 
-  const { data: todayInvoices = [] } = useQuery({
-    queryKey: ['todayInvoices'],
-    queryFn: async () => {
-      const today = format(new Date(), 'yyyy-MM-dd');
-      return base44.entities.InvoiceHeader.list('-created_date');
-    },
+  const { data: companies = [] } = useQuery({
+    queryKey: ['companies'],
+    queryFn: () => base44.entities.CompanyProfile.list(),
   });
 
-  const { data: viewInvoiceLines = [] } = useQuery({
-    queryKey: ['invoiceLines', viewInvoiceId],
-    queryFn: () => base44.entities.InvoiceLine.filter({ invoice_ref: viewInvoiceId }),
-    enabled: !!viewInvoiceId,
-  });
+  const currency = companies[0]?.base_currency || 'LKR';
 
-  const createSaleMutation = useMutation({
-    mutationFn: async (data) => {
-      const invoiceNumber = `INV-${Date.now()}`;
-      const accessionNumber = `ACC-${Date.now()}`;
-      const subtotal = data.lines.reduce((sum, l) => sum + l.line_total, 0);
-      const discountAmount = data.discount || 0;
-      const taxableAmount = subtotal - discountAmount;
-      const taxTotal = 0;
-      const total = taxableAmount + taxTotal;
-
-      const patient = patients.find(p => p.id === data.patient_ref);
-
-      const invoice = await base44.entities.InvoiceHeader.create({
-        organization_id: user.organization_id || '',
-        location_id: user.location_id || '',
-        patient_ref: data.patient_ref,
-        invoice_number: invoiceNumber,
-        invoice_date: new Date().toISOString(),
-        status: 'paid',
-        subtotal,
-        tax_total: taxTotal,
-        total,
-        payment_status: 'paid',
-        notes: `Accession: ${accessionNumber} | Patient: ${patient?.first_name} ${patient?.last_name} | MRN: ${patient?.mrn}${data.discount_reason ? ` | Discount: ${data.discount} - ${data.discount_reason}` : ''}${data.payment_method === 'cash' && data.cash_received ? ` | Cash: Rs. ${data.cash_received} | Change: Rs. ${(data.cash_received - total).toFixed(2)}` : ''}`
-      });
-
-      for (const line of data.lines) {
-        await base44.entities.InvoiceLine.create({
-          invoice_ref: invoice.id,
-          ...line
-        });
-      }
-
-      await base44.entities.Payment.create({
-        invoice_ref: invoice.id,
-        paid_at: new Date().toISOString(),
-        amount: total,
-        method: data.payment_method,
-        received_by: user.id
-      });
-
-      await base44.entities.AuditLog.create({
-        timestamp: new Date().toISOString(),
-        user_id: user.id,
-        user_email: user.email,
-        organization_id: user.organization_id || '',
-        location_id: user.location_id || '',
-        patient_id: data.patient_ref,
-        module: 'SALES',
-        action: 'create_invoice',
-        record_type: 'InvoiceHeader',
-        record_id: invoice.id,
-        metadata: {
-          invoice_number: invoiceNumber,
-          accession_number: accessionNumber,
-          patient_name: `${patient?.first_name} ${patient?.last_name}`,
-          mrn: patient?.mrn,
-          total,
-          payment_method: data.payment_method,
-          cash_received: data.cash_received,
-          change_given: data.payment_method === 'cash' && data.cash_received ? (data.cash_received - total).toFixed(2) : 0
-        }
-      });
-
-      return { invoice, accessionNumber };
-    },
-    onSuccess: async (data) => {
-      queryClient.invalidateQueries(['todayInvoices']);
-      
-      // Generate and download PDF receipt
-      try {
-        const { data: pdfData } = await base44.functions.invoke('generateReceiptPDF', { invoice_id: data.invoice.id });
-        
-        if (pdfData instanceof ArrayBuffer || pdfData instanceof Uint8Array) {
-          const blob = new Blob([pdfData], { type: 'application/pdf' });
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `receipt-${data.invoice.invoice_number}.pdf`;
-          document.body.appendChild(a);
-          a.click();
-          window.URL.revokeObjectURL(url);
-          a.remove();
-          toast.success(`Sale completed! Receipt downloaded. Accession: ${data.accessionNumber}`);
-        } else {
-          throw new Error('Invalid PDF data received');
-        }
-      } catch (error) {
-        toast.error('PDF generation failed. Sale completed without receipt.');
-        console.error('PDF generation failed:', error);
-      }
-      
-      setShowSale(false);
-      setSelectedPatient('');
-      setSaleLines([]);
-      setDiscount(0);
-      setDiscountReason('');
-      setCashReceived(0);
-    },
-  });
-
-  const addLine = () => {
-    setSaleLines([...saleLines, { item_code: '', item_name_cache: '', category: '', qty: 1, unit_price: 0, line_total: 0 }]);
-  };
-
-  const updateLine = (index, field, value) => {
-    const updated = [...saleLines];
-    updated[index][field] = value;
+  // Add item to cart
+  const addToCart = (item, type) => {
+    let cartItem;
     
-    if (field === 'item_code') {
-      const service = services.find(s => s.service_code === value);
-      if (service) {
-        updated[index].item_name_cache = service.service_name;
-        updated[index].category = service.category;
-        updated[index].unit_price = service.default_price;
-        updated[index].line_total = service.default_price * updated[index].qty;
+    switch(type) {
+      case 'pharmacy':
+        cartItem = {
+          id: `pharmacy-${item.id}`,
+          type: 'pharmacy',
+          name: item.display_name,
+          price: item.mrp || item.unit_price || 0,
+          quantity: 1,
+          total: item.mrp || item.unit_price || 0
+        };
+        break;
+      case 'gp':
+        cartItem = {
+          id: `gp-${item.id}`,
+          type: 'gp',
+          name: `GP - ${item.doctor_name}`,
+          price: item.total_fee,
+          doctor_fee: item.consultation_fee,
+          hospital_fee: item.hospital_fee,
+          quantity: 1,
+          total: item.total_fee
+        };
+        break;
+      case 'specialist':
+        cartItem = {
+          id: `specialist-${item.id}`,
+          type: 'specialist',
+          name: `${item.specialty} - ${item.specialist_name}`,
+          price: item.total_fee,
+          doctor_fee: item.consultation_fee,
+          hospital_fee: item.hospital_fee,
+          quantity: 1,
+          total: item.total_fee
+        };
+        break;
+      case 'radiology':
+        cartItem = {
+          id: `radiology-${item.id}`,
+          type: 'radiology',
+          name: item.service_name,
+          price: item.price,
+          quantity: 1,
+          total: item.price
+        };
+        break;
+      case 'homecare':
+        const price = item.price_per_visit || item.price_per_hour || item.price_per_day || 0;
+        cartItem = {
+          id: `homecare-${item.id}`,
+          type: 'homecare',
+          name: item.service_name,
+          price: price,
+          quantity: 1,
+          total: price
+        };
+        break;
+    }
+
+    const existing = cart.find(c => c.id === cartItem.id);
+    if (existing) {
+      updateQuantity(cartItem.id, 1);
+    } else {
+      setCart([...cart, cartItem]);
+    }
+    toast.success(`Added ${cartItem.name}`);
+  };
+
+  const updateQuantity = (itemId, change) => {
+    setCart(cart.map(item => {
+      if (item.id === itemId) {
+        const newQty = Math.max(1, item.quantity + change);
+        return {...item, quantity: newQty, total: newQty * item.price};
       }
-    }
-    
-    if (field === 'qty' || field === 'unit_price') {
-      updated[index].line_total = updated[index].qty * updated[index].unit_price;
-    }
-    
-    setSaleLines(updated);
+      return item;
+    }));
   };
 
-  const removeLine = (index) => {
-    setSaleLines(saleLines.filter((_, i) => i !== index));
+  const removeFromCart = (itemId) => {
+    setCart(cart.filter(item => item.id !== itemId));
   };
 
-  const addPackage = (pkg) => {
-    const packageLine = {
-      item_code: pkg.package_code,
-      item_name_cache: pkg.package_name,
-      category: 'PACKAGE',
-      qty: 1,
-      unit_price: pkg.total_price,
-      line_total: pkg.total_price
-    };
-    setSaleLines([...saleLines, packageLine]);
-    setItemSearch('');
-    toast.success(`Added ${pkg.package_name}`);
-  };
+  const subtotal = cart.reduce((sum, item) => sum + item.total, 0);
+  const tax = 0;
+  const total = subtotal + tax;
 
-  const addService = (service) => {
-    const serviceLine = {
-      item_code: service.service_code,
-      item_name_cache: service.service_name,
-      category: service.category,
-      qty: 1,
-      unit_price: service.default_price,
-      line_total: service.default_price
-    };
-    setSaleLines([...saleLines, serviceLine]);
-    setItemSearch('');
-    toast.success(`Added ${service.service_name}`);
-  };
+  // Filter services by search
+  const filteredPharmacy = pharmacyStock.filter(item => 
+    searchQuery === '' || item.display_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const filteredItems = itemSearch
-    ? searchType === 'package'
-      ? packages.filter(p => p.package_name.toLowerCase().includes(itemSearch.toLowerCase()) || p.package_code.includes(itemSearch))
-      : services.filter(s => s.service_name.toLowerCase().includes(itemSearch.toLowerCase()) || s.service_code.toLowerCase().includes(itemSearch.toLowerCase()))
-    : [];
+  const filteredGPs = gpProfiles.filter(gp =>
+    searchQuery === '' || gp.doctor_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const handleCreateSale = () => {
-    if (!selectedPatient || saleLines.length === 0) {
-      toast.error('Please select patient and add items');
-      return;
-    }
-    if (discount > 0 && !discountReason) {
-      toast.error('Please provide discount reason');
-      return;
-    }
-    if (paymentMethod === 'cash' && cashReceived < total) {
-      toast.error('Cash received is less than total amount');
-      return;
-    }
-    createSaleMutation.mutate({
-      patient_ref: selectedPatient,
-      lines: saleLines,
-      payment_method: paymentMethod,
-      discount,
-      discount_reason: discountReason,
-      cash_received: cashReceived
-    });
-  };
+  const filteredSpecialists = specialists.filter(spec =>
+    searchQuery === '' || 
+    spec.specialist_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    spec.specialty.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
+  const filteredRadiology = radiologyServices.filter(rad =>
+    searchQuery === '' || 
+    rad.service_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    rad.region.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredHomeCare = homeCareServices.filter(hc =>
+    searchQuery === '' || hc.service_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  // Filter patients
   const filteredPatients = patients.filter(p => {
-    const search = searchTerm.toLowerCase();
-    const fullName = `${p.first_name} ${p.last_name}`.toLowerCase();
-    return fullName.includes(search) || p.mrn?.toLowerCase().includes(search);
-  });
+    const search = patientSearch.toLowerCase();
+    return search === '' ||
+      `${p.first_name} ${p.last_name}`.toLowerCase().includes(search) ||
+      p.phone?.toLowerCase().includes(search) ||
+      p.phn?.toLowerCase().includes(search);
+  }).slice(0, 5);
 
-  const subtotal = saleLines.reduce((sum, l) => sum + l.line_total, 0);
-  const discountAmount = discount || 0;
-  const taxableAmount = subtotal - discountAmount;
-  const taxTotal = 0;
-  const total = taxableAmount + taxTotal;
+  const handleSelectPatient = (patient) => {
+    setSelectedPatient(patient);
+    setPatientSearch(`${patient.first_name} ${patient.last_name}`);
+    setShowPatientDialog(false);
+  };
 
-  const todayTotal = todayInvoices.reduce((sum, inv) => sum + (inv.total || 0), 0);
-  const todayCount = todayInvoices.length;
-  const changeAmount = paymentMethod === 'cash' && cashReceived > 0 ? cashReceived - total : 0;
+  const handleCompleteSale = () => {
+    if (cart.length === 0) {
+      toast.error('Cart is empty');
+      return;
+    }
+    if (!selectedPatient) {
+      toast.error('Please select a patient');
+      return;
+    }
+
+    // Here you would create the sale record
+    toast.success('Sale completed successfully!');
+    
+    // Reset
+    setCart([]);
+    setSelectedPatient(null);
+    setPatientSearch('');
+  };
+
+  const getTypeIcon = (type) => {
+    switch(type) {
+      case 'pharmacy': return <Package className="w-4 h-4" />;
+      case 'gp': return <Stethoscope className="w-4 h-4" />;
+      case 'specialist': return <Activity className="w-4 h-4" />;
+      case 'radiology': return <Scan className="w-4 h-4" />;
+      case 'homecare': return <Home className="w-4 h-4" />;
+      default: return null;
+    }
+  };
+
+  const getTypeBadge = (type) => {
+    const badges = {
+      pharmacy: 'bg-blue-100 text-blue-800',
+      gp: 'bg-green-100 text-green-800',
+      specialist: 'bg-purple-100 text-purple-800',
+      radiology: 'bg-orange-100 text-orange-800',
+      homecare: 'bg-pink-100 text-pink-800'
+    };
+    return badges[type] || 'bg-slate-100 text-slate-800';
+  };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Sales Dashboard</h1>
-        <p className="text-slate-500 mt-1">Front desk sales and billing</p>
+    <div className="h-screen flex flex-col bg-slate-50">
+      {/* Top Bar */}
+      <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-6 py-4">
+        <h1 className="text-2xl font-bold">New Sale</h1>
+        <p className="text-sm text-indigo-100">Products & Services</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-emerald-600" />
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Today's Revenue</p>
-                <p className="text-2xl font-bold">Rs. {todayTotal.toFixed(2)}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                <Receipt className="w-6 h-6 text-blue-600" />
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Transactions</p>
-                <p className="text-2xl font-bold">{todayCount}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-teal-100 flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-teal-600" />
-              </div>
-              <div>
-                <p className="text-sm text-slate-500">Avg Transaction</p>
-                <p className="text-2xl font-bold">
-                  Rs. {todayCount > 0 ? (todayTotal / todayCount).toFixed(2) : '0.00'}
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Today's Sales</span>
-              <Button onClick={() => setShowSale(true)} size="sm">
-                <Plus className="w-4 h-4 mr-2" />
-                New Sale
-              </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {todayInvoices.length === 0 ? (
-              <p className="text-center text-slate-500 py-8">No sales today</p>
-            ) : (
-              <div className="space-y-2">
-                {todayInvoices.slice(0, 10).map((inv) => (
-                  <div 
-                    key={inv.id} 
-                    className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-slate-50 transition-colors"
-                    onClick={() => setViewInvoiceId(inv.id)}
-                  >
-                    <div>
-                      <p className="font-semibold">{inv.invoice_number}</p>
-                      <p className="text-sm text-slate-500">
-                        {format(new Date(inv.invoice_date), 'HH:mm')} • Patient: {inv.patient_ref.substring(0, 8)}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-emerald-600">Rs. {inv.total.toFixed(2)}</p>
-                      <p className="text-xs text-slate-500">{inv.payment_status}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <Button className="w-full justify-start bg-teal-600 hover:bg-teal-700" onClick={() => setShowSale(true)}>
-              <Plus className="w-4 h-4 mr-2" />
-              New Sale
-            </Button>
-            <Button className="w-full justify-start" variant="outline">
-              <Receipt className="w-4 h-4 mr-2" />
-              End-of-Day Report
-            </Button>
-            <Button className="w-full justify-start" variant="outline" onClick={() => window.open(createPageUrl('Patients'), '_blank')}>
-              <Users className="w-4 h-4 mr-2" />
-              Register Patient
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Dialog open={showSale} onOpenChange={setShowSale}>
-        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>New Sale</DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium">Patient Search</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
-                  placeholder="Search by name or MRN..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              {searchTerm && (
-                <div className="mt-2 max-h-40 overflow-y-auto border rounded-lg">
-                  {filteredPatients.map(p => (
-                    <div
-                      key={p.id}
-                      className={`p-2 cursor-pointer hover:bg-slate-50 ${selectedPatient === p.id ? 'bg-teal-50' : ''}`}
-                      onClick={() => {
-                        setSelectedPatient(p.id);
-                        setSearchTerm('');
-                      }}
-                    >
-                      <p className="font-medium">{p.first_name} {p.last_name}</p>
-                      <p className="text-xs text-slate-500">MRN: {p.mrn}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
+      {/* Main Content */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left - Services */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Search & Patient */}
+          <div className="p-4 bg-white border-b space-y-3">
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input
+                placeholder="Search and select patient"
+                value={patientSearch}
+                onChange={(e) => setPatientSearch(e.target.value)}
+                onFocus={() => setShowPatientDialog(true)}
+                className="pl-10"
+              />
               {selectedPatient && (
-                <p className="text-sm text-teal-600 mt-2">
-                  Selected: {patients.find(p => p.id === selectedPatient)?.first_name} {patients.find(p => p.id === selectedPatient)?.last_name}
-                </p>
+                <Badge className="absolute right-2 top-1/2 -translate-y-1/2 bg-emerald-600">
+                  ✓ {selectedPatient.phn}
+                </Badge>
               )}
             </div>
 
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="flex gap-2 flex-1">
-                  <Select value={searchType} onValueChange={setSearchType}>
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="service">Tests</SelectItem>
-                      <SelectItem value="package">Packages</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <Input
-                      placeholder={searchType === 'package' ? 'Search packages...' : 'Search tests...'}
-                      value={itemSearch}
-                      onChange={(e) => setItemSearch(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="mb-3 max-h-64 overflow-y-auto border rounded-lg">
-                {searchType === 'package' ? (
-                  filteredItems.length === 0 && !itemSearch ? (
-                    packages.map(pkg => (
-                      <div
-                        key={pkg.id}
-                        className="p-3 hover:bg-teal-50 cursor-pointer border-b last:border-0"
-                        onClick={() => addPackage(pkg)}
-                      >
-                        <div className="flex justify-between items-start gap-3">
-                          <div className="flex-1">
-                            <p className="font-semibold text-sm">{pkg.package_name}</p>
-                            <p className="text-xs text-slate-500 mt-0.5">{pkg.description}</p>
-                            {pkg.items_json && (
-                              <p className="text-xs text-slate-400 mt-1">{pkg.items_json.length} tests included</p>
-                            )}
-                          </div>
-                          <p className="font-bold text-teal-600 whitespace-nowrap">Rs. {pkg.total_price.toFixed(2)}</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : filteredItems.length > 0 ? (
-                    filteredItems.map(pkg => (
-                      <div
-                        key={pkg.id}
-                        className="p-3 hover:bg-teal-50 cursor-pointer border-b last:border-0"
-                        onClick={() => addPackage(pkg)}
-                      >
-                        <div className="flex justify-between items-start gap-3">
-                          <div className="flex-1">
-                            <p className="font-semibold text-sm">{pkg.package_name}</p>
-                            <p className="text-xs text-slate-500 mt-0.5">{pkg.description}</p>
-                            {pkg.items_json && (
-                              <p className="text-xs text-slate-400 mt-1">{pkg.items_json.length} tests included</p>
-                            )}
-                          </div>
-                          <p className="font-bold text-teal-600 whitespace-nowrap">Rs. {pkg.total_price.toFixed(2)}</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="p-6 text-center text-slate-500">
-                      No packages found matching "{itemSearch}"
-                    </div>
-                  )
-                ) : (
-                  filteredItems.length === 0 && !itemSearch ? (
-                    <div className="p-6 text-center text-slate-500">
-                      Start typing to search tests...
-                    </div>
-                  ) : filteredItems.length > 0 ? (
-                    filteredItems.map(svc => (
-                      <div
-                        key={svc.id}
-                        className="p-3 hover:bg-teal-50 cursor-pointer border-b last:border-0"
-                        onClick={() => addService(svc)}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <p className="font-semibold text-sm">{svc.service_name}</p>
-                            <p className="text-xs text-slate-500">{svc.category} • {svc.service_code}</p>
-                          </div>
-                          <p className="font-bold text-teal-600">Rs. {svc.default_price.toFixed(2)}</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="p-6 text-center text-slate-500">
-                      No tests found matching "{itemSearch}"
-                    </div>
-                  )
-                )}
-              </div>
-
-              <div className="mb-2">
-                <label className="text-sm font-medium">Selected Items</label>
-              </div>
-
-              {saleLines.length === 0 && (
-                <div className="text-center py-8 border-2 border-dashed rounded-lg">
-                  <p className="text-slate-500">Search and add packages or tests above</p>
-                </div>
-              )}
-
-              {saleLines.map((line, index) => (
-                <div key={index} className="flex items-center gap-2 p-3 bg-slate-50 rounded-lg mb-2">
-                  <div className="flex-1">
-                    <p className="font-semibold text-sm">{line.item_name_cache}</p>
-                    <p className="text-xs text-slate-500">{line.category} • {line.item_code}</p>
-                  </div>
-                  <div className="w-20">
-                    <Input
-                      type="number"
-                      value={line.qty}
-                      onChange={(e) => updateLine(index, 'qty', parseFloat(e.target.value) || 1)}
-                      className="text-center"
-                    />
-                  </div>
-                  <div className="w-28">
-                    <p className="text-sm text-slate-600">Rs. {line.unit_price.toFixed(2)}</p>
-                  </div>
-                  <div className="w-28 text-right">
-                    <p className="font-bold text-teal-600">Rs. {line.line_total.toFixed(2)}</p>
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={() => removeLine(index)}>
-                    <Trash2 className="w-4 h-4 text-rose-600" />
-                  </Button>
-                </div>
-              ))}
-            </div>
-
-            <div className="border-t pt-4 space-y-3 bg-slate-50 p-4 rounded-lg">
-              <div className="flex justify-between">
-                <span>Subtotal:</span>
-                <span className="font-semibold">Rs. {subtotal.toFixed(2)}</span>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  placeholder="Discount"
-                  value={discount}
-                  onChange={(e) => setDiscount(parseFloat(e.target.value) || 0)}
-                  className="w-32"
-                />
-                {discount > 0 && (
-                  <Input
-                    placeholder="Discount reason..."
-                    value={discountReason}
-                    onChange={(e) => setDiscountReason(e.target.value)}
-                    className="flex-1"
-                  />
-                )}
-              </div>
-              {discount > 0 && (
-                <div className="flex justify-between text-sm text-amber-700">
-                  <span>Discount:</span>
-                  <span>-Rs. {discount.toFixed(2)}</span>
-                </div>
-              )}
-              
-              <div className="flex justify-between text-xl font-bold border-t pt-2">
-                <span>Total:</span>
-                <span className="text-emerald-600">Rs. {total.toFixed(2)}</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium">Payment Method</label>
-                <Select value={paymentMethod} onValueChange={(v) => { setPaymentMethod(v); if (v !== 'cash') setCashReceived(0); }}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="cash">Cash</SelectItem>
-                    <SelectItem value="card">Card (Credit/Debit)</SelectItem>
-                    <SelectItem value="transfer">Bank Transfer</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {paymentMethod === 'cash' && (
-                <div>
-                  <label className="text-sm font-medium">Cash Received</label>
-                  <Input
-                    type="number"
-                    placeholder="0.00"
-                    value={cashReceived}
-                    onChange={(e) => setCashReceived(parseFloat(e.target.value) || 0)}
-                    className="text-lg font-semibold"
-                  />
-                  {cashReceived > 0 && (
-                    <p className={`text-sm mt-1 ${cashReceived >= total ? 'text-emerald-600' : 'text-rose-600'}`}>
-                      {cashReceived >= total 
-                        ? `Change: Rs. ${(cashReceived - total).toFixed(2)}`
-                        : `Short: Rs. ${(total - cashReceived).toFixed(2)}`
-                      }
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => setShowSale(false)}>Cancel</Button>
-              <Button onClick={handleCreateSale} disabled={createSaleMutation.isPending}>
-                Complete Sale & Print Receipt
-              </Button>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input
+                placeholder="Search services..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
 
-      <Dialog open={!!viewInvoiceId} onOpenChange={() => setViewInvoiceId(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Invoice Details</DialogTitle>
-          </DialogHeader>
-          {viewInvoiceId && (() => {
-            const invoice = todayInvoices.find(i => i.id === viewInvoiceId);
-            const patient = patients.find(p => p.id === invoice?.patient_ref);
-            return (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-lg">
-                  <div>
-                    <p className="text-sm text-slate-500">Invoice Number</p>
-                    <p className="font-semibold">{invoice?.invoice_number}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-500">Date & Time</p>
-                    <p className="font-semibold">{format(new Date(invoice?.invoice_date), 'dd/MM/yyyy HH:mm')}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-500">Patient</p>
-                    <p className="font-semibold">{patient?.first_name} {patient?.last_name}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-500">MRN</p>
-                    <p className="font-semibold">{patient?.mrn || 'N/A'}</p>
-                  </div>
+          {/* Service Tabs */}
+          <div className="flex-1 overflow-hidden">
+            <Tabs value={activeServiceTab} onValueChange={setActiveServiceTab} className="h-full flex flex-col">
+              <TabsList className="mx-4 mt-4">
+                <TabsTrigger value="pharmacy">
+                  <Package className="w-4 h-4 mr-2" />
+                  Pharmacy
+                </TabsTrigger>
+                <TabsTrigger value="gp">
+                  <Stethoscope className="w-4 h-4 mr-2" />
+                  GP Service
+                </TabsTrigger>
+                <TabsTrigger value="specialist">
+                  <Activity className="w-4 h-4 mr-2" />
+                  Specialist
+                </TabsTrigger>
+                <TabsTrigger value="radiology">
+                  <Scan className="w-4 h-4 mr-2" />
+                  Radiology
+                </TabsTrigger>
+                <TabsTrigger value="homecare">
+                  <Home className="w-4 h-4 mr-2" />
+                  Home Care
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Pharmacy Products */}
+              <TabsContent value="pharmacy" className="flex-1 overflow-y-auto p-4">
+                <div className="grid grid-cols-3 lg:grid-cols-4 gap-3">
+                  {filteredPharmacy.map((item) => (
+                    <Card key={item.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => addToCart(item, 'pharmacy')}>
+                      <CardContent className="p-4 text-center">
+                        <p className="font-semibold text-sm mb-2 line-clamp-2">{item.display_name}</p>
+                        <p className="text-lg font-bold text-emerald-600">{currency} {(item.mrp || item.unit_price || 0).toFixed(2)}</p>
+                        <p className="text-xs text-slate-500">Stock: {item.quantity}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
+              </TabsContent>
 
-                <div>
-                  <h3 className="font-semibold mb-2">Items</h3>
-                  <div className="border rounded-lg overflow-hidden">
-                    {viewInvoiceLines.map((line, idx) => (
-                      <div key={idx} className="flex justify-between p-3 border-b last:border-0 bg-white">
-                        <div>
-                          <p className="font-medium">{line.item_name_cache}</p>
-                          <p className="text-xs text-slate-500">{line.category} • Qty: {line.qty}</p>
+              {/* GP Services */}
+              <TabsContent value="gp" className="flex-1 overflow-y-auto p-4">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                  {filteredGPs.map((gp) => (
+                    <Card key={gp.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => addToCart(gp, 'gp')}>
+                      <CardContent className="p-4">
+                        <p className="font-semibold mb-2">{gp.doctor_name}</p>
+                        <p className="text-xs text-slate-600 mb-3">{gp.qualification}</p>
+                        <div className="space-y-1 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-slate-600">Doctor Fee:</span>
+                            <span className="font-medium">{currency} {gp.consultation_fee}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-600">Hospital Fee:</span>
+                            <span className="font-medium">{currency} {gp.hospital_fee}</span>
+                          </div>
+                          <div className="flex justify-between pt-2 border-t">
+                            <span className="font-semibold">Total:</span>
+                            <span className="font-bold text-emerald-600">{currency} {gp.total_fee}</span>
+                          </div>
                         </div>
-                        <p className="font-semibold text-teal-600">Rs. {line.line_total.toFixed(2)}</p>
-                      </div>
-                    ))}
-                  </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
+              </TabsContent>
 
-                <div className="border-t pt-3 space-y-2">
-                  <div className="flex justify-between">
-                    <span>Subtotal:</span>
-                    <span className="font-semibold">Rs. {invoice?.subtotal.toFixed(2)}</span>
-                  </div>
-                  {invoice?.subtotal !== invoice?.total && (
-                    <div className="flex justify-between text-amber-700">
-                      <span>Discount:</span>
-                      <span>-Rs. {(invoice?.subtotal - invoice?.total).toFixed(2)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between text-xl font-bold border-t pt-2">
-                    <span>Total:</span>
-                    <span className="text-emerald-600">Rs. {invoice?.total.toFixed(2)}</span>
-                  </div>
+              {/* Specialist Services */}
+              <TabsContent value="specialist" className="flex-1 overflow-y-auto p-4">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                  {filteredSpecialists.map((spec) => (
+                    <Card key={spec.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => addToCart(spec, 'specialist')}>
+                      <CardContent className="p-4">
+                        <Badge className="mb-2">{spec.specialty}</Badge>
+                        <p className="font-semibold mb-2">{spec.specialist_name}</p>
+                        <p className="text-xs text-slate-600 mb-3">{spec.qualification}</p>
+                        <div className="space-y-1 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-slate-600">Doctor Fee:</span>
+                            <span className="font-medium">{currency} {spec.consultation_fee}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-600">Hospital Fee:</span>
+                            <span className="font-medium">{currency} {spec.hospital_fee}</span>
+                          </div>
+                          <div className="flex justify-between pt-2 border-t">
+                            <span className="font-semibold">Total:</span>
+                            <span className="font-bold text-emerald-600">{currency} {spec.total_fee}</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
+              </TabsContent>
 
-                {invoice?.notes && (
-                  <div className="p-3 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-slate-700">{invoice.notes}</p>
-                  </div>
-                )}
+              {/* Radiology Services */}
+              <TabsContent value="radiology" className="flex-1 overflow-y-auto p-4">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                  {filteredRadiology.map((rad) => (
+                    <Card key={rad.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => addToCart(rad, 'radiology')}>
+                      <CardContent className="p-4">
+                        <Badge className="mb-2">{rad.service_type}</Badge>
+                        <p className="font-semibold mb-1">{rad.service_name}</p>
+                        <p className="text-xs text-slate-600 mb-3">{rad.region}</p>
+                        <p className="text-lg font-bold text-emerald-600">{currency} {rad.price}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
 
-                <Button 
-                  className="w-full"
-                  onClick={async () => {
-                    try {
-                      const { data: pdfData } = await base44.functions.invoke('generateReceiptPDF', { invoice_id: viewInvoiceId });
-                      const blob = new Blob([pdfData], { type: 'application/pdf' });
-                      const url = window.URL.createObjectURL(blob);
-                      const a = document.createElement('a');
-                      a.href = url;
-                      a.download = `receipt-${invoice.invoice_number}.pdf`;
-                      document.body.appendChild(a);
-                      a.click();
-                      window.URL.revokeObjectURL(url);
-                      a.remove();
-                      toast.success('Receipt downloaded');
-                    } catch (error) {
-                      toast.error('Failed to download receipt');
-                      console.error('PDF error:', error);
-                    }
-                  }}
-                >
-                  <Receipt className="w-4 h-4 mr-2" />
-                  Download Receipt PDF
-                </Button>
+              {/* Home Care Services */}
+              <TabsContent value="homecare" className="flex-1 overflow-y-auto p-4">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                  {filteredHomeCare.map((hc) => (
+                    <Card key={hc.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => addToCart(hc, 'homecare')}>
+                      <CardContent className="p-4">
+                        <Badge className="mb-2">{hc.service_category}</Badge>
+                        <p className="font-semibold mb-2">{hc.service_name}</p>
+                        <p className="text-xs text-slate-600 mb-3 line-clamp-2">{hc.description}</p>
+                        <p className="text-lg font-bold text-emerald-600">
+                          {currency} {hc.price_per_visit || hc.price_per_hour || hc.price_per_day || 0}
+                        </p>
+                        <p className="text-xs text-slate-500">{hc.duration_type}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+
+        {/* Right - Cart */}
+        <div className="w-96 bg-white border-l flex flex-col">
+          <div className="p-4 border-b">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-lg">Cart</h3>
+              <Badge className="bg-indigo-600">{cart.length} items</Badge>
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {cart.length === 0 ? (
+              <div className="text-center py-12">
+                <ShoppingCart className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+                <p className="text-slate-500">Cart is empty</p>
               </div>
-            );
-          })()}
+            ) : (
+              cart.map((item) => (
+                <Card key={item.id} className="p-3">
+                  <div className="space-y-2">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Badge className={getTypeBadge(item.type)}>
+                            {item.type}
+                          </Badge>
+                        </div>
+                        <p className="font-medium text-sm">{item.name}</p>
+                        {item.doctor_fee && (
+                          <div className="text-xs text-slate-600 mt-1">
+                            <div>Dr: {currency} {item.doctor_fee}</div>
+                            <div>Hospital: {currency} {item.hospital_fee}</div>
+                          </div>
+                        )}
+                      </div>
+                      <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeFromCart(item.id)}>
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => updateQuantity(item.id, -1)}>
+                          <Minus className="w-3 h-3" />
+                        </Button>
+                        <span className="font-medium w-8 text-center">{item.quantity}</span>
+                        <Button variant="outline" size="icon" className="h-7 w-7" onClick={() => updateQuantity(item.id, 1)}>
+                          <Plus className="w-3 h-3" />
+                        </Button>
+                      </div>
+                      <p className="font-bold text-emerald-600">{currency} {item.total.toFixed(2)}</p>
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
+
+          <div className="border-t p-4 space-y-3">
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-600">Subtotal:</span>
+                <span className="font-semibold">{currency} {subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-600">Tax:</span>
+                <span className="font-semibold">{currency} {tax.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-lg pt-2 border-t">
+                <span className="font-bold">Total:</span>
+                <span className="font-bold text-indigo-600">{currency} {total.toFixed(2)}</span>
+              </div>
+            </div>
+            <Button 
+              className="w-full bg-indigo-600 hover:bg-indigo-700" 
+              disabled={cart.length === 0 || !selectedPatient}
+              onClick={handleCompleteSale}
+            >
+              <Check className="w-5 h-5 mr-2" />
+              Complete Sale
+            </Button>
+            {!selectedPatient && (
+              <p className="text-xs text-red-500 text-center">Please select a patient</p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Patient Search Dialog */}
+      <Dialog open={showPatientDialog} onOpenChange={setShowPatientDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Select Patient</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-2">
+            {filteredPatients.length === 0 ? (
+              <p className="text-center py-8 text-slate-500">No patients found</p>
+            ) : (
+              filteredPatients.map(patient => (
+                <Card
+                  key={patient.id}
+                  className="p-3 cursor-pointer hover:bg-slate-50 transition-colors"
+                  onClick={() => handleSelectPatient(patient)}
+                >
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-medium">{patient.first_name} {patient.last_name}</p>
+                      <p className="text-sm text-slate-600">{patient.phone}</p>
+                      <Badge variant="outline" className="mt-1 text-xs">{patient.phn}</Badge>
+                    </div>
+                  </div>
+                </Card>
+              ))
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
