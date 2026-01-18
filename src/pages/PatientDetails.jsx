@@ -21,7 +21,12 @@ import {
   FileText,
   Clock,
   Trash2,
-  Lock
+  Lock,
+  CreditCard,
+  Home,
+  Stethoscope,
+  ShoppingBag,
+  IdCard
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
@@ -30,6 +35,7 @@ import PatientTasksTab from '../components/patient/PatientTasksTab';
 import PatientSOAPTab from '../components/patient/PatientSOAPTab';
 import PatientReferralsTab from '../components/patient/PatientReferralsTab';
 import PatientLabsTab from '../components/patient/PatientLabsTab';
+import PHNCard from '@/components/patients/PHNCard';
 import { usePatientAccess, logPatientProfileView } from '../components/rbac/PatientAccessControl';
 import {
   AlertDialog,
@@ -56,6 +62,15 @@ export default function PatientDetails() {
 
   const [formOpen, setFormOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [showPHNCard, setShowPHNCard] = useState(false);
+
+  const { data: branding } = useQuery({
+    queryKey: ['organizationBranding'],
+    queryFn: async () => {
+      const brandings = await base44.entities.OrganizationBranding.list();
+      return brandings[0];
+    },
+  });
 
   const access = usePatientAccess();
 
@@ -169,26 +184,45 @@ export default function PatientDetails() {
           <ArrowLeft className="w-4 h-4" />
           Back to Patients
         </Button>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
+          <Button 
+            variant="outline"
+            onClick={() => setShowPHNCard(true)}
+          >
+            <CreditCard className="w-4 h-4 mr-2" />
+            PHN Card
+          </Button>
           <Button 
             variant="outline"
             onClick={() => navigate(`${createPageUrl('EMR')}?patient=${patientId}`)}
-            className="bg-teal-600 hover:bg-teal-700 text-white"
           >
-            <FileText className="w-4 h-4 mr-2" />
-            Open EMR
+            <Stethoscope className="w-4 h-4 mr-2" />
+            EMR
+          </Button>
+          <Button 
+            variant="outline"
+            onClick={() => navigate(`${createPageUrl('PharmacyBilling')}`)}
+          >
+            <ShoppingBag className="w-4 h-4 mr-2" />
+            Pharmacy
+          </Button>
+          <Button 
+            variant="outline"
+            onClick={() => navigate(`${createPageUrl('HomeCarePatients')}`)}
+          >
+            <Home className="w-4 h-4 mr-2" />
+            Home Care
+          </Button>
+          <Button onClick={() => setFormOpen(true)} className="bg-teal-600 hover:bg-teal-700">
+            <Edit className="w-4 h-4 mr-2" />
+            Edit
           </Button>
           <Button 
             variant="outline" 
             onClick={() => setDeleteOpen(true)}
             className="text-rose-600 hover:text-rose-700 hover:bg-rose-50"
           >
-            <Trash2 className="w-4 h-4 mr-2" />
-            Delete
-          </Button>
-          <Button onClick={() => setFormOpen(true)} className="bg-teal-600 hover:bg-teal-700">
-            <Edit className="w-4 h-4 mr-2" />
-            Edit Patient
+            <Trash2 className="w-4 h-4" />
           </Button>
         </div>
       </div>
@@ -219,6 +253,12 @@ export default function PatientDetails() {
                 </Badge>
               </div>
               <div className="flex items-center gap-4 text-slate-500 mt-1 flex-wrap">
+                {patient.phn && (
+                  <Badge className="bg-indigo-600 text-white">
+                    <IdCard className="w-3 h-3 mr-1" />
+                    PHN: {patient.phn}
+                  </Badge>
+                )}
                 {age && <span>{age} years old</span>}
                 {patient.gender && <span className="capitalize">{patient.gender}</span>}
                 {patient.blood_type && patient.blood_type !== 'unknown' && (
@@ -269,6 +309,28 @@ export default function PatientDetails() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
+                {patient.phn && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center">
+                      <IdCard className="w-5 h-5 text-indigo-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-500">Patient Health Number</p>
+                      <p className="font-semibold text-indigo-600">{patient.phn}</p>
+                    </div>
+                  </div>
+                )}
+                {patient.nic && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+                      <CreditCard className="w-5 h-5 text-slate-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-slate-500">NIC Number</p>
+                      <p className="font-medium">{patient.nic}</p>
+                    </div>
+                  </div>
+                )}
                 {patient.email && (
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
@@ -494,6 +556,14 @@ export default function PatientDetails() {
         patient={patient}
         onSubmit={(data) => updateMutation.mutate(data)}
         isLoading={updateMutation.isPending}
+      />
+
+      {/* PHN Card Dialog */}
+      <PHNCard 
+        open={showPHNCard}
+        onOpenChange={setShowPHNCard}
+        patient={patient}
+        branding={branding}
       />
 
       {/* Delete Confirmation */}
