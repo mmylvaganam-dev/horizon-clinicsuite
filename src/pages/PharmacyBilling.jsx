@@ -21,7 +21,10 @@ import {
   UserPlus,
   Upload,
   Camera,
-  FileText
+  FileText,
+  Printer,
+  Mail,
+  MessageSquare
 } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -42,6 +45,8 @@ export default function PharmacyBilling() {
   const [prescriptionFile, setPrescriptionFile] = useState(null);
   const [prescriptionUrl, setPrescriptionUrl] = useState(null);
   const [uploadingPrescription, setUploadingPrescription] = useState(false);
+  const [showInvoiceDialog, setShowInvoiceDialog] = useState(false);
+  const [completedSale, setCompletedSale] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [activeTab, setActiveTab] = useState('name');
 
@@ -233,16 +238,129 @@ export default function PharmacyBilling() {
     }
   };
 
+  const sendInvoiceMutation = useMutation({
+    mutationFn: (data) => base44.functions.invoke('sendInvoice', data),
+    onSuccess: () => {
+      toast.success('Invoice sent successfully');
+    },
+    onError: () => {
+      toast.error('Failed to send invoice');
+    }
+  });
+
   const handleCompleteSale = () => {
     if (cart.length === 0) {
       toast.error('Cart is empty');
       return;
     }
     
-    // Here you would create the sale with prescription_url if available
-    toast.success('Sale completed successfully');
+    const receiptNumber = `RX${Date.now().toString().slice(-8)}`;
+    const customerName = selectedPatient 
+      ? `${selectedPatient.first_name} ${selectedPatient.last_name}`
+      : selectedWalkIn?.name || 'Walk-in Customer';
     
-    // Reset
+    const saleData = {
+      receipt_number: receiptNumber,
+      customer_name: customerName,
+      currency,
+      items: cart,
+      subtotal,
+      discount_amount: discountAmount,
+      tax,
+      total,
+      customer_email: selectedPatient?.email || selectedWalkIn?.email,
+      customer_phone: selectedPatient?.mobile || selectedWalkIn?.phone
+    };
+    
+    setCompletedSale(saleData);
+    setShowInvoiceDialog(true);
+    toast.success('Sale completed successfully');
+  };
+
+  const handlePrintInvoice = () => {
+    if (!completedSale) return;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Invoice ${completedSale.receipt_number}</title>
+          <style>
+            body { font-family: monospace; padding: 20px; }
+            h2 { text-align: center; }
+            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+            th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
+            .total { font-weight: bold; font-size: 1.2em; }
+          </style>
+        </head>
+        <body>
+          <h2>PHARMACY INVOICE</h2>
+          <p><strong>Receipt:</strong> ${completedSale.receipt_number}</p>
+          <p><strong>Customer:</strong> ${completedSale.customer_name}</p>
+          <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Price</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${completedSale.items.map(item => `
+                <tr>
+                  <td>${item.display_name}</td>
+                  <td>${item.quantity}</td>
+                  <td>${completedSale.currency} ${item.unit_price.toFixed(2)}</td>
+                  <td>${completedSale.currency} ${item.total.toFixed(2)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <p><strong>Subtotal:</strong> ${completedSale.currency} ${completedSale.subtotal.toFixed(2)}</p>
+          ${completedSale.discount_amount > 0 ? `<p><strong>Discount:</strong> -${completedSale.currency} ${completedSale.discount_amount.toFixed(2)}</p>` : ''}
+          <p><strong>Tax:</strong> ${completedSale.currency} ${completedSale.tax.toFixed(2)}</p>
+          <p class="total"><strong>TOTAL:</strong> ${completedSale.currency} ${completedSale.total.toFixed(2)}</p>
+          <p style="text-align: center; margin-top: 40px;">Thank you for your purchase!</p>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
+  const handleEmailInvoice = () => {
+    if (!completedSale?.customer_email) {
+      toast.error('No email address available');
+      return;
+    }
+    
+    sendInvoiceMutation.mutate({
+      method: 'email',
+      recipient: completedSale.customer_email,
+      sale_data: completedSale
+    });
+  };
+
+  const handleSMSInvoice = () => {
+    if (!completedSale?.customer_phone) {
+      toast.error('No phone number available');
+      return;
+    }
+    
+    sendInvoiceMutation.mutate({
+      method: 'sms',
+      recipient: completedSale.customer_phone,
+      sale_data: completedSale
+    });
+  };
+
+  const handleCloseInvoiceDialog = () => {
+    setShowInvoiceDialog(false);
+    setCompletedSale(null);
+    
+    // Reset cart and selections
     setCart([]);
     setSelectedPatient(null);
     setSelectedWalkIn(null);
@@ -707,6 +825,68 @@ export default function PharmacyBilling() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Invoice Options Dialog */}
+      <Dialog open={showInvoiceDialog} onOpenChange={setShowInvoiceDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Invoice Ready</DialogTitle>
+          </DialogHeader>
+          
+          {completedSale && (
+            <div className="space-y-4">
+              <div className="bg-slate-50 p-4 rounded-lg">
+                <p className="text-sm text-slate-600">Receipt #{completedSale.receipt_number}</p>
+                <p className="font-semibold">{completedSale.customer_name}</p>
+                <p className="text-2xl font-bold text-indigo-600 mt-2">
+                  {completedSale.currency} {completedSale.total.toFixed(2)}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Button 
+                  className="w-full justify-start" 
+                  variant="outline"
+                  onClick={handlePrintInvoice}
+                >
+                  <Printer className="w-4 h-4 mr-2" />
+                  Print Invoice
+                </Button>
+                
+                {completedSale.customer_email && (
+                  <Button 
+                    className="w-full justify-start" 
+                    variant="outline"
+                    onClick={handleEmailInvoice}
+                    disabled={sendInvoiceMutation.isPending}
+                  >
+                    <Mail className="w-4 h-4 mr-2" />
+                    Email to {completedSale.customer_email}
+                  </Button>
+                )}
+                
+                {completedSale.customer_phone && (
+                  <Button 
+                    className="w-full justify-start" 
+                    variant="outline"
+                    onClick={handleSMSInvoice}
+                    disabled={sendInvoiceMutation.isPending}
+                  >
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    SMS to {completedSale.customer_phone}
+                  </Button>
+                )}
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <Button onClick={handleCloseInvoiceDialog}>
+                  Done
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
