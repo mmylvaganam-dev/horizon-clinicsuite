@@ -85,18 +85,32 @@ export default function PharmacyBilling() {
 
   const currency = companies[0]?.base_currency || 'LKR';
   const [billDiscountPercent, setBillDiscountPercent] = useState(0);
+  
+  // Set default category
+  React.useEffect(() => {
+    if (selectedCategory === 'all') {
+      setSelectedCategory('All');
+    }
+  }, []);
 
   // Product categories
   const categories = [
-    '1-ACNE PRO TAX',
-    'Antiseptic',
-    'BASIC DRUG Tabs',
-    'Common OTC tabs',
-    'COVID tabs',
-    'Digestive enzyme for injection (10ml)',
-    'UNIAX Ampo',
-    'Disposable syringe (10ml)',
-    'Propedolic syringe (10ml)'
+    'All',
+    'Antibiotics',
+    'Pain & Fever (NSAIDs)',
+    'Blood Pressure',
+    'Diabetes',
+    'Heart & Cholesterol',
+    'Vitamins & Supplements',
+    'Gastro & Digestion',
+    'Respiratory & Asthma',
+    'Antiseptic & Wound Care',
+    'Skin & Dermatology',
+    'Eye & Ear Drops',
+    'Injections & IV',
+    'Surgical Items',
+    'Baby Care',
+    'OTC & Common Drugs'
   ];
 
   // Stats (mock data based on image)
@@ -114,7 +128,12 @@ export default function PharmacyBilling() {
       item.display_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.barcode?.toLowerCase().includes(searchQuery.toLowerCase());
     
-    return matchesSearch && item.quality_status === 'usable';
+    const matchesCategory = selectedCategory === 'All' || selectedCategory === 'all' ||
+      item.service_category?.toLowerCase().includes(selectedCategory.toLowerCase()) ||
+      item.class_of_medicine?.toLowerCase().includes(selectedCategory.toLowerCase()) ||
+      item.display_name?.toLowerCase().includes(selectedCategory.toLowerCase());
+    
+    return matchesSearch && matchesCategory && item.quality_status === 'usable';
   });
 
   // Get frequently used items based on actual usage
