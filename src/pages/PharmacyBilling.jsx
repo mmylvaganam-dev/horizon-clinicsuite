@@ -75,7 +75,16 @@ export default function PharmacyBilling() {
     queryFn: () => base44.entities.PharmacyWalkInPatient.list('-last_visit_date'),
   });
 
+  const { data: branding } = useQuery({
+    queryKey: ['organizationBranding'],
+    queryFn: async () => {
+      const brandings = await base44.entities.OrganizationBranding.list();
+      return brandings[0];
+    },
+  });
+
   const currency = companies[0]?.base_currency || 'LKR';
+  const [billDiscountPercent, setBillDiscountPercent] = useState(0);
 
   // Product categories
   const categories = [
@@ -133,13 +142,18 @@ export default function PharmacyBilling() {
           : c
       ));
     } else {
+      const mrp = item.mrp || item.unit_price || 0;
+      const cost = item.unit_cost || 0;
       setCart([...cart, {
         stock_id: item.id,
         display_name: item.display_name,
         barcode: item.barcode,
         quantity: 1,
-        unit_price: item.mrp || item.unit_price || 0,
-        total: item.mrp || item.unit_price || 0
+        unit_price: mrp,
+        mrp: mrp,
+        unit_cost: cost,
+        discount_percent: 0,
+        total: mrp
       }]);
       
       // Update usage stats when item is added to cart
@@ -152,7 +166,23 @@ export default function PharmacyBilling() {
     setCart(cart.map(item => {
       if (item.stock_id === stockId) {
         const newQty = Math.max(1, item.quantity + change);
-        return {...item, quantity: newQty, total: newQty * item.unit_price};
+        const profitMargin = item.mrp - item.unit_cost;
+        const discountFromProfit = (profitMargin * item.discount_percent) / 100;
+        const finalPrice = item.mrp - discountFromProfit;
+        return {...item, quantity: newQty, unit_price: finalPrice, total: newQty * finalPrice};
+      }
+      return item;
+    }));
+  };
+
+  const updateItemDiscount = (stockId, discountPercent) => {
+    const percent = Math.max(0, Math.min(15, discountPercent));
+    setCart(cart.map(item => {
+      if (item.stock_id === stockId) {
+        const profitMargin = item.mrp - item.unit_cost;
+        const discountFromProfit = (profitMargin * percent) / 100;
+        const finalPrice = item.mrp - discountFromProfit;
+        return {...item, discount_percent: percent, unit_price: finalPrice, total: item.quantity * finalPrice};
       }
       return item;
     }));
@@ -173,14 +203,24 @@ export default function PharmacyBilling() {
   });
 
   const subtotal = cart.reduce((sum, item) => sum + item.total, 0);
+  const totalMRP = cart.reduce((sum, item) => sum + (item.mrp * item.quantity), 0);
   
-  // Apply discount if walk-in patient with discount is selected
-  const discountPercentage = selectedWalkIn?.discount_percentage || 0;
-  const discountAmount = (subtotal * discountPercentage) / 100;
-  const afterDiscount = subtotal - discountAmount;
+  // Calculate bill-level discount from profit margin
+  const totalProfit = cart.reduce((sum, item) => sum + ((item.mrp - item.unit_cost) * item.quantity), 0);
+  const billDiscountAmount = (totalProfit * billDiscountPercent) / 100;
+  
+  // Apply walk-in customer discount or bill discount (not both)
+  const walkInDiscountPercent = selectedWalkIn?.discount_percentage || 0;
+  const walkInDiscountAmount = (subtotal * walkInDiscountPercent) / 100;
+  
+  const finalDiscountAmount = walkInDiscountPercent > 0 ? walkInDiscountAmount : billDiscountAmount;
+  const afterDiscount = subtotal - finalDiscountAmount;
   
   const tax = 0; // Can be configured
   const total = afterDiscount + tax;
+  
+  // Calculate total savings (from MRP)
+  const totalSavings = totalMRP - total;
 
   // Filter patients
   const filteredPatients = patients.filter(p => {
@@ -280,7 +320,8 @@ export default function PharmacyBilling() {
       currency,
       items: cart,
       subtotal,
-      discount_amount: discountAmount,
+      discount_amount: finalDiscountAmount,
+      total_savings: totalSavings,
       tax,
       total,
       customer_email: selectedPatient?.email || selectedWalkIn?.email,
@@ -364,6 +405,14 @@ export default function PharmacyBilling() {
             <p><strong>Tax:</strong> ${completedSale.currency} ${completedSale.tax.toFixed(2)}</p>
             <p class="grand-total">TOTAL: ${completedSale.currency} ${completedSale.total.toFixed(2)}</p>
           </div>
+          
+          ${completedSale.total_savings > 0 ? `
+          <div style="background: #d1fae5; border: 2px solid #10b981; border-radius: 8px; padding: 15px; margin: 20px 0; text-align: center;">
+            <p style="color: #065f46; font-weight: bold; font-size: 16px; margin: 0;">
+              🎉 Congratulations! You Saved ${completedSale.currency} ${completedSale.total_savings.toFixed(2)} from MRP!
+            </p>
+          </div>
+          ` : ''}
           
           <div class="footer">
             <p>Thank you for your purchase!</p>
@@ -627,6 +676,22 @@ export default function PharmacyBilling() {
                         <X className="w-4 h-4" />
                       </Button>
                     </div>
+                    
+                    {/* Item Discount */}
+                    <div className="flex items-center gap-2">
+                      <Label className="text-xs text-slate-600">Discount %:</Label>
+                      <Input
+                        type="number"
+                        value={item.discount_percent}
+                        onChange={(e) => updateItemDiscount(item.stock_id, parseFloat(e.target.value) || 0)}
+                        className="h-7 w-16 text-xs"
+                        min="0"
+                        max="15"
+                        step="1"
+                      />
+                      <span className="text-xs text-slate-500">(max 15%)</span>
+                    </div>
+
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Button
@@ -647,7 +712,12 @@ export default function PharmacyBilling() {
                           <Plus className="w-3 h-3" />
                         </Button>
                       </div>
-                      <p className="font-bold text-emerald-600">{currency} {item.total.toFixed(2)}</p>
+                      <div className="text-right">
+                        {item.discount_percent > 0 && (
+                          <p className="text-xs text-slate-500 line-through">{currency} {(item.mrp * item.quantity).toFixed(2)}</p>
+                        )}
+                        <p className="font-bold text-emerald-600">{currency} {item.total.toFixed(2)}</p>
+                      </div>
                     </div>
                   </div>
                 </Card>
@@ -724,14 +794,33 @@ export default function PharmacyBilling() {
             )}
 
             <div className="space-y-2">
+              {/* Bill Discount */}
+              {cart.length > 0 && !selectedWalkIn && (
+                <div className="flex items-center gap-2 pb-2 border-b">
+                  <Label className="text-xs text-slate-600">Bill Discount %:</Label>
+                  <Input
+                    type="number"
+                    value={billDiscountPercent}
+                    onChange={(e) => setBillDiscountPercent(Math.max(0, Math.min(15, parseFloat(e.target.value) || 0)))}
+                    className="h-7 w-16 text-xs"
+                    min="0"
+                    max="15"
+                    step="1"
+                  />
+                  <span className="text-xs text-slate-500">(max 15%)</span>
+                </div>
+              )}
+
               <div className="flex justify-between text-sm">
                 <span className="text-slate-600">Subtotal:</span>
                 <span className="font-semibold">{currency} {subtotal.toFixed(2)}</span>
               </div>
-              {discountPercentage > 0 && (
+              {finalDiscountAmount > 0 && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-emerald-600">Discount ({discountPercentage}%):</span>
-                  <span className="font-semibold text-emerald-600">- {currency} {discountAmount.toFixed(2)}</span>
+                  <span className="text-emerald-600">
+                    Discount {walkInDiscountPercent > 0 ? `(${walkInDiscountPercent}%)` : `(${billDiscountPercent}% from profit)`}:
+                  </span>
+                  <span className="font-semibold text-emerald-600">- {currency} {finalDiscountAmount.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between text-sm">
@@ -742,6 +831,13 @@ export default function PharmacyBilling() {
                 <span className="font-bold">Total:</span>
                 <span className="font-bold text-indigo-600">{currency} {total.toFixed(2)}</span>
               </div>
+              {totalSavings > 0 && (
+                <div className="bg-emerald-50 border border-emerald-200 rounded p-2">
+                  <p className="text-sm text-emerald-700 font-semibold text-center">
+                    💰 You Save: {currency} {totalSavings.toFixed(2)} from MRP!
+                  </p>
+                </div>
+              )}
             </div>
             <Button 
               className="w-full bg-indigo-600 hover:bg-indigo-700" 
