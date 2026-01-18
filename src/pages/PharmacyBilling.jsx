@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useLocation } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,6 +34,7 @@ import { Label } from '@/components/ui/label';
 
 export default function PharmacyBilling() {
   const queryClient = useQueryClient();
+  const location = useLocation();
   const [sessionDate, setSessionDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [cart, setCart] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -49,6 +51,42 @@ export default function PharmacyBilling() {
   const [completedSale, setCompletedSale] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [activeTab, setActiveTab] = useState('name');
+
+  // Handle prescription from work queue
+  useEffect(() => {
+    if (location.state?.prescription && location.state?.patient) {
+      const { prescription, patient } = location.state;
+      
+      // Set patient
+      setSelectedPatient(patient);
+      setPatientSearch(`${patient.first_name} ${patient.last_name}`);
+      
+      // Find matching stock and add to cart
+      const matchingStock = pharmacyStock.find(item => 
+        item.display_name.toLowerCase().includes(prescription.drug_name.toLowerCase())
+      );
+      
+      if (matchingStock) {
+        const mrp = matchingStock.mrp || matchingStock.unit_price || 0;
+        const cost = matchingStock.unit_cost || 0;
+        setCart([{
+          stock_id: matchingStock.id,
+          display_name: matchingStock.display_name,
+          barcode: matchingStock.barcode,
+          quantity: prescription.quantity || 1,
+          unit_price: mrp,
+          mrp: mrp,
+          unit_cost: cost,
+          discount_percent: 0,
+          total: mrp * (prescription.quantity || 1)
+        }]);
+        toast.success(`Added ${prescription.drug_name} to cart`);
+      } else {
+        setSearchQuery(prescription.drug_name);
+        toast.info(`Search for: ${prescription.drug_name}`);
+      }
+    }
+  }, [location.state, pharmacyStock]);
 
   const { data: pharmacyStock = [] } = useQuery({
     queryKey: ['pharmacyStock'],

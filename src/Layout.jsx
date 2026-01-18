@@ -63,6 +63,7 @@ export default function Layout({ children, currentPageName }) {
       icon: ShoppingBag,
       items: [
         { name: 'Dashboard', page: 'PharmacyDashboard', icon: Activity },
+        { name: 'Work Queue', page: 'PharmacyWorkQueue', icon: CheckSquare },
         { name: 'Point of Sale', page: 'PharmacyBilling', icon: ShoppingBag },
         { name: 'Inventory', page: 'PharmacyInventory', icon: Package },
         { name: 'Barcode Setup', page: 'BarcodeSetup', icon: Activity },
