@@ -174,6 +174,13 @@ export default function Layout({ children, currentPageName }) {
         { name: 'Admin', page: 'Admin', icon: Settings },
       ]
     },
+    {
+      category: 'Platform Owner',
+      icon: Building2,
+      items: [
+        { name: 'Platform Billing', page: 'PlatformBilling', icon: DollarSign },
+      ]
+    },
   ];
 
   const handleLogout = () => {
