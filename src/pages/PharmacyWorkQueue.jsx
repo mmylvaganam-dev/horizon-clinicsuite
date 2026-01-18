@@ -102,10 +102,10 @@ export default function PharmacyWorkQueue() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pharmacy Work Queue</h1>
-          <p className="text-slate-500 mt-1">Manage prescriptions and prepare orders</p>
+          <p className="text-slate-500 mt-1">Review and verify doctor prescriptions before dispensing</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2">
@@ -114,6 +114,26 @@ export default function PharmacyWorkQueue() {
           </div>
         </div>
       </div>
+
+      {/* What is Pharmacy Work Queue - Info Card */}
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 mb-6">
+        <CardContent className="p-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <h3 className="font-semibold text-blue-900 mb-2">What is This?</h3>
+              <p className="text-sm text-blue-800">The Pharmacy Work Queue is where all new prescriptions from doctors arrive. You review each prescription to verify it's correct, safe, and ready to dispense to patients.</p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-blue-900 mb-2">Why It's Important</h3>
+              <p className="text-sm text-blue-800">This verification step ensures patient safety by catching any errors or potential issues before medications are dispensed. Every prescription must be verified before a patient can receive their medicine.</p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-blue-900 mb-2">Your Workflow</h3>
+              <p className="text-sm text-blue-800"><strong>1. Review</strong> new prescriptions • <strong>2. Verify</strong> they're correct • <strong>3. Send to POS</strong> for billing and dispensing</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-4 gap-4">
@@ -265,19 +285,25 @@ export default function PharmacyWorkQueue() {
                       </div>
 
                       <div className="flex flex-col gap-2 ml-4">
-                        <Button
-                          onClick={() => handleVerify(prescription)}
-                          className="bg-blue-600 hover:bg-blue-700"
-                        >
-                          <CheckCircle2 className="w-4 h-4 mr-2" />
-                          Verify
-                        </Button>
+                        <div>
+                          <Button
+                            onClick={() => handleVerify(prescription)}
+                            className="bg-blue-600 hover:bg-blue-700 w-full"
+                            title="Confirm this prescription is correct and ready to dispense"
+                          >
+                            <CheckCircle2 className="w-4 h-4 mr-2" />
+                            Verify
+                          </Button>
+                          <p className="text-xs text-slate-500 mt-1 text-center">Check & approve</p>
+                        </div>
                         <Button
                           variant="outline"
+                          size="sm"
                           onClick={() => {
                             setSelectedPrescription(prescription);
                             setShowDetailsDialog(true);
                           }}
+                          title="View full prescription details"
                         >
                           View Details
                         </Button>
@@ -333,13 +359,17 @@ export default function PharmacyWorkQueue() {
                         </div>
                       </div>
 
-                      <Button
-                        onClick={() => handlePrepareForBilling(prescription)}
-                        className="bg-emerald-600 hover:bg-emerald-700"
-                      >
-                        Proceed to POS
-                        <ArrowRight className="w-4 h-4 ml-2" />
-                      </Button>
+                      <div>
+                        <Button
+                          onClick={() => handlePrepareForBilling(prescription)}
+                          className="bg-emerald-600 hover:bg-emerald-700"
+                          title="Send to Point of Sale for billing and dispensing"
+                        >
+                          Proceed to POS
+                          <ArrowRight className="w-4 h-4 ml-2" />
+                        </Button>
+                        <p className="text-xs text-slate-500 mt-1 text-center">Bill & dispense</p>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
