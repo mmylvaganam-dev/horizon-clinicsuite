@@ -88,17 +88,15 @@ export default function AIDocumentAnalyzer({ onAnalysisComplete }) {
           </Select>
         </div>
 
-        {analysisType === 'custom' && (
-          <div>
-            <label className="block text-sm font-medium mb-2">Custom Instructions</label>
-            <Textarea
-              value={customPrompt}
-              onChange={(e) => setCustomPrompt(e.target.value)}
-              placeholder="What should the AI look for in this document?"
-              rows={3}
-            />
-          </div>
-        )}
+        <div style={{ display: analysisType === 'custom' ? 'block' : 'none' }}>
+          <label className="block text-sm font-medium mb-2">Custom Instructions</label>
+          <Textarea
+            value={customPrompt}
+            onChange={(e) => setCustomPrompt(e.target.value)}
+            placeholder="What should the AI look for in this document?"
+            rows={3}
+          />
+        </div>
 
         <Button
           onClick={handleAnalyze}
