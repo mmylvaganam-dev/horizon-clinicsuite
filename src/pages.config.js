@@ -83,6 +83,7 @@ import OrganizationUserManagement from './pages/OrganizationUserManagement';
 import OwnerWorkspace from './pages/OwnerWorkspace';
 import PartnerManagement from './pages/PartnerManagement';
 import PatientDetails from './pages/PatientDetails';
+import PatientHub from './pages/PatientHub';
 import PatientPortal from './pages/PatientPortal';
 import Patients from './pages/Patients';
 import PayrollManagement from './pages/PayrollManagement';
@@ -96,6 +97,7 @@ import PharmacyProductImport from './pages/PharmacyProductImport';
 import PharmacyRequests from './pages/PharmacyRequests';
 import PharmacyStockImport from './pages/PharmacyStockImport';
 import PharmacyStockTaking from './pages/PharmacyStockTaking';
+import PharmacyWorkQueue from './pages/PharmacyWorkQueue';
 import PharmacyWorkspace from './pages/PharmacyWorkspace';
 import PhysicianWorkspace from './pages/PhysicianWorkspace';
 import PlatformBilling from './pages/PlatformBilling';
@@ -116,8 +118,6 @@ import TaskManagement from './pages/TaskManagement';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import PharmacyWorkQueue from './pages/PharmacyWorkQueue';
-import PatientHub from './pages/PatientHub';
 import __Layout from './Layout.jsx';
 
 
@@ -207,6 +207,7 @@ export const PAGES = {
     "OwnerWorkspace": OwnerWorkspace,
     "PartnerManagement": PartnerManagement,
     "PatientDetails": PatientDetails,
+    "PatientHub": PatientHub,
     "PatientPortal": PatientPortal,
     "Patients": Patients,
     "PayrollManagement": PayrollManagement,
@@ -220,6 +221,7 @@ export const PAGES = {
     "PharmacyRequests": PharmacyRequests,
     "PharmacyStockImport": PharmacyStockImport,
     "PharmacyStockTaking": PharmacyStockTaking,
+    "PharmacyWorkQueue": PharmacyWorkQueue,
     "PharmacyWorkspace": PharmacyWorkspace,
     "PhysicianWorkspace": PhysicianWorkspace,
     "PlatformBilling": PlatformBilling,
@@ -240,8 +242,6 @@ export const PAGES = {
     "ThirdPartyProviders": ThirdPartyProviders,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "PharmacyWorkQueue": PharmacyWorkQueue,
-    "PatientHub": PatientHub,
 }
 
 export const pagesConfig = {

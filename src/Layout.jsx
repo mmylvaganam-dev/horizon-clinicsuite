@@ -49,13 +49,6 @@ export default function Layout({ children, currentPageName }) {
       icon: ShoppingBag,
       items: [
         { name: 'New Sale', page: 'SalesWorkspace', icon: ShoppingBag, description: 'Process new sales - Pharmacy, GP, Specialist, Radiology, and Home Care services all in one place' },
-      ]
-    },
-    {
-      category: 'Dashboards',
-      icon: LayoutDashboard,
-      items: [
-        { name: 'Home', page: 'Home', icon: LayoutDashboard, description: 'Main dashboard - Overview of sales, patients, and key metrics' },
         { name: 'Patient Hub', page: 'PatientHub', icon: Users, description: 'Central patient management - Search patients, view profiles, access EMR, Pharmacy, and Home Care services' },
       ]
     },
@@ -63,6 +56,7 @@ export default function Layout({ children, currentPageName }) {
       category: 'Operations',
       icon: Activity,
       items: [
+        { name: 'Home', page: 'Home', icon: LayoutDashboard, description: 'Main dashboard - Overview of sales, patients, and key metrics' },
         { name: 'Daily Operations', page: 'DailyOps', icon: Activity, description: 'Daily operations center - Track real-time patient flow, staff activities, and operational metrics' },
         { name: 'Provider Dashboard', page: 'ProviderDashboard', icon: Activity, description: 'For doctors and providers - View your appointments, patient queue, and clinical tasks' },
       ]
@@ -231,7 +225,7 @@ export default function Layout({ children, currentPageName }) {
 
           {/* Navigation */}
           <nav className="flex-1 p-4 overflow-y-auto">
-            <Accordion type="multiple" defaultValue={['Main', 'Dashboards', 'Pharmacy']} className="space-y-1">
+            <Accordion type="multiple" defaultValue={['Main', 'Pharmacy']} className="space-y-1">
               {navigationGroups.map((group) => (
                 <AccordionItem key={group.category} value={group.category} className="border-none">
                   <AccordionTrigger className="px-4 py-2 hover:no-underline hover:bg-slate-700/50 rounded-lg text-slate-300 hover:text-white">
