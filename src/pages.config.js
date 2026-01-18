@@ -97,6 +97,7 @@ import PharmacyStockImport from './pages/PharmacyStockImport';
 import PharmacyStockTaking from './pages/PharmacyStockTaking';
 import PharmacyWorkspace from './pages/PharmacyWorkspace';
 import PhysicianWorkspace from './pages/PhysicianWorkspace';
+import PlatformBilling from './pages/PlatformBilling';
 import PlatformConfiguration from './pages/PlatformConfiguration';
 import PlatformSettings from './pages/PlatformSettings';
 import Prescriptions from './pages/Prescriptions';
@@ -114,7 +115,7 @@ import TaskManagement from './pages/TaskManagement';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import PlatformBilling from './pages/PlatformBilling';
+import PharmacyProductImport from './pages/PharmacyProductImport';
 import __Layout from './Layout.jsx';
 
 
@@ -218,6 +219,7 @@ export const PAGES = {
     "PharmacyStockTaking": PharmacyStockTaking,
     "PharmacyWorkspace": PharmacyWorkspace,
     "PhysicianWorkspace": PhysicianWorkspace,
+    "PlatformBilling": PlatformBilling,
     "PlatformConfiguration": PlatformConfiguration,
     "PlatformSettings": PlatformSettings,
     "Prescriptions": Prescriptions,
@@ -235,7 +237,7 @@ export const PAGES = {
     "ThirdPartyProviders": ThirdPartyProviders,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "PlatformBilling": PlatformBilling,
+    "PharmacyProductImport": PharmacyProductImport,
 }
 
 export const pagesConfig = {
