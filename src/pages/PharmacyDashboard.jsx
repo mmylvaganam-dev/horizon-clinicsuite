@@ -25,6 +25,7 @@ import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function PharmacyDashboard() {
   const navigate = useNavigate();
@@ -34,6 +35,10 @@ export default function PharmacyDashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [easyView, setEasyView] = useState(false);
+  const [showAdvancedFilter, setShowAdvancedFilter] = useState(false);
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [minAmount, setMinAmount] = useState('');
+  const [maxAmount, setMaxAmount] = useState('');
 
   const { data: sales = [] } = useQuery({
     queryKey: ['pharmacySales'],
@@ -86,7 +91,12 @@ export default function PharmacyDashboard() {
       getPatientName(sale.patient_id).toLowerCase().includes(searchQuery.toLowerCase()) ||
       getReceiptNumber(sale.id).toLowerCase().includes(searchQuery.toLowerCase());
 
-    return dateMatch && searchMatch;
+    const statusMatch = statusFilter === 'all' || sale.status === statusFilter;
+    
+    const amountMatch = (!minAmount || (sale.total || 0) >= parseFloat(minAmount)) &&
+                        (!maxAmount || (sale.total || 0) <= parseFloat(maxAmount));
+
+    return dateMatch && searchMatch && statusMatch && amountMatch;
   });
 
   // Pagination
@@ -283,7 +293,11 @@ export default function PharmacyDashboard() {
                     />
                   </div>
                 </div>
-                <Button variant="outline">
+                <Button 
+                  variant="outline"
+                  onClick={() => setShowAdvancedFilter(!showAdvancedFilter)}
+                  className={showAdvancedFilter ? 'bg-indigo-50 border-indigo-300' : ''}
+                >
                   <Filter className="w-4 h-4 mr-2" />
                   Advanced Filter
                 </Button>
@@ -300,6 +314,61 @@ export default function PharmacyDashboard() {
                   Export
                 </Button>
               </div>
+
+              {/* Advanced Filters */}
+              {showAdvancedFilter && (
+                <Card className="bg-slate-50 border-slate-200">
+                  <CardContent className="pt-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Status</label>
+                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Status</SelectItem>
+                            <SelectItem value="completed">Completed</SelectItem>
+                            <SelectItem value="refunded">Refunded</SelectItem>
+                            <SelectItem value="voided">Voided</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Min Amount</label>
+                        <Input
+                          type="number"
+                          placeholder="0.00"
+                          value={minAmount}
+                          onChange={(e) => setMinAmount(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Max Amount</label>
+                        <Input
+                          type="number"
+                          placeholder="999999.00"
+                          value={maxAmount}
+                          onChange={(e) => setMaxAmount(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex justify-end gap-2 mt-4">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setStatusFilter('all');
+                          setMinAmount('');
+                          setMaxAmount('');
+                        }}
+                      >
+                        Clear Filters
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Sales List */}
               <div className="border rounded-lg overflow-hidden">
