@@ -14,7 +14,8 @@ import {
   MapPin,
   Calendar,
   User,
-  Search
+  Search,
+  AlertTriangle
 } from 'lucide-react';
 import {
   Dialog,
@@ -31,6 +32,9 @@ export default function HomeCarePatients() {
   const queryClient = useQueryClient();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchExisting, setSearchExisting] = useState('');
+  const [showExistingPatients, setShowExistingPatients] = useState(false);
+  const [duplicateWarning, setDuplicateWarning] = useState(null);
 
   const [patientForm, setPatientForm] = useState({
     first_name: '',
@@ -54,11 +58,20 @@ export default function HomeCarePatients() {
 
   const createPatientMutation = useMutation({
     mutationFn: async (data) => {
-      return await base44.entities.Patient.create(data);
+      // Generate PHN first
+      const phnResponse = await base44.functions.invoke('generatePHN', {});
+      const phn = phnResponse.data.phn;
+      
+      return await base44.entities.Patient.create({
+        ...data,
+        phn: phn
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['homeCarePatients'] });
+      queryClient.invalidateQueries({ queryKey: ['patients'] });
       setShowAddDialog(false);
+      setDuplicateWarning(null);
       setPatientForm({
         first_name: '',
         last_name: '',
@@ -73,20 +86,59 @@ export default function HomeCarePatients() {
         notes: '',
         status: 'active'
       });
-      toast.success('Patient registered successfully!');
+      toast.success('Patient registered successfully with PHN!');
     },
     onError: (error) => {
       toast.error(error.message || 'Failed to register patient');
     }
   });
 
+  const checkForDuplicates = () => {
+    const duplicates = patients.filter(p => {
+      const nameMatch = p.first_name.toLowerCase() === patientForm.first_name.toLowerCase() && 
+                        p.last_name.toLowerCase() === patientForm.last_name.toLowerCase();
+      const phoneMatch = p.phone && patientForm.phone && p.phone === patientForm.phone;
+      const emailMatch = p.email && patientForm.email && p.email.toLowerCase() === patientForm.email.toLowerCase();
+      
+      return nameMatch || phoneMatch || emailMatch;
+    });
+    
+    if (duplicates.length > 0) {
+      setDuplicateWarning(duplicates);
+      return true;
+    }
+    return false;
+  };
+
   const handleSubmit = () => {
     if (!patientForm.first_name || !patientForm.last_name || !patientForm.phone) {
       toast.error('Please fill required fields');
       return;
     }
+    
+    // Check for duplicates
+    if (!duplicateWarning && checkForDuplicates()) {
+      return; // Show warning, don't proceed
+    }
+    
     createPatientMutation.mutate(patientForm);
   };
+
+  const handleSelectExistingPatient = (patient) => {
+    setShowExistingPatients(false);
+    setSearchExisting('');
+    toast.success(`Selected existing patient: ${patient.first_name} ${patient.last_name}`);
+  };
+
+  const existingPatientsFiltered = patients.filter(p => {
+    const search = searchExisting.toLowerCase();
+    return search !== '' && (
+      p.first_name?.toLowerCase().includes(search) ||
+      p.last_name?.toLowerCase().includes(search) ||
+      p.phone?.includes(searchExisting) ||
+      p.phn?.toLowerCase().includes(search)
+    );
+  });
 
   const filteredPatients = patients.filter(p => {
     const searchLower = searchQuery.toLowerCase();
@@ -105,10 +157,16 @@ export default function HomeCarePatients() {
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Home Care Patients</h1>
           <p className="text-slate-500 mt-1">Manage patients receiving home care services</p>
         </div>
-        <Button onClick={() => setShowAddDialog(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Register Patient
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowExistingPatients(true)}>
+            <Search className="w-4 h-4 mr-2" />
+            Select Existing
+          </Button>
+          <Button onClick={() => setShowAddDialog(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            Register New
+          </Button>
+        </div>
       </div>
 
       {/* Search */}
@@ -218,12 +276,104 @@ export default function HomeCarePatients() {
         )}
       </div>
 
+      {/* Select Existing Patient Dialog */}
+      <Dialog open={showExistingPatients} onOpenChange={setShowExistingPatients}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Select Existing Patient from Patient Hub</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input
+                placeholder="Search by name, phone, or PHN..."
+                value={searchExisting}
+                onChange={(e) => setSearchExisting(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            
+            <div className="max-h-96 overflow-y-auto space-y-2">
+              {existingPatientsFiltered.length === 0 ? (
+                <div className="text-center py-8 text-slate-500">
+                  {searchExisting ? 'No patients found' : 'Start typing to search'}
+                </div>
+              ) : (
+                existingPatientsFiltered.map((patient) => (
+                  <Card 
+                    key={patient.id} 
+                    className="p-3 cursor-pointer hover:bg-slate-50 transition-colors"
+                    onClick={() => handleSelectExistingPatient(patient)}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="font-medium">{patient.first_name} {patient.last_name}</p>
+                        <div className="flex items-center gap-2 text-sm text-slate-600 mt-1">
+                          {patient.phn && <Badge variant="outline">{patient.phn}</Badge>}
+                          {patient.phone && <span>{patient.phone}</span>}
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Add Patient Dialog */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+      <Dialog open={showAddDialog} onOpenChange={(open) => {
+        setShowAddDialog(open);
+        if (!open) setDuplicateWarning(null);
+      }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Register Home Care Patient</DialogTitle>
           </DialogHeader>
+          
+          {duplicateWarning && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
+                <div className="flex-1">
+                  <p className="font-semibold text-amber-900">Possible Duplicate Patient(s) Found</p>
+                  <p className="text-sm text-amber-700 mt-1">Similar patient(s) already exist:</p>
+                  <div className="mt-2 space-y-2">
+                    {duplicateWarning.map((dup) => (
+                      <div key={dup.id} className="bg-white rounded p-2 text-sm">
+                        <p className="font-medium">{dup.first_name} {dup.last_name}</p>
+                        <p className="text-slate-600">{dup.phone} {dup.phn && `• PHN: ${dup.phn}`}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => {
+                        setDuplicateWarning(null);
+                        setShowAddDialog(false);
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      size="sm"
+                      onClick={() => {
+                        setDuplicateWarning(null);
+                        createPatientMutation.mutate(patientForm);
+                      }}
+                      className="bg-amber-600 hover:bg-amber-700"
+                    >
+                      Register Anyway
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="space-y-4 mt-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
