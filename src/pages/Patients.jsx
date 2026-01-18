@@ -37,6 +37,16 @@ export default function Patients() {
   const [viewMode, setViewMode] = useState('grid');
   const [formOpen, setFormOpen] = useState(false);
   const [editingPatient, setEditingPatient] = useState(null);
+  const [showPHNCard, setShowPHNCard] = useState(false);
+  const [selectedPatientForCard, setSelectedPatientForCard] = useState(null);
+
+  const { data: branding } = useQuery({
+    queryKey: ['organizationBranding'],
+    queryFn: async () => {
+      const brandings = await base44.entities.OrganizationBranding.list();
+      return brandings[0];
+    },
+  });
 
   const { data: patients = [], isLoading } = useQuery({
     queryKey: ['patients'],
@@ -44,10 +54,21 @@ export default function Patients() {
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Patient.create(data),
-    onSuccess: () => {
+    mutationFn: async (data) => {
+      // Generate PHN for new patient
+      const phnResponse = await base44.functions.invoke('generatePHN', {});
+      const phn = phnResponse.data.phn;
+      
+      return base44.entities.Patient.create({
+        ...data,
+        phn: phn
+      });
+    },
+    onSuccess: (newPatient) => {
       queryClient.invalidateQueries({ queryKey: ['patients'] });
       setFormOpen(false);
+      setSelectedPatientForCard(newPatient);
+      setShowPHNCard(true);
     },
   });
 
@@ -253,6 +274,14 @@ export default function Patients() {
         patient={editingPatient}
         onSubmit={handleSubmit}
         isLoading={createMutation.isPending || updateMutation.isPending}
+      />
+
+      {/* PHN Card Modal */}
+      <PHNCard 
+        open={showPHNCard}
+        onOpenChange={setShowPHNCard}
+        patient={selectedPatientForCard}
+        branding={branding}
       />
     </div>
   );
