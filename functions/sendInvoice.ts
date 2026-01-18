@@ -15,14 +15,22 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'method, recipient, and sale_data required' }, { status: 400 });
     }
 
-    const { currency, subtotal, discount_amount, tax, total, items, receipt_number, customer_name } = sale_data;
+    const { 
+      currency, subtotal, discount_amount, tax, total, items, 
+      receipt_number, customer_name, organization_name, 
+      location_address, location_phone, sale_datetime 
+    } = sale_data;
 
     // Create invoice text
     const invoiceText = `
-PHARMACY INVOICE
+${organization_name || 'PHARMACY'}
+${location_address || ''}
+${location_phone ? `Tel: ${location_phone}` : ''}
+
+INVOICE
 Receipt: ${receipt_number}
 Customer: ${customer_name}
-Date: ${new Date().toLocaleString()}
+Date & Time: ${sale_datetime}
 
 Items:
 ${items.map(item => `${item.display_name} x${item.quantity} - ${currency} ${item.total.toFixed(2)}`).join('\n')}
@@ -32,6 +40,7 @@ ${discount_amount > 0 ? `Discount: -${currency} ${discount_amount.toFixed(2)}\n`
 TOTAL: ${currency} ${total.toFixed(2)}
 
 Thank you for your purchase!
+Please retain this receipt for your records.
     `.trim();
 
     if (method === 'email') {

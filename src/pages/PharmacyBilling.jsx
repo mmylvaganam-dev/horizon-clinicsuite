@@ -257,11 +257,26 @@ export default function PharmacyBilling() {
     const receiptNumber = `RX${Date.now().toString().slice(-8)}`;
     const customerName = selectedPatient 
       ? `${selectedPatient.first_name} ${selectedPatient.last_name}`
-      : selectedWalkIn?.name || 'Walk-in Customer';
+      : selectedWalkIn?.name || 'Cash Sale';
+    
+    // Format date/time for Sri Lanka timezone
+    const sriLankaTime = new Date().toLocaleString('en-US', {
+      timeZone: 'Asia/Colombo',
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    });
+    
+    const organizationName = branding?.organization_name || 'Anantham Pharmacy';
+    const locationAddress = branding?.address || '';
+    const locationPhone = branding?.contact_phone || '';
     
     const saleData = {
       receipt_number: receiptNumber,
       customer_name: customerName,
+      organization_name: organizationName,
+      location_address: locationAddress,
+      location_phone: locationPhone,
+      sale_datetime: sriLankaTime,
       currency,
       items: cart,
       subtotal,
@@ -286,43 +301,74 @@ export default function PharmacyBilling() {
         <head>
           <title>Invoice ${completedSale.receipt_number}</title>
           <style>
-            body { font-family: monospace; padding: 20px; }
-            h2 { text-align: center; }
+            body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+            .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
+            .header h1 { margin: 0; font-size: 24px; }
+            .header p { margin: 5px 0; font-size: 12px; }
+            .info { display: flex; justify-content: space-between; margin-bottom: 20px; }
+            .info div { font-size: 14px; }
             table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-            th, td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
-            .total { font-weight: bold; font-size: 1.2em; }
+            th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+            th { background: #f5f5f5; }
+            .totals { text-align: right; margin-top: 20px; }
+            .totals p { margin: 5px 0; }
+            .grand-total { font-weight: bold; font-size: 18px; color: #000; }
+            .footer { text-align: center; margin-top: 40px; font-size: 12px; }
+            @media print {
+              body { padding: 10px; }
+            }
           </style>
         </head>
         <body>
-          <h2>PHARMACY INVOICE</h2>
-          <p><strong>Receipt:</strong> ${completedSale.receipt_number}</p>
-          <p><strong>Customer:</strong> ${completedSale.customer_name}</p>
-          <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+          <div class="header">
+            <h1>${completedSale.organization_name}</h1>
+            ${completedSale.location_address ? `<p>${completedSale.location_address}</p>` : ''}
+            ${completedSale.location_phone ? `<p>Tel: ${completedSale.location_phone}</p>` : ''}
+          </div>
+          
+          <div class="info">
+            <div>
+              <p><strong>Receipt:</strong> ${completedSale.receipt_number}</p>
+              <p><strong>Customer:</strong> ${completedSale.customer_name}</p>
+            </div>
+            <div style="text-align: right;">
+              <p><strong>Date & Time:</strong></p>
+              <p>${completedSale.sale_datetime}</p>
+            </div>
+          </div>
+          
           <table>
             <thead>
               <tr>
                 <th>Item</th>
-                <th>Qty</th>
-                <th>Price</th>
-                <th>Total</th>
+                <th style="text-align: center;">Qty</th>
+                <th style="text-align: right;">Price</th>
+                <th style="text-align: right;">Total</th>
               </tr>
             </thead>
             <tbody>
               ${completedSale.items.map(item => `
                 <tr>
                   <td>${item.display_name}</td>
-                  <td>${item.quantity}</td>
-                  <td>${completedSale.currency} ${item.unit_price.toFixed(2)}</td>
-                  <td>${completedSale.currency} ${item.total.toFixed(2)}</td>
+                  <td style="text-align: center;">${item.quantity}</td>
+                  <td style="text-align: right;">${completedSale.currency} ${item.unit_price.toFixed(2)}</td>
+                  <td style="text-align: right;">${completedSale.currency} ${item.total.toFixed(2)}</td>
                 </tr>
               `).join('')}
             </tbody>
           </table>
-          <p><strong>Subtotal:</strong> ${completedSale.currency} ${completedSale.subtotal.toFixed(2)}</p>
-          ${completedSale.discount_amount > 0 ? `<p><strong>Discount:</strong> -${completedSale.currency} ${completedSale.discount_amount.toFixed(2)}</p>` : ''}
-          <p><strong>Tax:</strong> ${completedSale.currency} ${completedSale.tax.toFixed(2)}</p>
-          <p class="total"><strong>TOTAL:</strong> ${completedSale.currency} ${completedSale.total.toFixed(2)}</p>
-          <p style="text-align: center; margin-top: 40px;">Thank you for your purchase!</p>
+          
+          <div class="totals">
+            <p><strong>Subtotal:</strong> ${completedSale.currency} ${completedSale.subtotal.toFixed(2)}</p>
+            ${completedSale.discount_amount > 0 ? `<p style="color: green;"><strong>Discount:</strong> -${completedSale.currency} ${completedSale.discount_amount.toFixed(2)}</p>` : ''}
+            <p><strong>Tax:</strong> ${completedSale.currency} ${completedSale.tax.toFixed(2)}</p>
+            <p class="grand-total">TOTAL: ${completedSale.currency} ${completedSale.total.toFixed(2)}</p>
+          </div>
+          
+          <div class="footer">
+            <p>Thank you for your purchase!</p>
+            <p>Please retain this receipt for your records</p>
+          </div>
         </body>
       </html>
     `);
@@ -705,6 +751,11 @@ export default function PharmacyBilling() {
               <Check className="w-5 h-5 mr-2" />
               Complete Sale
             </Button>
+            {cart.length > 0 && !selectedPatient && !selectedWalkIn && (
+              <p className="text-xs text-slate-500 text-center">
+                No customer selected - will process as Cash Sale
+              </p>
+            )}
           </div>
         </div>
       </div>
