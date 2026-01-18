@@ -16,6 +16,7 @@ import {
   TrendingDown
 } from 'lucide-react';
 import { format } from 'date-fns';
+import PageInfoTooltip from '@/components/shared/PageInfoTooltip';
 
 export default function PharmacyBillCardReports() {
   const [dateFrom, setDateFrom] = useState(format(new Date(), 'yyyy-MM-dd'));
@@ -33,9 +34,29 @@ export default function PharmacyBillCardReports() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Bill Card Reports</h1>
-          <p className="text-slate-500 mt-1">Track medicine inventory movements and balance</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Bill Card Reports</h1>
+            <p className="text-slate-500 mt-1">Track medicine inventory movements and balance</p>
+          </div>
+          <PageInfoTooltip
+            title="Bill Card Reports"
+            description="A bill card (or stock card) tracks the complete history of inventory movement for each medicine - showing when stock came in (purchases, returns), when it went out (sales, transfers), and the running balance."
+            useCases={[
+              'Track stock movement history for individual medicines',
+              'Verify current balance by reviewing all IN/OUT transactions',
+              'Audit inventory discrepancies by checking transaction history',
+              'Generate reports for specific date ranges',
+              'Monitor medicine consumption patterns over time'
+            ]}
+            bestPractices={[
+              'Select specific medicine and date range for focused reports',
+              'Run daily reports to catch discrepancies early',
+              'Use bill cards to reconcile physical stock counts',
+              'Export reports for audits and record keeping',
+              'Review high-value medicine cards regularly'
+            ]}
+          />
         </div>
         <Button>
           <Download className="w-4 h-4 mr-2" />
