@@ -49,6 +49,7 @@ export default function Layout({ children, currentPageName }) {
       icon: LayoutDashboard,
       items: [
         { name: 'Home', page: 'Home', icon: LayoutDashboard, description: 'Main dashboard - Overview of daily activities, alerts, and quick access to all modules' },
+        { name: 'Patient Hub', page: 'PatientHub', icon: Users, description: 'Central patient management - Search patients, view profiles, access EMR, Pharmacy, and Home Care services' },
         { name: 'Daily Ops', page: 'DailyOps', icon: Activity, description: 'Daily operations center - Track real-time patient flow, staff activities, and operational metrics' },
       ]
     },

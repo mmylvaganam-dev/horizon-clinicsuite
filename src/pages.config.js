@@ -117,6 +117,7 @@ import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
 import PharmacyWorkQueue from './pages/PharmacyWorkQueue';
+import PatientHub from './pages/PatientHub';
 import __Layout from './Layout.jsx';
 
 
@@ -240,6 +241,7 @@ export const PAGES = {
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
     "PharmacyWorkQueue": PharmacyWorkQueue,
+    "PatientHub": PatientHub,
 }
 
 export const pagesConfig = {
