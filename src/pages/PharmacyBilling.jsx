@@ -53,9 +53,14 @@ export default function PharmacyBilling() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [activeTab, setActiveTab] = useState('name');
 
+  const { data: pharmacyStock = [] } = useQuery({
+    queryKey: ['pharmacyStock'],
+    queryFn: () => base44.entities.PharmacyStock.list('-created_date'),
+  });
+
   // Handle prescription from work queue
   useEffect(() => {
-    if (location.state?.prescription && location.state?.patient) {
+    if (location.state?.prescription && location.state?.patient && pharmacyStock.length > 0) {
       const { prescription, patient } = location.state;
       
       // Set patient
@@ -88,11 +93,6 @@ export default function PharmacyBilling() {
       }
     }
   }, [location.state, pharmacyStock]);
-
-  const { data: pharmacyStock = [] } = useQuery({
-    queryKey: ['pharmacyStock'],
-    queryFn: () => base44.entities.PharmacyStock.list('-created_date'),
-  });
 
   const { data: patients = [] } = useQuery({
     queryKey: ['patients'],
@@ -251,12 +251,29 @@ export default function PharmacyBilling() {
   };
 
   const createWalkInMutation = useMutation({
-    mutationFn: (data) => base44.entities.PharmacyWalkInPatient.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['walkInPatients']);
-      toast.success('Walk-in patient created');
+    mutationFn: async (data) => {
+      // Generate PHN first
+      const phnResponse = await base44.functions.invoke('generatePHN', {});
+      const phn = phnResponse.data.phn;
+      
+      // Create as regular patient with walk_in type
+      const patientData = {
+        ...data,
+        phn: phn,
+        patient_type: 'walk_in',
+        status: 'active'
+      };
+      
+      return base44.entities.Patient.create(patientData);
+    },
+    onSuccess: (newPatient) => {
+      queryClient.invalidateQueries(['patients']);
+      setSelectedPatient(newPatient);
+      setPatientSearch(`${newPatient.first_name} ${newPatient.last_name}`);
       setShowWalkInDialog(false);
-      setWalkInForm({ name: '', phone: '', discount_percentage: 0 });
+      setWalkInForm({ first_name: '', last_name: '', phone: '', date_of_birth: '', gender: '' });
+      setShowPHNCard(true);
+      toast.success('Walk-in patient registered with PHN!');
     }
   });
 
@@ -312,8 +329,8 @@ export default function PharmacyBilling() {
   };
 
   const handleCreateWalkIn = () => {
-    if (!walkInForm.name) {
-      toast.error('Name is required');
+    if (!walkInForm.first_name || !walkInForm.last_name) {
+      toast.error('First name and last name are required');
       return;
     }
     createWalkInMutation.mutate(walkInForm);
@@ -986,52 +1003,88 @@ export default function PharmacyBilling() {
         </DialogContent>
       </Dialog>
 
-      {/* Create Walk-In Dialog */}
+      {/* Walk-in Customer Dialog */}
       <Dialog open={showWalkInDialog} onOpenChange={setShowWalkInDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Create Walk-In Customer</DialogTitle>
+            <DialogTitle>Register Walk-in Patient</DialogTitle>
+            <p className="text-sm text-slate-500">A PHN card will be generated for this patient</p>
           </DialogHeader>
-          
-          <div className="space-y-4">
-            <div>
-              <Label>Name *</Label>
-              <Input
-                value={walkInForm.name}
-                onChange={(e) => setWalkInForm({...walkInForm, name: e.target.value})}
-                placeholder="Customer name"
-              />
+          <div className="space-y-4 mt-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>First Name *</Label>
+                <Input
+                  value={walkInForm.first_name}
+                  onChange={(e) => setWalkInForm({ ...walkInForm, first_name: e.target.value })}
+                  placeholder="First name"
+                />
+              </div>
+              <div>
+                <Label>Last Name *</Label>
+                <Input
+                  value={walkInForm.last_name}
+                  onChange={(e) => setWalkInForm({ ...walkInForm, last_name: e.target.value })}
+                  placeholder="Last name"
+                />
+              </div>
             </div>
             <div>
-              <Label>Phone</Label>
+              <Label>Phone Number</Label>
               <Input
                 value={walkInForm.phone}
-                onChange={(e) => setWalkInForm({...walkInForm, phone: e.target.value})}
+                onChange={(e) => setWalkInForm({ ...walkInForm, phone: e.target.value })}
                 placeholder="Phone number"
               />
             </div>
-            <div>
-              <Label>Special Discount (%)</Label>
-              <Input
-                type="number"
-                value={walkInForm.discount_percentage}
-                onChange={(e) => setWalkInForm({...walkInForm, discount_percentage: parseFloat(e.target.value) || 0})}
-                placeholder="0"
-                min="0"
-                max="100"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Date of Birth</Label>
+                <Input
+                  type="date"
+                  value={walkInForm.date_of_birth}
+                  onChange={(e) => setWalkInForm({ ...walkInForm, date_of_birth: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Gender</Label>
+                <Select 
+                  value={walkInForm.gender} 
+                  onValueChange={(value) => setWalkInForm({ ...walkInForm, gender: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setShowWalkInDialog(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleCreateWalkIn}>
-                Create Customer
+              <Button 
+                onClick={handleCreateWalkIn}
+                disabled={!walkInForm.first_name || !walkInForm.last_name}
+              >
+                Register & Generate PHN
               </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* PHN Card Dialog */}
+      <PHNCard 
+        open={showPHNCard} 
+        onOpenChange={setShowPHNCard}
+        patient={selectedPatient}
+        branding={branding}
+      />
 
       {/* Invoice Options Dialog */}
       <Dialog open={showInvoiceDialog} onOpenChange={setShowInvoiceDialog}>
