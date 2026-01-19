@@ -193,41 +193,55 @@ export default function SalesWorkspace() {
   const tax = 0;
   const total = subtotal + tax;
 
-  // Filter services by search
+  // Filter services by search - category-aware filtering
   const filteredPharmacy = pharmacyStock.filter(item => 
-    searchQuery === '' || item.display_name.toLowerCase().includes(searchQuery.toLowerCase())
+    searchQuery === '' || 
+    item.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.brand_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.generic_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const filteredGPs = gpProfiles.filter(gp =>
-    searchQuery === '' || gp.doctor_name.toLowerCase().includes(searchQuery.toLowerCase())
+    searchQuery === '' || 
+    gp.doctor_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    gp.qualification?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    gp.specialization?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const filteredSpecialists = specialists.filter(spec =>
     searchQuery === '' || 
-    spec.specialist_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    spec.specialty.toLowerCase().includes(searchQuery.toLowerCase())
+    spec.specialist_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    spec.specialty?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    spec.qualification?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const filteredRadiology = radiologyServices.filter(rad =>
     searchQuery === '' || 
-    rad.service_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    rad.region.toLowerCase().includes(searchQuery.toLowerCase())
+    rad.service_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    rad.region?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    rad.service_type?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const filteredHomeCare = homeCareServices.filter(hc =>
-    searchQuery === '' || hc.service_name.toLowerCase().includes(searchQuery.toLowerCase())
+    searchQuery === '' || 
+    hc.service_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    hc.service_type?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    hc.service_category?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const filteredLabTests = labTests.filter(lab =>
     searchQuery === '' || 
-    lab.test_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    lab.test_code.toLowerCase().includes(searchQuery.toLowerCase())
+    lab.test_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    lab.test_code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    lab.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    lab.specimen_type?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const filteredPackages = healthPackages.filter(pkg =>
     searchQuery === '' || 
-    pkg.package_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    pkg.package_code.toLowerCase().includes(searchQuery.toLowerCase())
+    pkg.package_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    pkg.package_code?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    pkg.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Filter patients
@@ -382,8 +396,13 @@ export default function SalesWorkspace() {
 
               {/* GP Services */}
               <TabsContent value="gp" className="flex-1 overflow-y-auto p-4">
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                  {filteredGPs.map((gp) => (
+                {filteredGPs.length === 0 && searchQuery !== '' ? (
+                  <div className="text-center py-12">
+                    <p className="text-slate-500">No GP profiles found matching "{searchQuery}"</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                    {filteredGPs.map((gp) => (
                     <Card key={gp.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => addToCart(gp, 'gp')}>
                       <CardContent className="p-4">
                         <p className="font-semibold mb-2">{gp.doctor_name}</p>
@@ -403,15 +422,21 @@ export default function SalesWorkspace() {
                           </div>
                         </div>
                       </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </TabsContent>
 
               {/* Specialist Services */}
               <TabsContent value="specialist" className="flex-1 overflow-y-auto p-4">
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                  {filteredSpecialists.map((spec) => (
+                {filteredSpecialists.length === 0 && searchQuery !== '' ? (
+                  <div className="text-center py-12">
+                    <p className="text-slate-500">No specialists found matching "{searchQuery}"</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                    {filteredSpecialists.map((spec) => (
                     <Card key={spec.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => addToCart(spec, 'specialist')}>
                       <CardContent className="p-4">
                         <Badge className="mb-2">{spec.specialty}</Badge>
@@ -432,15 +457,21 @@ export default function SalesWorkspace() {
                           </div>
                         </div>
                       </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </TabsContent>
 
               {/* Radiology Services */}
               <TabsContent value="radiology" className="flex-1 overflow-y-auto p-4">
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                  {filteredRadiology.map((rad) => (
+                {filteredRadiology.length === 0 && searchQuery !== '' ? (
+                  <div className="text-center py-12">
+                    <p className="text-slate-500">No radiology services found matching "{searchQuery}"</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                    {filteredRadiology.map((rad) => (
                     <Card key={rad.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => addToCart(rad, 'radiology')}>
                       <CardContent className="p-4">
                         <Badge className="mb-2">{rad.service_type}</Badge>
@@ -448,15 +479,21 @@ export default function SalesWorkspace() {
                         <p className="text-xs text-slate-600 mb-3">{rad.region}</p>
                         <p className="text-lg font-bold text-emerald-600">{currency} {rad.price}</p>
                       </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </TabsContent>
 
               {/* Home Care Services */}
               <TabsContent value="homecare" className="flex-1 overflow-y-auto p-4">
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                  {filteredHomeCare.map((hc) => (
+                {filteredHomeCare.length === 0 && searchQuery !== '' ? (
+                  <div className="text-center py-12">
+                    <p className="text-slate-500">No home care services found matching "{searchQuery}"</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                    {filteredHomeCare.map((hc) => (
                     <Card key={hc.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => addToCart(hc, 'homecare')}>
                       <CardContent className="p-4">
                         <Badge className="mb-2">{hc.service_category}</Badge>
@@ -467,15 +504,21 @@ export default function SalesWorkspace() {
                         </p>
                         <p className="text-xs text-slate-500">{hc.duration_type}</p>
                       </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </TabsContent>
 
               {/* Lab Tests */}
               <TabsContent value="lab" className="flex-1 overflow-y-auto p-4">
-                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                  {filteredLabTests.map((lab) => (
+                {filteredLabTests.length === 0 && searchQuery !== '' ? (
+                  <div className="text-center py-12">
+                    <p className="text-slate-500">No lab tests found matching "{searchQuery}"</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                    {filteredLabTests.map((lab) => (
                     <Card key={lab.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => addToCart(lab, 'lab')}>
                       <CardContent className="p-4">
                         <Badge className="mb-2">{lab.category}</Badge>
@@ -484,15 +527,21 @@ export default function SalesWorkspace() {
                         <p className="text-xs text-slate-500 mb-3">{lab.specimen_type}</p>
                         <p className="text-lg font-bold text-emerald-600">{currency} {lab.price || 0}</p>
                       </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </TabsContent>
 
               {/* Health Packages */}
               <TabsContent value="package" className="flex-1 overflow-y-auto p-4">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                  {filteredPackages.map((pkg) => (
+                {filteredPackages.length === 0 && searchQuery !== '' ? (
+                  <div className="text-center py-12">
+                    <p className="text-slate-500">No health packages found matching "{searchQuery}"</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                    {filteredPackages.map((pkg) => (
                     <Card key={pkg.id} className="cursor-pointer hover:shadow-lg transition-all border-2 border-rose-200" onClick={() => addToCart(pkg, 'package')}>
                       <CardContent className="p-4">
                         <div className="flex justify-between items-start mb-2">
@@ -522,10 +571,11 @@ export default function SalesWorkspace() {
                         {pkg.notes && (
                           <p className="text-xs text-amber-600 mt-2">Note: {pkg.notes}</p>
                         )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </div>
