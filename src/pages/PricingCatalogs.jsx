@@ -346,72 +346,71 @@ export default function PricingCatalogs() {
             </TabsContent>
 
             <TabsContent value="bulk" className="space-y-4 mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 border rounded-lg space-y-3">
-              <h3 className="font-semibold">Service Catalog</h3>
-              <p className="text-sm text-slate-600">Import consultation, test, and imaging prices</p>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => downloadTemplate('SERVICES')}>
-                  <Download className="w-4 h-4 mr-2" />
-                  Template
-                </Button>
-                <Button size="sm" onClick={() => { setImportType('SERVICES'); setShowImport(true); }}>
-                  <Upload className="w-4 h-4 mr-2" />
-                  Import
-                </Button>
-              </div>
-            </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 border rounded-lg space-y-3">
+                  <h3 className="font-semibold">Service Catalog</h3>
+                  <p className="text-sm text-slate-600">Import consultation, test, and imaging prices</p>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => downloadTemplate('SERVICES')}>
+                      <Download className="w-4 h-4 mr-2" />
+                      Template
+                    </Button>
+                    <Button size="sm" onClick={() => { setImportType('SERVICES'); setShowImport(true); }}>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Import
+                    </Button>
+                  </div>
+                </div>
 
-            <div className="p-4 border rounded-lg space-y-3">
-              <h3 className="font-semibold">Product Catalog</h3>
-              <p className="text-sm text-slate-600">Import pharmacy products and prices</p>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => downloadTemplate('PHARMACY_PRODUCTS')}>
-                  <Download className="w-4 h-4 mr-2" />
-                  Template
-                </Button>
-                <Button size="sm" onClick={() => { setImportType('PHARMACY_PRODUCTS'); setShowImport(true); }}>
-                  <Upload className="w-4 h-4 mr-2" />
-                  Import
-                </Button>
-              </div>
-            </div>
+                <div className="p-4 border rounded-lg space-y-3">
+                  <h3 className="font-semibold">Product Catalog</h3>
+                  <p className="text-sm text-slate-600">Import pharmacy products and prices</p>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => downloadTemplate('PHARMACY_PRODUCTS')}>
+                      <Download className="w-4 h-4 mr-2" />
+                      Template
+                    </Button>
+                    <Button size="sm" onClick={() => { setImportType('PHARMACY_PRODUCTS'); setShowImport(true); }}>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Import
+                    </Button>
+                  </div>
+                </div>
 
-            <div className="p-4 border rounded-lg space-y-3">
-              <h3 className="font-semibold">Users</h3>
-              <p className="text-sm text-slate-600">Bulk import users with roles</p>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => downloadTemplate('USERS')}>
-                  <Download className="w-4 h-4 mr-2" />
-                  Template
-                </Button>
-                <Button size="sm" onClick={() => { setImportType('USERS'); setShowImport(true); }}>
-                  <Upload className="w-4 h-4 mr-2" />
-                  Import
-                </Button>
-              </div>
-              </div>
-            </div>
-
-            <Card className="bg-blue-50 border-blue-200">
-            <CardContent className="pt-6">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-blue-900">Bulk Import Process</p>
-                  <ol className="text-sm text-blue-700 mt-2 space-y-1 list-decimal list-inside">
-                    <li>Download the CSV template</li>
-                    <li>Fill in your data (existing codes will be updated)</li>
-                    <li>Upload the file - validation runs automatically</li>
-                    <li>Review preview and fix any errors</li>
-                    <li>Click Apply to save changes</li>
-                  </ol>
+                <div className="p-4 border rounded-lg space-y-3">
+                  <h3 className="font-semibold">Users</h3>
+                  <p className="text-sm text-slate-600">Bulk import users with roles</p>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => downloadTemplate('USERS')}>
+                      <Download className="w-4 h-4 mr-2" />
+                      Template
+                    </Button>
+                    <Button size="sm" onClick={() => { setImportType('USERS'); setShowImport(true); }}>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Import
+                    </Button>
+                  </div>
                 </div>
               </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
+
+              <Card className="bg-blue-50 border-blue-200">
+                <CardContent className="pt-6">
+                  <div className="flex items-start gap-3">
+                    <AlertCircle className="w-5 h-5 text-blue-600 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-blue-900">Bulk Import Process</p>
+                      <ol className="text-sm text-blue-700 mt-2 space-y-1 list-decimal list-inside">
+                        <li>Download the CSV template</li>
+                        <li>Fill in your data (existing codes will be updated)</li>
+                        <li>Upload the file - validation runs automatically</li>
+                        <li>Review preview and fix any errors</li>
+                        <li>Click Apply to save changes</li>
+                      </ol>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
         </Tabs>
         </CardContent>
       </Card>
