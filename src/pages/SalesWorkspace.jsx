@@ -590,7 +590,35 @@ export default function SalesWorkspace() {
 
           <div className="border-t p-4 space-y-3">
             <div className="space-y-2">
-              <div className="flex justify-between text-sm">
+              {(() => {
+                const doctorFees = cart.filter(item => item.doctor_fee).reduce((sum, item) => sum + (item.doctor_fee * item.quantity), 0);
+                const hospitalFees = cart.filter(item => item.hospital_fee).reduce((sum, item) => sum + (item.hospital_fee * item.quantity), 0);
+                const otherItems = cart.filter(item => !item.doctor_fee).reduce((sum, item) => sum + item.total, 0);
+                
+                return (
+                  <>
+                    {doctorFees > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-600">Doctor Fees:</span>
+                        <span className="font-semibold">{currency} {doctorFees.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {hospitalFees > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-600">Hospital Fees:</span>
+                        <span className="font-semibold">{currency} {hospitalFees.toFixed(2)}</span>
+                      </div>
+                    )}
+                    {otherItems > 0 && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-600">Other Services:</span>
+                        <span className="font-semibold">{currency} {otherItems.toFixed(2)}</span>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+              <div className="flex justify-between text-sm pt-2 border-t">
                 <span className="text-slate-600">Subtotal:</span>
                 <span className="font-semibold">{currency} {subtotal.toFixed(2)}</span>
               </div>
