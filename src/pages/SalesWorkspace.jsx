@@ -18,7 +18,9 @@ import {
   Activity,
   Scan,
   Home,
-  Package
+  Package,
+  TestTube,
+  Heart
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -58,6 +60,16 @@ export default function SalesWorkspace() {
   const { data: homeCareServices = [] } = useQuery({
     queryKey: ['homeCareServices'],
     queryFn: () => base44.entities.HomeCareServiceCatalog.filter({ status: 'active' }),
+  });
+
+  const { data: labTests = [] } = useQuery({
+    queryKey: ['labTests'],
+    queryFn: () => base44.entities.LabTestCatalog.filter({ is_active: true }),
+  });
+
+  const { data: healthPackages = [] } = useQuery({
+    queryKey: ['healthPackages'],
+    queryFn: () => base44.entities.HealthPackage.filter({ active: true }),
   });
 
   const { data: patients = [] } = useQuery({
@@ -132,6 +144,26 @@ export default function SalesWorkspace() {
           total: price
         };
         break;
+      case 'lab':
+        cartItem = {
+          id: `lab-${item.id}`,
+          type: 'lab',
+          name: item.test_name,
+          price: item.price || 0,
+          quantity: 1,
+          total: item.price || 0
+        };
+        break;
+      case 'package':
+        cartItem = {
+          id: `package-${item.id}`,
+          type: 'package',
+          name: item.package_name,
+          price: item.total_price,
+          quantity: 1,
+          total: item.total_price
+        };
+        break;
     }
 
     const existing = cart.find(c => c.id === cartItem.id);
@@ -186,6 +218,18 @@ export default function SalesWorkspace() {
     searchQuery === '' || hc.service_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const filteredLabTests = labTests.filter(lab =>
+    searchQuery === '' || 
+    lab.test_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    lab.test_code.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredPackages = healthPackages.filter(pkg =>
+    searchQuery === '' || 
+    pkg.package_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    pkg.package_code.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   // Filter patients
   const filteredPatients = patients.filter(p => {
     const search = patientSearch.toLowerCase();
@@ -227,6 +271,8 @@ export default function SalesWorkspace() {
       case 'specialist': return <Activity className="w-4 h-4" />;
       case 'radiology': return <Scan className="w-4 h-4" />;
       case 'homecare': return <Home className="w-4 h-4" />;
+      case 'lab': return <TestTube className="w-4 h-4" />;
+      case 'package': return <Heart className="w-4 h-4" />;
       default: return null;
     }
   };
@@ -237,7 +283,9 @@ export default function SalesWorkspace() {
       gp: 'bg-green-100 text-green-800',
       specialist: 'bg-purple-100 text-purple-800',
       radiology: 'bg-orange-100 text-orange-800',
-      homecare: 'bg-pink-100 text-pink-800'
+      homecare: 'bg-pink-100 text-pink-800',
+      lab: 'bg-cyan-100 text-cyan-800',
+      package: 'bg-rose-100 text-rose-800'
     };
     return badges[type] || 'bg-slate-100 text-slate-800';
   };
@@ -306,6 +354,14 @@ export default function SalesWorkspace() {
                 <TabsTrigger value="homecare">
                   <Home className="w-4 h-4 mr-2" />
                   Home Care
+                </TabsTrigger>
+                <TabsTrigger value="lab">
+                  <TestTube className="w-4 h-4 mr-2" />
+                  Lab Tests
+                </TabsTrigger>
+                <TabsTrigger value="package">
+                  <Heart className="w-4 h-4 mr-2" />
+                  Packages
                 </TabsTrigger>
               </TabsList>
 
@@ -410,6 +466,62 @@ export default function SalesWorkspace() {
                           {currency} {hc.price_per_visit || hc.price_per_hour || hc.price_per_day || 0}
                         </p>
                         <p className="text-xs text-slate-500">{hc.duration_type}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+
+              {/* Lab Tests */}
+              <TabsContent value="lab" className="flex-1 overflow-y-auto p-4">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                  {filteredLabTests.map((lab) => (
+                    <Card key={lab.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => addToCart(lab, 'lab')}>
+                      <CardContent className="p-4">
+                        <Badge className="mb-2">{lab.category}</Badge>
+                        <p className="font-semibold mb-1">{lab.test_name}</p>
+                        <p className="text-xs text-slate-600 mb-2">Code: {lab.test_code}</p>
+                        <p className="text-xs text-slate-500 mb-3">{lab.specimen_type}</p>
+                        <p className="text-lg font-bold text-emerald-600">{currency} {lab.price || 0}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </TabsContent>
+
+              {/* Health Packages */}
+              <TabsContent value="package" className="flex-1 overflow-y-auto p-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                  {filteredPackages.map((pkg) => (
+                    <Card key={pkg.id} className="cursor-pointer hover:shadow-lg transition-all border-2 border-rose-200" onClick={() => addToCart(pkg, 'package')}>
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <div>
+                            <Badge className="mb-2 bg-rose-600">Package</Badge>
+                            <p className="font-bold text-lg">{pkg.package_name}</p>
+                            <p className="text-xs text-slate-500">Code: {pkg.package_code}</p>
+                          </div>
+                          <p className="text-2xl font-bold text-emerald-600">{currency} {pkg.total_price}</p>
+                        </div>
+                        {pkg.description && (
+                          <p className="text-sm text-slate-600 mb-2">{pkg.description}</p>
+                        )}
+                        {pkg.items_json && pkg.items_json.length > 0 && (
+                          <div className="mt-3 pt-3 border-t">
+                            <p className="text-xs font-semibold text-slate-700 mb-1">Includes:</p>
+                            <div className="space-y-0.5">
+                              {pkg.items_json.slice(0, 5).map((item, idx) => (
+                                <p key={idx} className="text-xs text-slate-600">• {item.test_name}</p>
+                              ))}
+                              {pkg.items_json.length > 5 && (
+                                <p className="text-xs text-slate-500">+ {pkg.items_json.length - 5} more tests</p>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        {pkg.notes && (
+                          <p className="text-xs text-amber-600 mt-2">Note: {pkg.notes}</p>
+                        )}
                       </CardContent>
                     </Card>
                   ))}
