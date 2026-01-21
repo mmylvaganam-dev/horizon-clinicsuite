@@ -494,17 +494,47 @@ export default function Admin() {
 
         {/* User Access Control Tab */}
         <TabsContent value="access" className="space-y-6">
+          {/* Simple Steps Guide */}
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 text-white shadow-xl">
+            <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
+              <Shield className="w-8 h-8" />
+              How to Give Access to Your Staff - 3 Easy Steps
+            </h2>
+            <div className="grid md:grid-cols-3 gap-4 mt-6">
+              <div className="bg-white/10 backdrop-blur rounded-xl p-4">
+                <div className="w-12 h-12 bg-white text-blue-600 rounded-full flex items-center justify-center text-xl font-bold mb-3">1</div>
+                <h3 className="font-bold text-lg mb-2">Click on Staff Name</h3>
+                <p className="text-sm text-blue-100">Choose which person you want to give access to</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur rounded-xl p-4">
+                <div className="w-12 h-12 bg-white text-blue-600 rounded-full flex items-center justify-center text-xl font-bold mb-3">2</div>
+                <h3 className="font-bold text-lg mb-2">Turn ON Their Role</h3>
+                <p className="text-sm text-blue-100">Flip the switch for Doctor, Nurse, Admin, etc.</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur rounded-xl p-4">
+                <div className="w-12 h-12 bg-white text-blue-600 rounded-full flex items-center justify-center text-xl font-bold mb-3">3</div>
+                <h3 className="font-bold text-lg mb-2">Done! ✓</h3>
+                <p className="text-sm text-blue-100">They can now access the system with their role</p>
+              </div>
+            </div>
+          </div>
+
           <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-blue-900">
-                <UserCheck className="w-6 h-6" />
-                User Roles & Permissions
-              </CardTitle>
-              <p className="text-sm text-blue-700">Assign functional roles to organization members with ON/OFF toggles</p>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl font-bold">1</div>
+                <div>
+                  <CardTitle className="flex items-center gap-2 text-blue-900 text-2xl">
+                    <Users className="w-7 h-7" />
+                    Pick a Staff Member
+                  </CardTitle>
+                  <p className="text-sm text-blue-700 mt-1">Click on any person below to give them access</p>
+                </div>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* User Selection */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {allUsers.map((u) => (
                   <button
                     key={u.id}
