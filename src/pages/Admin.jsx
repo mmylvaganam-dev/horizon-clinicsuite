@@ -495,9 +495,9 @@ export default function Admin() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-blue-900">
                 <UserCheck className="w-6 h-6" />
-                User Roles & Permissions
+                Module Access Assignment
               </CardTitle>
-              <p className="text-sm text-blue-700">Assign functional roles to organization members with ON/OFF toggles</p>
+              <p className="text-sm text-blue-700">Assign module access to organization members with ON/OFF toggles</p>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* User Selection */}
@@ -532,204 +532,76 @@ export default function Admin() {
                 ))}
               </div>
 
-              {/* Role Toggles */}
+              {/* Module Access Assignment */}
               {selectedUser && (
-                <div className="mt-6 space-y-6">
-                  <div className="p-6 rounded-xl bg-white border-2 border-blue-300 shadow-lg">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                          <Shield className="w-5 h-5 text-blue-600" />
-                          Assign Roles to {selectedUser.full_name}
-                        </h3>
-                        <p className="text-sm text-slate-600">Toggle ON/OFF to grant or revoke access</p>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {functionalRoles.map((role) => {
-                        const roleData = allRoles.find(r => r.role_name === role.name);
-                        if (!roleData) return null;
-                        
-                        const hasRole = selectedUserRoles.some(ur => ur.role_id === roleData.id);
-                        
-                        return (
-                          <div
-                            key={role.name}
-                            className={`p-4 rounded-xl border-2 transition-all duration-300 ${
-                              hasRole
-                                ? 'border-emerald-300 bg-gradient-to-br from-emerald-50 to-green-50 shadow-md'
-                                : 'border-slate-200 bg-white hover:border-slate-300'
-                            }`}
-                          >
-                            <div className="flex items-start justify-between">
-                              <div className="flex items-start gap-3 flex-1">
-                                <div className={`w-12 h-12 rounded-xl ${role.color} flex items-center justify-center shadow-lg transform transition-transform ${hasRole ? 'scale-110' : ''}`}>
-                                  <role.icon className="w-6 h-6 text-white" />
-                                </div>
-                                <div className="flex-1">
-                                  <p className="font-bold text-slate-900">{role.label}</p>
-                                  <p className="text-xs text-slate-600 mt-1">{role.description}</p>
-                                  {hasRole && (
-                                    <Badge className="mt-2 bg-emerald-600 flex items-center gap-1 w-fit">
-                                      <Check className="w-3 h-3" />
-                                      Active
-                                    </Badge>
-                                  )}
+                <div className="mt-6 space-y-4">
+                  {modulePermissions.map((category, idx) => (
+                    <Card key={idx} className="border-2 border-slate-200 bg-white shadow-lg">
+                      <CardHeader className="bg-gradient-to-r from-slate-100 to-slate-50">
+                        <CardTitle className="text-lg text-slate-900">{category.category}</CardTitle>
+                      </CardHeader>
+                      <CardContent className="pt-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {category.modules.map((module) => {
+                            const hasAccess = hasModuleAccess(selectedUser.id, module.name);
+                            
+                            return (
+                              <div
+                                key={module.name}
+                                className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                                  hasAccess
+                                    ? 'border-emerald-300 bg-gradient-to-br from-emerald-50 to-green-50 shadow-md'
+                                    : 'border-slate-200 bg-white hover:border-slate-300'
+                                }`}
+                              >
+                                <div className="flex items-start justify-between">
+                                  <div className="flex items-start gap-3 flex-1">
+                                    <div className={`w-12 h-12 rounded-xl ${module.color} flex items-center justify-center shadow-lg transform transition-transform ${hasAccess ? 'scale-110' : ''}`}>
+                                      <module.icon className="w-6 h-6 text-white" />
+                                    </div>
+                                    <div className="flex-1">
+                                      <p className="font-bold text-slate-900">{module.label}</p>
+                                      <p className="text-xs text-slate-600 mt-1">{module.description}</p>
+                                      {hasAccess && (
+                                        <Badge className="mt-2 bg-emerald-600 flex items-center gap-1 w-fit">
+                                          <Check className="w-3 h-3" />
+                                          Access Granted
+                                        </Badge>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <button
+                                    onClick={() => handleTogglePermission(selectedUser.id, module.name, hasAccess)}
+                                    className={`px-4 py-2 rounded-lg font-bold transition-all transform hover:scale-105 ${
+                                      hasAccess
+                                        ? 'bg-emerald-500 text-white hover:bg-emerald-600'
+                                        : 'bg-red-500 text-white hover:bg-red-600'
+                                    }`}
+                                  >
+                                    {hasAccess ? (
+                                      <Check className="w-5 h-5" />
+                                    ) : (
+                                      <X className="w-5 h-5" />
+                                    )}
+                                  </button>
                                 </div>
                               </div>
-                              <Switch
-                                checked={hasRole}
-                                onCheckedChange={() => handleToggleRole(roleData.id, hasRole)}
-                                className={hasRole ? 'bg-emerald-600' : ''}
-                              />
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* User Access Capabilities Summary */}
-                  <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-purple-900">
-                        <Lock className="w-5 h-5" />
-                        {selectedUser.full_name}'s Access Capabilities
-                      </CardTitle>
-                      <p className="text-sm text-purple-700">Based on assigned roles above</p>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {[
-                          { capability: 'Patient Registration', roles: ['FRONT_DESK_STAFF', 'PHYSICIAN', 'NURSE'] },
-                          { capability: 'View Patient Records', roles: ['FRONT_DESK_STAFF', 'PHYSICIAN', 'NURSE', 'LAB_TECH', 'PHARMACIST', 'RADIOLOGIST'] },
-                          { capability: 'Clinical Documentation', roles: ['PHYSICIAN', 'NURSE'] },
-                          { capability: 'Write Prescriptions', roles: ['PHYSICIAN'] },
-                          { capability: 'Dispense Medications', roles: ['PHARMACIST'] },
-                          { capability: 'Lab Test Orders', roles: ['PHYSICIAN', 'LAB_TECH'] },
-                          { capability: 'Lab Results Entry', roles: ['LAB_TECH'] },
-                          { capability: 'Radiology Orders', roles: ['PHYSICIAN', 'RADIOLOGIST'] },
-                          { capability: 'Billing & Invoicing', roles: ['BILLING_STAFF', 'FRONT_DESK_STAFF'] },
-                          { capability: 'Inventory Management', roles: ['PHARMACIST', 'CLINIC_ADMIN_STAFF'] },
-                          { capability: 'System Configuration', roles: ['CLINIC_ADMIN_STAFF'] },
-                          { capability: 'User Management', roles: ['CLINIC_ADMIN_STAFF'] },
-                          { capability: 'Reports & Analytics', roles: ['CLINIC_ADMIN_STAFF', 'BILLING_STAFF'] }
-                        ].map((item, idx) => {
-                          const userHasAccess = item.roles.some(roleName => {
-                            const roleData = allRoles.find(r => r.role_name === roleName);
-                            return roleData && selectedUserRoles.some(ur => ur.role_id === roleData.id);
-                          });
-
-                          return (
-                            <div
-                              key={idx}
-                              className={`flex items-center justify-between p-3 rounded-lg border-2 ${
-                                userHasAccess
-                                  ? 'bg-emerald-50 border-emerald-300'
-                                  : 'bg-red-50 border-red-300'
-                              }`}
-                            >
-                              <span className="font-medium text-slate-900">{item.capability}</span>
-                              <div className="flex items-center gap-2">
-                                {userHasAccess ? (
-                                  <>
-                                    <Check className="w-5 h-5 text-emerald-600" />
-                                    <Badge className="bg-emerald-600">Granted</Badge>
-                                  </>
-                                ) : (
-                                  <>
-                                    <X className="w-5 h-5 text-red-600" />
-                                    <Badge className="bg-red-600">Denied</Badge>
-                                  </>
-                                )}
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </CardContent>
-                  </Card>
+                            );
+                          })}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               )}
 
               {!selectedUser && (
                 <div className="text-center py-12 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300">
                   <UserCheck className="w-16 h-16 mx-auto text-slate-300 mb-4" />
-                  <p className="text-slate-600 font-medium">Select a user to manage their roles</p>
+                  <p className="text-slate-600 font-medium">Select a user to assign module access</p>
                   <p className="text-sm text-slate-500 mt-1">Click on a user card above to get started</p>
                 </div>
               )}
-
-              {/* Permission Matrix Chart */}
-              <Card className="bg-gradient-to-br from-slate-50 to-blue-50 border-2 border-blue-200">
-                <CardHeader>
-                  <CardTitle className="text-blue-900">Roles & Access Capabilities Matrix</CardTitle>
-                  <p className="text-sm text-slate-600">Click to toggle permissions (Green ✓ = Access Granted, Red ✗ = Access Denied)</p>
-                </CardHeader>
-                <CardContent>
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b-2 border-blue-200">
-                          <th className="text-left p-3 font-bold text-slate-900">Access Capability</th>
-                          {functionalRoles.map((role) => (
-                            <th key={role.name} className="p-3 text-center">
-                              <div className="flex flex-col items-center gap-1">
-                                <div className={`w-10 h-10 rounded-lg ${role.color} flex items-center justify-center shadow`}>
-                                  <role.icon className="w-5 h-5 text-white" />
-                                </div>
-                                <span className="text-xs font-semibold text-slate-900">{role.label}</span>
-                              </div>
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {[
-                          { capability: 'Patient Registration', defaultAccess: { FRONT_DESK_STAFF: true, PHYSICIAN: true, NURSE: true } },
-                          { capability: 'View Patient Records', defaultAccess: { FRONT_DESK_STAFF: true, PHYSICIAN: true, NURSE: true, LAB_TECH: true, PHARMACIST: true, RADIOLOGIST: true } },
-                          { capability: 'Clinical Documentation', defaultAccess: { PHYSICIAN: true, NURSE: true } },
-                          { capability: 'Write Prescriptions', defaultAccess: { PHYSICIAN: true } },
-                          { capability: 'Dispense Medications', defaultAccess: { PHARMACIST: true } },
-                          { capability: 'Lab Test Orders', defaultAccess: { PHYSICIAN: true, LAB_TECH: true } },
-                          { capability: 'Lab Results Entry', defaultAccess: { LAB_TECH: true } },
-                          { capability: 'Radiology Orders', defaultAccess: { PHYSICIAN: true, RADIOLOGIST: true } },
-                          { capability: 'Billing & Invoicing', defaultAccess: { BILLING_STAFF: true, FRONT_DESK_STAFF: true } },
-                          { capability: 'Inventory Management', defaultAccess: { PHARMACIST: true, CLINIC_ADMIN_STAFF: true } },
-                          { capability: 'System Configuration', defaultAccess: { CLINIC_ADMIN_STAFF: true } },
-                          { capability: 'User Management', defaultAccess: { CLINIC_ADMIN_STAFF: true } },
-                          { capability: 'Reports & Analytics', defaultAccess: { CLINIC_ADMIN_STAFF: true, BILLING_STAFF: true } }
-                        ].map((item, idx) => (
-                          <tr key={idx} className="border-b hover:bg-blue-50 transition-colors">
-                            <td className="p-3 font-medium text-slate-900">{item.capability}</td>
-                            {functionalRoles.map((role) => {
-                              const hasAccess = item.defaultAccess[role.name] || false;
-                              return (
-                                <td key={role.name} className="p-3 text-center">
-                                  <button
-                                    className={`w-full py-2 px-3 rounded-lg transition-all transform hover:scale-105 ${
-                                      hasAccess
-                                        ? 'bg-emerald-100 border-2 border-emerald-300 hover:bg-emerald-200'
-                                        : 'bg-red-100 border-2 border-red-300 hover:bg-red-200'
-                                    }`}
-                                  >
-                                    {hasAccess ? (
-                                      <Check className="w-6 h-6 text-emerald-600 mx-auto" />
-                                    ) : (
-                                      <X className="w-6 h-6 text-red-600 mx-auto" />
-                                    )}
-                                  </button>
-                                </td>
-                              );
-                            })}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </CardContent>
-              </Card>
             </CardContent>
           </Card>
         </TabsContent>
