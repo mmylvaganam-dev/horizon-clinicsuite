@@ -585,50 +585,59 @@ export default function Admin() {
                       </div>
                     </CardHeader>
                     <CardContent>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {functionalRoles.map((role) => {
-                        const roleData = allRoles.find(r => r.role_name === role.name);
-                        if (!roleData) return null;
-                        
-                        const hasRole = selectedUserRoles.some(ur => ur.role_id === roleData.id);
-                        
-                        return (
-                          <div
-                            key={role.name}
-                            className={`p-4 rounded-xl border-2 transition-all duration-300 ${
-                              hasRole
-                                ? 'border-emerald-300 bg-gradient-to-br from-emerald-50 to-green-50 shadow-md'
-                                : 'border-slate-200 bg-white hover:border-slate-300'
-                            }`}
-                          >
-                            <div className="flex items-start justify-between">
-                              <div className="flex items-start gap-3 flex-1">
-                                <div className={`w-12 h-12 rounded-xl ${role.color} flex items-center justify-center shadow-lg transform transition-transform ${hasRole ? 'scale-110' : ''}`}>
-                                  <role.icon className="w-6 h-6 text-white" />
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        {functionalRoles.map((role) => {
+                          const roleData = allRoles.find(r => r.role_name === role.name);
+                          if (!roleData) return null;
+                          
+                          const hasRole = selectedUserRoles.some(ur => ur.role_id === roleData.id);
+                          
+                          return (
+                            <div
+                              key={role.name}
+                              className={`p-5 rounded-2xl border-4 transition-all duration-300 ${
+                                hasRole
+                                  ? 'border-emerald-500 bg-gradient-to-br from-emerald-100 to-green-100 shadow-2xl'
+                                  : 'border-slate-300 bg-white hover:border-slate-400'
+                              }`}
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="flex items-start gap-4 flex-1">
+                                  <div className={`w-16 h-16 rounded-2xl ${role.color} flex items-center justify-center shadow-xl transform transition-transform ${hasRole ? 'scale-110' : ''}`}>
+                                    <role.icon className="w-8 h-8 text-white" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <p className="font-bold text-xl text-slate-900">{role.label}</p>
+                                    <p className="text-sm text-slate-700 mt-1">{role.description}</p>
+                                    {hasRole && (
+                                      <div className="mt-3 flex items-center gap-2 bg-emerald-600 text-white px-3 py-1 rounded-full w-fit">
+                                        <Check className="w-4 h-4" />
+                                        <span className="font-bold text-sm">ON</span>
+                                      </div>
+                                    )}
+                                    {!hasRole && (
+                                      <div className="mt-3 flex items-center gap-2 bg-slate-300 text-slate-700 px-3 py-1 rounded-full w-fit">
+                                        <X className="w-4 h-4" />
+                                        <span className="font-bold text-sm">OFF</span>
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
-                                <div className="flex-1">
-                                  <p className="font-bold text-slate-900">{role.label}</p>
-                                  <p className="text-xs text-slate-600 mt-1">{role.description}</p>
-                                  {hasRole && (
-                                    <Badge className="mt-2 bg-emerald-600 flex items-center gap-1 w-fit">
-                                      <Check className="w-3 h-3" />
-                                      Active
-                                    </Badge>
-                                  )}
+                                <div className="flex flex-col items-center gap-2">
+                                  <p className="text-xs font-bold text-slate-600">CLICK HERE</p>
+                                  <Switch
+                                    checked={hasRole}
+                                    onCheckedChange={() => handleToggleRole(roleData.id, hasRole)}
+                                    className={`transform scale-150 ${hasRole ? 'bg-emerald-600' : ''}`}
+                                  />
                                 </div>
                               </div>
-                              <Switch
-                                checked={hasRole}
-                                onCheckedChange={() => handleToggleRole(roleData.id, hasRole)}
-                                className={hasRole ? 'bg-emerald-600' : ''}
-                              />
                             </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
 
                   {/* User Access Capabilities Summary */}
                   <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
