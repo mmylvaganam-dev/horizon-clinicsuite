@@ -537,59 +537,122 @@ export default function Admin() {
 
               {/* Role Toggles */}
               {selectedUser && (
-                <div className="mt-6 p-6 rounded-xl bg-white border-2 border-blue-300 shadow-lg">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                        <Shield className="w-5 h-5 text-blue-600" />
-                        Assign Roles to {selectedUser.full_name}
-                      </h3>
-                      <p className="text-sm text-slate-600">Toggle ON/OFF to grant or revoke access</p>
+                <div className="mt-6 space-y-6">
+                  <div className="p-6 rounded-xl bg-white border-2 border-blue-300 shadow-lg">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                          <Shield className="w-5 h-5 text-blue-600" />
+                          Assign Roles to {selectedUser.full_name}
+                        </h3>
+                        <p className="text-sm text-slate-600">Toggle ON/OFF to grant or revoke access</p>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {functionalRoles.map((role) => {
+                        const roleData = allRoles.find(r => r.role_name === role.name);
+                        if (!roleData) return null;
+                        
+                        const hasRole = selectedUserRoles.some(ur => ur.role_id === roleData.id);
+                        
+                        return (
+                          <div
+                            key={role.name}
+                            className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                              hasRole
+                                ? 'border-emerald-300 bg-gradient-to-br from-emerald-50 to-green-50 shadow-md'
+                                : 'border-slate-200 bg-white hover:border-slate-300'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex items-start gap-3 flex-1">
+                                <div className={`w-12 h-12 rounded-xl ${role.color} flex items-center justify-center shadow-lg transform transition-transform ${hasRole ? 'scale-110' : ''}`}>
+                                  <role.icon className="w-6 h-6 text-white" />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="font-bold text-slate-900">{role.label}</p>
+                                  <p className="text-xs text-slate-600 mt-1">{role.description}</p>
+                                  {hasRole && (
+                                    <Badge className="mt-2 bg-emerald-600 flex items-center gap-1 w-fit">
+                                      <Check className="w-3 h-3" />
+                                      Active
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                              <Switch
+                                checked={hasRole}
+                                onCheckedChange={() => handleToggleRole(roleData.id, hasRole)}
+                                className={hasRole ? 'bg-emerald-600' : ''}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {functionalRoles.map((role) => {
-                      const roleData = allRoles.find(r => r.role_name === role.name);
-                      if (!roleData) return null;
-                      
-                      const hasRole = selectedUserRoles.some(ur => ur.role_id === roleData.id);
-                      
-                      return (
-                        <div
-                          key={role.name}
-                          className={`p-4 rounded-xl border-2 transition-all duration-300 ${
-                            hasRole
-                              ? 'border-emerald-300 bg-gradient-to-br from-emerald-50 to-green-50 shadow-md'
-                              : 'border-slate-200 bg-white hover:border-slate-300'
-                          }`}
-                        >
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-start gap-3 flex-1">
-                              <div className={`w-12 h-12 rounded-xl ${role.color} flex items-center justify-center shadow-lg transform transition-transform ${hasRole ? 'scale-110' : ''}`}>
-                                <role.icon className="w-6 h-6 text-white" />
-                              </div>
-                              <div className="flex-1">
-                                <p className="font-bold text-slate-900">{role.label}</p>
-                                <p className="text-xs text-slate-600 mt-1">{role.description}</p>
-                                {hasRole && (
-                                  <Badge className="mt-2 bg-emerald-600 flex items-center gap-1 w-fit">
-                                    <Check className="w-3 h-3" />
-                                    Active
-                                  </Badge>
+
+                  {/* User Access Capabilities Summary */}
+                  <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-purple-900">
+                        <Lock className="w-5 h-5" />
+                        {selectedUser.full_name}'s Access Capabilities
+                      </CardTitle>
+                      <p className="text-sm text-purple-700">Based on assigned roles above</p>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {[
+                          { capability: 'Patient Registration', roles: ['FRONT_DESK_STAFF', 'PHYSICIAN', 'NURSE'] },
+                          { capability: 'View Patient Records', roles: ['FRONT_DESK_STAFF', 'PHYSICIAN', 'NURSE', 'LAB_TECH', 'PHARMACIST', 'RADIOLOGIST'] },
+                          { capability: 'Clinical Documentation', roles: ['PHYSICIAN', 'NURSE'] },
+                          { capability: 'Write Prescriptions', roles: ['PHYSICIAN'] },
+                          { capability: 'Dispense Medications', roles: ['PHARMACIST'] },
+                          { capability: 'Lab Test Orders', roles: ['PHYSICIAN', 'LAB_TECH'] },
+                          { capability: 'Lab Results Entry', roles: ['LAB_TECH'] },
+                          { capability: 'Radiology Orders', roles: ['PHYSICIAN', 'RADIOLOGIST'] },
+                          { capability: 'Billing & Invoicing', roles: ['BILLING_STAFF', 'FRONT_DESK_STAFF'] },
+                          { capability: 'Inventory Management', roles: ['PHARMACIST', 'CLINIC_ADMIN_STAFF'] },
+                          { capability: 'System Configuration', roles: ['CLINIC_ADMIN_STAFF'] },
+                          { capability: 'User Management', roles: ['CLINIC_ADMIN_STAFF'] },
+                          { capability: 'Reports & Analytics', roles: ['CLINIC_ADMIN_STAFF', 'BILLING_STAFF'] }
+                        ].map((item, idx) => {
+                          const userHasAccess = item.roles.some(roleName => {
+                            const roleData = allRoles.find(r => r.role_name === roleName);
+                            return roleData && selectedUserRoles.some(ur => ur.role_id === roleData.id);
+                          });
+
+                          return (
+                            <div
+                              key={idx}
+                              className={`flex items-center justify-between p-3 rounded-lg border-2 ${
+                                userHasAccess
+                                  ? 'bg-emerald-50 border-emerald-300'
+                                  : 'bg-red-50 border-red-300'
+                              }`}
+                            >
+                              <span className="font-medium text-slate-900">{item.capability}</span>
+                              <div className="flex items-center gap-2">
+                                {userHasAccess ? (
+                                  <>
+                                    <Check className="w-5 h-5 text-emerald-600" />
+                                    <Badge className="bg-emerald-600">Granted</Badge>
+                                  </>
+                                ) : (
+                                  <>
+                                    <X className="w-5 h-5 text-red-600" />
+                                    <Badge className="bg-red-600">Denied</Badge>
+                                  </>
                                 )}
                               </div>
                             </div>
-                            <Switch
-                              checked={hasRole}
-                              onCheckedChange={() => handleToggleRole(roleData.id, hasRole)}
-                              className={hasRole ? 'bg-emerald-600' : ''}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
               )}
 
