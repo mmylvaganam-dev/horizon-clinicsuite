@@ -440,37 +440,199 @@ export default function Admin() {
         }
       ];
 
+  const functionalRoles = [
+    { name: 'FRONT_DESK_STAFF', label: 'Front Desk Staff', icon: UserCheck, description: 'Patient registration, appointments', color: 'bg-blue-500' },
+    { name: 'PHYSICIAN', label: 'Physician', icon: Activity, description: 'Clinical documentation, prescriptions', color: 'bg-purple-500' },
+    { name: 'NURSE', label: 'Nurse', icon: Users, description: 'Vitals, medication administration', color: 'bg-pink-500' },
+    { name: 'LAB_TECH', label: 'Lab Technician', icon: FileText, description: 'Lab specimen processing, results', color: 'bg-cyan-500' },
+    { name: 'PHARMACIST', label: 'Pharmacist', icon: Shield, description: 'Dispense medications, inventory', color: 'bg-green-500' },
+    { name: 'RADIOLOGIST', label: 'Radiologist', icon: Activity, description: 'Imaging orders and interpretation', color: 'bg-orange-500' },
+    { name: 'BILLING_STAFF', label: 'Billing Staff', icon: DollarSign, description: 'Invoicing and payment processing', color: 'bg-emerald-500' },
+    { name: 'CLINIC_ADMIN_STAFF', label: 'Clinic Admin', icon: Settings, description: 'System configuration, user management', color: 'bg-indigo-500' }
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">System Administration</h1>
-          <p className="text-slate-500 mt-1">Manage organizations, users, roles, and system configuration</p>
+          <p className="text-slate-500 mt-1">Manage users, permissions, and system configuration</p>
         </div>
         <PageInfoTooltip
           title="System Administration"
-          description="Central hub for managing all system configuration, security, users, roles, billing, compliance, and operational settings. Access to admin functions varies based on user role (Platform Owner, App Admin, Organization Admin)."
+          description="Central hub for managing all system configuration, security, users, roles, billing, compliance, and operational settings."
           useCases={[
-            "Set up new organizations and locations",
-            "Manage user accounts and permissions",
-            "Configure billing and pricing",
-            "Set up roles and access control",
-            "Monitor system health and security",
-            "Review audit logs and compliance",
-            "Configure integrations and modules"
+            "Assign roles to organization members",
+            "Configure user permissions",
+            "Set up organizations and locations",
+            "Monitor system health and security"
           ]}
           bestPractices={[
-            "Complete Go-Live Checklist before production",
-            "Review security validation regularly",
-            "Monitor audit logs for suspicious activity",
-            "Keep role permissions up to date",
-            "Perform regular backups",
-            "Document all configuration changes",
-            "Restrict admin access appropriately",
-            "Test changes in non-production first"
+            "Assign roles based on job function",
+            "Review permissions regularly",
+            "Monitor audit logs",
+            "Restrict admin access appropriately"
           ]}
         />
       </div>
+
+      <Tabs defaultValue="access" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="access" className="flex items-center gap-2">
+            <UserCheck className="w-4 h-4" />
+            User Access Control
+          </TabsTrigger>
+          <TabsTrigger value="organization" className="flex items-center gap-2">
+            <Building2 className="w-4 h-4" />
+            Organization Setup
+          </TabsTrigger>
+          <TabsTrigger value="system" className="flex items-center gap-2">
+            <Settings className="w-4 h-4" />
+            System Settings
+          </TabsTrigger>
+        </TabsList>
+
+        {/* User Access Control Tab */}
+        <TabsContent value="access" className="space-y-6">
+          <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-blue-900">
+                <UserCheck className="w-6 h-6" />
+                User Roles & Permissions
+              </CardTitle>
+              <p className="text-sm text-blue-700">Assign functional roles to organization members with ON/OFF toggles</p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* User Selection */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                {allUsers.map((u) => (
+                  <button
+                    key={u.id}
+                    onClick={() => setSelectedUser(u)}
+                    className={`p-4 rounded-xl border-2 transition-all duration-200 text-left transform hover:scale-105 ${
+                      selectedUser?.id === u.id
+                        ? 'border-blue-500 bg-blue-100 shadow-lg'
+                        : 'border-slate-200 bg-white hover:border-blue-300 hover:shadow'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        selectedUser?.id === u.id ? 'bg-blue-500' : 'bg-slate-200'
+                      }`}>
+                        <Users className={`w-5 h-5 ${selectedUser?.id === u.id ? 'text-white' : 'text-slate-600'}`} />
+                      </div>
+                      <div>
+                        <p className={`font-semibold ${selectedUser?.id === u.id ? 'text-blue-900' : 'text-slate-900'}`}>
+                          {u.full_name}
+                        </p>
+                        <p className="text-xs text-slate-600">{u.email}</p>
+                      </div>
+                    </div>
+                    {selectedUser?.id === u.id && (
+                      <Badge className="mt-2 bg-blue-600">Selected</Badge>
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {/* Role Toggles */}
+              {selectedUser && (
+                <div className="mt-6 p-6 rounded-xl bg-white border-2 border-blue-300 shadow-lg">
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <Shield className="w-5 h-5 text-blue-600" />
+                        Assign Roles to {selectedUser.full_name}
+                      </h3>
+                      <p className="text-sm text-slate-600">Toggle ON/OFF to grant or revoke access</p>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {functionalRoles.map((role) => {
+                      const roleData = allRoles.find(r => r.role_name === role.name);
+                      if (!roleData) return null;
+                      
+                      const hasRole = selectedUserRoles.some(ur => ur.role_id === roleData.id);
+                      
+                      return (
+                        <div
+                          key={role.name}
+                          className={`p-4 rounded-xl border-2 transition-all duration-300 ${
+                            hasRole
+                              ? 'border-emerald-300 bg-gradient-to-br from-emerald-50 to-green-50 shadow-md'
+                              : 'border-slate-200 bg-white hover:border-slate-300'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-start gap-3 flex-1">
+                              <div className={`w-12 h-12 rounded-xl ${role.color} flex items-center justify-center shadow-lg transform transition-transform ${hasRole ? 'scale-110' : ''}`}>
+                                <role.icon className="w-6 h-6 text-white" />
+                              </div>
+                              <div className="flex-1">
+                                <p className="font-bold text-slate-900">{role.label}</p>
+                                <p className="text-xs text-slate-600 mt-1">{role.description}</p>
+                                {hasRole && (
+                                  <Badge className="mt-2 bg-emerald-600 flex items-center gap-1 w-fit">
+                                    <Check className="w-3 h-3" />
+                                    Active
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            <Switch
+                              checked={hasRole}
+                              onCheckedChange={() => handleToggleRole(roleData.id, hasRole)}
+                              className={hasRole ? 'bg-emerald-600' : ''}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {!selectedUser && (
+                <div className="text-center py-12 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300">
+                  <UserCheck className="w-16 h-16 mx-auto text-slate-300 mb-4" />
+                  <p className="text-slate-600 font-medium">Select a user to manage their roles</p>
+                  <p className="text-sm text-slate-500 mt-1">Click on a user card above to get started</p>
+                </div>
+              )}
+
+              {/* Permission Summary Chart */}
+              <Card className="bg-gradient-to-br from-slate-50 to-blue-50 border-2 border-blue-200">
+                <CardHeader>
+                  <CardTitle className="text-blue-900">Roles & Permissions Overview</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    {functionalRoles.map((role) => (
+                      <div key={role.name} className="p-3 bg-white rounded-lg border">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className={`w-8 h-8 rounded-lg ${role.color} flex items-center justify-center`}>
+                            <role.icon className="w-4 h-4 text-white" />
+                          </div>
+                          <p className="font-semibold text-sm">{role.label}</p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-xs text-slate-600 flex items-center gap-1">
+                            <Check className="w-3 h-3 text-emerald-600" />
+                            {role.description.split(',')[0]}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Organization Setup Tab */}
+        <TabsContent value="organization" className="space-y-6">
 
       {isPlatformOwner && (
         <Card
