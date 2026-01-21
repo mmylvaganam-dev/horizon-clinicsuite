@@ -30,10 +30,17 @@ import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 
 export default function Admin() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
+  });
+
+  const { data: allUsers = [] } = useQuery({
+    queryKey: ['allUsers'],
+    queryFn: () => base44.entities.User.list(),
   });
 
   const { data: userRoles = [] } = useQuery({
@@ -50,6 +57,15 @@ export default function Admin() {
     queryFn: () => base44.entities.Role.list(),
   });
 
+  const { data: selectedUserRoles = [] } = useQuery({
+    queryKey: ['selectedUserRoles', selectedUser?.id],
+    queryFn: async () => {
+      const roles = await base44.entities.UserRole.filter({ user_id: selectedUser.id });
+      return roles;
+    },
+    enabled: !!selectedUser,
+  });
+
   const isPlatformOwner = userRoles.some(ur => {
     const role = allRoles.find(r => r.id === ur.role_id);
     return role?.role_name === 'PLATFORM_OWNER';
@@ -59,6 +75,35 @@ export default function Admin() {
     const role = allRoles.find(r => r.id === ur.role_id);
     return role?.role_name === 'APP_ADMIN';
   });
+
+  const toggleRoleMutation = useMutation({
+    mutationFn: async ({ userId, roleId, hasRole }) => {
+      if (hasRole) {
+        const userRole = selectedUserRoles.find(ur => ur.role_id === roleId);
+        if (userRole) {
+          await base44.entities.UserRole.delete(userRole.id);
+        }
+      } else {
+        await base44.entities.UserRole.create({
+          user_id: userId,
+          role_id: roleId,
+          organization_id: user.organization_id
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['selectedUserRoles']);
+      toast.success('Role updated successfully');
+    },
+    onError: () => {
+      toast.error('Failed to update role');
+    }
+  });
+
+  const handleToggleRole = (roleId, hasRole) => {
+    if (!selectedUser) return;
+    toggleRoleMutation.mutate({ userId: selectedUser.id, roleId, hasRole });
+  };
 
   const adminCategories = [
     {
