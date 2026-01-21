@@ -539,27 +539,30 @@ export default function Admin() {
                   <button
                     key={u.id}
                     onClick={() => setSelectedUser(u)}
-                    className={`p-4 rounded-xl border-2 transition-all duration-200 text-left transform hover:scale-105 ${
+                    className={`p-6 rounded-2xl border-3 transition-all duration-200 text-left transform hover:scale-105 ${
                       selectedUser?.id === u.id
-                        ? 'border-blue-500 bg-blue-100 shadow-lg'
-                        : 'border-slate-200 bg-white hover:border-blue-300 hover:shadow'
+                        ? 'border-4 border-blue-600 bg-gradient-to-br from-blue-100 to-blue-200 shadow-2xl'
+                        : 'border-2 border-slate-300 bg-white hover:border-blue-400 hover:shadow-xl'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        selectedUser?.id === u.id ? 'bg-blue-500' : 'bg-slate-200'
+                    <div className="flex items-center gap-4">
+                      <div className={`w-14 h-14 rounded-full flex items-center justify-center ${
+                        selectedUser?.id === u.id ? 'bg-blue-600' : 'bg-slate-300'
                       }`}>
-                        <Users className={`w-5 h-5 ${selectedUser?.id === u.id ? 'text-white' : 'text-slate-600'}`} />
+                        <Users className={`w-7 h-7 ${selectedUser?.id === u.id ? 'text-white' : 'text-slate-600'}`} />
                       </div>
                       <div>
-                        <p className={`font-semibold ${selectedUser?.id === u.id ? 'text-blue-900' : 'text-slate-900'}`}>
+                        <p className={`font-bold text-lg ${selectedUser?.id === u.id ? 'text-blue-900' : 'text-slate-900'}`}>
                           {u.full_name}
                         </p>
-                        <p className="text-xs text-slate-600">{u.email}</p>
+                        <p className="text-sm text-slate-600">{u.email}</p>
                       </div>
                     </div>
                     {selectedUser?.id === u.id && (
-                      <Badge className="mt-2 bg-blue-600">Selected</Badge>
+                      <div className="mt-3 flex items-center gap-2">
+                        <Check className="w-5 h-5 text-blue-600" />
+                        <span className="font-bold text-blue-900">SELECTED ✓</span>
+                      </div>
                     )}
                   </button>
                 ))}
