@@ -708,10 +708,10 @@ export default function Admin() {
               )}
 
               {!selectedUser && (
-                <div className="text-center py-12 bg-slate-50 rounded-xl border-2 border-dashed border-slate-300">
-                  <UserCheck className="w-16 h-16 mx-auto text-slate-300 mb-4" />
-                  <p className="text-slate-600 font-medium">Select a user to manage their roles</p>
-                  <p className="text-sm text-slate-500 mt-1">Click on a user card above to get started</p>
+                <div className="text-center py-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl border-4 border-dashed border-slate-400">
+                  <Users className="w-24 h-24 mx-auto text-slate-400 mb-4" />
+                  <p className="text-slate-700 font-bold text-2xl">👆 Click on a Staff Member Above</p>
+                  <p className="text-lg text-slate-600 mt-2">Choose someone to give them access to the system</p>
                 </div>
               )}
 
