@@ -571,16 +571,20 @@ export default function Admin() {
               {/* Role Toggles */}
               {selectedUser && (
                 <div className="mt-6 space-y-6">
-                  <div className="p-6 rounded-xl bg-white border-2 border-blue-300 shadow-lg">
-                    <div className="flex items-center justify-between mb-4">
-                      <div>
-                        <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                          <Shield className="w-5 h-5 text-blue-600" />
-                          Assign Roles to {selectedUser.full_name}
-                        </h3>
-                        <p className="text-sm text-slate-600">Toggle ON/OFF to grant or revoke access</p>
+                  <Card className="border-4 border-emerald-300 bg-gradient-to-br from-emerald-50 to-green-50 shadow-2xl">
+                    <CardHeader>
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 bg-emerald-600 text-white rounded-full flex items-center justify-center text-xl font-bold">2</div>
+                        <div>
+                          <CardTitle className="text-emerald-900 text-2xl flex items-center gap-2">
+                            <Shield className="w-7 h-7" />
+                            Give Roles to {selectedUser.full_name}
+                          </CardTitle>
+                          <p className="text-lg text-emerald-700 mt-1 font-semibold">👇 Click the switches below to turn ON or OFF</p>
+                        </div>
                       </div>
-                    </div>
+                    </CardHeader>
+                    <CardContent>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {functionalRoles.map((role) => {
