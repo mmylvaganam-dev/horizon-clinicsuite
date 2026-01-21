@@ -634,174 +634,129 @@ export default function Admin() {
         {/* Organization Setup Tab */}
         <TabsContent value="organization" className="space-y-6">
 
-      {isPlatformOwner && (
-        <Card
-          className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 border-rose-300 bg-rose-50"
-          onClick={() => navigate(createPageUrl('PlatformSettings'))}
-        >
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center shadow-lg">
-                <Shield className="w-7 h-7 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-rose-900">Platform Settings</h3>
-                <p className="text-sm text-rose-700">Owner-level system administration</p>
-                <Badge className="bg-rose-200 text-rose-800 mt-2">PLATFORM_OWNER ONLY</Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+          <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-green-900">
+                <Building2 className="w-6 h-6" />
+                Organization Configuration
+              </CardTitle>
+              <p className="text-sm text-green-700">Company structure, branding, and location management</p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <button
+                  onClick={() => navigate(createPageUrl('FinanceCompanies'))}
+                  className="p-4 rounded-xl border-2 border-blue-300 bg-white hover:shadow-lg transition-all transform hover:scale-105"
+                >
+                  <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg mb-3">
+                    <Building2 className="w-6 h-6 text-white" />
+                  </div>
+                  <p className="font-bold text-slate-900 text-center">Company Profile</p>
+                  <p className="text-xs text-slate-600 text-center mt-1">Business details</p>
+                </button>
 
-      {isAppAdmin && (
-        <Card
-          className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 border-blue-300 bg-blue-50"
-          onClick={() => navigate(createPageUrl('AppAdministration'))}
-        >
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
-                <Settings className="w-7 h-7 text-white" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-blue-900">App Administration</h3>
-                <p className="text-sm text-blue-700">Limited configuration support (no PHI access)</p>
-                <Badge className="bg-blue-200 text-blue-800 mt-2">APP_ADMIN</Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                <button
+                  onClick={() => navigate(createPageUrl('AdminOrganizations'))}
+                  className="p-4 rounded-xl border-2 border-cyan-300 bg-white hover:shadow-lg transition-all transform hover:scale-105"
+                >
+                  <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center shadow-lg mb-3">
+                    <Building2 className="w-6 h-6 text-white" />
+                  </div>
+                  <p className="font-bold text-slate-900 text-center">Organizations</p>
+                  <p className="text-xs text-slate-600 text-center mt-1">Locations & structure</p>
+                </button>
 
-      {isPlatformOwner && (
-        <Card className="border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50">
-          <CardContent className="pt-6">
-            <h3 className="text-xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-              <Building2 className="w-6 h-6 text-blue-600" />
-              Company & Organization Setup
-            </h3>
-            <p className="text-sm text-slate-500 mb-4">Manage companies, organizations, and users</p>
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-              <button
-                onClick={() => navigate(createPageUrl('FinanceCompanies'))}
-                className="p-4 rounded-lg border-2 border-blue-300 bg-white hover:bg-blue-50 transition-all text-left"
-              >
+                <button
+                  onClick={() => navigate(createPageUrl('AdminOrganizationBranding'))}
+                  className="p-4 rounded-xl border-2 border-purple-300 bg-white hover:shadow-lg transition-all transform hover:scale-105"
+                >
+                  <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg mb-3">
+                    <Settings className="w-6 h-6 text-white" />
+                  </div>
+                  <p className="font-bold text-slate-900 text-center">Branding</p>
+                  <p className="text-xs text-slate-600 text-center mt-1">Logo & theme</p>
+                </button>
+
+                <button
+                  onClick={() => navigate(createPageUrl('AdminModuleToggles'))}
+                  className="p-4 rounded-xl border-2 border-indigo-300 bg-white hover:shadow-lg transition-all transform hover:scale-105"
+                >
+                  <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg mb-3">
+                    <Grid3X3 className="w-6 h-6 text-white" />
+                  </div>
+                  <p className="font-bold text-slate-900 text-center">Modules</p>
+                  <p className="text-xs text-slate-600 text-center mt-1">Enable/disable</p>
+                </button>
+
+                <button
+                  onClick={() => navigate(createPageUrl('AdminConfig'))}
+                  className="p-4 rounded-xl border-2 border-teal-300 bg-white hover:shadow-lg transition-all transform hover:scale-105"
+                >
+                  <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg mb-3">
+                    <Settings className="w-6 h-6 text-white" />
+                  </div>
+                  <p className="font-bold text-slate-900 text-center">Configuration</p>
+                  <p className="text-xs text-slate-600 text-center mt-1">System settings</p>
+                </button>
+
+                <button
+                  onClick={() => navigate(createPageUrl('AdminLocations'))}
+                  className="p-4 rounded-xl border-2 border-pink-300 bg-white hover:shadow-lg transition-all transform hover:scale-105"
+                >
+                  <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center shadow-lg mb-3">
+                    <MapPin className="w-6 h-6 text-white" />
+                  </div>
+                  <p className="font-bold text-slate-900 text-center">Locations</p>
+                  <p className="text-xs text-slate-600 text-center mt-1">Clinics & branches</p>
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* System Settings Tab */}
+        <TabsContent value="system" className="space-y-6">
+          {adminCategories.map((category, idx) => (
+            <Card key={idx} className={`border-2`}>
+              <CardHeader className={`bg-gradient-to-r ${category.color} bg-opacity-10`}>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                    <Building2 className="w-5 h-5 text-white" />
+                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center shadow-lg`}>
+                    <category.icon className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <p className="font-semibold text-slate-900">Company Profile</p>
-                    <p className="text-xs text-slate-500">Business details</p>
+                    <CardTitle className="text-slate-900">{category.category}</CardTitle>
+                    <p className="text-sm text-slate-600">{category.description}</p>
                   </div>
                 </div>
-              </button>
-              <button
-                onClick={() => navigate(createPageUrl('AdminCompanies'))}
-                className="p-4 rounded-lg border-2 border-blue-300 bg-white hover:bg-blue-50 transition-all text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                    <Building2 className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-slate-900">Organizations</p>
-                    <p className="text-xs text-slate-500">Create & manage</p>
-                  </div>
-                </div>
-              </button>
-              <button
-                onClick={() => navigate(createPageUrl('CompanyHierarchy'))}
-                className="p-4 rounded-lg border-2 border-cyan-300 bg-white hover:bg-cyan-50 transition-all text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center">
-                    <Building2 className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-slate-900">Hierarchy</p>
-                    <p className="text-xs text-slate-500">Company structure</p>
-                  </div>
-                </div>
-              </button>
-              <button
-                onClick={() => navigate(createPageUrl('OrganizationUserManagement'))}
-                className="p-4 rounded-lg border-2 border-teal-300 bg-white hover:bg-teal-50 transition-all text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center">
-                    <Users className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-slate-900">Users</p>
-                    <p className="text-xs text-slate-500">Invite & manage</p>
-                  </div>
-                </div>
-              </button>
-              <button
-                onClick={() => navigate(createPageUrl('AdminRoleStandards'))}
-                className="p-4 rounded-lg border-2 border-indigo-300 bg-white hover:bg-indigo-50 transition-all text-left"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
-                    <Shield className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-slate-900">Roles</p>
-                    <p className="text-xs text-slate-500">Setup & assign</p>
-                  </div>
-                </div>
-              </button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+              </CardHeader>
+              <CardContent className="pt-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {category.modules.map((module) => {
+                    if (module.ownerOnly && !isPlatformOwner) return null;
 
-      <div className="space-y-8">
-        {adminCategories.map((category, idx) => (
-          <div key={idx}>
-            <div className="flex items-center gap-3 mb-4">
-              <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center`}>
-                <category.icon className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-slate-900">{category.category}</h2>
-                <p className="text-sm text-slate-500">{category.description}</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-              {category.modules.map((module) => {
-                if (module.ownerOnly && !isPlatformOwner) return null;
-
-                return (
-                  <Link key={module.page} to={createPageUrl(module.page)}>
-                    <Card className="hover:shadow-lg transition-all duration-200 group cursor-pointer border overflow-hidden h-full">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-start gap-3">
-                          <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                            <module.icon className="w-5 h-5 text-white" />
-                          </div>
-                          <div className="flex-1">
-                            <CardTitle className="text-sm leading-tight">
-                              {module.title}
-                              {module.ownerOnly && <Badge className="ml-1 bg-rose-100 text-rose-700 text-[10px] px-1">Owner</Badge>}
-                            </CardTitle>
-                          </div>
+                    return (
+                      <button
+                        key={module.page}
+                        onClick={() => navigate(createPageUrl(module.page))}
+                        className="p-4 rounded-xl border-2 border-slate-200 bg-white hover:border-slate-400 hover:shadow-lg transition-all transform hover:scale-105 text-left"
+                      >
+                        <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center mb-3 shadow`}>
+                          <module.icon className="w-5 h-5 text-white" />
                         </div>
-                      </CardHeader>
-                      <CardContent className="pt-0">
-                        <p className="text-xs text-slate-500">{module.description}</p>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
+                        <p className="font-semibold text-slate-900 text-sm">{module.title}</p>
+                        <p className="text-xs text-slate-600 mt-1">{module.description}</p>
+                        {module.ownerOnly && (
+                          <Badge className="mt-2 bg-rose-100 text-rose-700 text-[10px]">Owner Only</Badge>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
