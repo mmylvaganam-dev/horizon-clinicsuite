@@ -640,13 +640,18 @@ export default function Admin() {
                   </Card>
 
                   {/* User Access Capabilities Summary */}
-                  <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50">
+                  <Card className="border-4 border-purple-300 bg-gradient-to-br from-purple-50 to-pink-50 shadow-2xl">
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-purple-900">
-                        <Lock className="w-5 h-5" />
-                        {selectedUser.full_name}'s Access Capabilities
-                      </CardTitle>
-                      <p className="text-sm text-purple-700">Based on assigned roles above</p>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-purple-600 text-white rounded-full flex items-center justify-center text-xl font-bold">3</div>
+                        <div>
+                          <CardTitle className="flex items-center gap-2 text-purple-900 text-2xl">
+                            <Check className="w-7 h-7" />
+                            What Can {selectedUser.full_name} Do?
+                          </CardTitle>
+                          <p className="text-lg text-purple-700 mt-1">Here's what they can access based on their roles</p>
+                        </div>
+                      </div>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
