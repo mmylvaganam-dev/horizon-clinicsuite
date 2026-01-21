@@ -396,15 +396,56 @@ export default function Admin() {
         }
       ];
 
-  const functionalRoles = [
-    { name: 'FRONT_DESK_STAFF', label: 'Front Desk Staff', icon: UserCheck, description: 'Patient registration, appointments', color: 'bg-blue-500' },
-    { name: 'PHYSICIAN', label: 'Physician', icon: Activity, description: 'Clinical documentation, prescriptions', color: 'bg-purple-500' },
-    { name: 'NURSE', label: 'Nurse', icon: Users, description: 'Vitals, medication administration', color: 'bg-pink-500' },
-    { name: 'LAB_TECH', label: 'Lab Technician', icon: FileText, description: 'Lab specimen processing, results', color: 'bg-cyan-500' },
-    { name: 'PHARMACIST', label: 'Pharmacist', icon: Shield, description: 'Dispense medications, inventory', color: 'bg-green-500' },
-    { name: 'RADIOLOGIST', label: 'Radiologist', icon: Activity, description: 'Imaging orders and interpretation', color: 'bg-orange-500' },
-    { name: 'BILLING_STAFF', label: 'Billing Staff', icon: DollarSign, description: 'Invoicing and payment processing', color: 'bg-emerald-500' },
-    { name: 'CLINIC_ADMIN_STAFF', label: 'Clinic Admin', icon: Settings, description: 'System configuration, user management', color: 'bg-indigo-500' }
+  const modulePermissions = [
+    { 
+      category: 'Clinical Operations',
+      modules: [
+        { name: 'patient_registration', label: 'Patient Registration', icon: Users, description: 'Register and manage patients', color: 'bg-blue-500' },
+        { name: 'appointments', label: 'Appointments', icon: Activity, description: 'Schedule and manage appointments', color: 'bg-purple-500' },
+        { name: 'emr', label: 'EMR/Clinical Notes', icon: FileText, description: 'Electronic medical records', color: 'bg-teal-500' },
+        { name: 'prescriptions', label: 'Prescriptions', icon: FileText, description: 'Write and manage prescriptions', color: 'bg-indigo-500' },
+        { name: 'vitals', label: 'Vitals Entry', icon: Activity, description: 'Record patient vitals', color: 'bg-pink-500' }
+      ]
+    },
+    {
+      category: 'Pharmacy Operations',
+      modules: [
+        { name: 'pharmacy_pos', label: 'Pharmacy POS', icon: ShoppingBag, description: 'Point of sale operations', color: 'bg-green-500' },
+        { name: 'pharmacy_inventory', label: 'Pharmacy Inventory', icon: Grid3X3, description: 'Stock management', color: 'bg-emerald-500' },
+        { name: 'dispense', label: 'Dispense Medications', icon: Check, description: 'Medication dispensing', color: 'bg-teal-500' }
+      ]
+    },
+    {
+      category: 'Laboratory',
+      modules: [
+        { name: 'lab_orders', label: 'Lab Orders', icon: FileText, description: 'Create lab orders', color: 'bg-cyan-500' },
+        { name: 'lab_results', label: 'Lab Results Entry', icon: Activity, description: 'Enter test results', color: 'bg-blue-500' },
+        { name: 'lab_reports', label: 'Lab Reports', icon: FileText, description: 'View and print reports', color: 'bg-indigo-500' }
+      ]
+    },
+    {
+      category: 'Radiology',
+      modules: [
+        { name: 'radiology_orders', label: 'Radiology Orders', icon: Activity, description: 'Order imaging studies', color: 'bg-orange-500' },
+        { name: 'radiology_results', label: 'Radiology Results', icon: FileText, description: 'Enter radiology findings', color: 'bg-red-500' }
+      ]
+    },
+    {
+      category: 'Financial',
+      modules: [
+        { name: 'billing', label: 'Billing & Invoicing', icon: DollarSign, description: 'Create invoices', color: 'bg-green-500' },
+        { name: 'payments', label: 'Payment Processing', icon: DollarSign, description: 'Receive payments', color: 'bg-emerald-500' },
+        { name: 'reports', label: 'Financial Reports', icon: FileText, description: 'View financial reports', color: 'bg-teal-500' }
+      ]
+    },
+    {
+      category: 'Administration',
+      modules: [
+        { name: 'user_management', label: 'User Management', icon: Users, description: 'Manage system users', color: 'bg-indigo-500' },
+        { name: 'system_config', label: 'System Configuration', icon: Settings, description: 'Configure system settings', color: 'bg-purple-500' },
+        { name: 'audit_logs', label: 'Audit Logs', icon: FileText, description: 'View system audit logs', color: 'bg-slate-500' }
+      ]
+    }
   ];
 
   return (
