@@ -198,248 +198,6 @@ export default function Admin() {
     },
   ];
 
-  const adminModules = [
-    {
-      title: 'Companies & Organizations',
-      description: 'Manage organizations and locations',
-      icon: Building2,
-      page: 'AdminCompanies',
-      color: 'from-blue-500 to-blue-600',
-      ownerOnly: true
-    },
-    {
-      title: 'Module Toggles',
-      description: 'Enable/disable modules',
-      icon: Grid3X3,
-      page: 'AdminModuleToggles',
-      color: 'from-purple-500 to-purple-600'
-    },
-    {
-      title: 'Billing',
-      description: 'Invoice and payment management',
-      icon: DollarSign,
-      page: 'Billing',
-      color: 'from-green-500 to-green-600'
-    },
-    {
-      title: 'Organization Users',
-      description: 'Manage organization users',
-      icon: Users,
-      page: 'OrganizationUserManagement',
-      color: 'from-cyan-500 to-cyan-600'
-    },
-    {
-      title: 'Users & Roles',
-      description: 'Manage user roles and permissions',
-      icon: Users,
-      page: 'AdminUsers',
-      color: 'from-teal-500 to-teal-600'
-    },
-    {
-      title: 'Role Standards',
-      description: 'Standardized RBAC roles',
-      icon: Shield,
-      page: 'AdminRoleStandards',
-      color: 'from-indigo-500 to-indigo-600'
-    },
-    {
-      title: 'Role Permissions',
-      description: 'View role permission matrix',
-      icon: Shield,
-      page: 'AdminRolePermissions',
-      color: 'from-purple-500 to-purple-600'
-    },
-    {
-      title: 'Permissions',
-      description: 'Configure role permissions',
-      icon: Shield,
-      page: 'AdminPermissions',
-      color: 'from-rose-500 to-rose-600'
-    },
-    {
-      title: 'Permission Matrix',
-      description: 'Visual permission editor',
-      icon: Grid3X3,
-      page: 'AdminPermissionMatrix',
-      color: 'from-violet-500 to-violet-600'
-    },
-    {
-      title: 'Modules',
-      description: 'Manage module access',
-      icon: Grid3X3,
-      page: 'AdminModules',
-      color: 'from-amber-500 to-amber-600'
-    },
-    {
-      title: 'Audit Logs',
-      description: 'View system audit logs',
-      icon: FileText,
-      page: 'AdminAuditLogs',
-      color: 'from-slate-500 to-slate-600'
-    },
-    {
-      title: 'Break-Glass Report',
-      description: 'Emergency access audit',
-      icon: Shield,
-      page: 'AdminBreakGlassReport',
-      color: 'from-red-500 to-red-600'
-    },
-    {
-      title: 'Configuration',
-      description: 'Organization settings',
-      icon: Settings,
-      page: 'AdminConfig',
-      color: 'from-indigo-500 to-indigo-600'
-    },
-    {
-      title: 'Organization Branding',
-      description: 'White-label branding',
-      icon: Settings,
-      page: 'AdminOrganizationBranding',
-      color: 'from-pink-500 to-pink-600'
-    },
-    {
-      title: 'System Health',
-      description: 'Data integrity monitoring',
-      icon: Activity,
-      page: 'AdminSystemHealth',
-      color: 'from-emerald-500 to-emerald-600'
-    },
-    {
-      title: 'Organization Activity',
-      description: 'Aggregate activity metrics',
-      icon: Activity,
-      page: 'AdminOrganizationActivity',
-      color: 'from-blue-500 to-blue-600'
-    },
-    {
-      title: 'Service Catalog',
-      description: 'Manage services and pricing',
-      icon: Grid3X3,
-      page: 'AdminServiceCatalog',
-      color: 'from-cyan-500 to-cyan-600'
-    },
-    {
-      title: 'Tax Rules',
-      description: 'Configure tax rates',
-      icon: Settings,
-      page: 'AdminTaxRules',
-      color: 'from-orange-500 to-orange-600'
-    },
-    {
-      title: 'Numbering Rules',
-      description: 'Document numbering formats',
-      icon: Key,
-      page: 'AdminNumberingRules',
-      color: 'from-pink-500 to-pink-600'
-    },
-    {
-      title: 'Chart of Accounts',
-      description: 'Accounting accounts',
-      icon: Grid3X3,
-      page: 'AdminChartOfAccounts',
-      color: 'from-violet-500 to-violet-600'
-    },
-    {
-      title: 'Posting Rules',
-      description: 'Accounting automation',
-      icon: Settings,
-      page: 'AdminPostingRules',
-      color: 'from-fuchsia-500 to-fuchsia-600'
-    },
-    {
-      title: 'Patient Portal',
-      description: 'Portal account management',
-      icon: Users,
-      page: 'AdminPatientPortal',
-      color: 'from-sky-500 to-sky-600'
-    },
-    {
-      title: 'Government Reporting',
-      description: 'Regulatory reports',
-      icon: FileText,
-      page: 'GovernmentReporting',
-      color: 'from-indigo-500 to-indigo-600'
-    },
-    {
-      title: 'Partner Management',
-      description: 'Referral partners',
-      icon: Users,
-      page: 'PartnerManagement',
-      color: 'from-blue-500 to-blue-600'
-    },
-    {
-      title: 'Data Export',
-      description: 'Export bundles',
-      icon: FileText,
-      page: 'DataExport',
-      color: 'from-teal-500 to-teal-600'
-    },
-    {
-      title: 'Export Approvals',
-      description: 'Review export requests',
-      icon: Shield,
-      page: 'AdminExportApprovals',
-      color: 'from-emerald-500 to-emerald-600'
-    },
-    {
-      title: 'Retention Policies',
-      description: 'Data retention rules',
-      icon: Activity,
-      page: 'AdminRetentionPolicies',
-      color: 'from-purple-500 to-purple-600'
-    },
-    {
-      title: 'Archive Management',
-      description: 'Archived records',
-      icon: FileText,
-      page: 'AdminArchive',
-      color: 'from-slate-500 to-slate-600'
-    },
-    {
-      title: 'Backup Status',
-      description: 'Backup operations',
-      icon: Activity,
-      page: 'AdminBackups',
-      color: 'from-green-500 to-green-600'
-    },
-    {
-      title: 'Compliance Checklist',
-      description: 'Deployment validation',
-      icon: Shield,
-      page: 'AdminComplianceChecklist',
-      color: 'from-indigo-500 to-indigo-600'
-    },
-    {
-      title: 'Security Posture',
-      description: 'Access controls & monitoring',
-      icon: Shield,
-      page: 'AdminSecurityPosture',
-      color: 'from-purple-500 to-purple-600'
-      },
-      {
-      title: 'System Version',
-      description: 'Version control & schema lock',
-      icon: Shield,
-      page: 'AdminSystemVersion',
-      color: 'from-teal-500 to-teal-600'
-      },
-      {
-        title: 'Go-Live Checklist',
-        description: 'Production readiness validation',
-        icon: Shield,
-        page: 'AdminGoLiveChecklist',
-        color: 'from-emerald-500 to-emerald-600'
-        },
-        {
-        title: 'Security Validation',
-        description: 'Verify security controls',
-        icon: Shield,
-        page: 'AdminSecurityValidation',
-        color: 'from-red-500 to-red-600'
-        }
-      ];
-
   const functionalRoles = [
     { name: 'FRONT_DESK_STAFF', label: 'Front Desk Staff', icon: UserCheck, description: 'Patient registration, appointments', color: 'bg-blue-500' },
     { name: 'PHYSICIAN', label: 'Physician', icon: Activity, description: 'Clinical documentation, prescriptions', color: 'bg-purple-500' },
@@ -719,7 +477,7 @@ export default function Admin() {
               <Card className="bg-gradient-to-br from-slate-50 to-blue-50 border-2 border-blue-200">
                 <CardHeader>
                   <CardTitle className="text-blue-900">Roles & Access Capabilities Matrix</CardTitle>
-                  <p className="text-sm text-slate-600">Click to toggle permissions (Green ✓ = Access Granted, Red ✗ = Access Denied)</p>
+                  <p className="text-sm text-slate-600">Reference guide showing what each role can do</p>
                 </CardHeader>
                 <CardContent>
                   <div className="overflow-x-auto">
@@ -761,19 +519,17 @@ export default function Admin() {
                               const hasAccess = item.defaultAccess[role.name] || false;
                               return (
                                 <td key={role.name} className="p-3 text-center">
-                                  <button
-                                    className={`w-full py-2 px-3 rounded-lg transition-all transform hover:scale-105 ${
-                                      hasAccess
-                                        ? 'bg-emerald-100 border-2 border-emerald-300 hover:bg-emerald-200'
-                                        : 'bg-red-100 border-2 border-red-300 hover:bg-red-200'
-                                    }`}
-                                  >
+                                  <div className={`py-2 px-3 rounded-lg ${
+                                    hasAccess
+                                      ? 'bg-emerald-100 border-2 border-emerald-300'
+                                      : 'bg-red-100 border-2 border-red-300'
+                                  }`}>
                                     {hasAccess ? (
                                       <Check className="w-6 h-6 text-emerald-600 mx-auto" />
                                     ) : (
                                       <X className="w-6 h-6 text-red-600 mx-auto" />
                                     )}
-                                  </button>
+                                  </div>
                                 </td>
                               );
                             })}
