@@ -654,7 +654,7 @@ export default function Admin() {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="space-y-2">
+                      <div className="space-y-3">
                         {[
                           { capability: 'Patient Registration', roles: ['FRONT_DESK_STAFF', 'PHYSICIAN', 'NURSE'] },
                           { capability: 'View Patient Records', roles: ['FRONT_DESK_STAFF', 'PHYSICIAN', 'NURSE', 'LAB_TECH', 'PHARMACIST', 'RADIOLOGIST'] },
@@ -678,23 +678,23 @@ export default function Admin() {
                           return (
                             <div
                               key={idx}
-                              className={`flex items-center justify-between p-3 rounded-lg border-2 ${
+                              className={`flex items-center justify-between p-4 rounded-xl border-3 ${
                                 userHasAccess
-                                  ? 'bg-emerald-50 border-emerald-300'
-                                  : 'bg-red-50 border-red-300'
+                                  ? 'bg-gradient-to-r from-emerald-100 to-green-100 border-4 border-emerald-400'
+                                  : 'bg-gradient-to-r from-red-100 to-rose-100 border-4 border-red-400'
                               }`}
                             >
-                              <span className="font-medium text-slate-900">{item.capability}</span>
-                              <div className="flex items-center gap-2">
+                              <span className="font-bold text-lg text-slate-900">{item.capability}</span>
+                              <div className="flex items-center gap-3">
                                 {userHasAccess ? (
                                   <>
-                                    <Check className="w-5 h-5 text-emerald-600" />
-                                    <Badge className="bg-emerald-600">Granted</Badge>
+                                    <Check className="w-8 h-8 text-emerald-600" />
+                                    <span className="font-bold text-xl text-emerald-700">YES ✓</span>
                                   </>
                                 ) : (
                                   <>
-                                    <X className="w-5 h-5 text-red-600" />
-                                    <Badge className="bg-red-600">Denied</Badge>
+                                    <X className="w-8 h-8 text-red-600" />
+                                    <span className="font-bold text-xl text-red-700">NO ✗</span>
                                   </>
                                 )}
                               </div>
