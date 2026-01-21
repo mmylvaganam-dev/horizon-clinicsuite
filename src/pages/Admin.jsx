@@ -1,10 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '../utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Building2, 
   MapPin, 
@@ -15,8 +18,14 @@ import {
   FileText,
   Key,
   Activity,
-  DollarSign
+  DollarSign,
+  UserCheck,
+  Lock,
+  Check,
+  X,
+  ChevronRight
 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 
 export default function Admin() {
