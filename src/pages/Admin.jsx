@@ -601,29 +601,72 @@ export default function Admin() {
                 </div>
               )}
 
-              {/* Permission Summary Chart */}
+              {/* Permission Matrix Chart */}
               <Card className="bg-gradient-to-br from-slate-50 to-blue-50 border-2 border-blue-200">
                 <CardHeader>
-                  <CardTitle className="text-blue-900">Roles & Permissions Overview</CardTitle>
+                  <CardTitle className="text-blue-900">Roles & Access Capabilities Matrix</CardTitle>
+                  <p className="text-sm text-slate-600">Click to toggle permissions (Green ✓ = Access Granted, Red ✗ = Access Denied)</p>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                    {functionalRoles.map((role) => (
-                      <div key={role.name} className="p-3 bg-white rounded-lg border">
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className={`w-8 h-8 rounded-lg ${role.color} flex items-center justify-center`}>
-                            <role.icon className="w-4 h-4 text-white" />
-                          </div>
-                          <p className="font-semibold text-sm">{role.label}</p>
-                        </div>
-                        <div className="space-y-1">
-                          <p className="text-xs text-slate-600 flex items-center gap-1">
-                            <Check className="w-3 h-3 text-emerald-600" />
-                            {role.description.split(',')[0]}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="border-b-2 border-blue-200">
+                          <th className="text-left p-3 font-bold text-slate-900">Access Capability</th>
+                          {functionalRoles.map((role) => (
+                            <th key={role.name} className="p-3 text-center">
+                              <div className="flex flex-col items-center gap-1">
+                                <div className={`w-10 h-10 rounded-lg ${role.color} flex items-center justify-center shadow`}>
+                                  <role.icon className="w-5 h-5 text-white" />
+                                </div>
+                                <span className="text-xs font-semibold text-slate-900">{role.label}</span>
+                              </div>
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {[
+                          { capability: 'Patient Registration', defaultAccess: { FRONT_DESK_STAFF: true, PHYSICIAN: true, NURSE: true } },
+                          { capability: 'View Patient Records', defaultAccess: { FRONT_DESK_STAFF: true, PHYSICIAN: true, NURSE: true, LAB_TECH: true, PHARMACIST: true, RADIOLOGIST: true } },
+                          { capability: 'Clinical Documentation', defaultAccess: { PHYSICIAN: true, NURSE: true } },
+                          { capability: 'Write Prescriptions', defaultAccess: { PHYSICIAN: true } },
+                          { capability: 'Dispense Medications', defaultAccess: { PHARMACIST: true } },
+                          { capability: 'Lab Test Orders', defaultAccess: { PHYSICIAN: true, LAB_TECH: true } },
+                          { capability: 'Lab Results Entry', defaultAccess: { LAB_TECH: true } },
+                          { capability: 'Radiology Orders', defaultAccess: { PHYSICIAN: true, RADIOLOGIST: true } },
+                          { capability: 'Billing & Invoicing', defaultAccess: { BILLING_STAFF: true, FRONT_DESK_STAFF: true } },
+                          { capability: 'Inventory Management', defaultAccess: { PHARMACIST: true, CLINIC_ADMIN_STAFF: true } },
+                          { capability: 'System Configuration', defaultAccess: { CLINIC_ADMIN_STAFF: true } },
+                          { capability: 'User Management', defaultAccess: { CLINIC_ADMIN_STAFF: true } },
+                          { capability: 'Reports & Analytics', defaultAccess: { CLINIC_ADMIN_STAFF: true, BILLING_STAFF: true } }
+                        ].map((item, idx) => (
+                          <tr key={idx} className="border-b hover:bg-blue-50 transition-colors">
+                            <td className="p-3 font-medium text-slate-900">{item.capability}</td>
+                            {functionalRoles.map((role) => {
+                              const hasAccess = item.defaultAccess[role.name] || false;
+                              return (
+                                <td key={role.name} className="p-3 text-center">
+                                  <button
+                                    className={`w-full py-2 px-3 rounded-lg transition-all transform hover:scale-105 ${
+                                      hasAccess
+                                        ? 'bg-emerald-100 border-2 border-emerald-300 hover:bg-emerald-200'
+                                        : 'bg-red-100 border-2 border-red-300 hover:bg-red-200'
+                                    }`}
+                                  >
+                                    {hasAccess ? (
+                                      <Check className="w-6 h-6 text-emerald-600 mx-auto" />
+                                    ) : (
+                                      <X className="w-6 h-6 text-red-600 mx-auto" />
+                                    )}
+                                  </button>
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </CardContent>
               </Card>
