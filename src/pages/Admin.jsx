@@ -57,6 +57,12 @@ export default function Admin() {
     queryFn: () => base44.entities.Role.list(),
   });
 
+  // Get organization roles (exclude platform roles)
+  const organizationRoles = allRoles.filter(role => 
+    role.role_name && 
+    !['PLATFORM_OWNER', 'APP_ADMIN'].includes(role.role_name)
+  );
+
   const { data: selectedUserRoles = [] } = useQuery({
     queryKey: ['selectedUserRoles', selectedUser?.id],
     queryFn: async () => {
@@ -244,16 +250,21 @@ export default function Admin() {
     },
   ];
 
-  const functionalRoles = [
-    { name: 'FRONT_DESK_STAFF', label: 'Front Desk Staff', icon: UserCheck, description: 'Patient registration, appointments', color: 'bg-blue-500' },
-    { name: 'PHYSICIAN', label: 'Physician', icon: Activity, description: 'Clinical documentation, prescriptions', color: 'bg-purple-500' },
-    { name: 'NURSE', label: 'Nurse', icon: Users, description: 'Vitals, medication administration', color: 'bg-pink-500' },
-    { name: 'LAB_TECH', label: 'Lab Technician', icon: FileText, description: 'Lab specimen processing, results', color: 'bg-cyan-500' },
-    { name: 'PHARMACIST', label: 'Pharmacist', icon: Shield, description: 'Dispense medications, inventory', color: 'bg-green-500' },
-    { name: 'RADIOLOGIST', label: 'Radiologist', icon: Activity, description: 'Imaging orders and interpretation', color: 'bg-orange-500' },
-    { name: 'BILLING_STAFF', label: 'Billing Staff', icon: DollarSign, description: 'Invoicing and payment processing', color: 'bg-emerald-500' },
-    { name: 'CLINIC_ADMIN_STAFF', label: 'Clinic Admin', icon: Settings, description: 'System configuration, user management', color: 'bg-indigo-500' }
-  ];
+  // Role icon and color mapping
+  const getRoleDisplay = (roleName) => {
+    const mapping = {
+      'ORG_SUPER_USER': { icon: Shield, color: 'bg-red-500', label: 'Organization Admin' },
+      'CLINIC_ADMIN_STAFF': { icon: Settings, color: 'bg-indigo-500', label: 'Clinic Admin' },
+      'PHYSICIAN': { icon: Activity, color: 'bg-purple-500', label: 'Physician' },
+      'LAB_TECH': { icon: FileText, color: 'bg-cyan-500', label: 'Lab Technician' },
+      'PHARMACIST': { icon: Shield, color: 'bg-green-500', label: 'Pharmacist' },
+      'DIAGNOSTICS_TECH': { icon: Activity, color: 'bg-orange-500', label: 'Diagnostics Tech' },
+      'FINANCE_USER': { icon: DollarSign, color: 'bg-emerald-500', label: 'Finance User' },
+      'DIRECTOR_REPORT_VIEWER': { icon: FileText, color: 'bg-blue-500', label: 'Director (Reports)' },
+      'READONLY_AUDITOR': { icon: Lock, color: 'bg-slate-500', label: 'Read-Only Auditor' },
+    };
+    return mapping[roleName] || { icon: Users, color: 'bg-gray-500', label: roleName };
+  };
 
   return (
     <div className="space-y-6">
@@ -419,59 +430,46 @@ export default function Admin() {
                     </CardHeader>
                     <CardContent>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        {functionalRoles.map((role) => {
-                          const roleData = allRoles.find(r => r.role_name === role.name);
-                          const hasRole = roleData ? selectedUserRoles.some(ur => ur.role_id === roleData.id) : false;
+                        {organizationRoles.map((role) => {
+                          const hasRole = selectedUserRoles.some(ur => ur.role_id === role.id);
+                          const display = getRoleDisplay(role.role_name);
 
                           const handleClick = () => {
                             console.log('=== ROLE CLICK DEBUG ===');
-                            console.log('Role name:', role.name);
-                            console.log('Role data:', roleData);
+                            console.log('Role:', role);
                             console.log('Has role:', hasRole);
                             console.log('Selected user:', selectedUser);
-                            console.log('All roles:', allRoles);
-                            console.log('Selected user roles:', selectedUserRoles);
-
-                            if (!roleData) {
-                              toast.error(`Role ${role.name} not found in system. Please run seedFunctionalRoles function first.`);
-                              return;
-                            }
-                            handleToggleRole(roleData.id, hasRole, role.label);
+                            handleToggleRole(role.id, hasRole, display.label);
                           };
 
                           return (
                             <button
-                              key={role.name}
+                              key={role.id}
                               onClick={handleClick}
-                              disabled={!roleData || toggleRoleMutation.isPending}
+                              disabled={toggleRoleMutation.isPending}
                               className={`p-6 rounded-2xl border-4 transition-all duration-300 text-left w-full ${
                                 hasRole
                                   ? 'border-emerald-500 bg-gradient-to-br from-emerald-100 to-green-100 shadow-2xl'
                                   : 'border-slate-300 bg-white hover:border-blue-500 hover:shadow-xl'
-                              } ${!roleData || toggleRoleMutation.isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-102 transform'}`}
+                              } ${toggleRoleMutation.isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:scale-102 transform'}`}
                             >
                               <div className="flex items-start gap-4">
-                                <div className={`w-20 h-20 rounded-2xl ${role.color} flex items-center justify-center shadow-xl transform transition-transform ${hasRole ? 'scale-110' : ''}`}>
-                                  <role.icon className="w-10 h-10 text-white" />
+                                <div className={`w-20 h-20 rounded-2xl ${display.color} flex items-center justify-center shadow-xl transform transition-transform ${hasRole ? 'scale-110' : ''}`}>
+                                  <display.icon className="w-10 h-10 text-white" />
                                 </div>
                                 <div className="flex-1">
-                                  <p className="font-bold text-2xl text-slate-900">{role.label}</p>
-                                  <p className="text-sm text-slate-700 mt-2">{role.description}</p>
+                                  <p className="font-bold text-2xl text-slate-900">{display.label}</p>
+                                  <p className="text-sm text-slate-700 mt-2">{role.description || 'Organization role'}</p>
+                                  <p className="text-xs text-slate-500 mt-1">Code: {role.role_name}</p>
 
                                   <div className="mt-4">
-                                    {!roleData && (
-                                      <div className="flex items-center gap-2 bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full w-fit">
-                                        <X className="w-5 h-5" />
-                                        <span className="font-bold">⚠️ ROLE NOT IN SYSTEM</span>
-                                      </div>
-                                    )}
-                                    {roleData && hasRole && (
+                                    {hasRole && (
                                       <div className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-full w-fit">
                                         <Check className="w-5 h-5" />
                                         <span className="font-bold text-lg">✅ ACTIVE - CLICK TO TURN OFF</span>
                                       </div>
                                     )}
-                                    {roleData && !hasRole && (
+                                    {!hasRole && (
                                       <div className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-full w-fit">
                                         <X className="w-5 h-5" />
                                         <span className="font-bold text-lg">❌ INACTIVE - CLICK TO TURN ON</span>
@@ -509,19 +507,15 @@ export default function Admin() {
                     <CardContent>
                       <div className="space-y-3">
                         {[
-                          { capability: 'Patient Registration', roles: ['FRONT_DESK_STAFF', 'PHYSICIAN', 'NURSE'] },
-                          { capability: 'View Patient Records', roles: ['FRONT_DESK_STAFF', 'PHYSICIAN', 'NURSE', 'LAB_TECH', 'PHARMACIST', 'RADIOLOGIST'] },
-                          { capability: 'Clinical Documentation', roles: ['PHYSICIAN', 'NURSE'] },
-                          { capability: 'Write Prescriptions', roles: ['PHYSICIAN'] },
-                          { capability: 'Dispense Medications', roles: ['PHARMACIST'] },
-                          { capability: 'Lab Test Orders', roles: ['PHYSICIAN', 'LAB_TECH'] },
-                          { capability: 'Lab Results Entry', roles: ['LAB_TECH'] },
-                          { capability: 'Radiology Orders', roles: ['PHYSICIAN', 'RADIOLOGIST'] },
-                          { capability: 'Billing & Invoicing', roles: ['BILLING_STAFF', 'FRONT_DESK_STAFF'] },
-                          { capability: 'Inventory Management', roles: ['PHARMACIST', 'CLINIC_ADMIN_STAFF'] },
-                          { capability: 'System Configuration', roles: ['CLINIC_ADMIN_STAFF'] },
-                          { capability: 'User Management', roles: ['CLINIC_ADMIN_STAFF'] },
-                          { capability: 'Reports & Analytics', roles: ['CLINIC_ADMIN_STAFF', 'BILLING_STAFF'] }
+                          { capability: 'System Administration', roles: ['ORG_SUPER_USER', 'CLINIC_ADMIN_STAFF'] },
+                          { capability: 'User Management', roles: ['ORG_SUPER_USER', 'CLINIC_ADMIN_STAFF'] },
+                          { capability: 'Clinical Documentation', roles: ['PHYSICIAN'] },
+                          { capability: 'Lab Test Management', roles: ['LAB_TECH'] },
+                          { capability: 'Pharmacy Operations', roles: ['PHARMACIST'] },
+                          { capability: 'Diagnostics Management', roles: ['DIAGNOSTICS_TECH'] },
+                          { capability: 'Finance & Billing', roles: ['FINANCE_USER'] },
+                          { capability: 'View Management Reports', roles: ['DIRECTOR_REPORT_VIEWER', 'ORG_SUPER_USER'] },
+                          { capability: 'Audit Log Access', roles: ['READONLY_AUDITOR', 'ORG_SUPER_USER'] }
                         ].map((item, idx) => {
                           const userHasAccess = item.roles.some(roleName => {
                             const roleData = allRoles.find(r => r.role_name === roleName);
@@ -580,40 +574,39 @@ export default function Admin() {
                       <thead>
                         <tr className="border-b-2 border-blue-200">
                           <th className="text-left p-3 font-bold text-slate-900">Access Capability</th>
-                          {functionalRoles.map((role) => (
-                            <th key={role.name} className="p-3 text-center">
-                              <div className="flex flex-col items-center gap-1">
-                                <div className={`w-10 h-10 rounded-lg ${role.color} flex items-center justify-center shadow`}>
-                                  <role.icon className="w-5 h-5 text-white" />
+                          {organizationRoles.map((role) => {
+                            const display = getRoleDisplay(role.role_name);
+                            return (
+                              <th key={role.id} className="p-3 text-center">
+                                <div className="flex flex-col items-center gap-1">
+                                  <div className={`w-10 h-10 rounded-lg ${display.color} flex items-center justify-center shadow`}>
+                                    <display.icon className="w-5 h-5 text-white" />
+                                  </div>
+                                  <span className="text-xs font-semibold text-slate-900">{display.label}</span>
                                 </div>
-                                <span className="text-xs font-semibold text-slate-900">{role.label}</span>
-                              </div>
-                            </th>
-                          ))}
+                              </th>
+                            );
+                          })}
                         </tr>
                       </thead>
                       <tbody>
                         {[
-                          { capability: 'Patient Registration', defaultAccess: { FRONT_DESK_STAFF: true, PHYSICIAN: true, NURSE: true } },
-                          { capability: 'View Patient Records', defaultAccess: { FRONT_DESK_STAFF: true, PHYSICIAN: true, NURSE: true, LAB_TECH: true, PHARMACIST: true, RADIOLOGIST: true } },
-                          { capability: 'Clinical Documentation', defaultAccess: { PHYSICIAN: true, NURSE: true } },
-                          { capability: 'Write Prescriptions', defaultAccess: { PHYSICIAN: true } },
-                          { capability: 'Dispense Medications', defaultAccess: { PHARMACIST: true } },
-                          { capability: 'Lab Test Orders', defaultAccess: { PHYSICIAN: true, LAB_TECH: true } },
-                          { capability: 'Lab Results Entry', defaultAccess: { LAB_TECH: true } },
-                          { capability: 'Radiology Orders', defaultAccess: { PHYSICIAN: true, RADIOLOGIST: true } },
-                          { capability: 'Billing & Invoicing', defaultAccess: { BILLING_STAFF: true, FRONT_DESK_STAFF: true } },
-                          { capability: 'Inventory Management', defaultAccess: { PHARMACIST: true, CLINIC_ADMIN_STAFF: true } },
-                          { capability: 'System Configuration', defaultAccess: { CLINIC_ADMIN_STAFF: true } },
-                          { capability: 'User Management', defaultAccess: { CLINIC_ADMIN_STAFF: true } },
-                          { capability: 'Reports & Analytics', defaultAccess: { CLINIC_ADMIN_STAFF: true, BILLING_STAFF: true } }
+                          { capability: 'System Administration', access: ['ORG_SUPER_USER', 'CLINIC_ADMIN_STAFF'] },
+                          { capability: 'User Management', access: ['ORG_SUPER_USER', 'CLINIC_ADMIN_STAFF'] },
+                          { capability: 'Clinical Access', access: ['PHYSICIAN'] },
+                          { capability: 'Lab Management', access: ['LAB_TECH'] },
+                          { capability: 'Pharmacy Management', access: ['PHARMACIST'] },
+                          { capability: 'Diagnostics Management', access: ['DIAGNOSTICS_TECH'] },
+                          { capability: 'Finance & Billing', access: ['FINANCE_USER'] },
+                          { capability: 'Management Reports', access: ['DIRECTOR_REPORT_VIEWER', 'ORG_SUPER_USER'] },
+                          { capability: 'Audit Logs', access: ['READONLY_AUDITOR', 'ORG_SUPER_USER'] }
                         ].map((item, idx) => (
                           <tr key={idx} className="border-b hover:bg-blue-50 transition-colors">
                             <td className="p-3 font-medium text-slate-900">{item.capability}</td>
-                            {functionalRoles.map((role) => {
-                              const hasAccess = item.defaultAccess[role.name] || false;
+                            {organizationRoles.map((role) => {
+                              const hasAccess = item.access.includes(role.role_name);
                               return (
-                                <td key={role.name} className="p-3 text-center">
+                                <td key={role.id} className="p-3 text-center">
                                   <div className={`py-2 px-3 rounded-lg ${
                                     hasAccess
                                       ? 'bg-emerald-100 border-2 border-emerald-300'
