@@ -58,10 +58,10 @@ export default function Admin() {
   });
 
   // Get organization roles (exclude platform roles)
-  const organizationRoles = allRoles.filter(role => 
-    role.role_name && 
-    !['PLATFORM_OWNER', 'APP_ADMIN'].includes(role.role_name)
-  );
+  const organizationRoles = allRoles.filter(role => {
+    const roleCode = role.code || role.role_name;
+    return roleCode && !['PLATFORM_OWNER', 'APP_ADMIN'].includes(roleCode);
+  });
 
   const { data: selectedUserRoles = [] } = useQuery({
     queryKey: ['selectedUserRoles', selectedUser?.id],
@@ -74,12 +74,14 @@ export default function Admin() {
 
   const isPlatformOwner = userRoles.some(ur => {
     const role = allRoles.find(r => r.id === ur.role_id);
-    return role?.role_name === 'PLATFORM_OWNER';
+    const roleCode = role?.code || role?.role_name;
+    return roleCode === 'PLATFORM_OWNER';
   });
 
   const isAppAdmin = userRoles.some(ur => {
     const role = allRoles.find(r => r.id === ur.role_id);
-    return role?.role_name === 'APP_ADMIN';
+    const roleCode = role?.code || role?.role_name;
+    return roleCode === 'APP_ADMIN';
   });
 
   const seedRolesMutation = useMutation({
@@ -251,7 +253,8 @@ export default function Admin() {
   ];
 
   // Role icon and color mapping
-  const getRoleDisplay = (roleName) => {
+  const getRoleDisplay = (role) => {
+    const roleCode = role.code || role.role_name || '';
     const mapping = {
       'ORG_SUPER_USER': { icon: Shield, color: 'bg-red-500', label: 'Organization Admin' },
       'CLINIC_ADMIN_STAFF': { icon: Settings, color: 'bg-indigo-500', label: 'Clinic Admin' },
@@ -262,8 +265,12 @@ export default function Admin() {
       'FINANCE_USER': { icon: DollarSign, color: 'bg-emerald-500', label: 'Finance User' },
       'DIRECTOR_REPORT_VIEWER': { icon: FileText, color: 'bg-blue-500', label: 'Director (Reports)' },
       'READONLY_AUDITOR': { icon: Lock, color: 'bg-slate-500', label: 'Read-Only Auditor' },
+      'FRONT_DESK_STAFF': { icon: UserCheck, color: 'bg-blue-500', label: 'Front Desk Staff' },
+      'NURSE': { icon: Users, color: 'bg-pink-500', label: 'Nurse' },
+      'RADIOLOGIST': { icon: Activity, color: 'bg-orange-500', label: 'Radiologist' },
+      'BILLING_STAFF': { icon: DollarSign, color: 'bg-emerald-500', label: 'Billing Staff' },
     };
-    return mapping[roleName] || { icon: Users, color: 'bg-gray-500', label: roleName };
+    return mapping[roleCode] || { icon: Users, color: 'bg-gray-500', label: role.name || roleCode };
   };
 
   return (
@@ -310,7 +317,7 @@ export default function Admin() {
         {/* User Access Control Tab */}
         <TabsContent value="access" className="space-y-6">
           {/* Setup Warning - Show if roles not found */}
-          {allRoles.length === 0 || !allRoles.some(r => r.role_name === 'PHYSICIAN') ? (
+          {allRoles.length === 0 || !allRoles.some(r => (r.code || r.role_name) === 'PHYSICIAN') ? (
             <Card className="border-4 border-red-500 bg-gradient-to-r from-red-50 to-rose-50 shadow-2xl">
               <CardContent className="p-6">
                 <div className="flex items-start gap-4">
@@ -432,7 +439,7 @@ export default function Admin() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         {organizationRoles.map((role) => {
                           const hasRole = selectedUserRoles.some(ur => ur.role_id === role.id);
-                          const display = getRoleDisplay(role.role_name);
+                          const display = getRoleDisplay(role);
 
                           const handleClick = () => {
                             console.log('=== ROLE CLICK DEBUG ===');
@@ -460,7 +467,7 @@ export default function Admin() {
                                 <div className="flex-1">
                                   <p className="font-bold text-2xl text-slate-900">{display.label}</p>
                                   <p className="text-sm text-slate-700 mt-2">{role.description || 'Organization role'}</p>
-                                  <p className="text-xs text-slate-500 mt-1">Code: {role.role_name}</p>
+                                  <p className="text-xs text-slate-500 mt-1">Code: {role.code || role.role_name}</p>
 
                                   <div className="mt-4">
                                     {hasRole && (
@@ -518,7 +525,7 @@ export default function Admin() {
                           { capability: 'Audit Log Access', roles: ['READONLY_AUDITOR', 'ORG_SUPER_USER'] }
                         ].map((item, idx) => {
                           const userHasAccess = item.roles.some(roleName => {
-                            const roleData = allRoles.find(r => r.role_name === roleName);
+                            const roleData = allRoles.find(r => (r.code || r.role_name) === roleName);
                             return roleData && selectedUserRoles.some(ur => ur.role_id === roleData.id);
                           });
 
@@ -575,7 +582,7 @@ export default function Admin() {
                         <tr className="border-b-2 border-blue-200">
                           <th className="text-left p-3 font-bold text-slate-900">Access Capability</th>
                           {organizationRoles.map((role) => {
-                            const display = getRoleDisplay(role.role_name);
+                            const display = getRoleDisplay(role);
                             return (
                               <th key={role.id} className="p-3 text-center">
                                 <div className="flex flex-col items-center gap-1">
@@ -604,7 +611,8 @@ export default function Admin() {
                           <tr key={idx} className="border-b hover:bg-blue-50 transition-colors">
                             <td className="p-3 font-medium text-slate-900">{item.capability}</td>
                             {organizationRoles.map((role) => {
-                              const hasAccess = item.access.includes(role.role_name);
+                              const roleCode = role.code || role.role_name;
+                              const hasAccess = item.access.includes(roleCode);
                               return (
                                 <td key={role.id} className="p-3 text-center">
                                   <div className={`py-2 px-3 rounded-lg ${
