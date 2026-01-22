@@ -76,38 +76,66 @@ export default function Admin() {
     return role?.role_name === 'APP_ADMIN';
   });
 
+  const seedRolesMutation = useMutation({
+    mutationFn: async () => {
+      const response = await base44.functions.invoke('seedFunctionalRoles', {});
+      return response.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(['allRoles']);
+      toast.success(`✅ ${data.message}`);
+    },
+    onError: (error) => {
+      toast.error(`Failed to seed roles: ${error.message}`);
+    }
+  });
+
   const toggleRoleMutation = useMutation({
     mutationFn: async ({ userId, roleId, hasRole, roleName }) => {
-      console.log('Toggle role:', { userId, roleId, hasRole, roleName });
+      console.log('=== TOGGLE ROLE MUTATION ===');
+      console.log('User ID:', userId);
+      console.log('Role ID:', roleId);
+      console.log('Has Role:', hasRole);
+      console.log('Role Name:', roleName);
+      console.log('Current User Org:', user?.organization_id);
       
       if (hasRole) {
         // Remove role
         const userRole = selectedUserRoles.find(ur => ur.role_id === roleId);
+        console.log('Found user role to delete:', userRole);
         if (userRole) {
           await base44.entities.UserRole.delete(userRole.id);
           return { action: 'removed', roleName };
         }
       } else {
         // Add role
-        await base44.entities.UserRole.create({
+        const createData = {
           user_id: userId,
           role_id: roleId,
           organization_id: user?.organization_id || null,
           is_primary: false
-        });
+        };
+        console.log('Creating UserRole with data:', createData);
+        const result = await base44.entities.UserRole.create(createData);
+        console.log('Created UserRole:', result);
         return { action: 'added', roleName };
       }
     },
     onSuccess: (data) => {
+      console.log('=== MUTATION SUCCESS ===');
       queryClient.invalidateQueries(['selectedUserRoles']);
       queryClient.invalidateQueries(['userRoles']);
+      queryClient.invalidateQueries(['allUsers']);
       if (data) {
-        toast.success(`Role ${data.action} successfully!`);
+        toast.success(`✅ Role ${data.action} successfully!`);
       }
     },
     onError: (error) => {
-      console.error('Role toggle error:', error);
-      toast.error(`Failed to update role: ${error.message}`);
+      console.error('=== MUTATION ERROR ===');
+      console.error('Error:', error);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+      toast.error(`❌ Failed to update role: ${error.message}`);
     }
   });
 
@@ -270,30 +298,59 @@ export default function Admin() {
 
         {/* User Access Control Tab */}
         <TabsContent value="access" className="space-y-6">
-          {/* Simple Steps Guide */}
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 text-white shadow-xl">
-            <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
-              <Shield className="w-8 h-8" />
-              How to Give Access to Your Staff - 3 Easy Steps
-            </h2>
-            <div className="grid md:grid-cols-3 gap-4 mt-6">
-              <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-                <div className="w-12 h-12 bg-white text-blue-600 rounded-full flex items-center justify-center text-xl font-bold mb-3">1</div>
-                <h3 className="font-bold text-lg mb-2">Click on Staff Name</h3>
-                <p className="text-sm text-blue-100">Choose which person you want to give access to</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-                <div className="w-12 h-12 bg-white text-blue-600 rounded-full flex items-center justify-center text-xl font-bold mb-3">2</div>
-                <h3 className="font-bold text-lg mb-2">Turn ON Their Role</h3>
-                <p className="text-sm text-blue-100">Flip the switch for Doctor, Nurse, Admin, etc.</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur rounded-xl p-4">
-                <div className="w-12 h-12 bg-white text-blue-600 rounded-full flex items-center justify-center text-xl font-bold mb-3">3</div>
-                <h3 className="font-bold text-lg mb-2">Done! ✓</h3>
-                <p className="text-sm text-blue-100">They can now access the system with their role</p>
+          {/* Setup Warning - Show if roles not found */}
+          {allRoles.length === 0 || !allRoles.some(r => r.role_name === 'PHYSICIAN') ? (
+            <Card className="border-4 border-red-500 bg-gradient-to-r from-red-50 to-rose-50 shadow-2xl">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <X className="w-10 h-10 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-2xl font-bold text-red-900 mb-2">⚠️ SYSTEM SETUP REQUIRED</h3>
+                    <p className="text-red-800 text-lg mb-4">
+                      The role system is not set up yet. You need to create the functional roles first before you can assign them to staff members.
+                    </p>
+                    <Button
+                      onClick={() => seedRolesMutation.mutate()}
+                      disabled={seedRolesMutation.isPending}
+                      size="lg"
+                      className="bg-red-600 hover:bg-red-700 text-white font-bold text-lg px-8 py-4"
+                    >
+                      {seedRolesMutation.isPending ? '⏳ SETTING UP ROLES...' : '🔧 SETUP ROLES NOW'}
+                    </Button>
+                    <p className="text-sm text-red-700 mt-3">
+                      This will create 8 functional roles: Physician, Nurse, Lab Tech, Pharmacist, Radiologist, Front Desk, Billing, and Admin
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 text-white shadow-xl">
+              <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
+                <Shield className="w-8 h-8" />
+                How to Give Access to Your Staff - 3 Easy Steps
+              </h2>
+              <div className="grid md:grid-cols-3 gap-4 mt-6">
+                <div className="bg-white/10 backdrop-blur rounded-xl p-4">
+                  <div className="w-12 h-12 bg-white text-blue-600 rounded-full flex items-center justify-center text-xl font-bold mb-3">1</div>
+                  <h3 className="font-bold text-lg mb-2">Click on Staff Name</h3>
+                  <p className="text-sm text-blue-100">Choose which person you want to give access to</p>
+                </div>
+                <div className="bg-white/10 backdrop-blur rounded-xl p-4">
+                  <div className="w-12 h-12 bg-white text-blue-600 rounded-full flex items-center justify-center text-xl font-bold mb-3">2</div>
+                  <h3 className="font-bold text-lg mb-2">Click on Role Card</h3>
+                  <p className="text-sm text-blue-100">Click the entire card to turn the role ON or OFF</p>
+                </div>
+                <div className="bg-white/10 backdrop-blur rounded-xl p-4">
+                  <div className="w-12 h-12 bg-white text-blue-600 rounded-full flex items-center justify-center text-xl font-bold mb-3">3</div>
+                  <h3 className="font-bold text-lg mb-2">Done! ✓</h3>
+                  <p className="text-sm text-blue-100">They can now access the system with their role</p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50">
             <CardHeader>
