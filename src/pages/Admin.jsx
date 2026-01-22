@@ -381,14 +381,17 @@ export default function Admin() {
                                     )}
                                   </div>
                                 </div>
-                                <div className="flex flex-col items-center gap-2">
-                                  <p className="text-xs font-bold text-slate-600">CLICK HERE</p>
-                                  <Switch
-                                    checked={hasRole}
-                                    onCheckedChange={() => handleToggleRole(roleData.id, hasRole)}
-                                    className={`transform scale-150 ${hasRole ? 'bg-emerald-600' : ''}`}
-                                  />
-                                </div>
+                                <Button
+                                  onClick={() => handleToggleRole(roleData.id, hasRole)}
+                                  size="lg"
+                                  className={`${
+                                    hasRole 
+                                      ? 'bg-red-600 hover:bg-red-700' 
+                                      : 'bg-emerald-600 hover:bg-emerald-700'
+                                  } text-white font-bold px-6 py-3 text-lg`}
+                                >
+                                  {hasRole ? 'TURN OFF' : 'TURN ON'}
+                                </Button>
                               </div>
                             </div>
                           );
