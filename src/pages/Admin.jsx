@@ -364,10 +364,8 @@ export default function Admin() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                         {functionalRoles.map((role) => {
                           const roleData = allRoles.find(r => r.role_name === role.name);
-                          if (!roleData) return null;
-                          
-                          const hasRole = selectedUserRoles.some(ur => ur.role_id === roleData.id);
-                          
+                          const hasRole = roleData ? selectedUserRoles.some(ur => ur.role_id === roleData.id) : false;
+
                           return (
                             <div
                               key={role.name}
@@ -377,7 +375,7 @@ export default function Admin() {
                                   : 'border-slate-300 bg-white hover:border-slate-400'
                               }`}
                             >
-                              <div className="flex items-start justify-between">
+                              <div className="flex items-start justify-between gap-4">
                                 <div className="flex items-start gap-4 flex-1">
                                   <div className={`w-16 h-16 rounded-2xl ${role.color} flex items-center justify-center shadow-xl transform transition-transform ${hasRole ? 'scale-110' : ''}`}>
                                     <role.icon className="w-8 h-8 text-white" />
@@ -385,31 +383,37 @@ export default function Admin() {
                                   <div className="flex-1">
                                     <p className="font-bold text-xl text-slate-900">{role.label}</p>
                                     <p className="text-sm text-slate-700 mt-1">{role.description}</p>
-                                    {hasRole && (
-                                      <div className="mt-3 flex items-center gap-2 bg-emerald-600 text-white px-3 py-1 rounded-full w-fit">
-                                        <Check className="w-4 h-4" />
-                                        <span className="font-bold text-sm">ON</span>
+                                    {!roleData && (
+                                      <div className="mt-3 flex items-center gap-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full w-fit">
+                                        <X className="w-4 h-4" />
+                                        <span className="font-bold text-sm">Role not found in system</span>
                                       </div>
                                     )}
-                                    {!hasRole && (
+                                    {roleData && hasRole && (
+                                      <div className="mt-3 flex items-center gap-2 bg-emerald-600 text-white px-3 py-1 rounded-full w-fit">
+                                        <Check className="w-4 h-4" />
+                                        <span className="font-bold text-sm">ACTIVE</span>
+                                      </div>
+                                    )}
+                                    {roleData && !hasRole && (
                                       <div className="mt-3 flex items-center gap-2 bg-slate-300 text-slate-700 px-3 py-1 rounded-full w-fit">
                                         <X className="w-4 h-4" />
-                                        <span className="font-bold text-sm">OFF</span>
+                                        <span className="font-bold text-sm">INACTIVE</span>
                                       </div>
                                     )}
                                   </div>
                                 </div>
                                 <Button
-                                  onClick={() => handleToggleRole(roleData.id, hasRole, role.label)}
+                                  onClick={() => roleData && handleToggleRole(roleData.id, hasRole, role.label)}
                                   size="lg"
-                                  disabled={toggleRoleMutation.isPending}
+                                  disabled={!roleData || toggleRoleMutation.isPending}
                                   className={`${
                                     hasRole 
                                       ? 'bg-red-600 hover:bg-red-700' 
                                       : 'bg-emerald-600 hover:bg-emerald-700'
-                                  } text-white font-bold px-6 py-3 text-lg`}
+                                  } text-white font-bold px-8 py-4 text-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all ${!roleData ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
-                                  {toggleRoleMutation.isPending ? 'UPDATING...' : hasRole ? 'TURN OFF' : 'TURN ON'}
+                                  {!roleData ? '⚠️ UNAVAILABLE' : toggleRoleMutation.isPending ? '⏳ SAVING...' : hasRole ? '❌ TURN OFF' : '✅ TURN ON'}
                                 </Button>
                               </div>
                             </div>
