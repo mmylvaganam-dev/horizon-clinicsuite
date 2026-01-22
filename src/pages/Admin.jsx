@@ -111,9 +111,16 @@ export default function Admin() {
     }
   });
 
-  const handleToggleRole = (roleId, hasRole) => {
-    if (!selectedUser) return;
-    toggleRoleMutation.mutate({ userId: selectedUser.id, roleId, hasRole });
+  const handleToggleRole = (roleId, hasRole, roleName) => {
+    if (!selectedUser) {
+      toast.error('Please select a user first');
+      return;
+    }
+    if (!roleId) {
+      toast.error('Invalid role');
+      return;
+    }
+    toggleRoleMutation.mutate({ userId: selectedUser.id, roleId, hasRole, roleName });
   };
 
   const adminCategories = [
