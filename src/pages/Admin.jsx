@@ -400,15 +400,16 @@ export default function Admin() {
                                   </div>
                                 </div>
                                 <Button
-                                  onClick={() => handleToggleRole(roleData.id, hasRole)}
+                                  onClick={() => handleToggleRole(roleData.id, hasRole, role.label)}
                                   size="lg"
+                                  disabled={toggleRoleMutation.isPending}
                                   className={`${
                                     hasRole 
                                       ? 'bg-red-600 hover:bg-red-700' 
                                       : 'bg-emerald-600 hover:bg-emerald-700'
                                   } text-white font-bold px-6 py-3 text-lg`}
                                 >
-                                  {hasRole ? 'TURN OFF' : 'TURN ON'}
+                                  {toggleRoleMutation.isPending ? 'UPDATING...' : hasRole ? 'TURN OFF' : 'TURN ON'}
                                 </Button>
                               </div>
                             </div>
