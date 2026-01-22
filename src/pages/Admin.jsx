@@ -57,6 +57,11 @@ export default function Admin() {
     queryFn: () => base44.entities.Role.list(),
   });
 
+  const { data: organizations = [] } = useQuery({
+    queryKey: ['organizations'],
+    queryFn: () => base44.entities.Organization.list(),
+  });
+
   // Get organization roles (exclude platform roles)
   const organizationRoles = allRoles.filter(role => {
     const roleCode = role.code || role.role_name;
@@ -105,7 +110,6 @@ export default function Admin() {
       console.log('Role ID:', roleId);
       console.log('Has Role:', hasRole);
       console.log('Role Name:', roleName);
-      console.log('Current User Org:', user?.organization_id);
       
       if (hasRole) {
         // Remove role
@@ -116,11 +120,20 @@ export default function Admin() {
           return { action: 'removed', roleName };
         }
       } else {
-        // Add role
+        // Add role - get organization_id
+        let orgId = user?.organization_id;
+        if (!orgId && organizations.length > 0) {
+          orgId = organizations[0].id;
+        }
+        
+        if (!orgId) {
+          throw new Error('Organization ID is required but not found');
+        }
+
         const createData = {
           user_id: userId,
           role_id: roleId,
-          organization_id: user?.organization_id || null,
+          organization_id: orgId,
           is_primary: false
         };
         console.log('Creating UserRole with data:', createData);
@@ -142,8 +155,8 @@ export default function Admin() {
       console.error('=== MUTATION ERROR ===');
       console.error('Error:', error);
       console.error('Error message:', error.message);
-      console.error('Error stack:', error.stack);
-      toast.error(`❌ Failed to update role: ${error.message}`);
+      console.error('Error response:', error.response?.data);
+      toast.error(`❌ Failed: ${error.response?.data?.message || error.message}`);
     }
   });
 
