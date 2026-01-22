@@ -77,26 +77,37 @@ export default function Admin() {
   });
 
   const toggleRoleMutation = useMutation({
-    mutationFn: async ({ userId, roleId, hasRole }) => {
+    mutationFn: async ({ userId, roleId, hasRole, roleName }) => {
+      console.log('Toggle role:', { userId, roleId, hasRole, roleName });
+      
       if (hasRole) {
+        // Remove role
         const userRole = selectedUserRoles.find(ur => ur.role_id === roleId);
         if (userRole) {
           await base44.entities.UserRole.delete(userRole.id);
+          return { action: 'removed', roleName };
         }
       } else {
+        // Add role
         await base44.entities.UserRole.create({
           user_id: userId,
           role_id: roleId,
-          organization_id: user.organization_id
+          organization_id: user?.organization_id || null,
+          is_primary: false
         });
+        return { action: 'added', roleName };
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries(['selectedUserRoles']);
-      toast.success('Role updated successfully');
+      queryClient.invalidateQueries(['userRoles']);
+      if (data) {
+        toast.success(`Role ${data.action} successfully!`);
+      }
     },
-    onError: () => {
-      toast.error('Failed to update role');
+    onError: (error) => {
+      console.error('Role toggle error:', error);
+      toast.error(`Failed to update role: ${error.message}`);
     }
   });
 
