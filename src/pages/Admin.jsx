@@ -177,14 +177,22 @@ export default function Admin() {
 
   const adminCategories = [
     {
+      category: 'Platform Management',
+      description: 'Platform-wide controls (Owner Only)',
+      icon: Globe,
+      color: 'from-rose-500 to-red-600',
+      modules: [
+        { title: 'Companies & Organizations', description: 'Manage all organizations', icon: Building2, page: 'AdminCompanies', ownerOnly: true },
+        { title: 'Platform Billing', description: 'Manage subscription billing', icon: DollarSign, page: 'PlatformBilling', ownerOnly: true },
+        { title: 'Platform Configuration', description: 'Global platform settings', icon: Settings, page: 'PlatformConfiguration', ownerOnly: true },
+      ]
+    },
+    {
       category: 'Organization Setup',
-      description: 'Companies, locations, and structure',
+      description: 'Your organization configuration',
       icon: Building2,
       color: 'from-blue-500 to-blue-600',
       modules: [
-        { title: 'Companies & Organizations', description: 'Manage organizations and locations', icon: Building2, page: 'AdminCompanies', ownerOnly: true },
-        { title: 'Module Toggles', description: 'Enable/disable modules', icon: Grid3X3, page: 'AdminModuleToggles' },
-        { title: 'Configuration', description: 'Organization settings', icon: Settings, page: 'AdminConfig' },
         { title: 'Organization Branding', description: 'White-label branding', icon: Settings, page: 'AdminOrganizationBranding' },
       ]
     },
