@@ -344,25 +344,17 @@ export default function Admin() {
         />
       </div>
 
-      <Tabs defaultValue={isPlatformOwner ? "platform" : "access"} className="space-y-6">
-        <TabsList className={`grid w-full ${isPlatformOwner ? 'grid-cols-4' : 'grid-cols-3'}`}>
+      <Tabs defaultValue={isPlatformOwner ? "platform" : "organization"} className="space-y-6">
+        <TabsList className={`grid w-full ${isPlatformOwner ? 'grid-cols-2' : 'grid-cols-1'}`}>
           {isPlatformOwner && (
             <TabsTrigger value="platform" className="flex items-center gap-2 bg-rose-100 data-[state=active]:bg-rose-600 data-[state=active]:text-white">
               <Globe className="w-4 h-4" />
               Platform Owner
             </TabsTrigger>
           )}
-          <TabsTrigger value="access" className="flex items-center gap-2">
-            <UserCheck className="w-4 h-4" />
-            User Access Control
-          </TabsTrigger>
-          <TabsTrigger value="modules" className="flex items-center gap-2">
-            <Grid3X3 className="w-4 h-4" />
-            Modules & Config
-          </TabsTrigger>
-          <TabsTrigger value="system" className="flex items-center gap-2">
-            <Settings className="w-4 h-4" />
-            System Settings
+          <TabsTrigger value="organization" className="flex items-center gap-2 bg-blue-100 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
+            <Building className="w-4 h-4" />
+            Organization Admin
           </TabsTrigger>
         </TabsList>
 
