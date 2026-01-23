@@ -367,17 +367,8 @@ export default function Admin() {
                   <Globe className="w-8 h-8 text-white" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold flex items-center gap-2">
-                    Platform Owner Control Center
-                    <div className="group relative">
-                      <Info className="w-5 h-5 cursor-help" />
-                      <div className="hidden group-hover:block absolute left-0 top-6 w-96 bg-rose-900 text-white p-4 rounded-xl shadow-2xl z-50">
-                        <p className="font-bold text-lg mb-2">👑 GLOBAL PLATFORM CONTROLS</p>
-                        <p className="text-sm">These settings affect ALL organizations on the platform. Only Platform Owners can access this section. Use this to manage global billing, security, data exports, and integrations across all tenants.</p>
-                      </div>
-                    </div>
-                  </h2>
-                  <p className="text-rose-100 text-lg mt-1">Manage all organizations, global settings, security, billing & data exports</p>
+                  <h2 className="text-2xl font-bold">Platform Owner Control Center</h2>
+                  <p className="text-rose-100 text-lg mt-1">Global setup, billing, security & data exports - affects ALL organizations</p>
                 </div>
               </div>
             </div>
