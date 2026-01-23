@@ -23,7 +23,10 @@ import {
   Lock,
   Check,
   X,
-  ChevronRight
+  ChevronRight,
+  Info,
+  Globe,
+  Building
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
@@ -312,7 +315,7 @@ export default function Admin() {
       </div>
 
       <Tabs defaultValue="access" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="access" className="flex items-center gap-2">
             <UserCheck className="w-4 h-4" />
             User Access Control
@@ -320,6 +323,10 @@ export default function Admin() {
           <TabsTrigger value="organization" className="flex items-center gap-2">
             <Building2 className="w-4 h-4" />
             Organization Setup
+          </TabsTrigger>
+          <TabsTrigger value="modules" className="flex items-center gap-2">
+            <Grid3X3 className="w-4 h-4" />
+            Modules & Config
           </TabsTrigger>
           <TabsTrigger value="system" className="flex items-center gap-2">
             <Settings className="w-4 h-4" />
@@ -653,6 +660,124 @@ export default function Admin() {
           </Card>
         </TabsContent>
 
+        {/* Modules & Configuration Tab */}
+        <TabsContent value="modules" className="space-y-6">
+          {/* Platform Owner: Global Module Control */}
+          {isPlatformOwner && (
+            <Card className="border-4 border-purple-300 bg-gradient-to-br from-purple-50 to-pink-50 shadow-2xl">
+              <CardHeader>
+                <div className="flex items-start gap-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center shadow-xl">
+                    <Globe className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="text-purple-900 text-2xl">Global Module Control</CardTitle>
+                      <div className="group relative">
+                        <Info className="w-5 h-5 text-purple-600 cursor-help" />
+                        <div className="hidden group-hover:block absolute left-0 top-6 w-80 bg-purple-900 text-white p-4 rounded-xl shadow-2xl z-50">
+                          <p className="font-bold text-lg mb-2">🌍 Platform Owner Only</p>
+                          <p className="text-sm">As the platform owner, you control which modules are available GLOBALLY across all organizations. Turn modules ON here to make them available to organizations.</p>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-purple-700 mt-2 text-lg font-semibold">Turn modules ON/OFF for the entire platform - available to ALL organizations</p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-purple-100 border-4 border-purple-300 rounded-xl p-4 mb-4">
+                  <p className="text-purple-900 font-bold text-lg">📌 HOW IT WORKS:</p>
+                  <ul className="mt-2 space-y-2 text-purple-800">
+                    <li className="flex items-start gap-2">
+                      <span className="text-2xl">1️⃣</span>
+                      <span>YOU (Platform Owner) turn modules ON here → Makes them available globally</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-2xl">2️⃣</span>
+                      <span>Organization Owners can then enable/disable those modules for their specific practice</span>
+                    </li>
+                  </ul>
+                </div>
+                <button
+                  onClick={() => navigate(createPageUrl('AdminModuleToggles'))}
+                  className="w-full p-6 rounded-2xl border-4 border-purple-400 bg-white hover:shadow-2xl transition-all duration-300 transform hover:scale-102"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <Grid3X3 className="w-12 h-12 text-purple-600" />
+                      <div className="text-left">
+                        <p className="font-bold text-2xl text-purple-900">Module Toggles</p>
+                        <p className="text-purple-700 mt-1">Enable/disable modules globally for all organizations</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-8 h-8 text-purple-600" />
+                  </div>
+                </button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Organization Level: Module & Configuration Control */}
+          <Card className="border-4 border-teal-300 bg-gradient-to-br from-teal-50 to-cyan-50 shadow-2xl">
+            <CardHeader>
+              <div className="flex items-start gap-4">
+                <div className="w-16 h-16 bg-gradient-to-br from-teal-600 to-cyan-600 rounded-2xl flex items-center justify-center shadow-xl">
+                  <Building className="w-8 h-8 text-white" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-teal-900 text-2xl">Organization Configuration</CardTitle>
+                    <div className="group relative">
+                      <Info className="w-5 h-5 text-teal-600 cursor-help" />
+                      <div className="hidden group-hover:block absolute left-0 top-6 w-80 bg-teal-900 text-white p-4 rounded-xl shadow-2xl z-50">
+                        <p className="font-bold text-lg mb-2">🏥 For Your Practice</p>
+                        <p className="text-sm">Control which modules YOUR staff can access and configure settings specific to YOUR organization (fees, templates, workflows).</p>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-teal-700 mt-2 text-lg font-semibold">Enable modules for your staff & customize settings for your practice</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="bg-teal-100 border-4 border-teal-300 rounded-xl p-4 mb-4">
+                <p className="text-teal-900 font-bold text-lg">📌 WHEN TO USE:</p>
+                <ul className="mt-2 space-y-2 text-teal-800">
+                  <li className="flex items-start gap-2">
+                    <span className="text-2xl">✅</span>
+                    <span><strong>Module Toggles:</strong> Turn pharmacy, lab, or radiology modules ON/OFF for your organization</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-2xl">⚙️</span>
+                    <span><strong>Configuration:</strong> Set consultation fees, tax rates, templates unique to your practice</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <button
+                  onClick={() => navigate(createPageUrl('AdminModuleToggles'))}
+                  className="p-6 rounded-2xl border-4 border-teal-300 bg-white hover:shadow-2xl transition-all duration-300 transform hover:scale-102"
+                >
+                  <Grid3X3 className="w-12 h-12 text-teal-600 mb-3" />
+                  <p className="font-bold text-xl text-teal-900">Module Toggles</p>
+                  <p className="text-teal-700 text-sm mt-2">Enable/disable modules for your organization's staff</p>
+                </button>
+
+                <button
+                  onClick={() => navigate(createPageUrl('AdminConfig'))}
+                  className="p-6 rounded-2xl border-4 border-cyan-300 bg-white hover:shadow-2xl transition-all duration-300 transform hover:scale-102"
+                >
+                  <Settings className="w-12 h-12 text-cyan-600 mb-3" />
+                  <p className="font-bold text-xl text-cyan-900">Configuration</p>
+                  <p className="text-cyan-700 text-sm mt-2">Set fees, templates, and settings for your practice</p>
+                </button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* Organization Setup Tab */}
         <TabsContent value="organization" className="space-y-6">
 
@@ -697,28 +822,6 @@ export default function Admin() {
                   </div>
                   <p className="font-bold text-slate-900 text-center">Branding</p>
                   <p className="text-xs text-slate-600 text-center mt-1">Logo & theme</p>
-                </button>
-
-                <button
-                  onClick={() => navigate(createPageUrl('AdminModuleToggles'))}
-                  className="p-4 rounded-xl border-2 border-indigo-300 bg-white hover:shadow-lg transition-all transform hover:scale-105"
-                >
-                  <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg mb-3">
-                    <Grid3X3 className="w-6 h-6 text-white" />
-                  </div>
-                  <p className="font-bold text-slate-900 text-center">Modules</p>
-                  <p className="text-xs text-slate-600 text-center mt-1">Enable/disable</p>
-                </button>
-
-                <button
-                  onClick={() => navigate(createPageUrl('AdminConfig'))}
-                  className="p-4 rounded-xl border-2 border-teal-300 bg-white hover:shadow-lg transition-all transform hover:scale-105"
-                >
-                  <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg mb-3">
-                    <Settings className="w-6 h-6 text-white" />
-                  </div>
-                  <p className="font-bold text-slate-900 text-center">Configuration</p>
-                  <p className="text-xs text-slate-600 text-center mt-1">System settings</p>
                 </button>
 
                 <button
