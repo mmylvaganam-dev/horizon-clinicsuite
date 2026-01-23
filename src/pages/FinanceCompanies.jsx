@@ -175,63 +175,84 @@ export default function FinanceCompanies() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Company Profiles</h1>
-          <p className="text-slate-500 mt-1">Manage company entities</p>
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 text-white shadow-xl">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
+              <Building2 className="w-10 h-10" />
+              Company Profiles
+            </h1>
+            <p className="text-blue-100 mt-2 text-lg">Manage your company entities and organizations</p>
+          </div>
+          <button
+            onClick={() => setDialogOpen(true)}
+            className="px-6 py-4 bg-white text-blue-600 rounded-2xl font-bold text-lg shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-200"
+          >
+            <Plus className="w-5 h-5 inline mr-2" />
+            Add Company
+          </button>
         </div>
-        <Button onClick={() => setDialogOpen(true)} className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Company
-        </Button>
       </div>
 
-      <Card>
-        <CardContent className="pt-6">
-          {isLoading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Skeleton key={i} className="h-24 rounded-xl" />
-              ))}
-            </div>
-          ) : companies.length === 0 ? (
-            <div className="text-center py-12">
-              <Building2 className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-              <p className="text-slate-500">No companies yet</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {companies.map((company) => (
-                <div key={company.id} className="flex items-start justify-between p-4 rounded-lg border bg-white hover:shadow-md transition-shadow">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                      <Building2 className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-slate-900">{company.company_legal_name}</h3>
-                        <Badge className={company.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}>
-                          {company.status}
-                        </Badge>
-                      </div>
-                      {company.company_trade_name && (
-                        <p className="text-sm text-slate-600">DBA: {company.company_trade_name}</p>
-                      )}
-                      <p className="text-xs text-slate-500 mt-1">
-                        {company.country_code} • {company.base_currency}
-                        {company.incorporation_number && ` • Reg: ${company.incorporation_number}`}
-                      </p>
+      {isLoading ? (
+        <div className="grid md:grid-cols-2 gap-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-40 rounded-2xl" />
+          ))}
+        </div>
+      ) : companies.length === 0 ? (
+        <Card className="border-4 border-dashed border-slate-300 bg-gradient-to-br from-slate-50 to-slate-100">
+          <CardContent className="text-center py-16">
+            <Building2 className="w-20 h-20 mx-auto text-slate-300 mb-4" />
+            <p className="text-slate-500 text-xl font-semibold">No companies yet</p>
+            <p className="text-slate-400 mt-2">Click "Add Company" to get started</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid md:grid-cols-2 gap-4">
+          {companies.map((company) => (
+            <button
+              key={company.id}
+              onClick={() => handleEdit(company)}
+              className="p-6 rounded-2xl border-4 border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50 hover:shadow-2xl transition-all duration-300 text-left transform hover:scale-102 hover:border-blue-400"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-xl transform hover:rotate-3 transition-transform">
+                  <Building2 className="w-8 h-8 text-white" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="font-bold text-xl text-slate-900">{company.company_legal_name}</h3>
+                    <div className={`px-3 py-1 rounded-full text-xs font-bold ${
+                      company.status === 'active' 
+                        ? 'bg-emerald-500 text-white' 
+                        : 'bg-slate-400 text-white'
+                    }`}>
+                      {company.status.toUpperCase()}
                     </div>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={() => handleEdit(company)}>
-                    <Edit className="w-4 h-4" />
-                  </Button>
+                  {company.company_trade_name && (
+                    <p className="text-sm text-blue-700 font-semibold mb-2">DBA: {company.company_trade_name}</p>
+                  )}
+                  <div className="flex items-center gap-3 mt-3">
+                    <div className="px-3 py-1 rounded-lg bg-blue-100 text-blue-700 text-xs font-bold">
+                      {company.country_code}
+                    </div>
+                    <div className="px-3 py-1 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-bold">
+                      {company.base_currency}
+                    </div>
+                    {company.incorporation_number && (
+                      <div className="px-3 py-1 rounded-lg bg-purple-100 text-purple-700 text-xs font-bold">
+                        Reg: {company.incorporation_number}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
@@ -358,57 +379,81 @@ export default function FinanceCompanies() {
       </Dialog>
 
       {isPlatformOwner && (
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Organization Profiles</CardTitle>
-            <Button onClick={() => {
-              setEditingOrg(null);
-              setOrgFormData({
-                name: '',
-                code: '',
-                type: 'clinic',
-                status: 'active'
-              });
-              setOrgDialogOpen(true);
-            }} className="bg-blue-600 hover:bg-blue-700">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Organization
-            </Button>
-          </CardHeader>
-          <CardContent>
-            {organizations.length === 0 ? (
-              <div className="text-center py-12">
-                <Building2 className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-                <p className="text-slate-500">No organizations yet</p>
+        <>
+          <div className="bg-gradient-to-r from-teal-500 to-emerald-600 rounded-2xl p-6 text-white shadow-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold tracking-tight flex items-center gap-3">
+                  <Building2 className="w-8 h-8" />
+                  Organization Profiles
+                </h2>
+                <p className="text-teal-100 mt-2">Manage clinic and hospital organizations</p>
               </div>
-            ) : (
-              <div className="space-y-3">
-                {organizations.map((org) => (
-                  <div key={org.id} className="flex items-start justify-between p-4 rounded-lg border bg-white hover:shadow-md transition-shadow">
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center">
-                        <Building2 className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <h3 className="font-semibold text-slate-900">{org.name}</h3>
-                          <Badge className={org.status === 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-700'}>
-                            {org.status}
-                          </Badge>
+              <button
+                onClick={() => {
+                  setEditingOrg(null);
+                  setOrgFormData({
+                    name: '',
+                    code: '',
+                    type: 'clinic',
+                    status: 'active'
+                  });
+                  setOrgDialogOpen(true);
+                }}
+                className="px-6 py-4 bg-white text-teal-600 rounded-2xl font-bold text-lg shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-200"
+              >
+                <Plus className="w-5 h-5 inline mr-2" />
+                Add Organization
+              </button>
+            </div>
+          </div>
+
+          {organizations.length === 0 ? (
+            <Card className="border-4 border-dashed border-teal-300 bg-gradient-to-br from-teal-50 to-emerald-50">
+              <CardContent className="text-center py-16">
+                <Building2 className="w-20 h-20 mx-auto text-teal-300 mb-4" />
+                <p className="text-teal-600 text-xl font-semibold">No organizations yet</p>
+                <p className="text-teal-500 mt-2">Click "Add Organization" to create one</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid md:grid-cols-2 gap-4">
+              {organizations.map((org) => (
+                <button
+                  key={org.id}
+                  onClick={() => handleEditOrg(org)}
+                  className="p-6 rounded-2xl border-4 border-teal-200 bg-gradient-to-br from-teal-50 to-emerald-50 hover:shadow-2xl transition-all duration-300 text-left transform hover:scale-102 hover:border-teal-400"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 flex items-center justify-center shadow-xl transform hover:rotate-3 transition-transform">
+                      <Building2 className="w-8 h-8 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="font-bold text-xl text-slate-900">{org.name}</h3>
+                        <div className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          org.status === 'active' 
+                            ? 'bg-emerald-500 text-white' 
+                            : 'bg-slate-400 text-white'
+                        }`}>
+                          {org.status.toUpperCase()}
                         </div>
-                        <p className="text-sm text-slate-600">{org.type || 'clinic'}</p>
-                        <p className="text-xs text-slate-500 mt-1">Code: {org.code}</p>
+                      </div>
+                      <div className="flex items-center gap-3 mt-3">
+                        <div className="px-3 py-1 rounded-lg bg-teal-100 text-teal-700 text-xs font-bold uppercase">
+                          {org.type || 'clinic'}
+                        </div>
+                        <div className="px-3 py-1 rounded-lg bg-purple-100 text-purple-700 text-xs font-bold">
+                          Code: {org.code}
+                        </div>
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" onClick={() => handleEditOrg(org)}>
-                      <Edit className="w-4 h-4" />
-                    </Button>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                </button>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       <Dialog open={orgDialogOpen} onOpenChange={setOrgDialogOpen}>
