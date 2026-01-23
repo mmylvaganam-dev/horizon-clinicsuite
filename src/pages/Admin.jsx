@@ -322,8 +322,14 @@ export default function Admin() {
         />
       </div>
 
-      <Tabs defaultValue="access" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+      <Tabs defaultValue={isPlatformOwner ? "platform" : "access"} className="space-y-6">
+        <TabsList className={`grid w-full ${isPlatformOwner ? 'grid-cols-5' : 'grid-cols-4'}`}>
+          {isPlatformOwner && (
+            <TabsTrigger value="platform" className="flex items-center gap-2 bg-rose-100 data-[state=active]:bg-rose-600 data-[state=active]:text-white">
+              <Globe className="w-4 h-4" />
+              Platform Owner
+            </TabsTrigger>
+          )}
           <TabsTrigger value="access" className="flex items-center gap-2">
             <UserCheck className="w-4 h-4" />
             User Access Control
