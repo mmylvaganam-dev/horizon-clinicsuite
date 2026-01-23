@@ -227,16 +227,16 @@ export default function Admin() {
     },
     {
       category: 'Security & Compliance',
-      description: 'Audit, monitoring, and validation',
+      description: 'Audit, monitoring, and validation (Owner Only)',
       icon: Shield,
       color: 'from-indigo-500 to-indigo-600',
       modules: [
-        { title: 'Audit Logs', description: 'View system audit logs', icon: FileText, page: 'AdminAuditLogs' },
-        { title: 'Break-Glass Report', description: 'Emergency access audit', icon: Shield, page: 'AdminBreakGlassReport' },
-        { title: 'Security Posture', description: 'Access controls & monitoring', icon: Shield, page: 'AdminSecurityPosture' },
-        { title: 'Security Validation', description: 'Verify security controls', icon: Shield, page: 'AdminSecurityValidation' },
-        { title: 'Compliance Checklist', description: 'Deployment validation', icon: Shield, page: 'AdminComplianceChecklist' },
-        { title: 'Go-Live Checklist', description: 'Production readiness validation', icon: Shield, page: 'AdminGoLiveChecklist' },
+        { title: 'Audit Logs', description: 'View system audit logs', icon: FileText, page: 'AdminAuditLogs', ownerOnly: true },
+        { title: 'Break-Glass Report', description: 'Emergency access audit', icon: Shield, page: 'AdminBreakGlassReport', ownerOnly: true },
+        { title: 'Security Posture', description: 'Access controls & monitoring', icon: Shield, page: 'AdminSecurityPosture', ownerOnly: true },
+        { title: 'Security Validation', description: 'Verify security controls', icon: Shield, page: 'AdminSecurityValidation', ownerOnly: true },
+        { title: 'Compliance Checklist', description: 'Deployment validation', icon: Shield, page: 'AdminComplianceChecklist', ownerOnly: true },
+        { title: 'Go-Live Checklist', description: 'Production readiness validation', icon: Shield, page: 'AdminGoLiveChecklist', ownerOnly: true },
       ]
     },
     {
