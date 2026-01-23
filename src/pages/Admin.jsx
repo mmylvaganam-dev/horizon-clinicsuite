@@ -415,7 +415,59 @@ export default function Admin() {
           </TabsContent>
         )}
 
-        {/* User Access Control Tab */}
+        {/* Organization Admin Tab */}
+        <TabsContent value="organization" className="space-y-6">
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 text-white shadow-xl">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center">
+                <Building className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold">Organization Administration</h2>
+                <p className="text-blue-100 text-lg mt-1">Add staff, grant roles, configure branding, pricing & daily operations</p>
+              </div>
+            </div>
+          </div>
+
+          {adminCategories
+            .filter(cat => cat.modules.some(m => !m.ownerOnly))
+            .map((category, idx) => (
+              <Card key={idx} className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center shadow-lg`}>
+                      <category.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-slate-900">{category.category}</CardTitle>
+                      <p className="text-sm text-slate-600">{category.description}</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {category.modules
+                      .filter(m => !m.ownerOnly)
+                      .map((module) => (
+                        <button
+                          key={module.page}
+                          onClick={() => navigate(createPageUrl(module.page))}
+                          className="p-4 rounded-xl border-2 border-slate-200 bg-white hover:border-blue-400 hover:shadow-lg transition-all transform hover:scale-105 text-left"
+                        >
+                          <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center mb-3 shadow`}>
+                            <module.icon className="w-5 h-5 text-white" />
+                          </div>
+                          <p className="font-semibold text-slate-900 text-sm">{module.title}</p>
+                          <p className="text-xs text-slate-600 mt-1">{module.description}</p>
+                        </button>
+                      ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+        </TabsContent>
+
+        {/* User Access Control Tab (Old - keeping for role assignment UI) */}
         <TabsContent value="access" className="space-y-6">
           {/* Setup Warning - Show if roles not found */}
           {allRoles.length === 0 || !allRoles.some(r => (r.code || r.role_name) === 'PHYSICIAN') ? (
