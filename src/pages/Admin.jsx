@@ -189,11 +189,14 @@ export default function Admin() {
     },
     {
       category: 'Organization Setup',
-      description: 'Your organization configuration',
+      description: 'Organization configuration (Owner Only)',
       icon: Building2,
       color: 'from-blue-500 to-blue-600',
       modules: [
-        { title: 'Organization Branding', description: 'White-label branding', icon: Settings, page: 'AdminOrganizationBranding' },
+        { title: 'Company Profile', description: 'Business details', icon: Building2, page: 'FinanceCompanies', ownerOnly: true },
+        { title: 'Organizations', description: 'Locations & structure', icon: Building2, page: 'AdminOrganizations', ownerOnly: true },
+        { title: 'Organization Branding', description: 'White-label branding', icon: Settings, page: 'AdminOrganizationBranding', ownerOnly: true },
+        { title: 'Locations', description: 'Clinics & branches', icon: MapPin, page: 'AdminLocations', ownerOnly: true },
       ]
     },
     {
