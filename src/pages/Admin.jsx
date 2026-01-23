@@ -253,25 +253,25 @@ export default function Admin() {
     },
     {
       category: 'Data Management',
-      description: 'Export, retention, and archival',
+      description: 'Export, retention, and archival (Owner Only)',
       icon: FileText,
       color: 'from-purple-500 to-purple-600',
       modules: [
-        { title: 'Data Export', description: 'Export bundles', icon: FileText, page: 'DataExport' },
-        { title: 'Export Approvals', description: 'Review export requests', icon: Shield, page: 'AdminExportApprovals' },
-        { title: 'Retention Policies', description: 'Data retention rules', icon: Activity, page: 'AdminRetentionPolicies' },
-        { title: 'Archive Management', description: 'Archived records', icon: FileText, page: 'AdminArchive' },
+        { title: 'Data Export', description: 'Export bundles', icon: FileText, page: 'DataExport', ownerOnly: true },
+        { title: 'Export Approvals', description: 'Review export requests', icon: Shield, page: 'AdminExportApprovals', ownerOnly: true },
+        { title: 'Retention Policies', description: 'Data retention rules', icon: Activity, page: 'AdminRetentionPolicies', ownerOnly: true },
+        { title: 'Archive Management', description: 'Archived records', icon: FileText, page: 'AdminArchive', ownerOnly: true },
       ]
     },
     {
       category: 'External Integration',
-      description: 'Partners, portals, and reporting',
+      description: 'Partners, portals, and reporting (Owner Only)',
       icon: Users,
       color: 'from-cyan-500 to-cyan-600',
       modules: [
-        { title: 'Patient Portal', description: 'Portal account management', icon: Users, page: 'AdminPatientPortal' },
-        { title: 'Government Reporting', description: 'Regulatory reports', icon: FileText, page: 'GovernmentReporting' },
-        { title: 'Partner Management', description: 'Referral partners', icon: Users, page: 'PartnerManagement' },
+        { title: 'Patient Portal', description: 'Portal account management', icon: Users, page: 'AdminPatientPortal', ownerOnly: true },
+        { title: 'Government Reporting', description: 'Regulatory reports', icon: FileText, page: 'GovernmentReporting', ownerOnly: true },
+        { title: 'Partner Management', description: 'Referral partners', icon: Users, page: 'PartnerManagement', ownerOnly: true },
       ]
     },
   ];
