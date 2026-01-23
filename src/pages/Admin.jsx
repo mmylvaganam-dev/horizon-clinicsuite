@@ -348,6 +348,72 @@ export default function Admin() {
           </TabsTrigger>
         </TabsList>
 
+        {/* Platform Owner Tab */}
+        {isPlatformOwner && (
+          <TabsContent value="platform" className="space-y-6">
+            <div className="bg-gradient-to-r from-rose-500 to-red-600 rounded-2xl p-6 text-white shadow-xl">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center">
+                  <Globe className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold flex items-center gap-2">
+                    Platform Owner Control Center
+                    <div className="group relative">
+                      <Info className="w-5 h-5 cursor-help" />
+                      <div className="hidden group-hover:block absolute left-0 top-6 w-96 bg-rose-900 text-white p-4 rounded-xl shadow-2xl z-50">
+                        <p className="font-bold text-lg mb-2">👑 GLOBAL PLATFORM CONTROLS</p>
+                        <p className="text-sm">These settings affect ALL organizations on the platform. Only Platform Owners can access this section. Use this to manage global billing, security, data exports, and integrations across all tenants.</p>
+                      </div>
+                    </div>
+                  </h2>
+                  <p className="text-rose-100 text-lg mt-1">Manage all organizations, global settings, security, billing & data exports</p>
+                </div>
+              </div>
+            </div>
+
+            {adminCategories
+              .filter(cat => cat.modules.some(m => m.ownerOnly))
+              .map((category, idx) => (
+                <Card key={idx} className="border-4 border-rose-200 bg-gradient-to-br from-rose-50 to-red-50">
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center shadow-lg`}>
+                        <category.icon className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-slate-900 flex items-center gap-2">
+                          {category.category}
+                          <Badge className="bg-rose-600 text-white">Platform Owner Only</Badge>
+                        </CardTitle>
+                        <p className="text-sm text-slate-600">{category.description}</p>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {category.modules
+                        .filter(m => m.ownerOnly)
+                        .map((module) => (
+                          <button
+                            key={module.page}
+                            onClick={() => navigate(createPageUrl(module.page))}
+                            className="p-4 rounded-xl border-2 border-rose-200 bg-white hover:shadow-lg transition-all transform hover:scale-105 text-left"
+                          >
+                            <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center mb-3 shadow`}>
+                              <module.icon className="w-5 h-5 text-white" />
+                            </div>
+                            <p className="font-semibold text-slate-900 text-sm">{module.title}</p>
+                            <p className="text-xs text-slate-600 mt-1">{module.description}</p>
+                          </button>
+                        ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+          </TabsContent>
+        )}
+
         {/* User Access Control Tab */}
         <TabsContent value="access" className="space-y-6">
           {/* Setup Warning - Show if roles not found */}
