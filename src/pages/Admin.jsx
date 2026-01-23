@@ -857,66 +857,7 @@ export default function Admin() {
           </Card>
         </TabsContent>
 
-        {/* Organization Setup Tab */}
-        <TabsContent value="organization" className="space-y-6">
 
-          <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-green-900">
-                <Building2 className="w-6 h-6" />
-                Organization Configuration
-              </CardTitle>
-              <p className="text-sm text-green-700">Company structure, branding, and location management</p>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                <button
-                  onClick={() => navigate(createPageUrl('FinanceCompanies'))}
-                  className="p-4 rounded-xl border-2 border-blue-300 bg-white hover:shadow-lg transition-all transform hover:scale-105"
-                >
-                  <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg mb-3">
-                    <Building2 className="w-6 h-6 text-white" />
-                  </div>
-                  <p className="font-bold text-slate-900 text-center">Company Profile</p>
-                  <p className="text-xs text-slate-600 text-center mt-1">Business details</p>
-                </button>
-
-                <button
-                  onClick={() => navigate(createPageUrl('AdminOrganizations'))}
-                  className="p-4 rounded-xl border-2 border-cyan-300 bg-white hover:shadow-lg transition-all transform hover:scale-105"
-                >
-                  <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center shadow-lg mb-3">
-                    <Building2 className="w-6 h-6 text-white" />
-                  </div>
-                  <p className="font-bold text-slate-900 text-center">Organizations</p>
-                  <p className="text-xs text-slate-600 text-center mt-1">Locations & structure</p>
-                </button>
-
-                <button
-                  onClick={() => navigate(createPageUrl('AdminOrganizationBranding'))}
-                  className="p-4 rounded-xl border-2 border-purple-300 bg-white hover:shadow-lg transition-all transform hover:scale-105"
-                >
-                  <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg mb-3">
-                    <Settings className="w-6 h-6 text-white" />
-                  </div>
-                  <p className="font-bold text-slate-900 text-center">Branding</p>
-                  <p className="text-xs text-slate-600 text-center mt-1">Logo & theme</p>
-                </button>
-
-                <button
-                  onClick={() => navigate(createPageUrl('AdminLocations'))}
-                  className="p-4 rounded-xl border-2 border-pink-300 bg-white hover:shadow-lg transition-all transform hover:scale-105"
-                >
-                  <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-pink-500 to-pink-600 flex items-center justify-center shadow-lg mb-3">
-                    <MapPin className="w-6 h-6 text-white" />
-                  </div>
-                  <p className="font-bold text-slate-900 text-center">Locations</p>
-                  <p className="text-xs text-slate-600 text-center mt-1">Clinics & branches</p>
-                </button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         {/* System Settings Tab */}
         <TabsContent value="system" className="space-y-6">
