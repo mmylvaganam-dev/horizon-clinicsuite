@@ -841,45 +841,130 @@ export default function Admin() {
 
         {/* System Settings Tab */}
         <TabsContent value="system" className="space-y-6">
-          {adminCategories.map((category, idx) => (
-            <Card key={idx} className={`border-2`}>
-              <CardHeader className={`bg-gradient-to-r ${category.color} bg-opacity-10`}>
-                <div className="flex items-center gap-3">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center shadow-lg`}>
-                    <category.icon className="w-6 h-6 text-white" />
+          {/* Platform Owner Only Section */}
+          {isPlatformOwner && (
+            <>
+              <div className="bg-gradient-to-r from-rose-500 to-red-600 rounded-2xl p-6 text-white shadow-xl">
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center">
+                    <Globe className="w-8 h-8 text-white" />
                   </div>
                   <div>
-                    <CardTitle className="text-slate-900">{category.category}</CardTitle>
-                    <p className="text-sm text-slate-600">{category.description}</p>
+                    <h2 className="text-2xl font-bold flex items-center gap-2">
+                      Platform Owner Settings
+                      <div className="group relative">
+                        <Info className="w-5 h-5 cursor-help" />
+                        <div className="hidden group-hover:block absolute left-0 top-6 w-96 bg-rose-900 text-white p-4 rounded-xl shadow-2xl z-50">
+                          <p className="font-bold text-lg mb-2">👑 ONLY YOU CAN ACCESS THIS</p>
+                          <p className="text-sm">These settings control the entire platform - ALL organizations. Regular organization owners cannot see or change these settings.</p>
+                        </div>
+                      </div>
+                    </h2>
+                    <p className="text-rose-100 text-lg mt-1">Global platform controls - affects ALL organizations</p>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {category.modules.map((module) => {
-                    if (module.ownerOnly && !isPlatformOwner) return null;
+              </div>
 
-                    return (
-                      <button
-                        key={module.page}
-                        onClick={() => navigate(createPageUrl(module.page))}
-                        className="p-4 rounded-xl border-2 border-slate-200 bg-white hover:border-slate-400 hover:shadow-lg transition-all transform hover:scale-105 text-left"
-                      >
-                        <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center mb-3 shadow`}>
-                          <module.icon className="w-5 h-5 text-white" />
+              {adminCategories
+                .filter(cat => cat.modules.some(m => m.ownerOnly))
+                .map((category, idx) => (
+                  <Card key={idx} className="border-4 border-rose-200 bg-gradient-to-br from-rose-50 to-red-50">
+                    <CardHeader>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center shadow-lg`}>
+                          <category.icon className="w-6 h-6 text-white" />
                         </div>
-                        <p className="font-semibold text-slate-900 text-sm">{module.title}</p>
-                        <p className="text-xs text-slate-600 mt-1">{module.description}</p>
-                        {module.ownerOnly && (
-                          <Badge className="mt-2 bg-rose-100 text-rose-700 text-[10px]">Owner Only</Badge>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                        <div>
+                          <CardTitle className="text-slate-900 flex items-center gap-2">
+                            {category.category}
+                            <Badge className="bg-rose-600 text-white">Platform Owner Only</Badge>
+                          </CardTitle>
+                          <p className="text-sm text-slate-600">{category.description}</p>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        {category.modules
+                          .filter(m => m.ownerOnly)
+                          .map((module) => (
+                            <button
+                              key={module.page}
+                              onClick={() => navigate(createPageUrl(module.page))}
+                              className="p-4 rounded-xl border-2 border-rose-200 bg-white hover:shadow-lg transition-all transform hover:scale-105 text-left"
+                            >
+                              <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center mb-3 shadow`}>
+                                <module.icon className="w-5 h-5 text-white" />
+                              </div>
+                              <p className="font-semibold text-slate-900 text-sm">{module.title}</p>
+                              <p className="text-xs text-slate-600 mt-1">{module.description}</p>
+                            </button>
+                          ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+            </>
+          )}
+
+          {/* Organization Owner Section */}
+          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 text-white shadow-xl">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center">
+                <Building className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  Organization Settings
+                  <div className="group relative">
+                    <Info className="w-5 h-5 cursor-help" />
+                    <div className="hidden group-hover:block absolute left-0 top-6 w-96 bg-blue-900 text-white p-4 rounded-xl shadow-2xl z-50">
+                      <p className="font-bold text-lg mb-2">🏥 FOR YOUR PRACTICE</p>
+                      <p className="text-sm">These settings are for managing YOUR organization - users, security, finances, and operational tools for your clinic/hospital.</p>
+                    </div>
+                  </div>
+                </h2>
+                <p className="text-blue-100 text-lg mt-1">Manage your organization's settings, users, and operations</p>
+              </div>
+            </div>
+          </div>
+
+          {adminCategories
+            .filter(cat => cat.modules.some(m => !m.ownerOnly))
+            .map((category, idx) => (
+              <Card key={idx} className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
+                <CardHeader>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center shadow-lg`}>
+                      <category.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-slate-900">{category.category}</CardTitle>
+                      <p className="text-sm text-slate-600">{category.description}</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {category.modules
+                      .filter(m => !m.ownerOnly)
+                      .map((module) => (
+                        <button
+                          key={module.page}
+                          onClick={() => navigate(createPageUrl(module.page))}
+                          className="p-4 rounded-xl border-2 border-slate-200 bg-white hover:border-blue-400 hover:shadow-lg transition-all transform hover:scale-105 text-left"
+                        >
+                          <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center mb-3 shadow`}>
+                            <module.icon className="w-5 h-5 text-white" />
+                          </div>
+                          <p className="font-semibold text-slate-900 text-sm">{module.title}</p>
+                          <p className="text-xs text-slate-600 mt-1">{module.description}</p>
+                        </button>
+                      ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
         </TabsContent>
       </Tabs>
     </div>
