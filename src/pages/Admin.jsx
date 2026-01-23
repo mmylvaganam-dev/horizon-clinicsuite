@@ -177,31 +177,67 @@ export default function Admin() {
 
   const adminCategories = [
     {
-      category: 'Platform Management',
-      description: 'Platform-wide controls (Owner Only)',
+      category: 'Platform Setup',
+      description: 'Setup organizations and global configuration (Owner Only)',
       icon: Globe,
       color: 'from-rose-500 to-red-600',
       modules: [
-        { title: 'Companies & Organizations', description: 'Manage all organizations', icon: Building2, page: 'AdminCompanies', ownerOnly: true },
+        { title: 'Company Profile', description: 'Business details', icon: Building2, page: 'FinanceCompanies', ownerOnly: true },
+        { title: 'Organizations', description: 'Create & manage organizations', icon: Building2, page: 'AdminOrganizations', ownerOnly: true },
+        { title: 'Locations', description: 'Clinics & branches', icon: MapPin, page: 'AdminLocations', ownerOnly: true },
+        { title: 'Global Branding', description: 'White-label branding', icon: Settings, page: 'AdminOrganizationBranding', ownerOnly: true },
+      ]
+    },
+    {
+      category: 'Platform Billing',
+      description: 'Subscription billing management (Owner Only)',
+      icon: DollarSign,
+      color: 'from-rose-500 to-red-600',
+      modules: [
         { title: 'Platform Billing', description: 'Manage subscription billing', icon: DollarSign, page: 'PlatformBilling', ownerOnly: true },
         { title: 'Platform Configuration', description: 'Global platform settings', icon: Settings, page: 'PlatformConfiguration', ownerOnly: true },
       ]
     },
     {
-      category: 'Organization Setup',
-      description: 'Organization configuration (Owner Only)',
-      icon: Building2,
-      color: 'from-blue-500 to-blue-600',
+      category: 'Security & Compliance',
+      description: 'Audit, monitoring, and validation (Owner Only)',
+      icon: Shield,
+      color: 'from-rose-500 to-red-600',
       modules: [
-        { title: 'Company Profile', description: 'Business details', icon: Building2, page: 'FinanceCompanies', ownerOnly: true },
-        { title: 'Organizations', description: 'Locations & structure', icon: Building2, page: 'AdminOrganizations', ownerOnly: true },
-        { title: 'Organization Branding', description: 'White-label branding', icon: Settings, page: 'AdminOrganizationBranding', ownerOnly: true },
-        { title: 'Locations', description: 'Clinics & branches', icon: MapPin, page: 'AdminLocations', ownerOnly: true },
+        { title: 'Audit Logs', description: 'View system audit logs', icon: FileText, page: 'AdminAuditLogs', ownerOnly: true },
+        { title: 'Break-Glass Report', description: 'Emergency access audit', icon: Shield, page: 'AdminBreakGlassReport', ownerOnly: true },
+        { title: 'Security Posture', description: 'Access controls & monitoring', icon: Shield, page: 'AdminSecurityPosture', ownerOnly: true },
+        { title: 'Security Validation', description: 'Verify security controls', icon: Shield, page: 'AdminSecurityValidation', ownerOnly: true },
+        { title: 'Compliance Checklist', description: 'Deployment validation', icon: Shield, page: 'AdminComplianceChecklist', ownerOnly: true },
+        { title: 'Go-Live Checklist', description: 'Production readiness validation', icon: Shield, page: 'AdminGoLiveChecklist', ownerOnly: true },
+      ]
+    },
+    {
+      category: 'Data Export & Management',
+      description: 'Export, retention, and archival (Owner Only)',
+      icon: FileText,
+      color: 'from-rose-500 to-red-600',
+      modules: [
+        { title: 'Data Export', description: 'Export bundles', icon: FileText, page: 'DataExport', ownerOnly: true },
+        { title: 'Export Approvals', description: 'Review export requests', icon: Shield, page: 'AdminExportApprovals', ownerOnly: true },
+        { title: 'Retention Policies', description: 'Data retention rules', icon: Activity, page: 'AdminRetentionPolicies', ownerOnly: true },
+        { title: 'Archive Management', description: 'Archived records', icon: FileText, page: 'AdminArchive', ownerOnly: true },
+      ]
+    },
+    {
+      category: 'External Integrations',
+      description: 'Partners, portals, and reporting (Owner Only)',
+      icon: Users,
+      color: 'from-rose-500 to-red-600',
+      modules: [
+        { title: 'Patient Portal', description: 'Portal account management', icon: Users, page: 'AdminPatientPortal', ownerOnly: true },
+        { title: 'Government Reporting', description: 'Regulatory reports', icon: FileText, page: 'GovernmentReporting', ownerOnly: true },
+        { title: 'Partner Management', description: 'Referral partners', icon: Users, page: 'PartnerManagement', ownerOnly: true },
       ]
     },
     {
       category: 'Users & Access Control',
-      description: 'User management and permissions',
+      description: 'Add staff and grant roles',
       icon: Users,
       color: 'from-teal-500 to-teal-600',
       modules: [
@@ -211,35 +247,41 @@ export default function Admin() {
         { title: 'Role Permissions', description: 'View role permission matrix', icon: Shield, page: 'AdminRolePermissions' },
         { title: 'Permissions', description: 'Configure role permissions', icon: Shield, page: 'AdminPermissions' },
         { title: 'Permission Matrix', description: 'Visual permission editor', icon: Grid3X3, page: 'AdminPermissionMatrix' },
+      ]
+    },
+    {
+      category: 'Organization Branding & Pricing',
+      description: 'Configure branding and service prices',
+      icon: Settings,
+      color: 'from-blue-500 to-blue-600',
+      modules: [
+        { title: 'Branding', description: 'Organization branding', icon: Settings, page: 'AdminOrganizationBranding' },
+        { title: 'Service Catalog', description: 'Manage services and pricing', icon: Grid3X3, page: 'AdminServiceCatalog' },
+        { title: 'Pricing & Catalogs', description: 'Configure service fees', icon: DollarSign, page: 'PricingCatalogs' },
+      ]
+    },
+    {
+      category: 'Modules & Configuration',
+      description: 'Enable modules and configure settings',
+      icon: Grid3X3,
+      color: 'from-indigo-500 to-indigo-600',
+      modules: [
+        { title: 'Module Toggles', description: 'Enable/disable modules', icon: Grid3X3, page: 'AdminModuleToggles' },
+        { title: 'Configuration', description: 'System configuration', icon: Settings, page: 'AdminConfig' },
         { title: 'Modules', description: 'Manage module access', icon: Grid3X3, page: 'AdminModules' },
       ]
     },
     {
       category: 'Financial Configuration',
-      description: 'Billing, accounting, and pricing',
+      description: 'Billing, accounting, and tax rules',
       icon: DollarSign,
       color: 'from-green-500 to-green-600',
       modules: [
         { title: 'Billing', description: 'Invoice and payment management', icon: DollarSign, page: 'Billing' },
-        { title: 'Service Catalog', description: 'Manage services and pricing', icon: Grid3X3, page: 'AdminServiceCatalog' },
         { title: 'Tax Rules', description: 'Configure tax rates', icon: Settings, page: 'AdminTaxRules' },
         { title: 'Numbering Rules', description: 'Document numbering formats', icon: Key, page: 'AdminNumberingRules' },
         { title: 'Chart of Accounts', description: 'Accounting accounts', icon: Grid3X3, page: 'AdminChartOfAccounts' },
         { title: 'Posting Rules', description: 'Accounting automation', icon: Settings, page: 'AdminPostingRules' },
-      ]
-    },
-    {
-      category: 'Security & Compliance',
-      description: 'Audit, monitoring, and validation (Owner Only)',
-      icon: Shield,
-      color: 'from-indigo-500 to-indigo-600',
-      modules: [
-        { title: 'Audit Logs', description: 'View system audit logs', icon: FileText, page: 'AdminAuditLogs', ownerOnly: true },
-        { title: 'Break-Glass Report', description: 'Emergency access audit', icon: Shield, page: 'AdminBreakGlassReport', ownerOnly: true },
-        { title: 'Security Posture', description: 'Access controls & monitoring', icon: Shield, page: 'AdminSecurityPosture', ownerOnly: true },
-        { title: 'Security Validation', description: 'Verify security controls', icon: Shield, page: 'AdminSecurityValidation', ownerOnly: true },
-        { title: 'Compliance Checklist', description: 'Deployment validation', icon: Shield, page: 'AdminComplianceChecklist', ownerOnly: true },
-        { title: 'Go-Live Checklist', description: 'Production readiness validation', icon: Shield, page: 'AdminGoLiveChecklist', ownerOnly: true },
       ]
     },
     {
@@ -252,29 +294,6 @@ export default function Admin() {
         { title: 'Organization Activity', description: 'Aggregate activity metrics', icon: Activity, page: 'AdminOrganizationActivity' },
         { title: 'System Version', description: 'Version control & schema lock', icon: Shield, page: 'AdminSystemVersion' },
         { title: 'Backup Status', description: 'Backup operations', icon: Activity, page: 'AdminBackups' },
-      ]
-    },
-    {
-      category: 'Data Management',
-      description: 'Export, retention, and archival (Owner Only)',
-      icon: FileText,
-      color: 'from-purple-500 to-purple-600',
-      modules: [
-        { title: 'Data Export', description: 'Export bundles', icon: FileText, page: 'DataExport', ownerOnly: true },
-        { title: 'Export Approvals', description: 'Review export requests', icon: Shield, page: 'AdminExportApprovals', ownerOnly: true },
-        { title: 'Retention Policies', description: 'Data retention rules', icon: Activity, page: 'AdminRetentionPolicies', ownerOnly: true },
-        { title: 'Archive Management', description: 'Archived records', icon: FileText, page: 'AdminArchive', ownerOnly: true },
-      ]
-    },
-    {
-      category: 'External Integration',
-      description: 'Partners, portals, and reporting (Owner Only)',
-      icon: Users,
-      color: 'from-cyan-500 to-cyan-600',
-      modules: [
-        { title: 'Patient Portal', description: 'Portal account management', icon: Users, page: 'AdminPatientPortal', ownerOnly: true },
-        { title: 'Government Reporting', description: 'Regulatory reports', icon: FileText, page: 'GovernmentReporting', ownerOnly: true },
-        { title: 'Partner Management', description: 'Referral partners', icon: Users, page: 'PartnerManagement', ownerOnly: true },
       ]
     },
   ];
