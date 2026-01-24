@@ -67,6 +67,8 @@ export default function PharmacyInventory() {
 
   const [showLowStockOnly, setShowLowStockOnly] = useState(false);
   const [showZeroStockOnly, setShowZeroStockOnly] = useState(false);
+  const [showExpiredOnly, setShowExpiredOnly] = useState(false);
+  const [showExpiringOnly, setShowExpiringOnly] = useState(false);
 
   const { data: balances = [] } = useQuery({
     queryKey: ['inventoryBalances'],
@@ -140,7 +142,11 @@ export default function PharmacyInventory() {
 
   const zeroStockItems = pharmacyStock.filter(item => item.quantity === 0);
 
-  const displayedStock = showZeroStockOnly ? zeroStockItems : showLowStockOnly ? lowStockPharmacyItems : pharmacyStock;
+  const displayedStock = showExpiredOnly ? expiredItems : 
+                         showExpiringOnly ? expiringItems :
+                         showZeroStockOnly ? zeroStockItems : 
+                         showLowStockOnly ? lowStockPharmacyItems : 
+                         pharmacyStock;
 
   const receiveInventoryMutation = useMutation({
     mutationFn: (data) => {
@@ -396,7 +402,7 @@ export default function PharmacyInventory() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-2">
@@ -429,9 +435,16 @@ export default function PharmacyInventory() {
             <p className="text-xs opacity-80 mt-1">{profitMargin.toFixed(1)}% margin</p>
           </CardContent>
         </Card>
+      </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className={`bg-gradient-to-br ${criticalStockItems.length > 0 ? 'from-rose-500 to-rose-600' : lowStockPharmacyItems.length > 0 ? 'from-amber-500 to-amber-600' : 'from-slate-500 to-slate-600'} text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform`}
-          onClick={() => setShowLowStockOnly(!showLowStockOnly)}>
+          onClick={() => {
+            setShowLowStockOnly(!showLowStockOnly);
+            setShowZeroStockOnly(false);
+            setShowExpiredOnly(false);
+            setShowExpiringOnly(false);
+          }}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-2">
               <AlertTriangle className={`w-8 h-8 opacity-80 ${criticalStockItems.length > 0 ? 'animate-pulse' : ''}`} />
@@ -453,6 +466,8 @@ export default function PharmacyInventory() {
           onClick={() => {
             setShowZeroStockOnly(!showZeroStockOnly);
             setShowLowStockOnly(false);
+            setShowExpiredOnly(false);
+            setShowExpiringOnly(false);
           }}>
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-2">
@@ -460,7 +475,41 @@ export default function PharmacyInventory() {
             </div>
             <p className="text-sm opacity-90">Zero Stock Items</p>
             <p className="text-3xl font-bold mt-1">{zeroStockItems.length}</p>
-            <p className="text-xs opacity-80 mt-1">Out of stock - reorder needed</p>
+            <p className="text-xs opacity-80 mt-1">Out of stock</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-red-600 to-red-700 text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform"
+          onClick={() => {
+            setShowExpiredOnly(!showExpiredOnly);
+            setShowZeroStockOnly(false);
+            setShowLowStockOnly(false);
+            setShowExpiringOnly(false);
+          }}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-2">
+              <AlertTriangle className="w-8 h-8 opacity-80" />
+            </div>
+            <p className="text-sm opacity-90">Expired Items</p>
+            <p className="text-3xl font-bold mt-1">{expiredItems.length}</p>
+            <p className="text-xs opacity-80 mt-1">Remove from stock</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform"
+          onClick={() => {
+            setShowExpiringOnly(!showExpiringOnly);
+            setShowZeroStockOnly(false);
+            setShowLowStockOnly(false);
+            setShowExpiredOnly(false);
+          }}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-2">
+              <Calendar className="w-8 h-8 opacity-80" />
+            </div>
+            <p className="text-sm opacity-90">Expiring Soon</p>
+            <p className="text-3xl font-bold mt-1">{expiringItems.length}</p>
+            <p className="text-xs opacity-80 mt-1">Within {expiryAlertDays} days</p>
           </CardContent>
         </Card>
       </div>
@@ -486,6 +535,46 @@ export default function PharmacyInventory() {
         </TabsList>
 
         <TabsContent value="stock" className="space-y-3">
+          {showExpiredOnly && expiredItems.length > 0 && (
+            <Card className="bg-red-50 border-red-200">
+              <CardContent className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                  <div>
+                    <p className="font-medium text-red-900">
+                      Showing {expiredItems.length} EXPIRED items
+                    </p>
+                    <p className="text-xs text-red-700">
+                      These items have expired and should be removed from usable stock
+                    </p>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => setShowExpiredOnly(false)}>
+                  Show All
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+          {showExpiringOnly && expiringItems.length > 0 && (
+            <Card className="bg-orange-50 border-orange-200">
+              <CardContent className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-5 h-5 text-orange-600" />
+                  <div>
+                    <p className="font-medium text-orange-900">
+                      Showing {expiringItems.length} items expiring within {expiryAlertDays} days
+                    </p>
+                    <p className="text-xs text-orange-700">
+                      Plan to sell or use these items before expiry
+                    </p>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => setShowExpiringOnly(false)}>
+                  Show All
+                </Button>
+              </CardContent>
+            </Card>
+          )}
           {showZeroStockOnly && zeroStockItems.length > 0 && (
             <Card className="bg-red-50 border-red-200">
               <CardContent className="p-4 flex items-center justify-between">
@@ -531,10 +620,18 @@ export default function PharmacyInventory() {
             <Card className="p-12 text-center bg-white">
               <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
               <h3 className="text-lg font-medium text-slate-900">
-                {showZeroStockOnly ? 'No zero stock items' : showLowStockOnly ? 'No low stock items' : 'No pharmacy stock'}
+                {showExpiredOnly ? 'No expired items' : 
+                 showExpiringOnly ? 'No items expiring soon' :
+                 showZeroStockOnly ? 'No zero stock items' : 
+                 showLowStockOnly ? 'No low stock items' : 
+                 'No pharmacy stock'}
               </h3>
               <p className="text-slate-500 mt-1">
-                {showZeroStockOnly ? 'All items have stock available' : showLowStockOnly ? 'All items are above 10 units' : 'Import stock data from Stock Import page'}
+                {showExpiredOnly ? 'All items are within expiry date' :
+                 showExpiringOnly ? `No items expiring within ${expiryAlertDays} days` :
+                 showZeroStockOnly ? 'All items have stock available' : 
+                 showLowStockOnly ? 'All items are above 10 units' : 
+                 'Import stock data from Stock Import page'}
               </p>
             </Card>
           ) : (
