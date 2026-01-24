@@ -56,13 +56,6 @@ export default function PharmacyInventory() {
     reason: ''
   });
 
-  // Auto-select first location if only one exists
-  React.useEffect(() => {
-    if (locations.length === 1 && !receiveForm.locationId) {
-      setReceiveForm(prev => ({ ...prev, locationId: locations[0].id }));
-    }
-  }, [locations, receiveForm.locationId]);
-
   const [expiryAlertDays, setExpiryAlertDays] = useState(90);
   const [lowStockThreshold, setLowStockThreshold] = useState(10);
   const [criticalStockThreshold, setCriticalStockThreshold] = useState(5);
@@ -102,6 +95,13 @@ export default function PharmacyInventory() {
     queryKey: ['locations'],
     queryFn: () => base44.entities.Location.list(),
   });
+
+  // Auto-select first location if only one exists
+  React.useEffect(() => {
+    if (locations.length === 1 && !receiveForm.locationId) {
+      setReceiveForm(prev => ({ ...prev, locationId: locations[0].id }));
+    }
+  }, [locations, receiveForm.locationId]);
 
   const { data: batches = [] } = useQuery({
     queryKey: ['stockBatches'],
