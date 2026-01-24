@@ -543,7 +543,9 @@ export default function PharmacyInventory() {
                         </div>
                       </div>
                       {item.expire_date && (
-                        <p className="text-xs text-slate-500 mt-2">Expiry: {item.expire_date ? format(new Date(item.expire_date), 'MMM d, yyyy') : 'N/A'}</p>
+                        <p className="text-xs text-slate-500 mt-2">
+                          Expiry: {item.expire_date && !isNaN(new Date(item.expire_date)) ? format(new Date(item.expire_date), 'MMM d, yyyy') : 'N/A'}
+                        </p>
                       )}
                       {item.supplier && (
                         <p className="text-xs text-slate-500">Supplier: {item.supplier}</p>
@@ -660,7 +662,7 @@ export default function PharmacyInventory() {
                         <p className="text-sm text-slate-600 mt-1">{txn.reason}</p>
                       )}
                       <p className="text-xs text-slate-400 mt-2">
-                        {txn.created_at ? format(new Date(txn.created_at), 'MMM d, yyyy h:mm a') : 'N/A'} by {txn.created_by_email}
+                        {txn.created_at && !isNaN(new Date(txn.created_at)) ? format(new Date(txn.created_at), 'MMM d, yyyy h:mm a') : 'N/A'} by {txn.created_by_email}
                       </p>
                     </div>
                   </div>
