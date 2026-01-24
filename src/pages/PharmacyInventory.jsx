@@ -914,28 +914,57 @@ export default function PharmacyInventory() {
               {drugs.length === 0 ? (
                 <p className="text-sm text-amber-600 mt-2">No products found. Import products first from Pharmacy → Product Import.</p>
               ) : (
-                <Select 
-                  value={receiveForm.skuCode} 
-                  onValueChange={(val) => {
-                    const drug = drugs.find(d => d.drug_code === val);
-                    setReceiveForm({
-                      ...receiveForm, 
-                      skuCode: val,
-                      itemName: drug?.drug_name || ''
-                    });
-                  }}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select drug from catalog" />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-[200px]">
-                    {drugs.map(drug => (
-                      <SelectItem key={drug.id} value={drug.drug_code}>
-                        {drug.drug_name} ({drug.drug_code})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Popover open={drugSearchOpen} onOpenChange={setDrugSearchOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      aria-expanded={drugSearchOpen}
+                      className="w-full justify-between mt-1"
+                    >
+                      {receiveForm.skuCode
+                        ? drugs.find(d => d.drug_code === receiveForm.skuCode)?.drug_name
+                        : "Search and select drug..."}
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Type to search drug..." />
+                      <CommandList>
+                        <CommandEmpty>No drug found.</CommandEmpty>
+                        <CommandGroup className="max-h-[300px] overflow-y-auto">
+                          {drugs.map(drug => (
+                            <CommandItem
+                              key={drug.id}
+                              value={`${drug.drug_name} ${drug.drug_code} ${drug.generic_name || ''}`}
+                              onSelect={() => {
+                                setReceiveForm({
+                                  ...receiveForm, 
+                                  skuCode: drug.drug_code,
+                                  itemName: drug.drug_name
+                                });
+                                setDrugSearchOpen(false);
+                              }}
+                            >
+                              <Check
+                                className={`mr-2 h-4 w-4 ${
+                                  receiveForm.skuCode === drug.drug_code ? "opacity-100" : "opacity-0"
+                                }`}
+                              />
+                              <div className="flex flex-col">
+                                <span className="font-medium">{drug.drug_name}</span>
+                                <span className="text-xs text-slate-500">
+                                  {drug.drug_code} {drug.generic_name ? `• ${drug.generic_name}` : ''}
+                                </span>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               )}
             </div>
             <div>
