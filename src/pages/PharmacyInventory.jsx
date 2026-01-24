@@ -36,6 +36,14 @@ export default function PharmacyInventory() {
   const [showReceiveDialog, setShowReceiveDialog] = useState(false);
   const [showAdjustDialog, setShowAdjustDialog] = useState(false);
   const [selectedBalance, setSelectedBalance] = useState(null);
+  const [showEditStockDialog, setShowEditStockDialog] = useState(false);
+  const [selectedStock, setSelectedStock] = useState(null);
+  const [editStockForm, setEditStockForm] = useState({
+    quantity: 0,
+    unit_cost: 0,
+    mrp: 0,
+    reason: ''
+  });
 
   const [receiveForm, setReceiveForm] = useState({
     locationId: '',
@@ -166,6 +174,27 @@ export default function PharmacyInventory() {
     }
   });
 
+  const updateStockMutation = useMutation({
+    mutationFn: async (data) => {
+      await base44.entities.PharmacyStock.update(data.id, {
+        quantity: data.quantity,
+        unit_cost: data.unit_cost,
+        mrp: data.mrp
+      });
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pharmacyStock'] });
+      setShowEditStockDialog(false);
+      setSelectedStock(null);
+      setEditStockForm({ quantity: 0, unit_cost: 0, mrp: 0, reason: '' });
+      toast.success('Stock updated successfully!');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to update stock');
+    }
+  });
+
   const lowStockItems = balances.filter(item => 
     item.reorder_level > 0 && item.on_hand_qty <= item.reorder_level
   );
@@ -196,6 +225,19 @@ export default function PharmacyInventory() {
       balanceId: selectedBalance.id,
       qty: adjustForm.qty,
       reason: adjustForm.reason
+    });
+  };
+
+  const handleUpdateStock = () => {
+    if (editStockForm.quantity < 0) {
+      toast.error('Quantity cannot be negative');
+      return;
+    }
+    updateStockMutation.mutate({
+      id: selectedStock.id,
+      quantity: editStockForm.quantity,
+      unit_cost: editStockForm.unit_cost,
+      mrp: editStockForm.mrp
     });
   };
 
@@ -551,6 +593,25 @@ export default function PharmacyInventory() {
                         <p className="text-xs text-slate-500">Supplier: {item.supplier}</p>
                       )}
                     </div>
+                    <div className="flex flex-col gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedStock(item);
+                          setEditStockForm({
+                            quantity: item.quantity,
+                            unit_cost: item.unit_cost || 0,
+                            mrp: item.mrp || 0,
+                            reason: ''
+                          });
+                          setShowEditStockDialog(true);
+                        }}
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit
+                      </Button>
+                    </div>
                   </div>
                 </Card>
               );
@@ -776,6 +837,75 @@ export default function PharmacyInventory() {
               </Button>
               <Button onClick={handleReceiveInventory} disabled={receiveInventoryMutation.isPending}>
                 {receiveInventoryMutation.isPending ? 'Processing...' : 'Receive Stock'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Stock Dialog */}
+      <Dialog open={showEditStockDialog} onOpenChange={setShowEditStockDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Stock: {selectedStock?.display_name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div className="p-4 bg-slate-50 rounded-lg">
+              <p className="text-sm text-slate-500">Current Details</p>
+              <div className="grid grid-cols-3 gap-3 mt-2">
+                <div>
+                  <p className="text-xs text-slate-500">Quantity</p>
+                  <p className="text-lg font-bold text-slate-900">{selectedStock?.quantity}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500">Unit Cost</p>
+                  <p className="text-lg font-bold text-slate-900">{currency} {selectedStock?.unit_cost}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-500">MRP</p>
+                  <p className="text-lg font-bold text-slate-900">{currency} {selectedStock?.mrp}</p>
+                </div>
+              </div>
+              <p className="text-xs text-slate-500 mt-2 font-mono">Barcode: {selectedStock?.barcode}</p>
+            </div>
+            <div>
+              <Label>Quantity *</Label>
+              <Input
+                type="number"
+                min="0"
+                value={editStockForm.quantity}
+                onChange={(e) => setEditStockForm({...editStockForm, quantity: parseFloat(e.target.value) || 0})}
+              />
+            </div>
+            <div>
+              <Label>Unit Cost *</Label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                value={editStockForm.unit_cost}
+                onChange={(e) => setEditStockForm({...editStockForm, unit_cost: parseFloat(e.target.value) || 0})}
+              />
+            </div>
+            <div>
+              <Label>MRP (Selling Price) *</Label>
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                value={editStockForm.mrp}
+                onChange={(e) => setEditStockForm({...editStockForm, mrp: parseFloat(e.target.value) || 0})}
+              />
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={() => {
+                setShowEditStockDialog(false);
+                setEditStockForm({ quantity: 0, unit_cost: 0, mrp: 0, reason: '' });
+              }}>
+                Cancel
+              </Button>
+              <Button onClick={handleUpdateStock} disabled={updateStockMutation.isPending}>
+                {updateStockMutation.isPending ? 'Updating...' : 'Update Stock'}
               </Button>
             </div>
           </div>
