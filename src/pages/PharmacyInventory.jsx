@@ -66,6 +66,7 @@ export default function PharmacyInventory() {
   });
 
   const [showLowStockOnly, setShowLowStockOnly] = useState(false);
+  const [showZeroStockOnly, setShowZeroStockOnly] = useState(false);
 
   const { data: balances = [] } = useQuery({
     queryKey: ['inventoryBalances'],
@@ -137,7 +138,9 @@ export default function PharmacyInventory() {
     item.quality_status === 'usable'
   );
 
-  const displayedStock = showLowStockOnly ? lowStockPharmacyItems : pharmacyStock;
+  const zeroStockItems = pharmacyStock.filter(item => item.quantity === 0);
+
+  const displayedStock = showZeroStockOnly ? zeroStockItems : showLowStockOnly ? lowStockPharmacyItems : pharmacyStock;
 
   const receiveInventoryMutation = useMutation({
     mutationFn: (data) => {
@@ -393,7 +396,7 @@ export default function PharmacyInventory() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-2">
@@ -445,6 +448,21 @@ export default function PharmacyInventory() {
             </p>
           </CardContent>
         </Card>
+
+        <Card className="bg-gradient-to-br from-red-500 to-red-600 text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform"
+          onClick={() => {
+            setShowZeroStockOnly(!showZeroStockOnly);
+            setShowLowStockOnly(false);
+          }}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-2">
+              <Package className="w-8 h-8 opacity-80" />
+            </div>
+            <p className="text-sm opacity-90">Zero Stock Items</p>
+            <p className="text-3xl font-bold mt-1">{zeroStockItems.length}</p>
+            <p className="text-xs opacity-80 mt-1">Out of stock - reorder needed</p>
+          </CardContent>
+        </Card>
       </div>
 
       <Tabs defaultValue="stock" className="space-y-6">
@@ -468,6 +486,26 @@ export default function PharmacyInventory() {
         </TabsList>
 
         <TabsContent value="stock" className="space-y-3">
+          {showZeroStockOnly && zeroStockItems.length > 0 && (
+            <Card className="bg-red-50 border-red-200">
+              <CardContent className="p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Package className="w-5 h-5 text-red-600" />
+                  <div>
+                    <p className="font-medium text-red-900">
+                      Showing {zeroStockItems.length} items with ZERO stock
+                    </p>
+                    <p className="text-xs text-red-700">
+                      These items are out of stock and need to be reordered
+                    </p>
+                  </div>
+                </div>
+                <Button variant="outline" size="sm" onClick={() => setShowZeroStockOnly(false)}>
+                  Show All
+                </Button>
+              </CardContent>
+            </Card>
+          )}
           {showLowStockOnly && (criticalStockItems.length > 0 || lowStockPharmacyItems.length > 0) && (
             <Card className="bg-amber-50 border-amber-200">
               <CardContent className="p-4 flex items-center justify-between">
@@ -493,14 +531,15 @@ export default function PharmacyInventory() {
             <Card className="p-12 text-center bg-white">
               <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
               <h3 className="text-lg font-medium text-slate-900">
-                {showLowStockOnly ? 'No low stock items' : 'No pharmacy stock'}
+                {showZeroStockOnly ? 'No zero stock items' : showLowStockOnly ? 'No low stock items' : 'No pharmacy stock'}
               </h3>
               <p className="text-slate-500 mt-1">
-                {showLowStockOnly ? 'All items are above 10 units' : 'Import stock data from Stock Import page'}
+                {showZeroStockOnly ? 'All items have stock available' : showLowStockOnly ? 'All items are above 10 units' : 'Import stock data from Stock Import page'}
               </p>
             </Card>
           ) : (
             displayedStock.map((item) => {
+              const isZeroStock = item.quantity === 0;
               const isCritical = item.quantity > 0 && item.quantity <= criticalStockThreshold;
               const isLowStock = item.quantity > criticalStockThreshold && item.quantity <= lowStockThreshold;
               const isExpired = item.quality_status === 'expired';
@@ -512,7 +551,7 @@ export default function PharmacyInventory() {
               const itemProfitPercent = itemValue > 0 ? ((itemProfit / itemValue) * 100) : 0;
 
               return (
-                <Card key={item.id} className={`p-5 ${isExpired ? 'bg-red-50 border-red-300 border-2' : isCritical ? 'bg-rose-50 border-rose-300 border-2' : isExpiringSoon ? 'bg-orange-50 border-orange-200' : isLowStock ? 'bg-amber-50 border-amber-200' : 'bg-white'}`}>
+                <Card key={item.id} className={`p-5 ${isZeroStock ? 'bg-red-100 border-red-400 border-2' : isExpired ? 'bg-red-50 border-red-300 border-2' : isCritical ? 'bg-rose-50 border-rose-300 border-2' : isExpiringSoon ? 'bg-orange-50 border-orange-200' : isLowStock ? 'bg-amber-50 border-amber-200' : 'bg-white'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
@@ -520,13 +559,19 @@ export default function PharmacyInventory() {
                         <Badge variant="outline" className="font-mono text-xs">
                           {item.barcode}
                         </Badge>
-                        {isCritical && (
+                        {isZeroStock && (
+                          <Badge variant="outline" className="bg-red-200 text-red-900 border-red-300 font-bold">
+                            <AlertTriangle className="w-3 h-3 mr-1" />
+                            OUT OF STOCK
+                          </Badge>
+                        )}
+                        {isCritical && !isZeroStock && (
                           <Badge variant="outline" className="bg-rose-100 text-rose-700 border-rose-200 animate-pulse">
                             <AlertTriangle className="w-3 h-3 mr-1" />
                             CRITICAL ({item.quantity} left)
                           </Badge>
                         )}
-                        {isLowStock && !isCritical && (
+                        {isLowStock && !isCritical && !isZeroStock && (
                           <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200">
                             <AlertTriangle className="w-3 h-3 mr-1" />
                             Low Stock
@@ -555,7 +600,7 @@ export default function PharmacyInventory() {
                         </div>
                         <div>
                           <p className="text-slate-500">Quantity</p>
-                          <p className={`font-bold text-xl ${isCritical ? 'text-rose-700' : isLowStock ? 'text-amber-700' : 'text-slate-900'}`}>
+                          <p className={`font-bold text-xl ${isZeroStock ? 'text-red-700' : isCritical ? 'text-rose-700' : isLowStock ? 'text-amber-700' : 'text-slate-900'}`}>
                             {item.quantity}
                           </p>
                         </div>
