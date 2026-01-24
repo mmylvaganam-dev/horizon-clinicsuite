@@ -56,6 +56,13 @@ export default function PharmacyInventory() {
     reason: ''
   });
 
+  // Auto-select first location if only one exists
+  React.useEffect(() => {
+    if (locations.length === 1 && !receiveForm.locationId) {
+      setReceiveForm(prev => ({ ...prev, locationId: locations[0].id }));
+    }
+  }, [locations, receiveForm.locationId]);
+
   const [expiryAlertDays, setExpiryAlertDays] = useState(90);
   const [lowStockThreshold, setLowStockThreshold] = useState(10);
   const [criticalStockThreshold, setCriticalStockThreshold] = useState(5);
@@ -880,48 +887,56 @@ export default function PharmacyInventory() {
 
       {/* Receive Stock Dialog */}
       <Dialog open={showReceiveDialog} onOpenChange={setShowReceiveDialog}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Receive Stock</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-4">
             <div>
               <Label>Location *</Label>
-              <Select value={receiveForm.locationId} onValueChange={(val) => setReceiveForm({...receiveForm, locationId: val})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select location" />
-                </SelectTrigger>
-                <SelectContent>
-                  {locations.map(loc => (
-                    <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {locations.length === 0 ? (
+                <p className="text-sm text-red-600 mt-2">No locations found. Please create a location first in Admin → Locations.</p>
+              ) : (
+                <Select value={receiveForm.locationId} onValueChange={(val) => setReceiveForm({...receiveForm, locationId: val})}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {locations.map(loc => (
+                      <SelectItem key={loc.id} value={loc.id}>{loc.name} - {loc.code}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             <div>
               <Label>Drug/Item *</Label>
-              <Select 
-                value={receiveForm.skuCode} 
-                onValueChange={(val) => {
-                  const drug = drugs.find(d => d.drug_code === val);
-                  setReceiveForm({
-                    ...receiveForm, 
-                    skuCode: val,
-                    itemName: drug?.drug_name || ''
-                  });
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select drug" />
-                </SelectTrigger>
-                <SelectContent>
-                  {drugs.map(drug => (
-                    <SelectItem key={drug.id} value={drug.drug_code}>
-                      {drug.drug_name} ({drug.drug_code})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {drugs.length === 0 ? (
+                <p className="text-sm text-amber-600 mt-2">No products found. Import products first from Pharmacy → Product Import.</p>
+              ) : (
+                <Select 
+                  value={receiveForm.skuCode} 
+                  onValueChange={(val) => {
+                    const drug = drugs.find(d => d.drug_code === val);
+                    setReceiveForm({
+                      ...receiveForm, 
+                      skuCode: val,
+                      itemName: drug?.drug_name || ''
+                    });
+                  }}
+                >
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select drug from catalog" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[200px]">
+                    {drugs.map(drug => (
+                      <SelectItem key={drug.id} value={drug.drug_code}>
+                        {drug.drug_name} ({drug.drug_code})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
             <div>
               <Label>Item Name *</Label>
@@ -975,11 +990,14 @@ export default function PharmacyInventory() {
                 rows={2}
               />
             </div>
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-end gap-3 pt-4">
               <Button variant="outline" onClick={() => setShowReceiveDialog(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleReceiveInventory} disabled={receiveInventoryMutation.isPending}>
+              <Button 
+                onClick={handleReceiveInventory} 
+                disabled={receiveInventoryMutation.isPending || locations.length === 0}
+              >
                 {receiveInventoryMutation.isPending ? 'Processing...' : 'Receive Stock'}
               </Button>
             </div>
