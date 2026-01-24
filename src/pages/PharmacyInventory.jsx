@@ -272,7 +272,7 @@ export default function PharmacyInventory() {
                 <div className="mt-2 space-y-1">
                   {expiredItems.slice(0, 3).map(item => (
                     <p key={item.id} className="text-xs text-red-800">
-                      • {item.display_name}: Expired {format(new Date(item.expire_date), 'MMM d, yyyy')}
+                      • {item.display_name}: Expired {item.expire_date ? format(new Date(item.expire_date), 'MMM d, yyyy') : 'N/A'}
                     </p>
                   ))}
                   {expiredItems.length > 3 && (
@@ -298,7 +298,7 @@ export default function PharmacyInventory() {
                 <div className="mt-2 space-y-1">
                   {expiringItems.slice(0, 3).map(item => (
                     <p key={item.id} className="text-xs text-orange-800">
-                      • {item.display_name}: Expires {format(new Date(item.expire_date), 'MMM d, yyyy')}
+                      • {item.display_name}: Expires {item.expire_date ? format(new Date(item.expire_date), 'MMM d, yyyy') : 'N/A'}
                     </p>
                   ))}
                   {expiringItems.length > 3 && (
@@ -543,7 +543,7 @@ export default function PharmacyInventory() {
                         </div>
                       </div>
                       {item.expire_date && (
-                        <p className="text-xs text-slate-500 mt-2">Expiry: {format(new Date(item.expire_date), 'MMM d, yyyy')}</p>
+                        <p className="text-xs text-slate-500 mt-2">Expiry: {item.expire_date ? format(new Date(item.expire_date), 'MMM d, yyyy') : 'N/A'}</p>
                       )}
                       {item.supplier && (
                         <p className="text-xs text-slate-500">Supplier: {item.supplier}</p>
@@ -660,7 +660,7 @@ export default function PharmacyInventory() {
                         <p className="text-sm text-slate-600 mt-1">{txn.reason}</p>
                       )}
                       <p className="text-xs text-slate-400 mt-2">
-                        {format(new Date(txn.created_at), 'MMM d, yyyy h:mm a')} by {txn.created_by_email}
+                        {txn.created_at ? format(new Date(txn.created_at), 'MMM d, yyyy h:mm a') : 'N/A'} by {txn.created_by_email}
                       </p>
                     </div>
                   </div>
