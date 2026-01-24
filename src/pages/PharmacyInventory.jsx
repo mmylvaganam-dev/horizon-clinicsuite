@@ -376,6 +376,44 @@ export default function PharmacyInventory() {
         </Card>
       )}
 
+      <Card className="bg-slate-50">
+        <CardContent className="p-4">
+          <p className="text-sm font-medium text-slate-700 mb-3">Alert Thresholds</p>
+          <div className="space-y-3">
+            <div>
+              <Label className="text-xs">Critical Stock (≤ units)</Label>
+              <Input
+                type="number"
+                min="1"
+                value={criticalStockThreshold}
+                onChange={(e) => setCriticalStockThreshold(parseInt(e.target.value) || 5)}
+                className="mt-1 h-8"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Low Stock (≤ units)</Label>
+              <Input
+                type="number"
+                min="1"
+                value={lowStockThreshold}
+                onChange={(e) => setLowStockThreshold(parseInt(e.target.value) || 10)}
+                className="mt-1 h-8"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Expiry Warning (days)</Label>
+              <Input
+                type="number"
+                min="1"
+                value={expiryAlertDays}
+                onChange={(e) => setExpiryAlertDays(parseInt(e.target.value) || 90)}
+                className="mt-1 h-8"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg">
           <CardContent className="p-6">
