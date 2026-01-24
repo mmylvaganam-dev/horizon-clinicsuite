@@ -72,9 +72,10 @@ export default function PharmacyInventory() {
     queryFn: () => base44.entities.InventoryBalance.list('-updated_at'),
   });
 
-  const { data: pharmacyStock = [] } = useQuery({
+  const { data: pharmacyStock = [], refetch: refetchPharmacyStock } = useQuery({
     queryKey: ['pharmacyStock'],
     queryFn: () => base44.entities.PharmacyStock.list('-created_date'),
+    refetchInterval: 5000, // Auto-refresh every 5 seconds
   });
 
   const { data: transactions = [] } = useQuery({
@@ -185,6 +186,7 @@ export default function PharmacyInventory() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pharmacyStock'] });
+      refetchPharmacyStock();
       setShowEditStockDialog(false);
       setSelectedStock(null);
       setEditStockForm({ quantity: 0, unit_cost: 0, mrp: 0, reason: '' });
