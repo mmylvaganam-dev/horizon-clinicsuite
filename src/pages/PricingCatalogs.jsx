@@ -515,12 +515,37 @@ export default function PricingCatalogs() {
                   </div>
                 </div>
                 <div>
-                  <Label>Available Days</Label>
-                  <Input placeholder="Mon-Fri" value={formData.available_days || ''} onChange={(e) => setFormData({...formData, available_days: e.target.value})} />
+                  <Label>Available Days *</Label>
+                  <div className="flex gap-2 mt-2">
+                    {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
+                      <label key={day} className="flex items-center gap-1 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={(formData.available_days || '').includes(day)}
+                          onChange={(e) => {
+                            const days = formData.available_days || '';
+                            if (e.target.checked) {
+                              setFormData({...formData, available_days: days ? `${days}, ${day}` : day});
+                            } else {
+                              setFormData({...formData, available_days: days.split(', ').filter(d => d !== day).join(', ')});
+                            }
+                          }}
+                          className="w-4 h-4"
+                        />
+                        <span className="text-sm">{day}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
-                <div>
-                  <Label>Available Time</Label>
-                  <Input placeholder="9am-5pm" value={formData.available_time || ''} onChange={(e) => setFormData({...formData, available_time: e.target.value})} />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>From Time *</Label>
+                    <Input type="time" value={formData.time_from || ''} onChange={(e) => setFormData({...formData, time_from: e.target.value, available_time: `${e.target.value} - ${formData.time_to || ''}`})} />
+                  </div>
+                  <div>
+                    <Label>To Time *</Label>
+                    <Input type="time" value={formData.time_to || ''} onChange={(e) => setFormData({...formData, time_to: e.target.value, available_time: `${formData.time_from || ''} - ${e.target.value}`})} />
+                  </div>
                 </div>
               </>
             )}
@@ -547,6 +572,39 @@ export default function PricingCatalogs() {
                   <div>
                     <Label>Hospital Fee *</Label>
                     <Input type="number" value={formData.hospital_fee || ''} onChange={(e) => setFormData({...formData, hospital_fee: e.target.value})} />
+                  </div>
+                </div>
+                <div>
+                  <Label>Available Days *</Label>
+                  <div className="flex gap-2 mt-2">
+                    {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map((day) => (
+                      <label key={day} className="flex items-center gap-1 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={(formData.available_days || '').includes(day)}
+                          onChange={(e) => {
+                            const days = formData.available_days || '';
+                            if (e.target.checked) {
+                              setFormData({...formData, available_days: days ? `${days}, ${day}` : day});
+                            } else {
+                              setFormData({...formData, available_days: days.split(', ').filter(d => d !== day).join(', ')});
+                            }
+                          }}
+                          className="w-4 h-4"
+                        />
+                        <span className="text-sm">{day}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>From Time *</Label>
+                    <Input type="time" value={formData.time_from || ''} onChange={(e) => setFormData({...formData, time_from: e.target.value, available_time: `${e.target.value} - ${formData.time_to || ''}`})} />
+                  </div>
+                  <div>
+                    <Label>To Time *</Label>
+                    <Input type="time" value={formData.time_to || ''} onChange={(e) => setFormData({...formData, time_to: e.target.value, available_time: `${formData.time_from || ''} - ${e.target.value}`})} />
                   </div>
                 </div>
               </>
