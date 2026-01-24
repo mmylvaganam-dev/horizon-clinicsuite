@@ -171,19 +171,20 @@ export default function Layout({ children, currentPageName }) {
       ]
     },
     {
-      category: 'Administration',
-      icon: Settings,
+      category: 'Platform Owner',
+      icon: Globe,
       items: [
-        { name: 'Company Profile', page: 'FinanceCompanies', icon: Building2, description: 'Organization setup - Company details, branding, and business information' },
-        { name: 'Pricing & Catalogs', page: 'PricingCatalogs', icon: DollarSign, description: 'Service pricing - Configure service fees, packages, and price lists' },
-        { name: 'Admin', page: 'Admin', icon: Settings, description: 'System administration - Users, roles, locations, modules, and system configuration' },
+        { name: 'Platform Control Centre', page: 'Admin', icon: Globe, description: 'Global platform management - Organizations, billing, security, data exports (Owner only)' },
+        { name: 'Platform Billing', page: 'PlatformBilling', icon: DollarSign, description: 'Platform invoicing - Manage subscription billing for multiple organizations (admin only)' },
       ]
     },
     {
-      category: 'Platform Owner',
-      icon: Building2,
+      category: 'Administration',
+      icon: Settings,
       items: [
-        { name: 'Platform Billing', page: 'PlatformBilling', icon: DollarSign, description: 'Platform invoicing - Manage subscription billing for multiple organizations (admin only)' },
+        { name: 'Organization Admin', page: 'Admin', icon: Settings, description: 'Organization administration - Staff, roles, branding, pricing, and configuration' },
+        { name: 'Company Profile', page: 'FinanceCompanies', icon: Building2, description: 'Organization setup - Company details, branding, and business information' },
+        { name: 'Pricing & Catalogs', page: 'PricingCatalogs', icon: DollarSign, description: 'Service pricing - Configure service fees, packages, and price lists' },
       ]
     },
   ];
