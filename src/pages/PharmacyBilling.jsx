@@ -25,7 +25,8 @@ import {
   FileText,
   Printer,
   Mail,
-  MessageSquare
+  MessageSquare,
+  Package
 } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -641,77 +642,96 @@ export default function PharmacyBilling() {
           </div>
         </div>
 
-        {/* Center - Products */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Center - Search & Results */}
+        <div className="flex-1 flex flex-col overflow-hidden bg-slate-50">
           {/* Search Bar */}
-          <div className="p-2 lg:p-4 bg-white border-b space-y-2 lg:space-y-3 flex-shrink-0">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-3">
-              <div className="relative">
-                <User className="absolute left-2 lg:left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
-                  placeholder="Search patient or customer"
-                  value={patientSearch}
-                  onChange={(e) => setPatientSearch(e.target.value)}
-                  onFocus={() => setShowPatientDialog(true)}
-                  className="pl-8 lg:pl-10 h-8 lg:h-9 text-sm"
-                />
-                {(selectedPatient || selectedWalkIn) && (
-                  <Badge className="absolute right-2 top-1/2 -translate-y-1/2 bg-emerald-600 text-xs">
-                    {selectedWalkIn && selectedWalkIn.discount_percentage > 0 ? `${selectedWalkIn.discount_percentage}%` : '✓'}
-                  </Badge>
-                )}
-              </div>
+          <div className="p-4 lg:p-6 bg-white border-b space-y-4 flex-shrink-0">
+            <div className="relative">
+              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Input
+                placeholder="Search patient or customer"
+                value={patientSearch}
+                onChange={(e) => setPatientSearch(e.target.value)}
+                onFocus={() => setShowPatientDialog(true)}
+                className="pl-12 h-11 text-base"
+              />
+              {(selectedPatient || selectedWalkIn) && (
+                <Badge className="absolute right-3 top-1/2 -translate-y-1/2 bg-emerald-600">
+                  {selectedWalkIn && selectedWalkIn.discount_percentage > 0 ? `${selectedWalkIn.discount_percentage}%` : '✓'}
+                </Badge>
+              )}
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid grid-cols-4 h-8 lg:h-9">
-                <TabsTrigger value="name" className="text-xs lg:text-sm">Name</TabsTrigger>
-                <TabsTrigger value="generics" className="text-xs lg:text-sm">Generics</TabsTrigger>
-                <TabsTrigger value="substitutes" className="text-xs lg:text-sm">Subs</TabsTrigger>
-                <TabsTrigger value="barcods" className="text-xs lg:text-sm">Barcode</TabsTrigger>
+              <TabsList className="grid grid-cols-4 w-full h-11">
+                <TabsTrigger value="name">Name</TabsTrigger>
+                <TabsTrigger value="generics">Generics</TabsTrigger>
+                <TabsTrigger value="substitutes">Substitutes</TabsTrigger>
+                <TabsTrigger value="barcods">Barcode</TabsTrigger>
               </TabsList>
             </Tabs>
 
             <div className="relative">
-              <Barcode className="absolute left-2 lg:left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <Input
-                placeholder={activeTab === 'barcods' ? 'Scan barcode' : 'Search'}
+                placeholder={`Search by ${activeTab === 'barcods' ? 'barcode (scan or type)' : activeTab === 'name' ? 'drug name' : activeTab === 'generics' ? 'generic name' : 'substitute'}`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 lg:pl-10 h-8 lg:h-9 text-sm"
-                autoFocus={activeTab === 'barcods'}
+                className="pl-12 h-12 text-base"
+                autoFocus
               />
             </div>
           </div>
 
-          {/* Products Grid */}
-          <div className="flex-1 overflow-y-auto p-2 lg:p-4">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-2 lg:gap-3">
-              {filteredStock.map((item) => (
-                <Card
-                  key={item.id}
-                  className="cursor-pointer hover:shadow-lg transition-all"
-                  onClick={() => addToCart(item)}
-                >
-                  <CardContent className="p-2 lg:p-3">
-                    <div className="text-center">
-                      <p className="font-semibold text-xs lg:text-sm text-slate-900 mb-1 lg:mb-2 line-clamp-2 min-h-[2rem] lg:min-h-[2.5rem]">
-                        {item.display_name}
-                      </p>
-                      <Badge variant="outline" className="text-[10px] lg:text-xs mb-1">
-                        {item.barcode}
-                      </Badge>
-                      <p className="text-sm lg:text-lg font-bold text-emerald-600">
-                        {currency} {(item.mrp || item.unit_price || 0).toFixed(2)}
-                      </p>
-                      <p className="text-[10px] lg:text-xs text-slate-500 mt-1">
-                        Stock: {item.quantity}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+          {/* Search Results */}
+          <div className="flex-1 overflow-y-auto p-4 lg:p-6">
+            {searchQuery === '' ? (
+              <div className="text-center py-20">
+                <Search className="w-16 h-16 mx-auto text-slate-300 mb-4" />
+                <p className="text-lg text-slate-600 font-medium">Start typing to search products</p>
+                <p className="text-sm text-slate-500 mt-2">Search by name, generic, substitute, or barcode</p>
+              </div>
+            ) : filteredStock.length === 0 ? (
+              <div className="text-center py-20">
+                <Package className="w-16 h-16 mx-auto text-slate-300 mb-4" />
+                <p className="text-lg text-slate-600 font-medium">No products found</p>
+                <p className="text-sm text-slate-500 mt-2">Try a different search term</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredStock.map((item) => (
+                  <Card
+                    key={item.id}
+                    className="cursor-pointer hover:shadow-lg hover:border-indigo-300 transition-all"
+                    onClick={() => addToCart(item)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex-1">
+                          <p className="font-semibold text-base text-slate-900 mb-1">
+                            {item.display_name}
+                          </p>
+                          <div className="flex items-center gap-3 text-sm text-slate-600">
+                            <Badge variant="outline">{item.barcode}</Badge>
+                            <span>Stock: {item.quantity}</span>
+                            {item.generic_name && <span className="text-xs">• {item.generic_name}</span>}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-emerald-600">
+                            {currency} {(item.mrp || item.unit_price || 0).toFixed(2)}
+                          </p>
+                          <Button size="sm" className="mt-2 bg-indigo-600 hover:bg-indigo-700">
+                            <Plus className="w-4 h-4 mr-1" />
+                            Add to Cart
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
