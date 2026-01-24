@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { 
   Package, 
   AlertTriangle, 
@@ -17,7 +19,9 @@ import {
   History,
   Calendar,
   DollarSign,
-  TrendingDown as Loss
+  TrendingDown as Loss,
+  Check,
+  ChevronsUpDown
 } from 'lucide-react';
 import BatchesTab from '../components/inventory/BatchesTab';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -38,6 +42,7 @@ export default function PharmacyInventory() {
   const [selectedBalance, setSelectedBalance] = useState(null);
   const [showEditStockDialog, setShowEditStockDialog] = useState(false);
   const [selectedStock, setSelectedStock] = useState(null);
+  const [drugSearchOpen, setDrugSearchOpen] = useState(false);
   const [editStockForm, setEditStockForm] = useState({
     quantity: 0,
     unit_cost: 0,
