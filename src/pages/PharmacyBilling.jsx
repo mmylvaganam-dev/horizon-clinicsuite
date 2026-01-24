@@ -744,68 +744,67 @@ export default function PharmacyBilling() {
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-2 lg:p-4 space-y-2 lg:space-y-3">
+          <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
             {cart.length === 0 ? (
-              <div className="text-center py-8 lg:py-12">
-                <ShoppingCart className="w-10 h-10 lg:w-12 lg:h-12 mx-auto text-slate-300 mb-3 lg:mb-4" />
-                <p className="text-sm lg:text-base text-slate-500">Cart is empty</p>
+              <div className="text-center py-8">
+                <ShoppingCart className="w-10 h-10 mx-auto text-slate-300 mb-3" />
+                <p className="text-sm text-slate-500">Cart is empty</p>
               </div>
             ) : (
               cart.map((item) => (
-                <Card key={item.stock_id} className="p-2 lg:p-3">
-                  <div className="space-y-1.5 lg:space-y-2">
+                <Card key={item.stock_id} className="p-2">
+                  <div className="space-y-1">
                     <div className="flex items-start justify-between gap-2">
-                      <p className="font-medium text-xs lg:text-sm flex-1 line-clamp-2">{item.display_name}</p>
+                      <p className="font-medium text-xs flex-1 line-clamp-1">{item.display_name}</p>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-5 w-5 lg:h-6 lg:w-6 flex-shrink-0"
+                        className="h-5 w-5 flex-shrink-0"
                         onClick={() => removeFromCart(item.stock_id)}
                       >
-                        <X className="w-3 h-3 lg:w-4 lg:h-4" />
+                        <X className="w-3 h-3" />
                       </Button>
                     </div>
                     
-                    {/* Item Discount */}
-                    <div className="flex items-center gap-1.5 lg:gap-2">
-                      <Label className="text-[10px] lg:text-xs text-slate-600 whitespace-nowrap">Disc %:</Label>
-                      <Input
-                        type="number"
-                        value={item.discount_percent}
-                        onChange={(e) => updateItemDiscount(item.stock_id, parseFloat(e.target.value) || 0)}
-                        className="h-6 lg:h-7 w-12 lg:w-16 text-xs"
-                        min="0"
-                        max="15"
-                        step="1"
-                      />
-                      <span className="text-[10px] lg:text-xs text-slate-500 whitespace-nowrap">(max 15)</span>
-                    </div>
-
                     <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-1 lg:gap-2">
+                      <div className="flex items-center gap-1">
                         <Button
                           variant="outline"
                           size="icon"
-                          className="h-6 w-6 lg:h-7 lg:w-7"
+                          className="h-6 w-6"
                           onClick={() => updateQuantity(item.stock_id, -1)}
                         >
                           <Minus className="w-3 h-3" />
                         </Button>
-                        <span className="font-medium w-6 lg:w-8 text-center text-sm lg:text-base">{item.quantity}</span>
+                        <span className="font-medium w-8 text-center text-sm">{item.quantity}</span>
                         <Button
                           variant="outline"
                           size="icon"
-                          className="h-6 w-6 lg:h-7 lg:w-7"
+                          className="h-6 w-6"
                           onClick={() => updateQuantity(item.stock_id, 1)}
                         >
                           <Plus className="w-3 h-3" />
                         </Button>
                       </div>
+                      
+                      <div className="flex items-center gap-1">
+                        <Input
+                          type="number"
+                          value={item.discount_percent}
+                          onChange={(e) => updateItemDiscount(item.stock_id, parseFloat(e.target.value) || 0)}
+                          className="h-6 w-12 text-xs"
+                          min="0"
+                          max="15"
+                          step="1"
+                          placeholder="D%"
+                        />
+                      </div>
+                      
                       <div className="text-right">
                         {item.discount_percent > 0 && (
-                          <p className="text-[10px] lg:text-xs text-slate-500 line-through">{currency} {(item.mrp * item.quantity).toFixed(2)}</p>
+                          <p className="text-[9px] text-slate-500 line-through">{currency} {(item.mrp * item.quantity).toFixed(2)}</p>
                         )}
-                        <p className="font-bold text-sm lg:text-base text-emerald-600">{currency} {item.total.toFixed(2)}</p>
+                        <p className="font-bold text-sm text-emerald-600">{currency} {item.total.toFixed(2)}</p>
                       </div>
                     </div>
                   </div>
