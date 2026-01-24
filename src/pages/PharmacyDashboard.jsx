@@ -507,20 +507,30 @@ export default function PharmacyDashboard() {
                     View Full Inventory
                   </Button>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {pharmacyStock.slice(0, 9).map((item) => (
-                    <Card key={item.id} className="p-4">
-                      <h4 className="font-semibold text-sm">{item.display_name}</h4>
-                      <div className="flex justify-between items-center mt-2">
-                        <Badge variant="outline">{item.barcode}</Badge>
-                        <span className="font-bold text-lg">{item.quantity}</span>
-                      </div>
-                      <p className="text-xs text-slate-500 mt-1">
-                        {currency} {item.mrp?.toFixed(2)} • {item.quality_status}
-                      </p>
-                    </Card>
-                  ))}
-                </div>
+                {pharmacyStock.length === 0 ? (
+                  <Card className="p-12 text-center">
+                    <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+                    <p className="text-slate-500 mb-4">No stock items found</p>
+                    <Button onClick={() => navigate(createPageUrl('PharmacyStockImport'))}>
+                      Import Stock Data
+                    </Button>
+                  </Card>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {pharmacyStock.slice(0, 9).map((item) => (
+                      <Card key={item.id} className="p-4">
+                        <h4 className="font-semibold text-sm">{item.display_name}</h4>
+                        <div className="flex justify-between items-center mt-2">
+                          <Badge variant="outline">{item.barcode}</Badge>
+                          <span className="font-bold text-lg">{item.quantity || 0}</span>
+                        </div>
+                        <p className="text-xs text-slate-500 mt-1">
+                          {currency} {(item.mrp || 0).toFixed(2)} • {item.quality_status || 'N/A'}
+                        </p>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </div>
             </TabsContent>
 
