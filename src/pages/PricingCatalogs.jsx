@@ -20,6 +20,7 @@ export default function PricingCatalogs() {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [addType, setAddType] = useState('');
   const [formData, setFormData] = useState({});
+  const [editingItem, setEditingItem] = useState(null);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -124,41 +125,73 @@ export default function PricingCatalogs() {
   };
 
   const createMutation = useMutation({
-    mutationFn: async ({ type, data }) => {
-      switch(type) {
-        case 'gp':
-          return await base44.entities.GPProfile.create(data);
-        case 'specialist':
-          return await base44.entities.SpecialistProfile.create(data);
-        case 'radiology':
-          return await base44.entities.RadiologyService.create(data);
-        case 'homecare':
-          return await base44.entities.HomeCareServiceCatalog.create(data);
-        case 'lab':
-          return await base44.entities.LabTestCatalog.create(data);
-        case 'package':
-          return await base44.entities.HealthPackage.create(data);
-        default:
-          throw new Error('Invalid type');
+    mutationFn: async ({ type, data, id }) => {
+      if (id) {
+        // Update
+        switch(type) {
+          case 'gp':
+            return await base44.entities.GPProfile.update(id, data);
+          case 'specialist':
+            return await base44.entities.SpecialistProfile.update(id, data);
+          case 'radiology':
+            return await base44.entities.RadiologyService.update(id, data);
+          case 'homecare':
+            return await base44.entities.HomeCareServiceCatalog.update(id, data);
+          case 'lab':
+            return await base44.entities.LabTestCatalog.update(id, data);
+          case 'package':
+            return await base44.entities.HealthPackage.update(id, data);
+          default:
+            throw new Error('Invalid type');
+        }
+      } else {
+        // Create
+        switch(type) {
+          case 'gp':
+            return await base44.entities.GPProfile.create(data);
+          case 'specialist':
+            return await base44.entities.SpecialistProfile.create(data);
+          case 'radiology':
+            return await base44.entities.RadiologyService.create(data);
+          case 'homecare':
+            return await base44.entities.HomeCareServiceCatalog.create(data);
+          case 'lab':
+            return await base44.entities.LabTestCatalog.create(data);
+          case 'package':
+            return await base44.entities.HealthPackage.create(data);
+          default:
+            throw new Error('Invalid type');
+        }
       }
     },
     onSuccess: (_, variables) => {
-      toast.success('Entry created successfully');
-      queryClient.invalidateQueries([`${variables.type}Profiles`]);
-      queryClient.invalidateQueries([`${variables.type}Services`]);
+      toast.success(variables.id ? 'Entry updated successfully' : 'Entry created successfully');
+      queryClient.invalidateQueries(['gpProfiles']);
+      queryClient.invalidateQueries(['specialists']);
+      queryClient.invalidateQueries(['radiologyServices']);
+      queryClient.invalidateQueries(['homeCareServices']);
       queryClient.invalidateQueries(['labTests']);
       queryClient.invalidateQueries(['healthPackages']);
       setShowAddDialog(false);
       setFormData({});
+      setEditingItem(null);
     },
     onError: (error) => {
-      toast.error('Failed to create: ' + error.message);
+      toast.error('Failed: ' + error.message);
     }
   });
 
   const handleAddNew = (type) => {
     setAddType(type);
     setFormData({});
+    setEditingItem(null);
+    setShowAddDialog(true);
+  };
+
+  const handleEdit = (type, item) => {
+    setAddType(type);
+    setFormData(item);
+    setEditingItem(item);
     setShowAddDialog(true);
   };
 
@@ -168,11 +201,11 @@ export default function PricingCatalogs() {
       formData.total_fee = total;
     }
     
-    if (user?.organization_id) {
+    if (user?.organization_id && !editingItem) {
       formData.organization_id = user.organization_id;
     }
 
-    createMutation.mutate({ type: addType, data: formData });
+    createMutation.mutate({ type: addType, data: formData, id: editingItem?.id });
   };
 
   const downloadTemplate = (type) => {
@@ -276,10 +309,18 @@ export default function PricingCatalogs() {
                     <Stethoscope className="w-8 h-8 text-green-600 mb-2" />
                     <h3 className="font-semibold mb-1">GP Profiles</h3>
                     <p className="text-sm text-slate-600 mb-3">{gpProfiles.length} entries</p>
-                    <Button size="sm" onClick={() => handleAddNew('gp')} className="w-full">
+                    <Button size="sm" onClick={() => handleAddNew('gp')} className="w-full mb-3">
                       <Plus className="w-4 h-4 mr-2" />
                       Add GP
                     </Button>
+                    <div className="space-y-1 max-h-60 overflow-y-auto">
+                      {gpProfiles.map(gp => (
+                        <div key={gp.id} onClick={() => handleEdit('gp', gp)} className="p-2 text-xs bg-white rounded border hover:bg-green-50 cursor-pointer">
+                          <div className="font-medium">{gp.doctor_name}</div>
+                          <div className="text-slate-500">{gp.available_days} • {gp.available_time}</div>
+                        </div>
+                      ))}
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -288,10 +329,18 @@ export default function PricingCatalogs() {
                     <Activity className="w-8 h-8 text-purple-600 mb-2" />
                     <h3 className="font-semibold mb-1">Specialists</h3>
                     <p className="text-sm text-slate-600 mb-3">{specialists.length} entries</p>
-                    <Button size="sm" onClick={() => handleAddNew('specialist')} className="w-full">
+                    <Button size="sm" onClick={() => handleAddNew('specialist')} className="w-full mb-3">
                       <Plus className="w-4 h-4 mr-2" />
                       Add Specialist
                     </Button>
+                    <div className="space-y-1 max-h-60 overflow-y-auto">
+                      {specialists.map(spec => (
+                        <div key={spec.id} onClick={() => handleEdit('specialist', spec)} className="p-2 text-xs bg-white rounded border hover:bg-purple-50 cursor-pointer">
+                          <div className="font-medium">{spec.specialist_name}</div>
+                          <div className="text-slate-500">{spec.specialty} • {spec.available_days} • {spec.available_time}</div>
+                        </div>
+                      ))}
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -481,7 +530,7 @@ export default function PricingCatalogs() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              Add {addType === 'gp' ? 'GP Profile' : 
+              {editingItem ? 'Edit' : 'Add'} {addType === 'gp' ? 'GP Profile' : 
                    addType === 'specialist' ? 'Specialist Profile' :
                    addType === 'radiology' ? 'Radiology Service' :
                    addType === 'homecare' ? 'Home Care Service' :
@@ -747,9 +796,9 @@ export default function PricingCatalogs() {
             )}
 
             <div className="flex gap-2 justify-end pt-4 border-t">
-              <Button variant="outline" onClick={() => setShowAddDialog(false)}>Cancel</Button>
+              <Button variant="outline" onClick={() => { setShowAddDialog(false); setEditingItem(null); }}>Cancel</Button>
               <Button onClick={handleFormSubmit} disabled={createMutation.isPending}>
-                Create Entry
+                {editingItem ? 'Update Entry' : 'Create Entry'}
               </Button>
             </div>
           </div>
