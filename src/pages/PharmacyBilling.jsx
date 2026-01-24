@@ -787,17 +787,18 @@ export default function PharmacyBilling() {
                         </Button>
                       </div>
                       
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-0.5">
+                        <span className="text-[10px] text-slate-600">Disc:</span>
                         <Input
                           type="number"
                           value={item.discount_percent}
                           onChange={(e) => updateItemDiscount(item.stock_id, parseFloat(e.target.value) || 0)}
-                          className="h-6 w-12 text-xs"
+                          className="h-6 w-14 text-xs text-center"
                           min="0"
                           max="15"
                           step="1"
-                          placeholder="D%"
                         />
+                        <span className="text-xs text-slate-600">%</span>
                       </div>
                       
                       <div className="text-right">
