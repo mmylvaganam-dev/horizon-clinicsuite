@@ -546,64 +546,61 @@ export default function PharmacyBilling() {
   return (
     <div className="h-screen flex flex-col bg-slate-50">
       {/* Top Bar */}
-      <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-6 py-3 flex items-center justify-between">
-        <h1 className="text-xl font-bold">Pharmacy Billing</h1>
-        <div className="flex items-center gap-4">
+      <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-4 lg:px-6 py-2 lg:py-3 flex items-center justify-between flex-wrap gap-2">
+        <h1 className="text-lg lg:text-xl font-bold">Pharmacy POS</h1>
+        <div className="flex items-center gap-2 lg:gap-4">
           <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5" />
+            <Calendar className="w-4 h-4 lg:w-5 lg:h-5" />
             <Input
               type="date"
               value={sessionDate}
               onChange={(e) => setSessionDate(e.target.value)}
-              className="bg-white/20 border-white/30 text-white"
+              className="bg-white/20 border-white/30 text-white text-sm h-8 lg:h-9"
             />
           </div>
-          <Button variant="ghost" className="text-white hover:bg-white/20">
-            <Download className="w-5 h-5" />
-          </Button>
         </div>
       </div>
 
-      {/* Stats Bar */}
-      <div className="bg-white border-b px-6 py-3">
-        <div className="flex gap-6">
+      {/* Stats Bar - Hidden on small screens */}
+      <div className="hidden md:block bg-white border-b px-4 lg:px-6 py-2">
+        <div className="flex gap-3 lg:gap-6 flex-wrap">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-yellow-100 flex items-center justify-center">
-              <span className="text-sm font-bold text-yellow-700">{stats.loading}</span>
+            <div className="w-7 h-7 lg:w-8 lg:h-8 rounded-lg bg-yellow-100 flex items-center justify-center">
+              <span className="text-xs lg:text-sm font-bold text-yellow-700">{stats.loading}</span>
             </div>
-            <span className="text-sm text-slate-600">Loading</span>
+            <span className="text-xs lg:text-sm text-slate-600">Loading</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-              <span className="text-sm font-bold text-emerald-700">{stats.stored}</span>
+            <div className="w-7 h-7 lg:w-8 lg:h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+              <span className="text-xs lg:text-sm font-bold text-emerald-700">{stats.stored}</span>
             </div>
-            <span className="text-sm text-slate-600">Stored</span>
+            <span className="text-xs lg:text-sm text-slate-600">Stored</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-              <span className="text-sm font-bold text-blue-700">{stats.billing}</span>
+            <div className="w-7 h-7 lg:w-8 lg:h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+              <span className="text-xs lg:text-sm font-bold text-blue-700">{stats.billing}</span>
             </div>
-            <span className="text-sm text-slate-600">Billing</span>
+            <span className="text-xs lg:text-sm text-slate-600">Billing</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
-              <span className="text-sm font-bold text-purple-700">{stats.mine}</span>
+            <div className="w-7 h-7 lg:w-8 lg:h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+              <span className="text-xs lg:text-sm font-bold text-purple-700">{stats.mine}</span>
             </div>
-            <span className="text-sm text-slate-600">Mine</span>
+            <span className="text-xs lg:text-sm text-slate-600">Mine</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center">
-              <span className="text-sm font-bold text-rose-700">{stats.days}</span>
+            <div className="w-7 h-7 lg:w-8 lg:h-8 rounded-lg bg-rose-100 flex items-center justify-center">
+              <span className="text-xs lg:text-sm font-bold text-rose-700">{stats.days}</span>
             </div>
-            <span className="text-sm text-slate-600">Days</span>
+            <span className="text-xs lg:text-sm text-slate-600">Days</span>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Sidebar - Categories & Frequently Used */}
-        <div className="w-64 bg-white border-r overflow-y-auto">
+        {/* Left Sidebar - Categories & Frequently Used - Hidden on mobile/tablet */}
+        <div className="hidden xl:block w-64 bg-white border-r overflow-y-auto flex-shrink-0">
           <div className="p-4 border-b">
             <h3 className="font-semibold text-slate-900 mb-3">FREQUENTLY USED (Top 20)</h3>
             <div className="space-y-1">
@@ -647,74 +644,67 @@ export default function PharmacyBilling() {
         {/* Center - Products */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Search Bar */}
-          <div className="p-4 bg-white border-b space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+          <div className="p-2 lg:p-4 bg-white border-b space-y-2 lg:space-y-3 flex-shrink-0">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-3">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <User className="absolute left-2 lg:left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <Input
-                  placeholder="Invoice Number"
-                  className="pl-10"
-                />
-              </div>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
-                  placeholder="Search patient or walk-in customer"
+                  placeholder="Search patient or customer"
                   value={patientSearch}
                   onChange={(e) => setPatientSearch(e.target.value)}
                   onFocus={() => setShowPatientDialog(true)}
-                  className="pl-10"
+                  className="pl-8 lg:pl-10 h-8 lg:h-9 text-sm"
                 />
                 {(selectedPatient || selectedWalkIn) && (
-                  <Badge className="absolute right-2 top-1/2 -translate-y-1/2 bg-emerald-600">
-                    {selectedWalkIn && selectedWalkIn.discount_percentage > 0 ? `${selectedWalkIn.discount_percentage}% OFF` : '✓'}
+                  <Badge className="absolute right-2 top-1/2 -translate-y-1/2 bg-emerald-600 text-xs">
+                    {selectedWalkIn && selectedWalkIn.discount_percentage > 0 ? `${selectedWalkIn.discount_percentage}%` : '✓'}
                   </Badge>
                 )}
               </div>
             </div>
 
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList>
-                <TabsTrigger value="name">Name</TabsTrigger>
-                <TabsTrigger value="generics">Generics</TabsTrigger>
-                <TabsTrigger value="substitutes">Substitutes</TabsTrigger>
-                <TabsTrigger value="barcods">Barcods</TabsTrigger>
+              <TabsList className="grid grid-cols-4 h-8 lg:h-9">
+                <TabsTrigger value="name" className="text-xs lg:text-sm">Name</TabsTrigger>
+                <TabsTrigger value="generics" className="text-xs lg:text-sm">Generics</TabsTrigger>
+                <TabsTrigger value="substitutes" className="text-xs lg:text-sm">Subs</TabsTrigger>
+                <TabsTrigger value="barcods" className="text-xs lg:text-sm">Barcode</TabsTrigger>
               </TabsList>
             </Tabs>
 
             <div className="relative">
-              <Barcode className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Barcode className="absolute left-2 lg:left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <Input
-                placeholder={activeTab === 'barcods' ? 'Scan or type barcode' : 'Search by name'}
+                placeholder={activeTab === 'barcods' ? 'Scan barcode' : 'Search'}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-8 lg:pl-10 h-8 lg:h-9 text-sm"
                 autoFocus={activeTab === 'barcods'}
               />
             </div>
           </div>
 
           {/* Products Grid */}
-          <div className="flex-1 overflow-y-auto p-4">
-            <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+          <div className="flex-1 overflow-y-auto p-2 lg:p-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-2 lg:gap-3">
               {filteredStock.map((item) => (
                 <Card
                   key={item.id}
                   className="cursor-pointer hover:shadow-lg transition-all"
                   onClick={() => addToCart(item)}
                 >
-                  <CardContent className="p-4">
+                  <CardContent className="p-2 lg:p-3">
                     <div className="text-center">
-                      <p className="font-semibold text-sm text-slate-900 mb-2 line-clamp-2">
+                      <p className="font-semibold text-xs lg:text-sm text-slate-900 mb-1 lg:mb-2 line-clamp-2 min-h-[2rem] lg:min-h-[2.5rem]">
                         {item.display_name}
                       </p>
-                      <Badge variant="outline" className="text-xs mb-2">
+                      <Badge variant="outline" className="text-[10px] lg:text-xs mb-1">
                         {item.barcode}
                       </Badge>
-                      <p className="text-lg font-bold text-emerald-600">
+                      <p className="text-sm lg:text-lg font-bold text-emerald-600">
                         {currency} {(item.mrp || item.unit_price || 0).toFixed(2)}
                       </p>
-                      <p className="text-xs text-slate-500 mt-1">
+                      <p className="text-[10px] lg:text-xs text-slate-500 mt-1">
                         Stock: {item.quantity}
                       </p>
                     </div>
@@ -726,66 +716,66 @@ export default function PharmacyBilling() {
         </div>
 
         {/* Right Sidebar - Cart */}
-        <div className="w-96 bg-white border-l flex flex-col">
-          <div className="p-4 border-b">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold text-lg">Cart</h3>
-              <Badge className="bg-indigo-600">{cart.length} items</Badge>
+        <div className="w-full md:w-96 lg:w-[26rem] xl:w-[28rem] bg-white border-l flex flex-col flex-shrink-0">
+          <div className="p-3 lg:p-4 border-b flex-shrink-0">
+            <div className="flex items-center justify-between">
+              <h3 className="font-bold text-base lg:text-lg">Cart</h3>
+              <Badge className="bg-indigo-600 text-xs lg:text-sm">{cart.length} items</Badge>
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          <div className="flex-1 overflow-y-auto p-2 lg:p-4 space-y-2 lg:space-y-3">
             {cart.length === 0 ? (
-              <div className="text-center py-12">
-                <ShoppingCart className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-                <p className="text-slate-500">Cart is empty</p>
+              <div className="text-center py-8 lg:py-12">
+                <ShoppingCart className="w-10 h-10 lg:w-12 lg:h-12 mx-auto text-slate-300 mb-3 lg:mb-4" />
+                <p className="text-sm lg:text-base text-slate-500">Cart is empty</p>
               </div>
             ) : (
               cart.map((item) => (
-                <Card key={item.stock_id} className="p-3">
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between">
-                      <p className="font-medium text-sm flex-1">{item.display_name}</p>
+                <Card key={item.stock_id} className="p-2 lg:p-3">
+                  <div className="space-y-1.5 lg:space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-medium text-xs lg:text-sm flex-1 line-clamp-2">{item.display_name}</p>
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-6 w-6"
+                        className="h-5 w-5 lg:h-6 lg:w-6 flex-shrink-0"
                         onClick={() => removeFromCart(item.stock_id)}
                       >
-                        <X className="w-4 h-4" />
+                        <X className="w-3 h-3 lg:w-4 lg:h-4" />
                       </Button>
                     </div>
                     
                     {/* Item Discount */}
-                    <div className="flex items-center gap-2">
-                      <Label className="text-xs text-slate-600">Discount %:</Label>
+                    <div className="flex items-center gap-1.5 lg:gap-2">
+                      <Label className="text-[10px] lg:text-xs text-slate-600 whitespace-nowrap">Disc %:</Label>
                       <Input
                         type="number"
                         value={item.discount_percent}
                         onChange={(e) => updateItemDiscount(item.stock_id, parseFloat(e.target.value) || 0)}
-                        className="h-7 w-16 text-xs"
+                        className="h-6 lg:h-7 w-12 lg:w-16 text-xs"
                         min="0"
                         max="15"
                         step="1"
                       />
-                      <span className="text-xs text-slate-500">(max 15%)</span>
+                      <span className="text-[10px] lg:text-xs text-slate-500 whitespace-nowrap">(max 15)</span>
                     </div>
 
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1 lg:gap-2">
                         <Button
                           variant="outline"
                           size="icon"
-                          className="h-7 w-7"
+                          className="h-6 w-6 lg:h-7 lg:w-7"
                           onClick={() => updateQuantity(item.stock_id, -1)}
                         >
                           <Minus className="w-3 h-3" />
                         </Button>
-                        <span className="font-medium w-8 text-center">{item.quantity}</span>
+                        <span className="font-medium w-6 lg:w-8 text-center text-sm lg:text-base">{item.quantity}</span>
                         <Button
                           variant="outline"
                           size="icon"
-                          className="h-7 w-7"
+                          className="h-6 w-6 lg:h-7 lg:w-7"
                           onClick={() => updateQuantity(item.stock_id, 1)}
                         >
                           <Plus className="w-3 h-3" />
@@ -793,9 +783,9 @@ export default function PharmacyBilling() {
                       </div>
                       <div className="text-right">
                         {item.discount_percent > 0 && (
-                          <p className="text-xs text-slate-500 line-through">{currency} {(item.mrp * item.quantity).toFixed(2)}</p>
+                          <p className="text-[10px] lg:text-xs text-slate-500 line-through">{currency} {(item.mrp * item.quantity).toFixed(2)}</p>
                         )}
-                        <p className="font-bold text-emerald-600">{currency} {item.total.toFixed(2)}</p>
+                        <p className="font-bold text-sm lg:text-base text-emerald-600">{currency} {item.total.toFixed(2)}</p>
                       </div>
                     </div>
                   </div>
@@ -804,11 +794,11 @@ export default function PharmacyBilling() {
             )}
           </div>
 
-          <div className="border-t p-4 space-y-3">
+          <div className="border-t p-2 lg:p-4 space-y-2 lg:space-y-3 flex-shrink-0">
             {/* Prescription Upload */}
             {cart.length > 0 && (
-              <div className="pb-3 border-b">
-                <Label className="text-xs text-slate-600 mb-2 block">Prescription (Optional)</Label>
+              <div className="pb-2 lg:pb-3 border-b">
+                <Label className="text-[10px] lg:text-xs text-slate-600 mb-1.5 lg:mb-2 block">Prescription (Optional)</Label>
                 {prescriptionFile ? (
                   <div className="flex items-center gap-2 p-2 bg-emerald-50 border border-emerald-200 rounded">
                     <FileText className="w-4 h-4 text-emerald-600" />
@@ -872,63 +862,63 @@ export default function PharmacyBilling() {
               </div>
             )}
 
-            <div className="space-y-2">
+            <div className="space-y-1.5 lg:space-y-2">
               {/* Bill Discount */}
               {cart.length > 0 && !selectedWalkIn && (
-                <div className="flex items-center gap-2 pb-2 border-b">
-                  <Label className="text-xs text-slate-600">Bill Discount %:</Label>
+                <div className="flex items-center gap-1.5 lg:gap-2 pb-1.5 lg:pb-2 border-b">
+                  <Label className="text-[10px] lg:text-xs text-slate-600 whitespace-nowrap">Bill Disc %:</Label>
                   <Input
                     type="number"
                     value={billDiscountPercent}
                     onChange={(e) => setBillDiscountPercent(Math.max(0, Math.min(15, parseFloat(e.target.value) || 0)))}
-                    className="h-7 w-16 text-xs"
+                    className="h-6 lg:h-7 w-12 lg:w-16 text-xs"
                     min="0"
                     max="15"
                     step="1"
                   />
-                  <span className="text-xs text-slate-500">(max 15%)</span>
+                  <span className="text-[10px] lg:text-xs text-slate-500 whitespace-nowrap">(max 15)</span>
                 </div>
               )}
 
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-xs lg:text-sm">
                 <span className="text-slate-600">Subtotal:</span>
                 <span className="font-semibold">{currency} {subtotal.toFixed(2)}</span>
               </div>
               {finalDiscountAmount > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-emerald-600">
-                    Discount {walkInDiscountPercent > 0 ? `(${walkInDiscountPercent}%)` : `(${billDiscountPercent}% from profit)`}:
+                <div className="flex justify-between text-xs lg:text-sm">
+                  <span className="text-emerald-600 text-[10px] lg:text-xs">
+                    Discount {walkInDiscountPercent > 0 ? `(${walkInDiscountPercent}%)` : `(${billDiscountPercent}%)`}:
                   </span>
                   <span className="font-semibold text-emerald-600">- {currency} {finalDiscountAmount.toFixed(2)}</span>
                 </div>
               )}
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-xs lg:text-sm">
                 <span className="text-slate-600">Tax:</span>
                 <span className="font-semibold">{currency} {tax.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between text-lg pt-2 border-t">
+              <div className="flex justify-between text-base lg:text-lg pt-1.5 lg:pt-2 border-t">
                 <span className="font-bold">Total:</span>
                 <span className="font-bold text-indigo-600">{currency} {total.toFixed(2)}</span>
               </div>
               {totalSavings > 0 && (
-                <div className="bg-emerald-50 border border-emerald-200 rounded p-2">
-                  <p className="text-sm text-emerald-700 font-semibold text-center">
-                    💰 You Save: {currency} {totalSavings.toFixed(2)} from MRP!
+                <div className="bg-emerald-50 border border-emerald-200 rounded p-1.5 lg:p-2">
+                  <p className="text-xs lg:text-sm text-emerald-700 font-semibold text-center">
+                    💰 Save: {currency} {totalSavings.toFixed(2)}
                   </p>
                 </div>
               )}
             </div>
             <Button 
-              className="w-full bg-indigo-600 hover:bg-indigo-700" 
+              className="w-full bg-indigo-600 hover:bg-indigo-700 h-9 lg:h-10 text-sm lg:text-base" 
               disabled={cart.length === 0}
               onClick={handleCompleteSale}
             >
-              <Check className="w-5 h-5 mr-2" />
+              <Check className="w-4 h-4 lg:w-5 lg:h-5 mr-2" />
               Complete Sale
             </Button>
             {cart.length > 0 && !selectedPatient && !selectedWalkIn && (
-              <p className="text-xs text-slate-500 text-center">
-                No customer selected - will process as Cash Sale
+              <p className="text-[10px] lg:text-xs text-slate-500 text-center">
+                No customer - Cash Sale
               </p>
             )}
           </div>
