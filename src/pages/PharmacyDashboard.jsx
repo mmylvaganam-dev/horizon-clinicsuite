@@ -395,10 +395,10 @@ export default function PharmacyDashboard() {
                         <div className="grid grid-cols-12 gap-4 items-center">
                           <div className="col-span-2">
                             <p className="text-sm font-medium text-slate-900">
-                              {format(new Date(sale.sale_date), 'dd MMM, yyyy')}
+                              {sale.sale_date ? format(new Date(sale.sale_date), 'dd MMM, yyyy') : 'N/A'}
                             </p>
                             <p className="text-xs text-slate-500">
-                              {format(new Date(sale.sale_date), 'hh:mm a')}
+                              {sale.sale_date ? format(new Date(sale.sale_date), 'hh:mm a') : 'N/A'}
                             </p>
                           </div>
                           <div className="col-span-2">
