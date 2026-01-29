@@ -88,6 +88,7 @@ import BarcodeSetup from './pages/BarcodeSetup';
 import Billing from './pages/Billing';
 import Communications from './pages/Communications';
 import CompanyHierarchy from './pages/CompanyHierarchy';
+import CompanyModuleManagement from './pages/CompanyModuleManagement';
 import CriticalQueue from './pages/CriticalQueue';
 import DailyClose from './pages/DailyClose';
 import DailyOps from './pages/DailyOps';
@@ -167,7 +168,6 @@ import TaskManagement from './pages/TaskManagement';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import CompanyModuleManagement from './pages/CompanyModuleManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -213,6 +213,7 @@ export const PAGES = {
     "Billing": Billing,
     "Communications": Communications,
     "CompanyHierarchy": CompanyHierarchy,
+    "CompanyModuleManagement": CompanyModuleManagement,
     "CriticalQueue": CriticalQueue,
     "DailyClose": DailyClose,
     "DailyOps": DailyOps,
@@ -292,7 +293,6 @@ export const PAGES = {
     "ThirdPartyProviders": ThirdPartyProviders,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "CompanyModuleManagement": CompanyModuleManagement,
 }
 
 export const pagesConfig = {

@@ -177,7 +177,10 @@ export default function FinanceCompanies() {
     return access?.is_enabled || false;
   };
 
-  const businessModules = modules.filter(m => m.status === 'active');
+  // Only show the key optional modules (home care, clinical, lab, diagnostics, AI, pharmacy)
+  const optionalModules = modules.filter(m => 
+    ['PHARMACY', 'HOME_CARE', 'CLINICAL', 'LABORATORY', 'DIAGNOSTICS', 'AI_ASSISTANT'].includes(m.module_code)
+  );
 
   const saveOrgMutation = useMutation({
     mutationFn: async (data) => {
@@ -315,7 +318,7 @@ export default function FinanceCompanies() {
                   Module Access
                 </h4>
                 <div className="grid grid-cols-2 gap-2">
-                  {businessModules.map(module => (
+                  {optionalModules.map(module => (
                     <div key={module.module_code} className="flex items-center justify-between p-2 rounded-lg border-2 border-slate-200 bg-white">
                       <span className="text-sm font-medium text-slate-700">{module.module_name}</span>
                       <Switch
