@@ -126,8 +126,8 @@ export default function CompanyModuleManagement() {
   };
 
   // Core modules that are always available
-  const coreModules = ['SALES_WORKSPACE', 'ADMIN', 'REPORTS'];
-  const businessModules = modules.filter(m => !coreModules.includes(m.module_code));
+  const coreModules = ['DASHBOARD', 'PMS', 'ADMIN', 'REPORTS'];
+  const businessModules = modules.filter(m => !coreModules.includes(m.module_code) && m.status === 'active');
 
   return (
     <div className="space-y-6">
