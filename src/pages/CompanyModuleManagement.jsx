@@ -125,9 +125,8 @@ export default function CompanyModuleManagement() {
     ).length;
   };
 
-  // Core modules that are always available
-  const coreModules = ['DASHBOARD', 'PMS', 'ADMIN', 'REPORTS'];
-  const businessModules = modules.filter(m => !coreModules.includes(m.module_code) && m.status === 'active');
+  // Business modules that can be toggled
+  const businessModules = modules.filter(m => m.status === 'active');
 
   return (
     <div className="space-y-6">
@@ -172,18 +171,24 @@ export default function CompanyModuleManagement() {
                         <h4 className="font-semibold text-sm text-slate-700 mb-2">Core Modules (Always Available)</h4>
                         <div className="flex flex-wrap gap-2">
                           <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
-                            <CheckCircle className="w-3 h-3 mr-1" /> Sales Workspace
+                            <CheckCircle className="w-3 h-3 mr-1" /> New Sale
                           </Badge>
                           <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
-                            <CheckCircle className="w-3 h-3 mr-1" /> Admin & Management
+                            <CheckCircle className="w-3 h-3 mr-1" /> Patient Hub
                           </Badge>
                           <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
                             <CheckCircle className="w-3 h-3 mr-1" /> Reports
                           </Badge>
+                          <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
+                            <CheckCircle className="w-3 h-3 mr-1" /> Communication
+                          </Badge>
+                          <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
+                            <CheckCircle className="w-3 h-3 mr-1" /> Administration
+                          </Badge>
                         </div>
                       </div>
 
-                      <h4 className="font-semibold text-sm text-slate-700 mb-2">Business Modules</h4>
+                      <h4 className="font-semibold text-sm text-slate-700 mb-2">Optional Modules</h4>
                       {businessModules.map(module => {
                         const isEnabled = isModuleEnabledForCompany(company.id, module.module_code);
                         
