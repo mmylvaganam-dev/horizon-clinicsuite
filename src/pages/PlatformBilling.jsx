@@ -448,6 +448,51 @@ export default function PlatformBilling() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={showSubscriptionDialog} onOpenChange={setShowSubscriptionDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create Subscription for {selectedCompany?.company_legal_name}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium">Pricing Model</label>
+              <Select onValueChange={(value) => {
+                const model = pricingModels.find(p => p.id === value);
+                if (model && selectedCompany) {
+                  base44.entities.PlatformSubscription.create({
+                    company_id: selectedCompany.id,
+                    company_name: selectedCompany.company_legal_name,
+                    pricing_model_id: model.id,
+                    pricing_model_name: model.model_name,
+                    status: 'active',
+                    start_date: new Date().toISOString().split('T')[0],
+                    billing_cycle: model.billing_cycle,
+                    currency: model.currency,
+                    custom_discount_percent: 0
+                  }).then(() => {
+                    queryClient.invalidateQueries(['subscriptions']);
+                    setShowSubscriptionDialog(false);
+                    setSelectedCompany(null);
+                    toast.success('Subscription created');
+                  });
+                }
+              }}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select pricing model..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {pricingModels.filter(p => p.is_active).map(model => (
+                    <SelectItem key={model.id} value={model.id}>
+                      {model.model_name} - {model.currency} {model.base_company_fee} ({model.billing_cycle})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
