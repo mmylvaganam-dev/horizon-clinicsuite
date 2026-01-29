@@ -18,12 +18,14 @@ export default function FinanceCompanies() {
   const [orgDialogOpen, setOrgDialogOpen] = useState(false);
   const [editingOrg, setEditingOrg] = useState(null);
   const [orgFormData, setOrgFormData] = useState({
+    company_id: '',
     name: '',
     code: '',
     type: 'clinic',
     status: 'active'
   });
   const [formData, setFormData] = useState({
+    company_code: '',
     company_legal_name: '',
     company_trade_name: '',
     country_code: '',
@@ -100,6 +102,7 @@ export default function FinanceCompanies() {
       setDialogOpen(false);
       setEditingCompany(null);
       setFormData({
+        company_code: '',
         company_legal_name: '',
         company_trade_name: '',
         country_code: '',
@@ -115,6 +118,7 @@ export default function FinanceCompanies() {
   const handleEdit = (company) => {
     setEditingCompany(company);
     setFormData({
+      company_code: company.company_code || '',
       company_legal_name: company.company_legal_name,
       company_trade_name: company.company_trade_name || '',
       country_code: company.country_code,
@@ -153,6 +157,7 @@ export default function FinanceCompanies() {
       setOrgDialogOpen(false);
       setEditingOrg(null);
       setOrgFormData({
+        company_id: '',
         name: '',
         code: '',
         type: 'clinic',
@@ -165,6 +170,7 @@ export default function FinanceCompanies() {
   const handleEditOrg = (org) => {
     setEditingOrg(org);
     setOrgFormData({
+      company_id: org.company_id || '',
       name: org.name,
       code: org.code,
       type: org.type || 'clinic',
@@ -241,8 +247,11 @@ export default function FinanceCompanies() {
                     <div className="px-3 py-1 rounded-lg bg-emerald-100 text-emerald-700 text-xs font-bold">
                       {company.base_currency}
                     </div>
+                    <div className="px-3 py-1 rounded-lg bg-purple-100 text-purple-700 text-xs font-bold">
+                      Code: {company.company_code}
+                    </div>
                     {company.incorporation_number && (
-                      <div className="px-3 py-1 rounded-lg bg-purple-100 text-purple-700 text-xs font-bold">
+                      <div className="px-3 py-1 rounded-lg bg-orange-100 text-orange-700 text-xs font-bold">
                         Reg: {company.incorporation_number}
                       </div>
                     )}
@@ -260,6 +269,18 @@ export default function FinanceCompanies() {
             <DialogTitle>{editingCompany ? 'Edit Company' : 'Add Company'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            <div>
+              <Label>Company Code *</Label>
+              <Input
+                value={formData.company_code}
+                onChange={(e) => setFormData({...formData, company_code: e.target.value.toUpperCase()})}
+                placeholder="2-3 letter code (e.g., AR, HC)"
+                maxLength={3}
+                disabled={!!editingCompany}
+              />
+              <p className="text-xs text-slate-500 mt-1">Used as PHN prefix and identifiers</p>
+            </div>
+
             <div>
               <Label>Legal Name *</Label>
               <Input
@@ -369,7 +390,7 @@ export default function FinanceCompanies() {
               </Button>
               <Button
                 onClick={() => saveMutation.mutate(formData)}
-                disabled={!formData.company_legal_name || !formData.country_code || saveMutation.isPending}
+                disabled={!formData.company_code || !formData.company_legal_name || !formData.country_code || saveMutation.isPending}
               >
                 {editingCompany ? 'Update' : 'Create'}
               </Button>
@@ -393,6 +414,7 @@ export default function FinanceCompanies() {
                 onClick={() => {
                   setEditingOrg(null);
                   setOrgFormData({
+                    company_id: '',
                     name: '',
                     code: '',
                     type: 'clinic',
@@ -446,6 +468,11 @@ export default function FinanceCompanies() {
                         <div className="px-3 py-1 rounded-lg bg-purple-100 text-purple-700 text-xs font-bold">
                           Code: {org.code}
                         </div>
+                        {org.company_id && (
+                          <div className="px-3 py-1 rounded-lg bg-blue-100 text-blue-700 text-xs font-bold">
+                            {companies.find(c => c.id === org.company_id)?.company_code || 'N/A'}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -462,6 +489,22 @@ export default function FinanceCompanies() {
             <DialogTitle>{editingOrg ? 'Edit Organization' : 'Add Organization'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            <div>
+              <Label>Company *</Label>
+              <Select value={orgFormData.company_id} onValueChange={(value) => setOrgFormData({...orgFormData, company_id: value})}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select company..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {companies.map(company => (
+                    <SelectItem key={company.id} value={company.id}>
+                      {company.company_legal_name} ({company.company_code})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div>
               <Label>Organization Name *</Label>
               <Input
@@ -521,7 +564,7 @@ export default function FinanceCompanies() {
               </Button>
               <Button
                 onClick={() => saveOrgMutation.mutate(orgFormData)}
-                disabled={!orgFormData.name || !orgFormData.code || saveOrgMutation.isPending}
+                disabled={!orgFormData.company_id || !orgFormData.name || !orgFormData.code || saveOrgMutation.isPending}
               >
                 {editingOrg ? 'Update' : 'Create'}
               </Button>
