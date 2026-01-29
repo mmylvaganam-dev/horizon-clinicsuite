@@ -305,292 +305,341 @@ export default function SalesWorkspace() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-slate-50">
-      {/* Top Bar */}
-      <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-6 py-4">
-        <h1 className="text-2xl font-bold">New Sale</h1>
-        <p className="text-sm text-indigo-100">Products & Services</p>
-      </div>
+    <div className="h-screen flex flex-col lg:flex-row bg-slate-50">
+      {/* Left - Services */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Top Bar */}
+        <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-4 lg:px-6 py-4">
+          <h1 className="text-xl lg:text-2xl font-bold">New Sale</h1>
+          <p className="text-sm text-indigo-100">Products & Services</p>
+        </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left - Services */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Search & Patient */}
-          <div className="p-4 bg-white border-b space-y-3">
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input
-                placeholder="Search and select patient"
-                value={patientSearch}
-                onChange={(e) => setPatientSearch(e.target.value)}
-                onFocus={() => setShowPatientDialog(true)}
-                className="pl-10"
-              />
-              {selectedPatient && (
-                <Badge className="absolute right-2 top-1/2 -translate-y-1/2 bg-emerald-600">
-                  ✓ {selectedPatient.phn}
-                </Badge>
-              )}
-            </div>
-
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input
-                placeholder="Search services..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+        {/* Search & Patient */}
+        <div className="p-3 lg:p-4 bg-white border-b space-y-3">
+          <div className="relative">
+            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input
+              placeholder="Search and select patient"
+              value={patientSearch}
+              onChange={(e) => setPatientSearch(e.target.value)}
+              onFocus={() => setShowPatientDialog(true)}
+              className="pl-10"
+            />
+            {selectedPatient && (
+              <Badge className="absolute right-2 top-1/2 -translate-y-1/2 bg-emerald-600">
+                ✓ {selectedPatient.phn}
+              </Badge>
+            )}
           </div>
 
-          {/* Service Tabs */}
-          <div className="flex-1 overflow-hidden">
-            <Tabs value={activeServiceTab} onValueChange={setActiveServiceTab} className="h-full flex flex-col">
-              <TabsList className="mx-4 mt-4">
-                <TabsTrigger value="pharmacy">
-                  <Package className="w-4 h-4 mr-2" />
-                  Pharmacy
-                </TabsTrigger>
-                <TabsTrigger value="gp">
-                  <Stethoscope className="w-4 h-4 mr-2" />
-                  GP Service
-                </TabsTrigger>
-                <TabsTrigger value="specialist">
-                  <Activity className="w-4 h-4 mr-2" />
-                  Specialist
-                </TabsTrigger>
-                <TabsTrigger value="radiology">
-                  <Scan className="w-4 h-4 mr-2" />
-                  Radiology
-                </TabsTrigger>
-                <TabsTrigger value="homecare">
-                  <Home className="w-4 h-4 mr-2" />
-                  Home Care
-                </TabsTrigger>
-                <TabsTrigger value="lab">
-                  <TestTube className="w-4 h-4 mr-2" />
-                  Lab Tests
-                </TabsTrigger>
-                <TabsTrigger value="package">
-                  <Heart className="w-4 h-4 mr-2" />
-                  Packages
-                </TabsTrigger>
-              </TabsList>
-
-              {/* Pharmacy Products */}
-              <TabsContent value="pharmacy" className="flex-1 overflow-y-auto p-4">
-                <div className="grid grid-cols-3 lg:grid-cols-4 gap-3">
-                  {filteredPharmacy.map((item) => (
-                    <Card key={item.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => addToCart(item, 'pharmacy')}>
-                      <CardContent className="p-4 text-center">
-                        <p className="font-semibold text-sm mb-2 line-clamp-2">{item.display_name}</p>
-                        <p className="text-lg font-bold text-emerald-600">{currency} {(item.mrp || item.unit_price || 0).toFixed(2)}</p>
-                        <p className="text-xs text-slate-500">Stock: {item.quantity}</p>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </TabsContent>
-
-              {/* GP Services */}
-              <TabsContent value="gp" className="flex-1 overflow-y-auto p-4">
-                {filteredGPs.length === 0 && searchQuery !== '' ? (
-                  <div className="text-center py-12">
-                    <p className="text-slate-500">No GP profiles found matching "{searchQuery}"</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                    {filteredGPs.map((gp) => (
-                    <Card key={gp.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => addToCart(gp, 'gp')}>
-                      <CardContent className="p-4">
-                        <p className="font-semibold mb-2">{gp.doctor_name}</p>
-                        <p className="text-xs text-slate-600 mb-3">{gp.qualification}</p>
-                        <div className="space-y-1 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-slate-600">Doctor Fee:</span>
-                            <span className="font-medium">{currency} {gp.consultation_fee}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-slate-600">Hospital Fee:</span>
-                            <span className="font-medium">{currency} {gp.hospital_fee}</span>
-                          </div>
-                          <div className="flex justify-between pt-2 border-t">
-                            <span className="font-semibold">Total:</span>
-                            <span className="font-bold text-emerald-600">{currency} {gp.total_fee}</span>
-                          </div>
-                        </div>
-                      </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-
-              {/* Specialist Services */}
-              <TabsContent value="specialist" className="flex-1 overflow-y-auto p-4">
-                {filteredSpecialists.length === 0 && searchQuery !== '' ? (
-                  <div className="text-center py-12">
-                    <p className="text-slate-500">No specialists found matching "{searchQuery}"</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                    {filteredSpecialists.map((spec) => (
-                    <Card key={spec.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => addToCart(spec, 'specialist')}>
-                      <CardContent className="p-4">
-                        <Badge className="mb-2">{spec.specialty}</Badge>
-                        <p className="font-semibold mb-2">{spec.specialist_name}</p>
-                        <p className="text-xs text-slate-600 mb-3">{spec.qualification}</p>
-                        <div className="space-y-1 text-sm">
-                          <div className="flex justify-between">
-                            <span className="text-slate-600">Doctor Fee:</span>
-                            <span className="font-medium">{currency} {spec.consultation_fee}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-slate-600">Hospital Fee:</span>
-                            <span className="font-medium">{currency} {spec.hospital_fee}</span>
-                          </div>
-                          <div className="flex justify-between pt-2 border-t">
-                            <span className="font-semibold">Total:</span>
-                            <span className="font-bold text-emerald-600">{currency} {spec.total_fee}</span>
-                          </div>
-                        </div>
-                      </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-
-              {/* Radiology Services */}
-              <TabsContent value="radiology" className="flex-1 overflow-y-auto p-4">
-                {filteredRadiology.length === 0 && searchQuery !== '' ? (
-                  <div className="text-center py-12">
-                    <p className="text-slate-500">No radiology services found matching "{searchQuery}"</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                    {filteredRadiology.map((rad) => (
-                    <Card key={rad.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => addToCart(rad, 'radiology')}>
-                      <CardContent className="p-4">
-                        <Badge className="mb-2">{rad.service_type}</Badge>
-                        <p className="font-semibold mb-1">{rad.service_name}</p>
-                        <p className="text-xs text-slate-600 mb-3">{rad.region}</p>
-                        <p className="text-lg font-bold text-emerald-600">{currency} {rad.price}</p>
-                      </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-
-              {/* Home Care Services */}
-              <TabsContent value="homecare" className="flex-1 overflow-y-auto p-4">
-                {filteredHomeCare.length === 0 && searchQuery !== '' ? (
-                  <div className="text-center py-12">
-                    <p className="text-slate-500">No home care services found matching "{searchQuery}"</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                    {filteredHomeCare.map((hc) => (
-                    <Card key={hc.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => addToCart(hc, 'homecare')}>
-                      <CardContent className="p-4">
-                        <Badge className="mb-2">{hc.service_category}</Badge>
-                        <p className="font-semibold mb-2">{hc.service_name}</p>
-                        <p className="text-xs text-slate-600 mb-3 line-clamp-2">{hc.description}</p>
-                        <p className="text-lg font-bold text-emerald-600">
-                          {currency} {hc.price_per_visit || hc.price_per_hour || hc.price_per_day || 0}
-                        </p>
-                        <p className="text-xs text-slate-500">{hc.duration_type}</p>
-                      </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-
-              {/* Lab Tests */}
-              <TabsContent value="lab" className="flex-1 overflow-y-auto p-4">
-                {filteredLabTests.length === 0 && searchQuery !== '' ? (
-                  <div className="text-center py-12">
-                    <p className="text-slate-500">No lab tests found matching "{searchQuery}"</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-                    {filteredLabTests.map((lab) => (
-                    <Card key={lab.id} className="cursor-pointer hover:shadow-lg transition-all" onClick={() => addToCart(lab, 'lab')}>
-                      <CardContent className="p-4">
-                        <Badge className="mb-2">{lab.category}</Badge>
-                        <p className="font-semibold mb-1">{lab.test_name}</p>
-                        <p className="text-xs text-slate-600 mb-2">Code: {lab.test_code}</p>
-                        <p className="text-xs text-slate-500 mb-3">{lab.specimen_type}</p>
-                        <p className="text-lg font-bold text-emerald-600">{currency} {lab.price || 0}</p>
-                      </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-
-              {/* Health Packages */}
-              <TabsContent value="package" className="flex-1 overflow-y-auto p-4">
-                {filteredPackages.length === 0 && searchQuery !== '' ? (
-                  <div className="text-center py-12">
-                    <p className="text-slate-500">No health packages found matching "{searchQuery}"</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                    {filteredPackages.map((pkg) => (
-                    <Card key={pkg.id} className="cursor-pointer hover:shadow-lg transition-all border-2 border-rose-200" onClick={() => addToCart(pkg, 'package')}>
-                      <CardContent className="p-4">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <Badge className="mb-2 bg-rose-600">Package</Badge>
-                            <p className="font-bold text-lg">{pkg.package_name}</p>
-                            <p className="text-xs text-slate-500">Code: {pkg.package_code}</p>
-                          </div>
-                          <p className="text-2xl font-bold text-emerald-600">{currency} {pkg.total_price}</p>
-                        </div>
-                        {pkg.description && (
-                          <p className="text-sm text-slate-600 mb-2">{pkg.description}</p>
-                        )}
-                        {pkg.items_json && pkg.items_json.length > 0 && (
-                          <div className="mt-3 pt-3 border-t">
-                            <p className="text-xs font-semibold text-slate-700 mb-1">Includes:</p>
-                            <div className="space-y-0.5">
-                              {pkg.items_json.slice(0, 5).map((item, idx) => (
-                                <p key={idx} className="text-xs text-slate-600">• {item.test_name}</p>
-                              ))}
-                              {pkg.items_json.length > 5 && (
-                                <p className="text-xs text-slate-500">+ {pkg.items_json.length - 5} more tests</p>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                        {pkg.notes && (
-                          <p className="text-xs text-amber-600 mt-2">Note: {pkg.notes}</p>
-                        )}
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input
+              placeholder="Search services..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
           </div>
         </div>
 
-        {/* Right - Cart */}
-        <div className="w-96 bg-white border-l flex flex-col">
-          <div className="p-4 border-b">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-lg">Cart</h3>
-              <Badge className="bg-indigo-600">{cart.length} items</Badge>
-            </div>
+        {/* Service Category Buttons - Horizontal Scrollable */}
+        <div className="bg-white border-b px-3 lg:px-4 py-3 overflow-x-auto">
+          <div className="flex gap-2 min-w-max">
+            <Button
+              variant={activeServiceTab === 'pharmacy' ? 'default' : 'outline'}
+              onClick={() => setActiveServiceTab('pharmacy')}
+              className={activeServiceTab === 'pharmacy' ? 'bg-blue-600 hover:bg-blue-700' : 'hover:bg-blue-50'}
+            >
+              <Package className="w-4 h-4 mr-2" />
+              Pharmacy
+            </Button>
+            <Button
+              variant={activeServiceTab === 'gp' ? 'default' : 'outline'}
+              onClick={() => setActiveServiceTab('gp')}
+              className={activeServiceTab === 'gp' ? 'bg-green-600 hover:bg-green-700' : 'hover:bg-green-50'}
+            >
+              <Stethoscope className="w-4 h-4 mr-2" />
+              GP Service
+            </Button>
+            <Button
+              variant={activeServiceTab === 'specialist' ? 'default' : 'outline'}
+              onClick={() => setActiveServiceTab('specialist')}
+              className={activeServiceTab === 'specialist' ? 'bg-purple-600 hover:bg-purple-700' : 'hover:bg-purple-50'}
+            >
+              <Activity className="w-4 h-4 mr-2" />
+              Specialist
+            </Button>
+            <Button
+              variant={activeServiceTab === 'radiology' ? 'default' : 'outline'}
+              onClick={() => setActiveServiceTab('radiology')}
+              className={activeServiceTab === 'radiology' ? 'bg-orange-600 hover:bg-orange-700' : 'hover:bg-orange-50'}
+            >
+              <Scan className="w-4 h-4 mr-2" />
+              Radiology
+            </Button>
+            <Button
+              variant={activeServiceTab === 'homecare' ? 'default' : 'outline'}
+              onClick={() => setActiveServiceTab('homecare')}
+              className={activeServiceTab === 'homecare' ? 'bg-pink-600 hover:bg-pink-700' : 'hover:bg-pink-50'}
+            >
+              <Home className="w-4 h-4 mr-2" />
+              Home Care
+            </Button>
+            <Button
+              variant={activeServiceTab === 'lab' ? 'default' : 'outline'}
+              onClick={() => setActiveServiceTab('lab')}
+              className={activeServiceTab === 'lab' ? 'bg-cyan-600 hover:bg-cyan-700' : 'hover:bg-cyan-50'}
+            >
+              <TestTube className="w-4 h-4 mr-2" />
+              Lab Tests
+            </Button>
+            <Button
+              variant={activeServiceTab === 'package' ? 'default' : 'outline'}
+              onClick={() => setActiveServiceTab('package')}
+              className={activeServiceTab === 'package' ? 'bg-rose-600 hover:bg-rose-700' : 'hover:bg-rose-50'}
+            >
+              <Heart className="w-4 h-4 mr-2" />
+              Packages
+            </Button>
           </div>
+        </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {/* Products/Services List */}
+        <div className="flex-1 overflow-y-auto p-3 lg:p-4">
+          {activeServiceTab === 'pharmacy' && (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
+              {filteredPharmacy.map((item) => (
+                <Card key={item.id} className="cursor-pointer hover:shadow-lg hover:border-blue-400 transition-all" onClick={() => addToCart(item, 'pharmacy')}>
+                  <CardContent className="p-3 lg:p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Package className="w-4 h-4 text-blue-600" />
+                      <Badge className="bg-blue-100 text-blue-800 text-xs">Pharmacy</Badge>
+                    </div>
+                    <p className="font-semibold text-sm mb-2 line-clamp-2">{item.display_name}</p>
+                    <p className="text-lg font-bold text-emerald-600">{currency} {(item.mrp || item.unit_price || 0).toFixed(2)}</p>
+                    <p className="text-xs text-slate-500">Stock: {item.quantity}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          {activeServiceTab === 'gp' && (
+            filteredGPs.length === 0 && searchQuery !== '' ? (
+              <div className="text-center py-12">
+                <p className="text-slate-500">No GP profiles found matching "{searchQuery}"</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {filteredGPs.map((gp) => (
+                  <Card key={gp.id} className="cursor-pointer hover:shadow-lg hover:border-green-400 transition-all" onClick={() => addToCart(gp, 'gp')}>
+                    <CardContent className="p-3 lg:p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Stethoscope className="w-4 h-4 text-green-600" />
+                        <Badge className="bg-green-100 text-green-800 text-xs">GP</Badge>
+                      </div>
+                      <p className="font-semibold mb-2">{gp.doctor_name}</p>
+                      <p className="text-xs text-slate-600 mb-3">{gp.qualification}</p>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">Doctor Fee:</span>
+                          <span className="font-medium">{currency} {gp.consultation_fee}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">Hospital Fee:</span>
+                          <span className="font-medium">{currency} {gp.hospital_fee}</span>
+                        </div>
+                        <div className="flex justify-between pt-2 border-t">
+                          <span className="font-semibold">Total:</span>
+                          <span className="font-bold text-emerald-600">{currency} {gp.total_fee}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )
+          )}
+
+          {activeServiceTab === 'specialist' && (
+            filteredSpecialists.length === 0 && searchQuery !== '' ? (
+              <div className="text-center py-12">
+                <p className="text-slate-500">No specialists found matching "{searchQuery}"</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {filteredSpecialists.map((spec) => (
+                  <Card key={spec.id} className="cursor-pointer hover:shadow-lg hover:border-purple-400 transition-all" onClick={() => addToCart(spec, 'specialist')}>
+                    <CardContent className="p-3 lg:p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Activity className="w-4 h-4 text-purple-600" />
+                        <Badge className="bg-purple-100 text-purple-800 text-xs">Specialist</Badge>
+                      </div>
+                      <Badge className="mb-2">{spec.specialty}</Badge>
+                      <p className="font-semibold mb-2">{spec.specialist_name}</p>
+                      <p className="text-xs text-slate-600 mb-3">{spec.qualification}</p>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">Doctor Fee:</span>
+                          <span className="font-medium">{currency} {spec.consultation_fee}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-600">Hospital Fee:</span>
+                          <span className="font-medium">{currency} {spec.hospital_fee}</span>
+                        </div>
+                        <div className="flex justify-between pt-2 border-t">
+                          <span className="font-semibold">Total:</span>
+                          <span className="font-bold text-emerald-600">{currency} {spec.total_fee}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )
+          )}
+
+          {activeServiceTab === 'radiology' && (
+            filteredRadiology.length === 0 && searchQuery !== '' ? (
+              <div className="text-center py-12">
+                <p className="text-slate-500">No radiology services found matching "{searchQuery}"</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {filteredRadiology.map((rad) => (
+                  <Card key={rad.id} className="cursor-pointer hover:shadow-lg hover:border-orange-400 transition-all" onClick={() => addToCart(rad, 'radiology')}>
+                    <CardContent className="p-3 lg:p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Scan className="w-4 h-4 text-orange-600" />
+                        <Badge className="bg-orange-100 text-orange-800 text-xs">Radiology</Badge>
+                      </div>
+                      <Badge className="mb-2">{rad.service_type}</Badge>
+                      <p className="font-semibold mb-1">{rad.service_name}</p>
+                      <p className="text-xs text-slate-600 mb-3">{rad.region}</p>
+                      <p className="text-lg font-bold text-emerald-600">{currency} {rad.price}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )
+          )}
+
+          {activeServiceTab === 'homecare' && (
+            filteredHomeCare.length === 0 && searchQuery !== '' ? (
+              <div className="text-center py-12">
+                <p className="text-slate-500">No home care services found matching "{searchQuery}"</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {filteredHomeCare.map((hc) => (
+                  <Card key={hc.id} className="cursor-pointer hover:shadow-lg hover:border-pink-400 transition-all" onClick={() => addToCart(hc, 'homecare')}>
+                    <CardContent className="p-3 lg:p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Home className="w-4 h-4 text-pink-600" />
+                        <Badge className="bg-pink-100 text-pink-800 text-xs">Home Care</Badge>
+                      </div>
+                      <Badge className="mb-2">{hc.service_category}</Badge>
+                      <p className="font-semibold mb-2">{hc.service_name}</p>
+                      <p className="text-xs text-slate-600 mb-3 line-clamp-2">{hc.description}</p>
+                      <p className="text-lg font-bold text-emerald-600">
+                        {currency} {hc.price_per_visit || hc.price_per_hour || hc.price_per_day || 0}
+                      </p>
+                      <p className="text-xs text-slate-500">{hc.duration_type}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )
+          )}
+
+          {activeServiceTab === 'lab' && (
+            filteredLabTests.length === 0 && searchQuery !== '' ? (
+              <div className="text-center py-12">
+                <p className="text-slate-500">No lab tests found matching "{searchQuery}"</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {filteredLabTests.map((lab) => (
+                  <Card key={lab.id} className="cursor-pointer hover:shadow-lg hover:border-cyan-400 transition-all" onClick={() => addToCart(lab, 'lab')}>
+                    <CardContent className="p-3 lg:p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <TestTube className="w-4 h-4 text-cyan-600" />
+                        <Badge className="bg-cyan-100 text-cyan-800 text-xs">Lab Test</Badge>
+                      </div>
+                      <Badge className="mb-2">{lab.category}</Badge>
+                      <p className="font-semibold mb-1">{lab.test_name}</p>
+                      <p className="text-xs text-slate-600 mb-2">Code: {lab.test_code}</p>
+                      <p className="text-xs text-slate-500 mb-3">{lab.specimen_type}</p>
+                      <p className="text-lg font-bold text-emerald-600">{currency} {lab.price || 0}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )
+          )}
+
+          {activeServiceTab === 'package' && (
+            filteredPackages.length === 0 && searchQuery !== '' ? (
+              <div className="text-center py-12">
+                <p className="text-slate-500">No health packages found matching "{searchQuery}"</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                {filteredPackages.map((pkg) => (
+                  <Card key={pkg.id} className="cursor-pointer hover:shadow-lg transition-all border-2 border-rose-200 hover:border-rose-400" onClick={() => addToCart(pkg, 'package')}>
+                    <CardContent className="p-3 lg:p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Heart className="w-4 h-4 text-rose-600" />
+                        <Badge className="bg-rose-100 text-rose-800 text-xs">Package</Badge>
+                      </div>
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="font-bold text-lg">{pkg.package_name}</p>
+                          <p className="text-xs text-slate-500">Code: {pkg.package_code}</p>
+                        </div>
+                        <p className="text-2xl font-bold text-emerald-600">{currency} {pkg.total_price}</p>
+                      </div>
+                      {pkg.description && (
+                        <p className="text-sm text-slate-600 mb-2">{pkg.description}</p>
+                      )}
+                      {pkg.items_json && pkg.items_json.length > 0 && (
+                        <div className="mt-3 pt-3 border-t">
+                          <p className="text-xs font-semibold text-slate-700 mb-1">Includes:</p>
+                          <div className="space-y-0.5">
+                            {pkg.items_json.slice(0, 5).map((item, idx) => (
+                              <p key={idx} className="text-xs text-slate-600">• {item.test_name}</p>
+                            ))}
+                            {pkg.items_json.length > 5 && (
+                              <p className="text-xs text-slate-500">+ {pkg.items_json.length - 5} more tests</p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      {pkg.notes && (
+                        <p className="text-xs text-amber-600 mt-2">Note: {pkg.notes}</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )
+          )}
+        </div>
+      </div>
+
+      {/* Right - Cart */}
+      <div className="w-full lg:w-96 bg-white border-t lg:border-t-0 lg:border-l flex flex-col max-h-[50vh] lg:max-h-none">
+        <div className="p-3 lg:p-4 border-b">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-lg">Cart</h3>
+            <Badge className="bg-indigo-600">{cart.length} items</Badge>
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-3 lg:p-4 space-y-3">
+
+
             {cart.length === 0 ? (
               <div className="text-center py-12">
                 <ShoppingCart className="w-12 h-12 mx-auto text-slate-300 mb-4" />
@@ -638,7 +687,7 @@ export default function SalesWorkspace() {
             )}
           </div>
 
-          <div className="border-t p-4 space-y-3">
+          <div className="border-t p-3 lg:p-4 space-y-3">
             <div className="space-y-2">
               {(() => {
                 const doctorFees = cart.filter(item => item.doctor_fee).reduce((sum, item) => sum + (item.doctor_fee * item.quantity), 0);
