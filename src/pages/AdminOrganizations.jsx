@@ -8,10 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Building2, Edit, Trash2, ArrowLeft } from 'lucide-react';
+import { Plus, Building2, Edit, Trash2, ArrowLeft, Package } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
+import toast from 'react-hot-toast';
 
 const statusColors = {
   active: 'bg-emerald-100 text-emerald-700 border-emerald-200',
@@ -32,6 +34,26 @@ export default function AdminOrganizations() {
   const { data: organizations = [], isLoading } = useQuery({
     queryKey: ['organizations'],
     queryFn: () => base44.entities.Organization.list('-created_date'),
+  });
+
+  const { data: companies = [] } = useQuery({
+    queryKey: ['companies'],
+    queryFn: () => base44.entities.CompanyProfile.list(),
+  });
+
+  const { data: modules = [] } = useQuery({
+    queryKey: ['modules'],
+    queryFn: () => base44.entities.Module.list(),
+  });
+
+  const { data: companyModuleAccess = [] } = useQuery({
+    queryKey: ['companyModuleAccess'],
+    queryFn: () => base44.entities.CompanyModuleAccess.list(),
+  });
+
+  const { data: orgModuleAccess = [] } = useQuery({
+    queryKey: ['orgModuleAccess'],
+    queryFn: () => base44.entities.OrganizationModuleAccess.list(),
   });
 
   const createMutation = useMutation({
@@ -58,6 +80,44 @@ export default function AdminOrganizations() {
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
     },
   });
+
+  const toggleOrgModuleMutation = useMutation({
+    mutationFn: async ({ orgId, moduleCode, isEnabled }) => {
+      const existing = orgModuleAccess.find(
+        oma => oma.organization_id === orgId && oma.module_code === moduleCode
+      );
+
+      if (existing) {
+        return await base44.entities.OrganizationModuleAccess.update(existing.id, {
+          is_enabled: isEnabled,
+          enabled_at: isEnabled ? new Date().toISOString() : existing.enabled_at,
+        });
+      } else {
+        return await base44.entities.OrganizationModuleAccess.create({
+          organization_id: orgId,
+          module_code: moduleCode,
+          is_enabled: isEnabled,
+          enabled_at: new Date().toISOString(),
+          license_type: 'full'
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['orgModuleAccess']);
+      toast.success('Module access updated');
+    },
+  });
+
+  const isModuleEnabledForOrg = (orgId, moduleCode) => {
+    const access = orgModuleAccess.find(
+      oma => oma.organization_id === orgId && oma.module_code === moduleCode
+    );
+    return access?.is_enabled || false;
+  };
+
+  const getEnabledModulesForCompany = (companyId) => {
+    return companyModuleAccess.filter(cma => cma.company_id === companyId && cma.is_enabled);
+  };
 
   const resetForm = () => {
     setFormData({
@@ -126,6 +186,42 @@ export default function AdminOrganizations() {
               {org.country_code && (
                 <p className="text-sm text-slate-500 mb-3">Country: {org.country_code}</p>
               )}
+
+              {/* Module Access */}
+              {org.company_id && (
+                <div className="mb-3 pt-3 border-t">
+                  <h4 className="text-xs font-semibold text-slate-700 mb-2 flex items-center gap-1">
+                    <Package className="w-3 h-3" />
+                    Modules
+                  </h4>
+                  <div className="space-y-1">
+                    {getEnabledModulesForCompany(org.company_id).map(cma => {
+                      const module = modules.find(m => m.module_code === cma.module_code);
+                      if (!module) return null;
+                      
+                      return (
+                        <div key={module.module_code} className="flex items-center justify-between p-1.5 rounded border bg-slate-50 text-xs">
+                          <span className="text-slate-700">{module.module_name}</span>
+                          <Switch
+                            checked={isModuleEnabledForOrg(org.id, module.module_code)}
+                            onCheckedChange={(checked) => {
+                              toggleOrgModuleMutation.mutate({
+                                orgId: org.id,
+                                moduleCode: module.module_code,
+                                isEnabled: checked
+                              });
+                            }}
+                          />
+                        </div>
+                      );
+                    })}
+                    {getEnabledModulesForCompany(org.company_id).length === 0 && (
+                      <p className="text-xs text-slate-400 italic">No modules enabled</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-2">
                 <Button variant="outline" size="sm" onClick={() => handleEdit(org)} className="flex-1">
                   <Edit className="w-4 h-4 mr-1" />

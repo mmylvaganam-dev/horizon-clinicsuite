@@ -8,8 +8,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Building2, Plus, Edit } from 'lucide-react';
+import { Building2, Plus, Edit, Package } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
 import toast from 'react-hot-toast';
 
 export default function FinanceCompanies() {
@@ -45,6 +46,16 @@ export default function FinanceCompanies() {
   const { data: companies = [], isLoading } = useQuery({
     queryKey: ['companies'],
     queryFn: () => base44.entities.CompanyProfile.list('-created_date'),
+  });
+
+  const { data: modules = [] } = useQuery({
+    queryKey: ['modules'],
+    queryFn: () => base44.entities.Module.list(),
+  });
+
+  const { data: companyModuleAccess = [] } = useQuery({
+    queryKey: ['companyModuleAccess'],
+    queryFn: () => base44.entities.CompanyModuleAccess.list(),
   });
 
   const { data: userRoles = [] } = useQuery({
@@ -129,6 +140,44 @@ export default function FinanceCompanies() {
     });
     setDialogOpen(true);
   };
+
+  const toggleCompanyModuleMutation = useMutation({
+    mutationFn: async ({ companyId, moduleCode, isEnabled }) => {
+      const existing = companyModuleAccess.find(
+        cma => cma.company_id === companyId && cma.module_code === moduleCode
+      );
+
+      if (existing) {
+        return await base44.entities.CompanyModuleAccess.update(existing.id, {
+          is_enabled: isEnabled,
+          enabled_at: isEnabled ? new Date().toISOString() : existing.enabled_at,
+          enabled_by: isEnabled ? user?.id : existing.enabled_by
+        });
+      } else {
+        return await base44.entities.CompanyModuleAccess.create({
+          company_id: companyId,
+          module_code: moduleCode,
+          is_enabled: isEnabled,
+          enabled_at: new Date().toISOString(),
+          enabled_by: user?.id,
+          license_type: 'full'
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['companyModuleAccess']);
+      toast.success('Module access updated');
+    },
+  });
+
+  const isModuleEnabledForCompany = (companyId, moduleCode) => {
+    const access = companyModuleAccess.find(
+      cma => cma.company_id === companyId && cma.module_code === moduleCode
+    );
+    return access?.is_enabled || false;
+  };
+
+  const businessModules = modules.filter(m => m.status === 'active');
 
   const saveOrgMutation = useMutation({
     mutationFn: async (data) => {
@@ -256,6 +305,31 @@ export default function FinanceCompanies() {
                       </div>
                     )}
                   </div>
+                </div>
+              </div>
+
+              {/* Module Access Section */}
+              <div className="mt-4 pt-4 border-t-2 border-blue-200">
+                <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                  <Package className="w-4 h-4 text-blue-600" />
+                  Module Access
+                </h4>
+                <div className="grid grid-cols-2 gap-2">
+                  {businessModules.map(module => (
+                    <div key={module.module_code} className="flex items-center justify-between p-2 rounded-lg border-2 border-slate-200 bg-white">
+                      <span className="text-sm font-medium text-slate-700">{module.module_name}</span>
+                      <Switch
+                        checked={isModuleEnabledForCompany(company.id, module.module_code)}
+                        onCheckedChange={(checked) => {
+                          toggleCompanyModuleMutation.mutate({
+                            companyId: company.id,
+                            moduleCode: module.module_code,
+                            isEnabled: checked
+                          });
+                        }}
+                      />
+                    </div>
+                  ))}
                 </div>
               </div>
             </button>
