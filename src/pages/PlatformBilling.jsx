@@ -111,7 +111,13 @@ export default function PlatformBilling() {
   const generateInvoiceMutation = useMutation({
     mutationFn: async (subscription) => {
       const company = companies.find(c => c.id === subscription.company_id);
+      if (!company) {
+        throw new Error('Company not found');
+      }
       const pricingModel = pricingModels.find(p => p.id === subscription.pricing_model_id);
+      if (!pricingModel) {
+        throw new Error('Pricing model not found');
+      }
       const companyOrgs = organizations.filter(o => o.company_id === subscription.company_id);
       
       const today = new Date();
@@ -306,7 +312,7 @@ export default function PlatformBilling() {
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle>{company.company_name || company.name}</CardTitle>
+                        <CardTitle>{company.company_legal_name || company.company_name}</CardTitle>
                         <p className="text-sm text-slate-600 mt-1">
                           {stats.organizations} organizations • Total billed: ${stats.totalBilled.toFixed(2)}
                         </p>

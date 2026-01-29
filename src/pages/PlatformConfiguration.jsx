@@ -51,12 +51,7 @@ export default function PlatformConfiguration() {
 
   const isPlatformOwner = userRoles.some(ur => {
     const role = allRoles.find(r => r.id === ur.role_id);
-    return role?.role_name === 'PLATFORM_OWNER';
-  });
-
-  const isAppAdmin = userRoles.some(ur => {
-    const role = allRoles.find(r => r.id === ur.role_id);
-    return role?.role_name === 'APP_ADMIN';
+    return role?.code === 'PLATFORM_OWNER';
   });
 
   useEffect(() => {
