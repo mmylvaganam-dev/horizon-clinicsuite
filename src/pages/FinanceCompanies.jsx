@@ -350,7 +350,6 @@ export default function FinanceCompanies() {
                 onChange={(e) => setFormData({...formData, company_code: e.target.value.toUpperCase()})}
                 placeholder="2-3 letter code (e.g., AR, HC)"
                 maxLength={3}
-                disabled={!!editingCompany}
               />
               <p className="text-xs text-slate-500 mt-1">Used as PHN prefix and identifiers</p>
             </div>
