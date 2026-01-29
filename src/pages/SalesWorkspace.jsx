@@ -638,8 +638,6 @@ export default function SalesWorkspace() {
         </div>
 
         <div className="flex-1 overflow-y-auto p-3 lg:p-4 space-y-3">
-
-
             {cart.length === 0 ? (
               <div className="text-center py-12">
                 <ShoppingCart className="w-12 h-12 mx-auto text-slate-300 mb-4" />
