@@ -14,7 +14,10 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  Eye
+  Eye,
+  Printer,
+  ThumbsUp,
+  ThumbsDown
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -92,6 +95,11 @@ export default function PharmacyRequests() {
   });
 
   const canCreateRequest = isPlatformOwner || isCompanyOwner || isPharmacist;
+  
+  const canApproveRequest = isPlatformOwner || isCompanyOwner || userRoles.some(ur => {
+    const role = allRoles.find(r => r.id === ur.role_id);
+    return role?.name?.toLowerCase().includes('manager');
+  });
 
   const statusColors = {
     pending: 'bg-yellow-100 text-yellow-700 border-yellow-200',
@@ -143,6 +151,223 @@ export default function PharmacyRequests() {
       return;
     }
     createRequestMutation.mutate(requestForm);
+  };
+
+  const approveRequestMutation = useMutation({
+    mutationFn: async (requestId) => {
+      return base44.entities.PharmacyRequest.update(requestId, {
+        status: 'approved',
+        approved_by: user?.full_name,
+        approved_by_user_id: user?.id,
+        approved_date: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pharmacyRequests'] });
+      toast.success('Request approved');
+      setSelectedRequest(null);
+    },
+    onError: (error) => {
+      toast.error('Failed to approve: ' + error.message);
+    }
+  });
+
+  const rejectRequestMutation = useMutation({
+    mutationFn: async ({ requestId, reason }) => {
+      return base44.entities.PharmacyRequest.update(requestId, {
+        status: 'rejected',
+        rejection_reason: reason,
+        approved_by: user?.full_name,
+        approved_by_user_id: user?.id,
+        approved_date: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pharmacyRequests'] });
+      toast.success('Request rejected');
+      setSelectedRequest(null);
+    },
+    onError: (error) => {
+      toast.error('Failed to reject: ' + error.message);
+    }
+  });
+
+  const handlePrintRequest = (request) => {
+    const printWindow = window.open('', '_blank');
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Pharmacy Request - ${request.request_number}</title>
+        <style>
+          @page { size: A4 landscape; margin: 20mm; }
+          @media print {
+            body { margin: 0; }
+          }
+          body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px;
+            max-width: 100%;
+          }
+          .header { 
+            text-align: center; 
+            border-bottom: 3px solid #333; 
+            padding-bottom: 15px; 
+            margin-bottom: 20px; 
+          }
+          .header h1 { margin: 0; font-size: 28px; }
+          .header p { margin: 5px 0; color: #666; }
+          .info-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 15px; 
+            margin-bottom: 20px; 
+          }
+          .info-item { 
+            padding: 10px; 
+            background: #f5f5f5; 
+            border-radius: 5px; 
+          }
+          .info-label { 
+            font-size: 11px; 
+            color: #666; 
+            text-transform: uppercase; 
+            margin-bottom: 3px; 
+          }
+          .info-value { 
+            font-size: 14px; 
+            font-weight: bold; 
+            color: #333; 
+          }
+          .items-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+          }
+          .items-table th { 
+            background: #333; 
+            color: white; 
+            padding: 12px; 
+            text-align: left; 
+            font-size: 13px; 
+          }
+          .items-table td { 
+            padding: 10px 12px; 
+            border-bottom: 1px solid #ddd; 
+            font-size: 13px; 
+          }
+          .notes { 
+            margin-top: 20px; 
+            padding: 15px; 
+            background: #f9f9f9; 
+            border-left: 4px solid #333; 
+          }
+          .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+          }
+          .status-pending { background: #fef3c7; color: #92400e; }
+          .status-approved { background: #d1fae5; color: #065f46; }
+          .status-rejected { background: #fee2e2; color: #991b1b; }
+          .priority-high { color: #dc2626; }
+          .priority-urgent { color: #991b1b; font-weight: bold; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>PHARMACY REQUEST</h1>
+          <p>Request Number: ${request.request_number}</p>
+        </div>
+        
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Request Date</div>
+            <div class="info-value">${format(new Date(request.created_date), 'dd MMM yyyy')}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Requested By</div>
+            <div class="info-value">${request.requested_by}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Request Type</div>
+            <div class="info-value" style="text-transform: capitalize;">${request.request_type}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Priority</div>
+            <div class="info-value ${request.priority === 'high' ? 'priority-high' : request.priority === 'urgent' ? 'priority-urgent' : ''}" style="text-transform: capitalize;">
+              ${request.priority}
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Status</div>
+            <div class="info-value">
+              <span class="status-badge status-${request.status}">${request.status.toUpperCase()}</span>
+            </div>
+          </div>
+          ${request.approved_by ? `
+          <div class="info-item">
+            <div class="info-label">Approved By</div>
+            <div class="info-value">${request.approved_by}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Approval Date</div>
+            <div class="info-value">${format(new Date(request.approved_date), 'dd MMM yyyy')}</div>
+          </div>
+          ` : '<div class="info-item"></div><div class="info-item"></div>'}
+        </div>
+
+        ${request.items && request.items.length > 0 ? `
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th style="width: 10%;">No.</th>
+              <th style="width: 50%;">Product Name</th>
+              <th style="width: 20%;">Product ID</th>
+              <th style="width: 20%;">Quantity Requested</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${request.items.map((item, index) => `
+              <tr>
+                <td>${index + 1}</td>
+                <td>${item.product_name || 'N/A'}</td>
+                <td>${item.product_id || 'N/A'}</td>
+                <td><strong>${item.quantity_requested}</strong></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+        ` : '<p style="text-align: center; color: #666; margin-top: 20px;">No items in this request</p>'}
+
+        ${request.notes ? `
+        <div class="notes">
+          <div class="info-label">NOTES</div>
+          <p style="margin: 10px 0 0 0;">${request.notes}</p>
+        </div>
+        ` : ''}
+
+        ${request.rejection_reason ? `
+        <div class="notes" style="border-left-color: #dc2626; background: #fee2e2;">
+          <div class="info-label" style="color: #991b1b;">REJECTION REASON</div>
+          <p style="margin: 10px 0 0 0; color: #991b1b;">${request.rejection_reason}</p>
+        </div>
+        ` : ''}
+
+        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #666; font-size: 11px;">
+          <p>Generated on ${format(new Date(), 'dd MMM yyyy HH:mm')}</p>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    setTimeout(() => {
+      printWindow.print();
+    }, 250);
   };
 
   return (
@@ -276,6 +501,9 @@ export default function PharmacyRequests() {
                       <Button size="sm" variant="outline" onClick={() => setSelectedRequest(request)}>
                         <Eye className="w-3 h-3" />
                       </Button>
+                      <Button size="sm" variant="outline" onClick={() => handlePrintRequest(request)}>
+                        <Printer className="w-3 h-3" />
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -319,6 +547,118 @@ export default function PharmacyRequests() {
           </CardContent>
         </Card>
       </div>
+
+      {/* View Request Dialog */}
+      <Dialog open={!!selectedRequest} onOpenChange={() => setSelectedRequest(null)}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Request Details - {selectedRequest?.request_number}</DialogTitle>
+          </DialogHeader>
+          {selectedRequest && (
+            <div className="space-y-4 mt-4">
+              <div className="grid grid-cols-3 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-slate-500">Request Date</label>
+                  <p className="text-sm font-semibold mt-1">{format(new Date(selectedRequest.created_date), 'dd MMM yyyy')}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-500">Requested By</label>
+                  <p className="text-sm font-semibold mt-1">{selectedRequest.requested_by}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-500">Type</label>
+                  <p className="text-sm font-semibold mt-1 capitalize">{selectedRequest.request_type}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-500">Priority</label>
+                  <Badge className={priorityColors[selectedRequest.priority]}>{selectedRequest.priority}</Badge>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-slate-500">Status</label>
+                  <Badge className={statusColors[selectedRequest.status]}>{selectedRequest.status}</Badge>
+                </div>
+                {selectedRequest.approved_by && (
+                  <div>
+                    <label className="text-sm font-medium text-slate-500">Approved By</label>
+                    <p className="text-sm font-semibold mt-1">{selectedRequest.approved_by}</p>
+                  </div>
+                )}
+              </div>
+
+              {selectedRequest.items && selectedRequest.items.length > 0 && (
+                <div>
+                  <label className="text-sm font-medium text-slate-500 mb-2 block">Items Requested</label>
+                  <div className="border rounded-lg overflow-hidden">
+                    <table className="w-full">
+                      <thead className="bg-slate-50">
+                        <tr>
+                          <th className="px-4 py-2 text-left text-xs font-semibold text-slate-600">Product</th>
+                          <th className="px-4 py-2 text-right text-xs font-semibold text-slate-600">Quantity</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {selectedRequest.items.map((item, idx) => (
+                          <tr key={idx}>
+                            <td className="px-4 py-2 text-sm">{item.product_name}</td>
+                            <td className="px-4 py-2 text-sm text-right font-semibold">{item.quantity_requested}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {selectedRequest.notes && (
+                <div>
+                  <label className="text-sm font-medium text-slate-500 mb-2 block">Notes</label>
+                  <p className="text-sm bg-slate-50 p-3 rounded-lg">{selectedRequest.notes}</p>
+                </div>
+              )}
+
+              {selectedRequest.rejection_reason && (
+                <div>
+                  <label className="text-sm font-medium text-rose-600 mb-2 block">Rejection Reason</label>
+                  <p className="text-sm bg-rose-50 text-rose-900 p-3 rounded-lg border border-rose-200">{selectedRequest.rejection_reason}</p>
+                </div>
+              )}
+
+              <div className="flex justify-between gap-3 pt-4 border-t">
+                <Button variant="outline" onClick={() => handlePrintRequest(selectedRequest)}>
+                  <Printer className="w-4 h-4 mr-2" />
+                  Print
+                </Button>
+                {selectedRequest.status === 'pending' && canApproveRequest && (
+                  <div className="flex gap-3">
+                    <Button 
+                      variant="outline" 
+                      className="text-rose-600 hover:bg-rose-50"
+                      onClick={() => {
+                        const reason = prompt('Enter rejection reason:');
+                        if (reason) {
+                          rejectRequestMutation.mutate({ requestId: selectedRequest.id, reason });
+                        }
+                      }}
+                      disabled={rejectRequestMutation.isPending}
+                    >
+                      <ThumbsDown className="w-4 h-4 mr-2" />
+                      Reject
+                    </Button>
+                    <Button 
+                      className="bg-emerald-600 hover:bg-emerald-700"
+                      onClick={() => approveRequestMutation.mutate(selectedRequest.id)}
+                      disabled={approveRequestMutation.isPending}
+                    >
+                      <ThumbsUp className="w-4 h-4 mr-2" />
+                      Approve
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Create Request Dialog */}
       <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
