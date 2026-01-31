@@ -420,6 +420,25 @@ export default function PharmacyPOS() {
                         </Button>
                       )}
                     </div>
+                    {patientId && (() => {
+                      const selectedPatient = patients.find(p => p.id === patientId);
+                      return selectedPatient ? (
+                        <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200 text-sm space-y-1">
+                          <p className="font-semibold text-blue-900">
+                            {selectedPatient.first_name} {selectedPatient.last_name}
+                          </p>
+                          {selectedPatient.phone && (
+                            <p className="text-blue-700 text-xs">📞 {selectedPatient.phone}</p>
+                          )}
+                          {selectedPatient.mobile && (
+                            <p className="text-blue-700 text-xs">📱 {selectedPatient.mobile}</p>
+                          )}
+                          {selectedPatient.phn && (
+                            <p className="text-blue-600 text-xs font-mono">PHN: {selectedPatient.phn}</p>
+                          )}
+                        </div>
+                      ) : null;
+                    })()}
                   </div>
 
                   <div>
