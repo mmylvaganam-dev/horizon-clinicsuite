@@ -119,7 +119,7 @@ export default function FinanceCompanies() {
         country_code: '',
         incorporation_number: '',
         fiscal_year_end: '',
-        base_currency: 'USD',
+        base_currency: 'LKR',
         status: 'active'
       });
       toast.success(editingCompany ? 'Company updated' : 'Company created');
@@ -408,7 +408,7 @@ export default function FinanceCompanies() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="USD">USD - US Dollar</SelectItem>
-                    <SelectItem value="CAD">CAD - Canadian Dollar</SelectItem>
+                    <SelectItem value="LKR">LKR - Sri Lankan Rupee</SelectItem>
                     <SelectItem value="GBP">GBP - British Pound</SelectItem>
                     <SelectItem value="EUR">EUR - Euro</SelectItem>
                     <SelectItem value="LKR">LKR - Sri Lankan Rupee</SelectItem>
