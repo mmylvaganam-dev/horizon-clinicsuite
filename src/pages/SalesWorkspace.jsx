@@ -255,8 +255,14 @@ export default function SalesWorkspace() {
 
   const handleSelectPatient = (patient) => {
     setSelectedPatient(patient);
-    setPatientSearch('');
+    setPatientSearch(`${patient.first_name} ${patient.last_name}`);
     setShowPatientDialog(false);
+  };
+
+  const handleClearPatient = () => {
+    setSelectedPatient(null);
+    setPatientSearch('');
+    setShowPatientDialog(true);
   };
 
   const handleCompleteSale = () => {
