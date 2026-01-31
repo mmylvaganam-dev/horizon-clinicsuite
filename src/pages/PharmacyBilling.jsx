@@ -348,8 +348,8 @@ export default function PharmacyBilling() {
   };
 
   const handleCreateWalkIn = () => {
-    if (!walkInForm.first_name || !walkInForm.last_name) {
-      toast.error('First name and last name are required');
+    if (!walkInForm.first_name) {
+      toast.error('First name is required');
       return;
     }
     createWalkInMutation.mutate(walkInForm);
@@ -1055,11 +1055,11 @@ export default function PharmacyBilling() {
                 />
               </div>
               <div>
-                <Label>Last Name *</Label>
+                <Label>Last Name / Initial</Label>
                 <Input
                   value={walkInForm.last_name}
                   onChange={(e) => setWalkInForm({ ...walkInForm, last_name: e.target.value })}
-                  placeholder="Last name"
+                  placeholder="Last name or initial"
                 />
               </div>
             </div>
@@ -1103,7 +1103,7 @@ export default function PharmacyBilling() {
               </Button>
               <Button 
                 onClick={handleCreateWalkIn}
-                disabled={!walkInForm.first_name || !walkInForm.last_name}
+                disabled={!walkInForm.first_name}
               >
                 Register & Generate PHN
               </Button>
