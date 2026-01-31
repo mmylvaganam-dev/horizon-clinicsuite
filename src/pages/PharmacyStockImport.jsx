@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Loader2, Download, Database } from 'lucide-react';
+import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Loader2, Download, Database, History, RotateCcw } from 'lucide-react';
+import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import * as XLSX from 'xlsx';
 
@@ -25,6 +26,11 @@ export default function PharmacyStockImport() {
     queryFn: () => base44.entities.PharmacyStock.list('-created_date', 100),
   });
 
+  const { data: snapshots = [] } = useQuery({
+    queryKey: ['stockSnapshots'],
+    queryFn: () => base44.entities.StockSnapshot.list('-snapshot_date', 10),
+  });
+
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
@@ -39,7 +45,7 @@ export default function PharmacyStockImport() {
     }
   };
 
-  const handleUpload = async () => {
+  const handleUpload = async (replaceMode = false) => {
     if (!file) {
       toast.error('Please select a file');
       return;
@@ -47,6 +53,22 @@ export default function PharmacyStockImport() {
 
     setUploading(true);
     try {
+      // Create snapshot before replacing if in replace mode
+      if (replaceMode && stockItems.length > 0) {
+        const totalValue = stockItems.reduce((sum, item) => 
+          sum + ((item.unit_cost || 0) * (item.quantity || 0)), 0
+        );
+        
+        await base44.entities.StockSnapshot.create({
+          organization_id: user?.organization_id,
+          snapshot_date: new Date().toISOString(),
+          snapshot_data: stockItems,
+          total_items: stockItems.length,
+          total_value: totalValue,
+          notes: 'Automatic backup before stock replacement'
+        });
+        toast.success('Backup created');
+      }
       let items = [];
 
       // Check if it's an Excel file
@@ -142,14 +164,23 @@ export default function PharmacyStockImport() {
         supplier: item.supplier || ''
       }));
 
+      if (replaceMode) {
+        // Delete all existing stock first
+        for (const item of stockItems) {
+          await base44.entities.PharmacyStock.delete(item.id);
+        }
+        toast.success('Old stock cleared');
+      }
+
       await base44.entities.PharmacyStock.bulkCreate(itemsToInsert);
 
       queryClient.invalidateQueries({ queryKey: ['pharmacyStock'] });
-      toast.success(`Successfully imported ${itemsToInsert.length} items`);
+      queryClient.invalidateQueries({ queryKey: ['stockSnapshots'] });
+      toast.success(`Successfully ${replaceMode ? 'replaced' : 'imported'} ${itemsToInsert.length} items`);
       setImportResult({ 
         status: 'success', 
         count: itemsToInsert.length,
-        message: `${itemsToInsert.length} items imported successfully` 
+        message: `${itemsToInsert.length} items ${replaceMode ? 'replaced' : 'imported'} successfully` 
       });
       setFile(null);
 
@@ -315,23 +346,47 @@ export default function PharmacyStockImport() {
             )}
           </div>
 
-          <Button 
-            onClick={handleUpload} 
-            disabled={!file || uploading}
-            className="w-full bg-teal-600 hover:bg-teal-700"
-          >
-            {uploading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Importing...
-              </>
-            ) : (
-              <>
-                <Upload className="w-4 h-4 mr-2" />
-                Import Stock Data
-              </>
-            )}
-          </Button>
+          <div className="flex gap-3">
+            <Button 
+              onClick={() => handleUpload(false)} 
+              disabled={!file || uploading}
+              className="flex-1 bg-teal-600 hover:bg-teal-700"
+            >
+              {uploading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Importing...
+                </>
+              ) : (
+                <>
+                  <Upload className="w-4 h-4 mr-2" />
+                  Add to Stock
+                </>
+              )}
+            </Button>
+            
+            <Button 
+              onClick={() => {
+                if (window.confirm('This will REPLACE all existing stock with the uploaded data. A backup will be created first. Continue?')) {
+                  handleUpload(true);
+                }
+              }} 
+              disabled={!file || uploading}
+              className="flex-1 bg-rose-600 hover:bg-rose-700"
+            >
+              {uploading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Replacing...
+                </>
+              ) : (
+                <>
+                  <Database className="w-4 h-4 mr-2" />
+                  Replace All Stock
+                </>
+              )}
+            </Button>
+          </div>
 
           {importResult && (
             <div className={`p-4 rounded-lg border ${
@@ -362,6 +417,82 @@ export default function PharmacyStockImport() {
           )}
         </CardContent>
       </Card>
+
+      {snapshots.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <History className="w-5 h-5" />
+              Stock History Snapshots
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {snapshots.map((snapshot) => (
+                <div key={snapshot.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border">
+                  <div>
+                    <p className="font-semibold text-slate-900">
+                      {format(new Date(snapshot.snapshot_date), 'dd MMM yyyy, HH:mm')}
+                    </p>
+                    <p className="text-sm text-slate-600 mt-1">
+                      {snapshot.total_items} items • Total Value: LKR {snapshot.total_value?.toFixed(2)}
+                    </p>
+                    {snapshot.notes && (
+                      <p className="text-xs text-slate-500 mt-1">{snapshot.notes}</p>
+                    )}
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={async () => {
+                      if (window.confirm('Restore stock from this snapshot? Current stock will be backed up first.')) {
+                        try {
+                          setUploading(true);
+                          
+                          // Create backup of current stock
+                          if (stockItems.length > 0) {
+                            const totalValue = stockItems.reduce((sum, item) => 
+                              sum + ((item.unit_cost || 0) * (item.quantity || 0)), 0
+                            );
+                            
+                            await base44.entities.StockSnapshot.create({
+                              organization_id: user?.organization_id,
+                              snapshot_date: new Date().toISOString(),
+                              snapshot_data: stockItems,
+                              total_items: stockItems.length,
+                              total_value: totalValue,
+                              notes: 'Backup before restore from ' + format(new Date(snapshot.snapshot_date), 'dd MMM yyyy HH:mm')
+                            });
+                          }
+                          
+                          // Delete current stock
+                          for (const item of stockItems) {
+                            await base44.entities.PharmacyStock.delete(item.id);
+                          }
+                          
+                          // Restore from snapshot
+                          await base44.entities.PharmacyStock.bulkCreate(snapshot.snapshot_data);
+                          
+                          queryClient.invalidateQueries({ queryKey: ['pharmacyStock'] });
+                          queryClient.invalidateQueries({ queryKey: ['stockSnapshots'] });
+                          toast.success('Stock restored from snapshot!');
+                        } catch (error) {
+                          toast.error('Failed to restore: ' + error.message);
+                        } finally {
+                          setUploading(false);
+                        }
+                      }
+                    }}
+                  >
+                    <RotateCcw className="w-4 h-4 mr-2" />
+                    Restore
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
