@@ -6,9 +6,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Phone, Heart, Shield, Loader2 } from 'lucide-react';
+import { User, Phone, Heart, Shield, Loader2, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
-export default function PatientForm({ open, onOpenChange, patient, onSubmit, isLoading }) {
+export default function PatientForm({ open, onOpenChange, patient, onSubmit, isLoading, onRequestNameEdit }) {
   const [formData, setFormData] = useState(patient || {
     first_name: '',
     last_name: '',
