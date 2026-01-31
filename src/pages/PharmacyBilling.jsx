@@ -436,21 +436,104 @@ export default function PharmacyBilling() {
         <head>
           <title>Invoice ${completedSale.receipt_number}</title>
           <style>
-            body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
-            .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px; }
-            .header h1 { margin: 0; font-size: 24px; }
-            .header p { margin: 5px 0; font-size: 12px; }
-            .info { display: flex; justify-content: space-between; margin-bottom: 20px; }
-            .info div { font-size: 14px; }
-            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-            th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
-            th { background: #f5f5f5; }
-            .totals { text-align: right; margin-top: 20px; }
-            .totals p { margin: 5px 0; }
-            .grand-total { font-weight: bold; font-size: 18px; color: #000; }
-            .footer { text-align: center; margin-top: 40px; font-size: 12px; }
+            @page {
+              size: 80mm auto;
+              margin: 0;
+            }
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            body { 
+              font-family: 'Courier New', monospace; 
+              width: 72mm;
+              margin: 0 auto;
+              padding: 5mm;
+              font-size: 11px;
+              line-height: 1.3;
+            }
+            .header { 
+              text-align: center; 
+              border-bottom: 1px dashed #333; 
+              padding-bottom: 5px; 
+              margin-bottom: 8px; 
+            }
+            .header h1 { 
+              font-size: 14px; 
+              font-weight: bold;
+              margin-bottom: 3px;
+            }
+            .header p { 
+              font-size: 9px;
+              margin: 1px 0;
+            }
+            .info { 
+              margin-bottom: 8px; 
+              font-size: 10px;
+            }
+            .info-row {
+              display: flex;
+              justify-content: space-between;
+              margin: 2px 0;
+            }
+            .divider {
+              border-top: 1px dashed #333;
+              margin: 5px 0;
+            }
+            .items {
+              margin: 5px 0;
+            }
+            .item {
+              margin: 3px 0;
+              font-size: 10px;
+            }
+            .item-name {
+              font-weight: bold;
+              margin-bottom: 1px;
+            }
+            .item-details {
+              display: flex;
+              justify-content: space-between;
+              font-size: 9px;
+            }
+            .totals { 
+              margin-top: 8px;
+              border-top: 1px solid #333;
+              padding-top: 5px;
+            }
+            .total-row {
+              display: flex;
+              justify-content: space-between;
+              margin: 2px 0;
+              font-size: 10px;
+            }
+            .grand-total { 
+              font-weight: bold; 
+              font-size: 12px;
+              border-top: 1px solid #333;
+              margin-top: 3px;
+              padding-top: 3px;
+            }
+            .savings {
+              text-align: center;
+              margin: 8px 0;
+              padding: 5px;
+              border: 1px solid #333;
+              font-size: 10px;
+              font-weight: bold;
+            }
+            .footer { 
+              text-align: center; 
+              margin-top: 10px;
+              padding-top: 5px;
+              border-top: 1px dashed #333;
+              font-size: 9px;
+            }
             @media print {
-              body { padding: 10px; }
+              body { 
+                width: 72mm;
+              }
             }
           </style>
         </head>
@@ -462,61 +545,73 @@ export default function PharmacyBilling() {
           </div>
           
           <div class="info">
-            <div>
-              <p><strong>Receipt:</strong> ${completedSale.receipt_number}</p>
-              <p><strong>Customer:</strong> ${completedSale.customer_name}</p>
+            <div class="info-row">
+              <span>Receipt:</span>
+              <span><strong>${completedSale.receipt_number}</strong></span>
             </div>
-            <div style="text-align: right;">
-              <p><strong>Date & Time:</strong></p>
-              <p>${completedSale.sale_datetime}</p>
+            <div class="info-row">
+              <span>Customer:</span>
+              <span>${completedSale.customer_name}</span>
+            </div>
+            <div class="info-row">
+              <span>Date/Time:</span>
+              <span>${completedSale.sale_datetime}</span>
             </div>
           </div>
           
-          <table>
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th style="text-align: center;">Qty</th>
-                <th style="text-align: right;">Price</th>
-                <th style="text-align: right;">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${completedSale.items.map(item => `
-                <tr>
-                  <td>${item.display_name}</td>
-                  <td style="text-align: center;">${item.quantity}</td>
-                  <td style="text-align: right;">${completedSale.currency} ${item.unit_price.toFixed(2)}</td>
-                  <td style="text-align: right;">${completedSale.currency} ${item.total.toFixed(2)}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
+          <div class="divider"></div>
+          
+          <div class="items">
+            ${completedSale.items.map(item => `
+              <div class="item">
+                <div class="item-name">${item.display_name}</div>
+                <div class="item-details">
+                  <span>${item.quantity} x ${completedSale.currency} ${item.unit_price.toFixed(2)}</span>
+                  <span><strong>${completedSale.currency} ${item.total.toFixed(2)}</strong></span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
           
           <div class="totals">
-            <p><strong>Subtotal:</strong> ${completedSale.currency} ${completedSale.subtotal.toFixed(2)}</p>
-            ${completedSale.discount_amount > 0 ? `<p style="color: green;"><strong>Discount:</strong> -${completedSale.currency} ${completedSale.discount_amount.toFixed(2)}</p>` : ''}
-            <p><strong>Tax:</strong> ${completedSale.currency} ${completedSale.tax.toFixed(2)}</p>
-            <p class="grand-total">TOTAL: ${completedSale.currency} ${completedSale.total.toFixed(2)}</p>
+            <div class="total-row">
+              <span>Subtotal:</span>
+              <span>${completedSale.currency} ${completedSale.subtotal.toFixed(2)}</span>
+            </div>
+            ${completedSale.discount_amount > 0 ? `
+            <div class="total-row">
+              <span>Discount:</span>
+              <span>-${completedSale.currency} ${completedSale.discount_amount.toFixed(2)}</span>
+            </div>
+            ` : ''}
+            <div class="total-row">
+              <span>Tax:</span>
+              <span>${completedSale.currency} ${completedSale.tax.toFixed(2)}</span>
+            </div>
+            <div class="total-row grand-total">
+              <span>TOTAL:</span>
+              <span>${completedSale.currency} ${completedSale.total.toFixed(2)}</span>
+            </div>
           </div>
           
           ${completedSale.total_savings > 0 ? `
-          <div style="background: #d1fae5; border: 2px solid #10b981; border-radius: 8px; padding: 15px; margin: 20px 0; text-align: center;">
-            <p style="color: #065f46; font-weight: bold; font-size: 16px; margin: 0;">
-              🎉 Congratulations! You Saved ${completedSale.currency} ${completedSale.total_savings.toFixed(2)} from MRP!
-            </p>
+          <div class="savings">
+            You Saved ${completedSale.currency} ${completedSale.total_savings.toFixed(2)}!
           </div>
           ` : ''}
           
           <div class="footer">
             <p>Thank you for your purchase!</p>
-            <p>Please retain this receipt for your records</p>
+            <p>Please keep this receipt</p>
           </div>
         </body>
       </html>
     `);
     printWindow.document.close();
-    printWindow.print();
+    setTimeout(() => {
+      printWindow.focus();
+      printWindow.print();
+    }, 250);
   };
 
   const handleEmailInvoice = () => {

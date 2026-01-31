@@ -20,7 +20,7 @@ export default function PHNCard({ open, onOpenChange, patient, branding }) {
       logging: false
     });
 
-    // Open a new window for printing
+    // Open a new window for printing on 80mm thermal printer
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -29,7 +29,7 @@ export default function PHNCard({ open, onOpenChange, patient, branding }) {
           <title>Print PHN Card - ${patient?.phn || 'Patient'}</title>
           <style>
             @page {
-              size: 85.6mm 53.98mm;
+              size: 80mm auto;
               margin: 0;
             }
             * {
@@ -39,24 +39,51 @@ export default function PHNCard({ open, onOpenChange, patient, branding }) {
             }
             body {
               margin: 0;
-              padding: 0;
+              padding: 5mm;
+              width: 80mm;
+            }
+            .card-container {
+              width: 70mm;
+              margin: 0 auto;
             }
             img {
-              width: 85.6mm;
-              height: 53.98mm;
+              width: 100%;
+              height: auto;
               display: block;
-              page-break-after: always;
+            }
+            .cut-line {
+              text-align: center;
+              margin: 5mm 0;
+              font-family: monospace;
+              font-size: 10px;
+              color: #666;
+            }
+            .instructions {
+              text-align: center;
+              font-family: monospace;
+              font-size: 9px;
+              color: #666;
+              margin-top: 3mm;
+              padding-top: 3mm;
+              border-top: 1px dashed #999;
             }
             @media print {
               body {
                 margin: 0;
-                padding: 0;
+                padding: 5mm;
               }
             }
           </style>
         </head>
         <body>
-          <img src="${canvas.toDataURL('image/png')}" alt="PHN Card" />
+          <div class="card-container">
+            <img src="${canvas.toDataURL('image/png')}" alt="PHN Card" />
+          </div>
+          <div class="cut-line">✂ - - - - - - - - - - - - - - - - - ✂</div>
+          <div class="instructions">
+            <p>Cut along the line above</p>
+            <p>Standard credit card size: 85.6mm x 53.98mm</p>
+          </div>
         </body>
       </html>
     `);
