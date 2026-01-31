@@ -294,7 +294,7 @@ export default function PharmacyStockImport() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pharmacy Stock Import</h1>
-        <p className="text-slate-500 mt-1">Upload CSV files to update inventory</p>
+        <p className="text-slate-500 mt-1">Upload .xlsx Excel files to update inventory</p>
       </div>
 
       <Card className="bg-blue-50 border-blue-200">
