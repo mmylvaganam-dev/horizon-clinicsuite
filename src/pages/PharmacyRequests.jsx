@@ -44,6 +44,22 @@ export default function PharmacyRequests() {
     queryFn: () => base44.auth.me(),
   });
 
+  const { data: userRoles = [] } = useQuery({
+    queryKey: ['userRoles'],
+    queryFn: () => base44.entities.UserRole.filter({ user_id: user?.id }),
+    enabled: !!user?.id,
+  });
+
+  const { data: allRoles = [] } = useQuery({
+    queryKey: ['allRoles'],
+    queryFn: () => base44.entities.Role.list(),
+  });
+
+  const { data: staffProfiles = [] } = useQuery({
+    queryKey: ['staffProfiles'],
+    queryFn: () => base44.entities.StaffProfile.list(),
+  });
+
   const { data: pharmacyStock = [] } = useQuery({
     queryKey: ['pharmacyStock'],
     queryFn: () => base44.entities.PharmacyStock.list('-created_date'),
@@ -54,19 +70,28 @@ export default function PharmacyRequests() {
     queryFn: () => base44.entities.Location.list(),
   });
 
-  // Mock requests data structure
-  const requests = [
-    {
-      id: '1',
-      date: new Date().toISOString(),
-      request_no: 'REQ-001',
-      type: 'Purchase Order',
-      requested_by: 'Admin User',
-      items_count: 5,
-      status: 'approved',
-      priority: 'high'
-    }
-  ];
+  const { data: requests = [] } = useQuery({
+    queryKey: ['pharmacyRequests'],
+    queryFn: () => base44.entities.PharmacyRequest.list('-created_date'),
+  });
+
+  // Check permissions
+  const isPlatformOwner = user?.role === 'admin' && userRoles.some(ur => {
+    const role = allRoles.find(r => r.id === ur.role_id);
+    return role?.code === 'PLATFORM_OWNER';
+  });
+
+  const isCompanyOwner = userRoles.some(ur => {
+    const role = allRoles.find(r => r.id === ur.role_id);
+    return role?.code === 'COMPANY_OWNER' || role?.code === 'ORG_ADMIN';
+  });
+
+  const isPharmacist = userRoles.some(ur => {
+    const role = allRoles.find(r => r.id === ur.role_id);
+    return role?.code === 'PHARMACIST' || role?.name?.toLowerCase().includes('pharmacist');
+  });
+
+  const canCreateRequest = isPlatformOwner || isCompanyOwner || isPharmacist;
 
   const statusColors = {
     pending: 'bg-yellow-100 text-yellow-700 border-yellow-200',
@@ -83,8 +108,11 @@ export default function PharmacyRequests() {
 
   const createRequestMutation = useMutation({
     mutationFn: async (data) => {
-      // Mock creation - replace with actual API call
-      return { id: Date.now().toString(), ...data };
+      const requestNumber = `REQ-${Date.now()}`;
+      return base44.entities.PharmacyRequest.create({
+        ...data,
+        request_number: requestNumber,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pharmacyRequests'] });
@@ -92,6 +120,7 @@ export default function PharmacyRequests() {
       setRequestForm({
         request_type: 'purchase',
         requested_by: '',
+        requested_by_user_id: '',
         items: [],
         notes: '',
         priority: 'normal',
@@ -99,14 +128,18 @@ export default function PharmacyRequests() {
       });
       toast.success('Request created successfully');
     },
-    onError: () => {
-      toast.error('Failed to create request');
+    onError: (error) => {
+      toast.error('Failed to create request: ' + error.message);
     }
   });
 
   const handleCreateRequest = () => {
     if (!requestForm.request_type) {
       toast.error('Please select request type');
+      return;
+    }
+    if (!requestForm.requested_by || !requestForm.requested_by_user_id) {
+      toast.error('Please select who is requesting');
       return;
     }
     createRequestMutation.mutate(requestForm);
@@ -137,10 +170,17 @@ export default function PharmacyRequests() {
             ]}
           />
         </div>
-        <Button onClick={() => setShowCreateDialog(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          New Request
-        </Button>
+        {canCreateRequest && (
+          <Button onClick={() => setShowCreateDialog(true)}>
+            <Plus className="w-4 h-4 mr-2" />
+            New Request
+          </Button>
+        )}
+        {!canCreateRequest && (
+          <Badge variant="outline" className="text-rose-600">
+            Pharmacist access required
+          </Badge>
+        )}
       </div>
 
       {/* Filters */}
@@ -202,16 +242,16 @@ export default function PharmacyRequests() {
                   <div className="grid grid-cols-12 gap-4 items-center">
                     <div className="col-span-2">
                       <p className="text-sm font-medium text-slate-900">
-                        {format(new Date(request.date), 'dd MMM, yyyy')}
+                        {format(new Date(request.created_date), 'dd MMM, yyyy')}
                       </p>
                     </div>
                     <div className="col-span-2">
                       <Badge variant="outline" className="font-mono bg-yellow-50 border-yellow-200">
-                        {request.request_no}
+                        {request.request_number}
                       </Badge>
                     </div>
                     <div className="col-span-2">
-                      <p className="text-sm text-slate-900">{request.type}</p>
+                      <p className="text-sm text-slate-900 capitalize">{request.request_type}</p>
                     </div>
                     <div className="col-span-2">
                       <div className="flex items-center gap-2">
@@ -220,7 +260,7 @@ export default function PharmacyRequests() {
                       </div>
                     </div>
                     <div className="col-span-1">
-                      <Badge variant="outline">{request.items_count} items</Badge>
+                      <Badge variant="outline">{request.items?.length || 0} items</Badge>
                     </div>
                     <div className="col-span-1">
                       <Badge className={priorityColors[request.priority]}>
@@ -233,7 +273,7 @@ export default function PharmacyRequests() {
                       </Badge>
                     </div>
                     <div className="col-span-1 flex justify-end gap-2">
-                      <Button size="sm" variant="outline">
+                      <Button size="sm" variant="outline" onClick={() => setSelectedRequest(request)}>
                         <Eye className="w-3 h-3" />
                       </Button>
                     </div>
@@ -251,7 +291,7 @@ export default function PharmacyRequests() {
           <CardContent className="p-6">
             <Clock className="w-8 h-8 mb-2 opacity-80" />
             <p className="text-sm opacity-90">Pending</p>
-            <p className="text-3xl font-bold mt-1">0</p>
+            <p className="text-3xl font-bold mt-1">{requests.filter(r => r.status === 'pending').length}</p>
           </CardContent>
         </Card>
 
@@ -259,7 +299,7 @@ export default function PharmacyRequests() {
           <CardContent className="p-6">
             <CheckCircle className="w-8 h-8 mb-2 opacity-80" />
             <p className="text-sm opacity-90">Approved</p>
-            <p className="text-3xl font-bold mt-1">1</p>
+            <p className="text-3xl font-bold mt-1">{requests.filter(r => r.status === 'approved').length}</p>
           </CardContent>
         </Card>
 
@@ -267,7 +307,7 @@ export default function PharmacyRequests() {
           <CardContent className="p-6">
             <XCircle className="w-8 h-8 mb-2 opacity-80" />
             <p className="text-sm opacity-90">Rejected</p>
-            <p className="text-3xl font-bold mt-1">0</p>
+            <p className="text-3xl font-bold mt-1">{requests.filter(r => r.status === 'rejected').length}</p>
           </CardContent>
         </Card>
 
@@ -275,7 +315,7 @@ export default function PharmacyRequests() {
           <CardContent className="p-6">
             <Package className="w-8 h-8 mb-2 opacity-80" />
             <p className="text-sm opacity-90">Completed</p>
-            <p className="text-3xl font-bold mt-1">0</p>
+            <p className="text-3xl font-bold mt-1">{requests.filter(r => r.status === 'completed').length}</p>
           </CardContent>
         </Card>
       </div>
@@ -316,12 +356,33 @@ export default function PharmacyRequests() {
               </div>
             </div>
             <div>
-              <label className="text-sm font-medium mb-2 block">Requested By</label>
-              <Input
-                value={requestForm.requested_by}
-                onChange={(e) => setRequestForm({...requestForm, requested_by: e.target.value})}
-                placeholder="Your name"
-              />
+              <label className="text-sm font-medium mb-2 block">Requested By *</label>
+              <Select 
+                value={requestForm.requested_by_user_id} 
+                onValueChange={(userId) => {
+                  const staff = staffProfiles.find(s => s.user_id === userId);
+                  const staffName = staff ? `${staff.first_name} ${staff.last_name}` : user?.full_name;
+                  setRequestForm({
+                    ...requestForm, 
+                    requested_by_user_id: userId,
+                    requested_by: staffName
+                  });
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select staff member" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={user?.id || ''}>
+                    {user?.full_name} (Me)
+                  </SelectItem>
+                  {staffProfiles.filter(s => s.user_id !== user?.id).map((staff) => (
+                    <SelectItem key={staff.id} value={staff.user_id || staff.id}>
+                      {staff.first_name} {staff.last_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <label className="text-sm font-medium mb-2 block">Notes</label>
