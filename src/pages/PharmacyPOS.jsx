@@ -87,7 +87,7 @@ export default function PharmacyPOS() {
 
   const createSaleMutation = useMutation({
     mutationFn: (data) => base44.functions.invoke('createPharmacySale', data),
-    onSuccess: () => {
+    onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['pharmacySales'] });
       queryClient.invalidateQueries({ queryKey: ['pharmacyReceipts'] });
       queryClient.invalidateQueries({ queryKey: ['recordLinks'] });
@@ -95,12 +95,18 @@ export default function PharmacyPOS() {
       setPatientId('');
       setPrescriptionId('');
       setNotes('');
+      setLastSaleId(response.data?.saleId);
+      setShowPrintDialog(true);
       toast.success('Sale completed successfully!');
     },
     onError: (error) => {
       toast.error(error.message || 'Failed to create sale');
     }
   });
+
+  const handlePrintInvoice = (saleId) => {
+    window.open(`/api/functions/generatePharmacyInvoice?saleId=${saleId}`, '_blank');
+  };
 
   const refundVoidMutation = useMutation({
     mutationFn: (data) => base44.functions.invoke('refundVoidSale', data),
