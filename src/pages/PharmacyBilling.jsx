@@ -845,11 +845,25 @@ export default function PharmacyBilling() {
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex-1">
-                          <p className="font-semibold text-base text-slate-900 mb-1">
-                            {item.display_name}
-                          </p>
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="font-semibold text-base text-slate-900">
+                              {item.display_name}
+                            </p>
+                            {item.expire_date && (
+                              <Badge className={`text-xs ${
+                                new Date(item.expire_date) < new Date() 
+                                  ? 'bg-red-100 text-red-700' 
+                                  : new Date(item.expire_date) <= new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
+                                  ? 'bg-orange-100 text-orange-700'
+                                  : 'bg-slate-100 text-slate-700'
+                              }`}>
+                                Exp: {format(new Date(item.expire_date), 'MMM yyyy')}
+                              </Badge>
+                            )}
+                          </div>
                           <div className="flex items-center gap-3 text-sm text-slate-600">
                             <Badge variant="outline">{item.barcode}</Badge>
+                            {item.batch_no && <span>Batch: {item.batch_no}</span>}
                             <span>Stock: {item.quantity}</span>
                             {item.generic_name && <span className="text-xs">• {item.generic_name}</span>}
                           </div>

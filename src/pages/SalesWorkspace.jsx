@@ -418,6 +418,18 @@ export default function SalesWorkspace() {
                       <Badge className="bg-blue-100 text-blue-800 text-xs">Pharmacy</Badge>
                     </div>
                     <p className="font-semibold text-sm mb-2 line-clamp-2">{item.display_name}</p>
+                    {item.expire_date && (
+                      <Badge className={`text-xs mb-2 ${
+                        new Date(item.expire_date) < new Date() 
+                          ? 'bg-red-100 text-red-700' 
+                          : new Date(item.expire_date) <= new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
+                          ? 'bg-orange-100 text-orange-700'
+                          : 'bg-slate-100 text-slate-700'
+                      }`}>
+                        Exp: {new Date(item.expire_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                      </Badge>
+                    )}
+                    {item.batch_no && <p className="text-xs text-slate-500 mb-1">Batch: {item.batch_no}</p>}
                     <p className="text-lg font-bold text-emerald-600">{currency} {(item.mrp || item.unit_price || 0).toFixed(2)}</p>
                     <p className="text-xs text-slate-500">Stock: {item.quantity}</p>
                   </CardContent>
