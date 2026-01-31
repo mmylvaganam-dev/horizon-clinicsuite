@@ -48,6 +48,7 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import AIAssistant from './pages/AIAssistant';
+import AccessPending from './pages/AccessPending';
 import Admin from './pages/Admin';
 import AdminArchive from './pages/AdminArchive';
 import AdminAuditLogs from './pages/AdminAuditLogs';
@@ -167,15 +168,15 @@ import ShiftHandover from './pages/ShiftHandover';
 import StaffDirectory from './pages/StaffDirectory';
 import TaskManagement from './pages/TaskManagement';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
+import UserApprovals from './pages/UserApprovals';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import AccessPending from './pages/AccessPending';
-import UserApprovals from './pages/UserApprovals';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AIAssistant": AIAssistant,
+    "AccessPending": AccessPending,
     "Admin": Admin,
     "AdminArchive": AdminArchive,
     "AdminAuditLogs": AdminAuditLogs,
@@ -295,10 +296,9 @@ export const PAGES = {
     "StaffDirectory": StaffDirectory,
     "TaskManagement": TaskManagement,
     "ThirdPartyProviders": ThirdPartyProviders,
+    "UserApprovals": UserApprovals,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "AccessPending": AccessPending,
-    "UserApprovals": UserApprovals,
 }
 
 export const pagesConfig = {

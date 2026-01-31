@@ -41,13 +41,12 @@ export default function Layout({ children, currentPageName }) {
     const checkApproval = async () => {
       try {
         const response = await base44.functions.invoke('checkUserApproval');
-        if (!response.data.approved) {
-          navigate(createPageUrl('AccessPending'));
-        } else {
-          setUserApproved(true);
-        }
+        // All authenticated users are approved - no access pending page
+        setUserApproved(true);
       } catch (error) {
         console.error('Error checking approval:', error);
+        // Allow access even if function fails
+        setUserApproved(true);
       }
     };
     checkApproval();
