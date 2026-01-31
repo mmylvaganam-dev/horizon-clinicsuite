@@ -19,13 +19,16 @@ import {
   Eye,
   Download,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  RotateCw
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { createPageUrl } from '../utils';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import MedicineReturnDialog from '../components/pharmacy/MedicineReturnDialog';
 
 export default function PharmacyDashboard() {
   const navigate = useNavigate();
@@ -39,6 +42,13 @@ export default function PharmacyDashboard() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [minAmount, setMinAmount] = useState('');
   const [maxAmount, setMaxAmount] = useState('');
+  const [showReturnDialog, setShowReturnDialog] = useState(false);
+  const [selectedSale, setSelectedSale] = useState(null);
+
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
 
   const { data: sales = [] } = useQuery({
     queryKey: ['pharmacySales'],
@@ -434,11 +444,14 @@ export default function PharmacyDashboard() {
                                <Button 
                                  size="sm" 
                                  variant="outline" 
-                                 className="text-amber-600 hover:text-amber-700"
-                                 onClick={() => navigate(createPageUrl('PharmacyPOS'))}
+                                 className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                                 onClick={() => {
+                                   setSelectedSale(sale);
+                                   setShowReturnDialog(true);
+                                 }}
                                >
-                                 <RefreshCw className="w-3 h-3 mr-1" />
-                                 Refund
+                                 <RotateCw className="w-3 h-3 mr-1" />
+                                 Return
                                </Button>
                              </>
                            )}
@@ -578,9 +591,26 @@ export default function PharmacyDashboard() {
             </TabsContent>
 
             <TabsContent value="med-return">
-              <div className="text-center py-12">
-                <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-                <p className="text-slate-500">Medicine return processing</p>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">Medicine Returns</h3>
+                  <Button 
+                    onClick={() => {
+                      setSelectedSale(null);
+                      setShowReturnDialog(true);
+                    }}
+                    className="bg-amber-600 hover:bg-amber-700"
+                  >
+                    <RotateCw className="w-4 h-4 mr-2" />
+                    New Return
+                  </Button>
+                </div>
+                
+                <Card className="text-center py-12">
+                  <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+                  <p className="text-slate-500 mb-4">Click "New Return" to process medicine returns</p>
+                  <p className="text-sm text-slate-400">Supports customer refunds and vendor credits</p>
+                </Card>
               </div>
             </TabsContent>
           </CardContent>
@@ -628,6 +658,16 @@ export default function PharmacyDashboard() {
           </Card>
         </div>
       </div>
+
+      {/* Medicine Return Dialog */}
+      <MedicineReturnDialog
+        open={showReturnDialog}
+        onOpenChange={setShowReturnDialog}
+        sale={selectedSale}
+        saleItems={selectedSale ? (selectedSale.items || []) : []}
+        currency={currency}
+        user={user}
+      />
     </div>
   );
 }
