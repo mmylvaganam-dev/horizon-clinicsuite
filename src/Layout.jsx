@@ -54,8 +54,8 @@ export default function Layout({ children, currentPageName }) {
       ]
     },
     {
-      category: 'Operations',
-      icon: Activity,
+      category: 'Dashboard',
+      icon: LayoutDashboard,
       items: [
         { name: 'Home', page: 'Home', icon: LayoutDashboard, description: 'Main dashboard - Overview of sales, patients, and key metrics' },
         { name: 'Daily Operations', page: 'DailyOps', icon: Activity, description: 'Daily operations center - Track real-time patient flow, staff activities, and operational metrics' },
