@@ -57,6 +57,16 @@ export default function PatientHub() {
     return Math.floor((new Date() - new Date(dob)) / (365.25 * 24 * 60 * 60 * 1000));
   };
 
+  const handleEditPatient = async (data) => {
+    await base44.entities.Patient.update(selectedPatient.id, data);
+    setSelectedPatient(null);
+  };
+
+  const handleNameEditRequest = (data) => {
+    setSelectedPatient({ ...selectedPatient, ...data });
+    setShowEditRequest(true);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
