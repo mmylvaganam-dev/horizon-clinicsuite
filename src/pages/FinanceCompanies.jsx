@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Building2, Plus, Edit, Package } from 'lucide-react';
+import { Building2, Plus, Edit, Package, Lock } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import toast from 'react-hot-toast';
@@ -82,6 +82,9 @@ export default function FinanceCompanies() {
     queryFn: () => base44.entities.Organization.list(),
     enabled: isPlatformOwner,
   });
+
+  // Check if user is platform owner by email
+  const isPlatformOwnerByEmail = ['mylvaganam@premierhealthcanada.ca', 'mmylvaganam@premierhealthcanada.ca'].includes(user?.email);
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
@@ -242,13 +245,21 @@ export default function FinanceCompanies() {
             </h1>
             <p className="text-blue-100 mt-2 text-lg">Manage your company entities and organizations</p>
           </div>
-          <button
-            onClick={() => setDialogOpen(true)}
-            className="px-6 py-4 bg-white text-blue-600 rounded-2xl font-bold text-lg shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-200"
-          >
-            <Plus className="w-5 h-5 inline mr-2" />
-            Add Company
-          </button>
+          {isPlatformOwnerByEmail && (
+            <button
+              onClick={() => setDialogOpen(true)}
+              className="px-6 py-4 bg-white text-blue-600 rounded-2xl font-bold text-lg shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-200"
+            >
+              <Plus className="w-5 h-5 inline mr-2" />
+              Add Company
+            </button>
+          )}
+          {!isPlatformOwnerByEmail && (
+            <div className="px-6 py-4 bg-slate-100 text-slate-500 rounded-2xl font-semibold text-lg cursor-not-allowed">
+              <Lock className="w-5 h-5 inline mr-2" />
+              Platform Owner Only
+            </div>
+          )}
         </div>
       </div>
 
@@ -475,8 +486,8 @@ export default function FinanceCompanies() {
         </DialogContent>
       </Dialog>
 
-      {isPlatformOwner && (
-        <>
+      {isPlatformOwnerByEmail && (
+       <>
           <div className="bg-gradient-to-r from-teal-500 to-emerald-600 rounded-2xl p-6 text-white shadow-xl">
             <div className="flex items-center justify-between">
               <div>

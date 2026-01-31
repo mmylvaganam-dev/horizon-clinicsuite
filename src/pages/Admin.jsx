@@ -184,6 +184,7 @@ export default function Admin() {
       modules: [
         { title: 'Company Profile', description: 'Business details', icon: Building2, page: 'FinanceCompanies', ownerOnly: true },
         { title: 'Organizations', description: 'Create & manage organizations', icon: Building2, page: 'AdminOrganizations', ownerOnly: true },
+        { title: 'Module Permissions', description: 'Control org module access', icon: Shield, page: 'OrganizationModulePermissions', ownerOnly: true },
         { title: 'Locations', description: 'Clinics & branches', icon: MapPin, page: 'AdminLocations', ownerOnly: true },
         { title: 'Global Branding', description: 'White-label branding', icon: Settings, page: 'AdminOrganizationBranding', ownerOnly: true },
       ]

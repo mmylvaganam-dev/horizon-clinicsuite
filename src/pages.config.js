@@ -171,6 +171,7 @@ import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import UserApprovals from './pages/UserApprovals';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
+import OrganizationModulePermissions from './pages/OrganizationModulePermissions';
 import __Layout from './Layout.jsx';
 
 
@@ -299,6 +300,7 @@ export const PAGES = {
     "UserApprovals": UserApprovals,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
+    "OrganizationModulePermissions": OrganizationModulePermissions,
 }
 
 export const pagesConfig = {
