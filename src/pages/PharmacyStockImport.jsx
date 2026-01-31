@@ -552,7 +552,7 @@ export default function PharmacyStockImport() {
           ) : stockItems.length === 0 ? (
             <div className="text-center py-12">
               <FileSpreadsheet className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-              <p className="text-slate-500">No stock items yet. Upload a CSV file to get started.</p>
+              <p className="text-slate-500">No stock items yet. Upload an .xlsx file to get started.</p>
             </div>
           ) : (
             <div className="space-y-2">
