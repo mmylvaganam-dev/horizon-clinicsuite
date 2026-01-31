@@ -57,6 +57,8 @@ export default function PharmacyBilling() {
   const [completedSale, setCompletedSale] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [activeTab, setActiveTab] = useState('name');
+  const [emailSent, setEmailSent] = useState(false);
+  const [smsSent, setSmsSent] = useState(false);
 
   const { data: pharmacyStock = [] } = useQuery({
     queryKey: ['pharmacyStock'],
@@ -374,7 +376,12 @@ export default function PharmacyBilling() {
 
   const sendInvoiceMutation = useMutation({
     mutationFn: (data) => base44.functions.invoke('sendInvoice', data),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      if (variables.method === 'email') {
+        setEmailSent(true);
+      } else if (variables.method === 'sms') {
+        setSmsSent(true);
+      }
       toast.success('Invoice sent successfully');
     },
     onError: () => {
@@ -671,6 +678,8 @@ export default function PharmacyBilling() {
   const handleCloseInvoiceDialog = () => {
     setShowInvoiceDialog(false);
     setCompletedSale(null);
+    setEmailSent(false);
+    setSmsSent(false);
     
     // Reset cart and selections
     setCart([]);
@@ -1284,29 +1293,43 @@ export default function PharmacyBilling() {
                   Print Invoice
                 </Button>
                 
-                {completedSale.customer_email && (
-                  <Button 
-                    className="w-full justify-start" 
-                    variant="outline"
-                    onClick={handleEmailInvoice}
-                    disabled={sendInvoiceMutation.isPending}
-                  >
-                    <Mail className="w-4 h-4 mr-2" />
-                    Email to {completedSale.customer_email}
-                  </Button>
-                )}
+                <Button 
+                  className="w-full justify-start" 
+                  variant="outline"
+                  onClick={handleEmailInvoice}
+                  disabled={!completedSale.customer_email || sendInvoiceMutation.isPending || emailSent}
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  {emailSent ? (
+                    <>
+                      <Check className="w-4 h-4 mr-2 text-green-600" />
+                      <span className="text-green-600">Email Sent</span>
+                    </>
+                  ) : completedSale.customer_email ? (
+                    `Email to ${completedSale.customer_email}`
+                  ) : (
+                    'Email (No email address)'
+                  )}
+                </Button>
                 
-                {completedSale.customer_phone && (
-                  <Button 
-                    className="w-full justify-start" 
-                    variant="outline"
-                    onClick={handleSMSInvoice}
-                    disabled={sendInvoiceMutation.isPending}
-                  >
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    SMS to {completedSale.customer_phone}
-                  </Button>
-                )}
+                <Button 
+                  className="w-full justify-start" 
+                  variant="outline"
+                  onClick={handleSMSInvoice}
+                  disabled={!completedSale.customer_phone || sendInvoiceMutation.isPending || smsSent}
+                >
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  {smsSent ? (
+                    <>
+                      <Check className="w-4 h-4 mr-2 text-green-600" />
+                      <span className="text-green-600">SMS Sent</span>
+                    </>
+                  ) : completedSale.customer_phone ? (
+                    `SMS to ${completedSale.customer_phone}`
+                  ) : (
+                    'SMS (No phone number)'
+                  )}
+                </Button>
 
                 {(completedSale.customer_email || completedSale.customer_phone) && (
                   <>
