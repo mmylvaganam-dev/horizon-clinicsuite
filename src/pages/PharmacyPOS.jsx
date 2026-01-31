@@ -612,6 +612,36 @@ export default function PharmacyPOS() {
         </TabsContent>
       </Tabs>
 
+      {/* Print Invoice Dialog */}
+      <Dialog open={showPrintDialog} onOpenChange={setShowPrintDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Sale Completed</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <p className="text-sm text-slate-600">Sale has been completed successfully. Would you like to print the invoice?</p>
+            <div className="flex justify-end gap-3">
+              <Button
+                variant="outline"
+                onClick={() => setShowPrintDialog(false)}
+              >
+                Done
+              </Button>
+              <Button
+                onClick={() => {
+                  handlePrintInvoice(lastSaleId);
+                  setShowPrintDialog(false);
+                }}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Printer className="w-4 h-4 mr-2" />
+                Print Invoice
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Refund/Void Dialog */}
       <Dialog open={showRefundDialog} onOpenChange={setShowRefundDialog}>
         <DialogContent>
