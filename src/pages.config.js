@@ -133,6 +133,7 @@ import OrganizationUserManagement from './pages/OrganizationUserManagement';
 import OwnerWorkspace from './pages/OwnerWorkspace';
 import PartnerManagement from './pages/PartnerManagement';
 import PatientDetails from './pages/PatientDetails';
+import PatientEditApprovals from './pages/PatientEditApprovals';
 import PatientHub from './pages/PatientHub';
 import PatientPortal from './pages/PatientPortal';
 import Patients from './pages/Patients';
@@ -168,7 +169,6 @@ import TaskManagement from './pages/TaskManagement';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import PatientEditApprovals from './pages/PatientEditApprovals';
 import __Layout from './Layout.jsx';
 
 
@@ -259,6 +259,7 @@ export const PAGES = {
     "OwnerWorkspace": OwnerWorkspace,
     "PartnerManagement": PartnerManagement,
     "PatientDetails": PatientDetails,
+    "PatientEditApprovals": PatientEditApprovals,
     "PatientHub": PatientHub,
     "PatientPortal": PatientPortal,
     "Patients": Patients,
@@ -294,7 +295,6 @@ export const PAGES = {
     "ThirdPartyProviders": ThirdPartyProviders,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "PatientEditApprovals": PatientEditApprovals,
 }
 
 export const pagesConfig = {
