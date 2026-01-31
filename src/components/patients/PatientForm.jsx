@@ -168,13 +168,25 @@ export default function PatientForm({ open, onOpenChange, patient, onSubmit, isL
                   onChange={(e) => updateField('email', e.target.value)}
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  value={formData.phone}
-                  onChange={(e) => updateField('phone', e.target.value)}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Home Phone</Label>
+                  <Input
+                    id="phone"
+                    value={formData.phone}
+                    onChange={(e) => updateField('phone', e.target.value)}
+                    placeholder="Optional"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="mobile">Mobile Phone *</Label>
+                  <Input
+                    id="mobile"
+                    value={formData.mobile}
+                    onChange={(e) => updateField('mobile', e.target.value)}
+                    placeholder="For SMS & contact"
+                  />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="address">Address</Label>
