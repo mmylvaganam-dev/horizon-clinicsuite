@@ -40,6 +40,8 @@ export default function PharmacyPOS() {
   const [refundReason, setRefundReason] = useState('');
   const [expandedSale, setExpandedSale] = useState(null);
   const [barcodeInput, setBarcodeInput] = useState('');
+  const [lastSaleId, setLastSaleId] = useState(null);
+  const [showPrintDialog, setShowPrintDialog] = useState(false);
 
   const { data: patients = [] } = useQuery({
     queryKey: ['patients'],
