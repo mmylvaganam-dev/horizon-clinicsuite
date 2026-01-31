@@ -18,6 +18,7 @@ export default function PatientForm({ open, onOpenChange, patient, onSubmit, isL
     gender: '',
     email: '',
     phone: '',
+    mobile: '',
     address: '',
     emergency_contact_name: '',
     emergency_contact_phone: '',
