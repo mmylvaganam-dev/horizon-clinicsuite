@@ -238,6 +238,20 @@ export default function PharmacyBilling() {
     }));
   };
 
+  const setQuantity = (stockId, value) => {
+    const qty = parseInt(value) || 1;
+    setCart(cart.map(item => {
+      if (item.stock_id === stockId) {
+        const newQty = Math.max(1, qty);
+        const profitMargin = item.mrp - item.unit_cost;
+        const discountFromProfit = (profitMargin * item.discount_percent) / 100;
+        const finalPrice = item.mrp - discountFromProfit;
+        return {...item, quantity: newQty, unit_price: finalPrice, total: newQty * finalPrice};
+      }
+      return item;
+    }));
+  };
+
   const updateItemDiscount = (stockId, discountPercent) => {
     const percent = Math.max(0, Math.min(15, discountPercent));
     setCart(cart.map(item => {
@@ -776,7 +790,13 @@ export default function PharmacyBilling() {
                         >
                           <Minus className="w-3 h-3" />
                         </Button>
-                        <span className="font-medium w-8 text-center text-sm">{item.quantity}</span>
+                        <Input
+                          type="number"
+                          value={item.quantity}
+                          onChange={(e) => setQuantity(item.stock_id, e.target.value)}
+                          className="h-6 w-14 text-center text-sm font-medium p-0"
+                          min="1"
+                        />
                         <Button
                           variant="outline"
                           size="icon"
