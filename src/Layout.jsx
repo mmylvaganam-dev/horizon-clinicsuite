@@ -186,6 +186,7 @@ export default function Layout({ children, currentPageName }) {
         { name: 'Organization Admin', page: 'Admin', icon: Settings, description: 'Organization administration - Staff, roles, branding, pricing, and configuration' },
         { name: 'Company Profile', page: 'FinanceCompanies', icon: Building2, description: 'Organization setup - Company details, branding, and business information' },
         { name: 'Pricing & Catalogs', page: 'PricingCatalogs', icon: DollarSign, description: 'Service pricing - Configure service fees, packages, and price lists' },
+        { name: 'Patient Edit Approvals', page: 'PatientEditApprovals', icon: CheckSquare, description: 'Review and approve patient information edit requests (Owner/Manager only)' },
       ]
     },
   ];

@@ -18,15 +18,24 @@ import {
   Phone,
   Mail,
   IdCard,
-  Calendar
+  Calendar,
+  FileEdit
 } from 'lucide-react';
 import { format } from 'date-fns';
 import PatientForm from '../components/patients/PatientForm';
+import RequestPatientEdit from '../components/patients/RequestPatientEdit';
 
 export default function PatientHub() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddPatient, setShowAddPatient] = useState(false);
+  const [showEditRequest, setShowEditRequest] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
 
   const { data: patients = [], isLoading } = useQuery({
     queryKey: ['patients'],
@@ -222,12 +231,13 @@ export default function PatientHub() {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="grid grid-cols-4 gap-2 pt-2 border-t">
+                  <div className="grid grid-cols-5 gap-2 pt-2 border-t">
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => navigate(`${createPageUrl('PatientDetails')}?id=${patient.id}`)}
                       className="text-xs"
+                      title="View Details"
                     >
                       <Users className="w-3 h-3" />
                     </Button>
@@ -236,6 +246,7 @@ export default function PatientHub() {
                       variant="outline"
                       onClick={() => navigate(`${createPageUrl('EMR')}?patient=${patient.id}`)}
                       className="text-xs"
+                      title="EMR"
                     >
                       <Stethoscope className="w-3 h-3" />
                     </Button>
@@ -244,6 +255,7 @@ export default function PatientHub() {
                       variant="outline"
                       onClick={() => navigate(createPageUrl('PharmacyBilling'))}
                       className="text-xs"
+                      title="Pharmacy"
                     >
                       <ShoppingBag className="w-3 h-3" />
                     </Button>
@@ -252,8 +264,22 @@ export default function PatientHub() {
                       variant="outline"
                       onClick={() => navigate(createPageUrl('HomeCarePatients'))}
                       className="text-xs"
+                      title="Home Care"
                     >
                       <Home className="w-3 h-3" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedPatient(patient);
+                        setShowEditRequest(true);
+                      }}
+                      className="text-xs"
+                      title="Request Edit"
+                    >
+                      <FileEdit className="w-3 h-3" />
                     </Button>
                   </div>
                 </CardContent>
@@ -271,6 +297,14 @@ export default function PatientHub() {
           await base44.entities.Patient.create(data);
           setShowAddPatient(false);
         }}
+      />
+
+      {/* Edit Request Dialog */}
+      <RequestPatientEdit
+        open={showEditRequest}
+        onOpenChange={setShowEditRequest}
+        patient={selectedPatient}
+        user={user}
       />
     </div>
   );
