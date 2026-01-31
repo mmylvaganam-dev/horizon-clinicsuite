@@ -305,7 +305,8 @@ export default function SalesWorkspace() {
   };
 
   return (
-    <div className="h-screen flex flex-col lg:flex-row bg-slate-50">
+    <>
+      <div className="h-screen flex flex-col lg:flex-row bg-slate-50">
       {/* Left - Services */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Bar */}
@@ -773,6 +774,6 @@ export default function SalesWorkspace() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 }
