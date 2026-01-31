@@ -792,19 +792,48 @@ export default function PharmacyBilling() {
         <div className="flex-1 flex flex-col overflow-hidden bg-slate-50">
           {/* Search Bar */}
           <div className="p-4 lg:p-6 bg-white border-b space-y-4 flex-shrink-0">
-            <div className="relative">
-              <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <Input
-                placeholder="Search patient or customer"
-                value={patientSearch}
-                onChange={(e) => setPatientSearch(e.target.value)}
-                onFocus={() => setShowPatientDialog(true)}
-                className="pl-12 h-11 text-base"
-              />
+            <div className="space-y-2">
+              <div className="relative">
+                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Input
+                  placeholder="Search patient or customer"
+                  value={patientSearch}
+                  onChange={(e) => setPatientSearch(e.target.value)}
+                  onFocus={() => setShowPatientDialog(true)}
+                  className="pl-12 h-11 text-base"
+                />
+                {(selectedPatient || selectedWalkIn) && (
+                  <Badge className="absolute right-3 top-1/2 -translate-y-1/2 bg-emerald-600">
+                    {selectedWalkIn && selectedWalkIn.discount_percentage > 0 ? `${selectedWalkIn.discount_percentage}%` : '✓'}
+                  </Badge>
+                )}
+              </div>
               {(selectedPatient || selectedWalkIn) && (
-                <Badge className="absolute right-3 top-1/2 -translate-y-1/2 bg-emerald-600">
-                  {selectedWalkIn && selectedWalkIn.discount_percentage > 0 ? `${selectedWalkIn.discount_percentage}%` : '✓'}
-                </Badge>
+                <div className="flex items-center justify-between bg-emerald-50 border border-emerald-200 rounded-lg p-2">
+                  <div className="text-sm">
+                    <p className="font-semibold text-emerald-900">
+                      {selectedPatient ? `${selectedPatient.first_name} ${selectedPatient.last_name}` : selectedWalkIn?.name}
+                    </p>
+                    {selectedPatient && (
+                      <p className="text-xs text-emerald-700">PHN: {selectedPatient.phn}</p>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                    onClick={() => {
+                      setSelectedPatient(null);
+                      setSelectedWalkIn(null);
+                      setPatientSearch('');
+                      setShowPatientDialog(true);
+                    }}
+                    title="Change patient"
+                  >
+                    <X className="w-4 h-4 mr-1" />
+                    Change
+                  </Button>
+                </div>
               )}
             </div>
 
