@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Loader2, Download, Database, History, RotateCcw } from 'lucide-react';
+import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Loader2, Download, Database, History, RotateCcw, Info } from 'lucide-react';
 import { format } from 'date-fns';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import toast from 'react-hot-toast';
 import * as XLSX from 'xlsx';
 
@@ -329,7 +330,52 @@ export default function PharmacyStockImport() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Upload Stock Data</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Upload Stock Data</CardTitle>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="p-2 hover:bg-slate-100 rounded-full transition-colors">
+                  <Info className="w-5 h-5 text-blue-600" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-96">
+                <div className="space-y-3">
+                  <h4 className="font-semibold text-slate-900">Excel Workbook Format Required</h4>
+                  <div className="space-y-2 text-sm text-slate-700">
+                    <p className="font-medium">Accepted Formats:</p>
+                    <ul className="list-disc pl-5 space-y-1">
+                      <li><strong>.xlsx</strong> - Excel Workbook (recommended)</li>
+                      <li><strong>.xls</strong> - Excel 97-2003</li>
+                      <li><strong>.csv</strong> - Comma-separated values</li>
+                    </ul>
+                    
+                    <p className="font-medium mt-3">Required Columns:</p>
+                    <ul className="list-disc pl-5 space-y-1 text-xs">
+                      <li>Legacy Id</li>
+                      <li>Barcode</li>
+                      <li>Batch No</li>
+                      <li>Display Name</li>
+                      <li>Generic name</li>
+                      <li>Expire date (YYYY-MM-DD)</li>
+                      <li>Quantity</li>
+                      <li>Unit Price</li>
+                      <li>Unit Cost</li>
+                      <li>MRP</li>
+                      <li>Quality status (usable/expired/damaged)</li>
+                      <li>Storage Status</li>
+                      <li>Purchased from supplier</li>
+                    </ul>
+                    
+                    <div className="bg-blue-50 border border-blue-200 rounded p-2 mt-3">
+                      <p className="text-xs text-blue-900">
+                        <strong>💡 Tip:</strong> Download the template below to see the correct format
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
