@@ -620,10 +620,12 @@ export default function PharmacyBilling() {
       return;
     }
     
+    const companyId = companies[0]?.id;
     sendInvoiceMutation.mutate({
       method: 'email',
       recipient: completedSale.customer_email,
-      sale_data: completedSale
+      sale_data: completedSale,
+      company_id: companyId
     });
   };
 
@@ -633,11 +635,37 @@ export default function PharmacyBilling() {
       return;
     }
     
+    const companyId = companies[0]?.id;
     sendInvoiceMutation.mutate({
       method: 'sms',
       recipient: completedSale.customer_phone,
-      sale_data: completedSale
+      sale_data: completedSale,
+      company_id: companyId
     });
+  };
+
+  const handlePrintAndEmail = () => {
+    handlePrintInvoice();
+    if (completedSale?.customer_email) {
+      handleEmailInvoice();
+    }
+  };
+
+  const handlePrintAndSMS = () => {
+    handlePrintInvoice();
+    if (completedSale?.customer_phone) {
+      handleSMSInvoice();
+    }
+  };
+
+  const handleAll = () => {
+    handlePrintInvoice();
+    if (completedSale?.customer_email) {
+      handleEmailInvoice();
+    }
+    if (completedSale?.customer_phone) {
+      handleSMSInvoice();
+    }
   };
 
   const handleCloseInvoiceDialog = () => {
@@ -1264,6 +1292,42 @@ export default function PharmacyBilling() {
                     <MessageSquare className="w-4 h-4 mr-2" />
                     SMS to {completedSale.customer_phone}
                   </Button>
+                )}
+
+                {(completedSale.customer_email || completedSale.customer_phone) && (
+                  <>
+                    <div className="border-t my-2"></div>
+                    {completedSale.customer_email && completedSale.customer_phone && (
+                      <Button 
+                        className="w-full justify-start bg-indigo-600 hover:bg-indigo-700 text-white" 
+                        onClick={handleAll}
+                        disabled={sendInvoiceMutation.isPending}
+                      >
+                        <Check className="w-4 h-4 mr-2" />
+                        Print, Email & SMS All
+                      </Button>
+                    )}
+                    {completedSale.customer_email && !completedSale.customer_phone && (
+                      <Button 
+                        className="w-full justify-start bg-indigo-600 hover:bg-indigo-700 text-white" 
+                        onClick={handlePrintAndEmail}
+                        disabled={sendInvoiceMutation.isPending}
+                      >
+                        <Check className="w-4 h-4 mr-2" />
+                        Print & Email
+                      </Button>
+                    )}
+                    {completedSale.customer_phone && !completedSale.customer_email && (
+                      <Button 
+                        className="w-full justify-start bg-indigo-600 hover:bg-indigo-700 text-white" 
+                        onClick={handlePrintAndSMS}
+                        disabled={sendInvoiceMutation.isPending}
+                      >
+                        <Check className="w-4 h-4 mr-2" />
+                        Print & SMS
+                      </Button>
+                    )}
+                  </>
                 )}
               </div>
 
