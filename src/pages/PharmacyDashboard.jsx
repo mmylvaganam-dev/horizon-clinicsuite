@@ -74,7 +74,7 @@ export default function PharmacyDashboard() {
     queryFn: () => base44.entities.CompanyProfile.list(),
   });
 
-  const currency = companies[0]?.base_currency || 'LKR';
+  const currency = companies && companies.length > 0 ? (companies[0]?.base_currency || 'LKR') : 'LKR';
 
   const getPatientName = (patientId) => {
     if (!patientId) return 'Walk-in Customer';
