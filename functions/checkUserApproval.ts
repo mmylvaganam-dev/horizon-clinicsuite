@@ -6,51 +6,25 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
 
     if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      return Response.json({ approved: false, error: 'Not authenticated' }, { status: 401 });
     }
 
-    // Check if user has approval record
-    const approvals = await base44.asServiceRole.entities.UserApproval.filter({
-      user_email: user.email
-    });
-
-    if (approvals.length === 0) {
-      // No approval record yet - create pending one
-      await base44.asServiceRole.entities.UserApproval.create({
-        user_email: user.email,
-        organization_id: user.organization_id || 'default',
-        status: 'pending'
-      });
-      return Response.json({ 
-        approved: false, 
-        status: 'pending',
-        message: 'Your access is pending admin approval'
-      });
-    }
-
-    const approval = approvals[0];
-    
-    if (approval.status === 'approved') {
+    // Platform owner (no restrictions)
+    const platformOwnerEmail = 'mylvaganam@premierhealthcanada.ca';
+    if (user.email === platformOwnerEmail) {
       return Response.json({ 
         approved: true, 
-        status: 'approved'
+        role: 'platform_owner',
+        user_email: user.email 
       });
     }
 
-    if (approval.status === 'rejected') {
-      return Response.json({ 
-        approved: false, 
-        status: 'rejected',
-        reason: approval.rejection_reason || 'Access denied'
-      });
-    }
-
+    // All other authenticated users are approved by default
     return Response.json({ 
-      approved: false, 
-      status: 'pending',
-      message: 'Your access is pending admin approval'
+      approved: true, 
+      role: 'user',
+      user_email: user.email 
     });
-
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
