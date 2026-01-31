@@ -228,7 +228,7 @@ export default function PharmacyBilling() {
   const updateQuantity = (stockId, change) => {
     setCart(cart.map(item => {
       if (item.stock_id === stockId) {
-        const newQty = Math.max(1, item.quantity + change);
+        const newQty = Math.max(0, item.quantity + change);
         const profitMargin = item.mrp - item.unit_cost;
         const discountFromProfit = (profitMargin * item.discount_percent) / 100;
         const finalPrice = item.mrp - discountFromProfit;
@@ -239,10 +239,10 @@ export default function PharmacyBilling() {
   };
 
   const setQuantity = (stockId, value) => {
-    const qty = parseInt(value) || 1;
+    const qty = parseInt(value) || 0;
     setCart(cart.map(item => {
       if (item.stock_id === stockId) {
-        const newQty = Math.max(1, qty);
+        const newQty = Math.max(0, qty);
         const profitMargin = item.mrp - item.unit_cost;
         const discountFromProfit = (profitMargin * item.discount_percent) / 100;
         const finalPrice = item.mrp - discountFromProfit;
@@ -932,7 +932,7 @@ export default function PharmacyBilling() {
                           value={item.quantity}
                           onChange={(e) => setQuantity(item.stock_id, e.target.value)}
                           className="h-6 w-14 text-center text-sm font-medium p-0"
-                          min="1"
+                          min="0"
                         />
                         <Button
                           variant="outline"
