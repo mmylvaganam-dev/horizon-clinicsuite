@@ -271,14 +271,14 @@ export default function PatientForm({ open, onOpenChange, patient, onSubmit, isL
           </Tabs>
 
           <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isLoading} className="bg-teal-600 hover:bg-teal-700">
-              {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              {patient ? 'Update Patient' : 'Add Patient'}
-            </Button>
-          </div>
+             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+               Cancel
+             </Button>
+             <Button type="submit" disabled={isLoading} className="bg-teal-600 hover:bg-teal-700">
+               {isLoading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+               {nameChanged ? 'Submit for Approval' : patient ? 'Update Patient' : 'Add Patient'}
+             </Button>
+           </div>
         </form>
       </DialogContent>
     </Dialog>
