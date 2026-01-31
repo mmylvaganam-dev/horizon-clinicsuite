@@ -31,9 +31,18 @@ export default function PatientForm({ open, onOpenChange, patient, onSubmit, isL
     notes: '',
   });
 
+  const isEditing = !!patient;
+  const firstNameChanged = isEditing && formData.first_name !== patient.first_name;
+  const lastNameChanged = isEditing && formData.last_name !== patient.last_name;
+  const nameChanged = firstNameChanged || lastNameChanged;
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    if (nameChanged) {
+      onRequestNameEdit?.(formData);
+    } else {
+      onSubmit(formData);
+    }
   };
 
   const updateField = (field, value) => {
