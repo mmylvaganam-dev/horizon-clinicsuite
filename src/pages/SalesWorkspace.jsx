@@ -316,22 +316,36 @@ export default function SalesWorkspace() {
         </div>
 
         {/* Search & Patient */}
-        <div className="p-3 lg:p-4 bg-white border-b space-y-3">
-          <div className="relative">
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input
-              placeholder="Search and select patient"
-              value={patientSearch}
-              onChange={(e) => setPatientSearch(e.target.value)}
-              onFocus={() => setShowPatientDialog(true)}
-              className="pl-10"
-            />
-            {selectedPatient && (
-              <Badge className="absolute right-2 top-1/2 -translate-y-1/2 bg-emerald-600">
-                ✓ {selectedPatient.phn}
-              </Badge>
-            )}
-          </div>
+         <div className="p-3 lg:p-4 bg-white border-b space-y-3">
+           <div className="relative">
+             <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+             <Input
+               placeholder="Search and select patient"
+               value={patientSearch}
+               onChange={(e) => setPatientSearch(e.target.value)}
+               onFocus={() => setShowPatientDialog(true)}
+               className="pl-10"
+             />
+             {selectedPatient && (
+               <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                 <Badge className="bg-emerald-600">
+                   ✓ {selectedPatient.phn}
+                 </Badge>
+                 <Button
+                   variant="ghost"
+                   size="icon"
+                   className="h-6 w-6 text-slate-400 hover:text-red-600"
+                   onClick={() => {
+                     setSelectedPatient(null);
+                     setPatientSearch('');
+                   }}
+                   title="Clear patient selection"
+                 >
+                   <X className="w-4 h-4" />
+                 </Button>
+               </div>
+             )}
+           </div>
 
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
