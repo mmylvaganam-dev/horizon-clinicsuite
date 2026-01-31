@@ -432,7 +432,9 @@ export default function PharmacyBilling() {
     
     setCompletedSale(saleData);
     setShowInvoiceDialog(true);
-    toast.success('Sale completed successfully');
+    setTimeout(() => {
+      toast.success('Sale completed successfully');
+    }, 100);
   };
 
   const handlePrintInvoice = () => {
