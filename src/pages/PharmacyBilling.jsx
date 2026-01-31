@@ -1259,7 +1259,7 @@ export default function PharmacyBilling() {
               </Button>
               <Button 
                 onClick={handleCreateWalkIn}
-                disabled={!walkInForm.first_name}
+                disabled={!walkInForm.first_name || !walkInForm.mobile}
               >
                 Register & Generate PHN
               </Button>
