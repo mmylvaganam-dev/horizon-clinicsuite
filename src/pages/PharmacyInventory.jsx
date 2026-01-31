@@ -44,10 +44,19 @@ export default function PharmacyInventory() {
   const [selectedStock, setSelectedStock] = useState(null);
   const [drugSearchOpen, setDrugSearchOpen] = useState(false);
   const [editStockForm, setEditStockForm] = useState({
+    legacy_id: '',
+    barcode: '',
+    batch_no: '',
+    display_name: '',
+    generic_name: '',
+    expire_date: '',
     quantity: 0,
+    unit_price: 0,
     unit_cost: 0,
     mrp: 0,
-    reason: ''
+    quality_status: 'usable',
+    storage_status: 'stored',
+    supplier: ''
   });
 
   const [receiveForm, setReceiveForm] = useState({
@@ -218,9 +227,19 @@ export default function PharmacyInventory() {
   const updateStockMutation = useMutation({
     mutationFn: async (data) => {
       await base44.entities.PharmacyStock.update(data.id, {
+        legacy_id: data.legacy_id,
+        barcode: data.barcode,
+        batch_no: data.batch_no,
+        display_name: data.display_name,
+        generic_name: data.generic_name,
+        expire_date: data.expire_date,
         quantity: data.quantity,
+        unit_price: data.unit_price,
         unit_cost: data.unit_cost,
-        mrp: data.mrp
+        mrp: data.mrp,
+        quality_status: data.quality_status,
+        storage_status: data.storage_status,
+        supplier: data.supplier
       });
       return data;
     },
@@ -229,7 +248,21 @@ export default function PharmacyInventory() {
       refetchPharmacyStock();
       setShowEditStockDialog(false);
       setSelectedStock(null);
-      setEditStockForm({ quantity: 0, unit_cost: 0, mrp: 0, reason: '' });
+      setEditStockForm({
+        legacy_id: '',
+        barcode: '',
+        batch_no: '',
+        display_name: '',
+        generic_name: '',
+        expire_date: '',
+        quantity: 0,
+        unit_price: 0,
+        unit_cost: 0,
+        mrp: 0,
+        quality_status: 'usable',
+        storage_status: 'stored',
+        supplier: ''
+      });
       toast.success('Stock updated successfully!');
     },
     onError: (error) => {
@@ -275,11 +308,13 @@ export default function PharmacyInventory() {
       toast.error('Quantity cannot be negative');
       return;
     }
+    if (!editStockForm.display_name.trim()) {
+      toast.error('Display name is required');
+      return;
+    }
     updateStockMutation.mutate({
       id: selectedStock.id,
-      quantity: editStockForm.quantity,
-      unit_cost: editStockForm.unit_cost,
-      mrp: editStockForm.mrp
+      ...editStockForm
     });
   };
 
@@ -775,10 +810,19 @@ export default function PharmacyInventory() {
                         onClick={() => {
                           setSelectedStock(item);
                           setEditStockForm({
-                            quantity: item.quantity,
+                            legacy_id: item.legacy_id || '',
+                            barcode: item.barcode || '',
+                            batch_no: item.batch_no || '',
+                            display_name: item.display_name || '',
+                            generic_name: item.generic_name || '',
+                            expire_date: item.expire_date || '',
+                            quantity: item.quantity || 0,
+                            unit_price: item.unit_price || 0,
                             unit_cost: item.unit_cost || 0,
                             mrp: item.mrp || 0,
-                            reason: ''
+                            quality_status: item.quality_status || 'usable',
+                            storage_status: item.storage_status || 'stored',
+                            supplier: item.supplier || ''
                           });
                           setShowEditStockDialog(true);
                         }}
@@ -1060,62 +1104,149 @@ export default function PharmacyInventory() {
 
       {/* Edit Stock Dialog */}
       <Dialog open={showEditStockDialog} onOpenChange={setShowEditStockDialog}>
-        <DialogContent>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit Stock: {selectedStock?.display_name}</DialogTitle>
+            <DialogTitle>Edit Stock Item</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 mt-4">
-            <div className="p-4 bg-slate-50 rounded-lg">
-              <p className="text-sm text-slate-500">Current Details</p>
-              <div className="grid grid-cols-3 gap-3 mt-2">
-                <div>
-                  <p className="text-xs text-slate-500">Quantity</p>
-                  <p className="text-lg font-bold text-slate-900">{selectedStock?.quantity}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">Unit Cost</p>
-                  <p className="text-lg font-bold text-slate-900">{currency} {selectedStock?.unit_cost}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">MRP</p>
-                  <p className="text-lg font-bold text-slate-900">{currency} {selectedStock?.mrp}</p>
-                </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Legacy ID</Label>
+                <Input
+                  value={editStockForm.legacy_id}
+                  onChange={(e) => setEditStockForm({...editStockForm, legacy_id: e.target.value})}
+                  placeholder="Legacy system ID"
+                />
               </div>
-              <p className="text-xs text-slate-500 mt-2 font-mono">Barcode: {selectedStock?.barcode}</p>
+              <div>
+                <Label>Barcode</Label>
+                <Input
+                  value={editStockForm.barcode}
+                  onChange={(e) => setEditStockForm({...editStockForm, barcode: e.target.value})}
+                  placeholder="Product barcode"
+                />
+              </div>
             </div>
+            
             <div>
-              <Label>Quantity *</Label>
+              <Label>Display Name *</Label>
               <Input
-                type="number"
-                min="0"
-                value={editStockForm.quantity}
-                onChange={(e) => setEditStockForm({...editStockForm, quantity: parseFloat(e.target.value) || 0})}
+                value={editStockForm.display_name}
+                onChange={(e) => setEditStockForm({...editStockForm, display_name: e.target.value})}
+                placeholder="Product display name"
               />
             </div>
+
             <div>
-              <Label>Unit Cost *</Label>
+              <Label>Generic Name</Label>
               <Input
-                type="number"
-                min="0"
-                step="0.01"
-                value={editStockForm.unit_cost}
-                onChange={(e) => setEditStockForm({...editStockForm, unit_cost: parseFloat(e.target.value) || 0})}
+                value={editStockForm.generic_name}
+                onChange={(e) => setEditStockForm({...editStockForm, generic_name: e.target.value})}
+                placeholder="Generic/Chemical name"
               />
             </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Batch No</Label>
+                <Input
+                  value={editStockForm.batch_no}
+                  onChange={(e) => setEditStockForm({...editStockForm, batch_no: e.target.value})}
+                  placeholder="Batch number"
+                />
+              </div>
+              <div>
+                <Label>Expire Date</Label>
+                <Input
+                  type="date"
+                  value={editStockForm.expire_date}
+                  onChange={(e) => setEditStockForm({...editStockForm, expire_date: e.target.value})}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Quantity *</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  value={editStockForm.quantity}
+                  onChange={(e) => setEditStockForm({...editStockForm, quantity: parseFloat(e.target.value) || 0})}
+                />
+              </div>
+              <div>
+                <Label>Unit Price</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={editStockForm.unit_price}
+                  onChange={(e) => setEditStockForm({...editStockForm, unit_price: parseFloat(e.target.value) || 0})}
+                  placeholder="Unit price"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Unit Cost *</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={editStockForm.unit_cost}
+                  onChange={(e) => setEditStockForm({...editStockForm, unit_cost: parseFloat(e.target.value) || 0})}
+                />
+              </div>
+              <div>
+                <Label>MRP (Selling Price) *</Label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={editStockForm.mrp}
+                  onChange={(e) => setEditStockForm({...editStockForm, mrp: parseFloat(e.target.value) || 0})}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Quality Status *</Label>
+                <Select value={editStockForm.quality_status} onValueChange={(val) => setEditStockForm({...editStockForm, quality_status: val})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="usable">Usable</SelectItem>
+                    <SelectItem value="expired">Expired</SelectItem>
+                    <SelectItem value="damaged">Damaged</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Storage Status</Label>
+                <Input
+                  value={editStockForm.storage_status}
+                  onChange={(e) => setEditStockForm({...editStockForm, storage_status: e.target.value})}
+                  placeholder="Storage status"
+                />
+              </div>
+            </div>
+
             <div>
-              <Label>MRP (Selling Price) *</Label>
+              <Label>Supplier</Label>
               <Input
-                type="number"
-                min="0"
-                step="0.01"
-                value={editStockForm.mrp}
-                onChange={(e) => setEditStockForm({...editStockForm, mrp: parseFloat(e.target.value) || 0})}
+                value={editStockForm.supplier}
+                onChange={(e) => setEditStockForm({...editStockForm, supplier: e.target.value})}
+                placeholder="Purchased from supplier"
               />
             </div>
-            <div className="flex justify-end gap-3">
+
+            <div className="flex justify-end gap-3 pt-4 border-t">
               <Button variant="outline" onClick={() => {
                 setShowEditStockDialog(false);
-                setEditStockForm({ quantity: 0, unit_cost: 0, mrp: 0, reason: '' });
               }}>
                 Cancel
               </Button>
