@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { 
@@ -34,14 +34,33 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 
 export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userApproved, setUserApproved] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkApproval = async () => {
+      try {
+        const response = await base44.functions.invoke('checkUserApproval');
+        if (!response.data.approved) {
+          navigate(createPageUrl('AccessPending'));
+        } else {
+          setUserApproved(true);
+        }
+      } catch (error) {
+        console.error('Error checking approval:', error);
+      }
+    };
+    checkApproval();
+  }, [navigate]);
 
   const { data: branding } = useQuery({
     queryKey: ['organizationBranding'],
     queryFn: async () => {
+      if (!userApproved) return null;
       const brandings = await base44.entities.OrganizationBranding.list();
       return brandings[0];
     },
+    enabled: userApproved !== false,
   });
 
   const navigationGroups = [
