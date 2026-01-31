@@ -154,11 +154,30 @@ export default function PharmacyInventory() {
 
   const zeroStockItems = pharmacyStock.filter(item => item.quantity === 0);
 
-  const displayedStock = showExpiredOnly ? expiredItems : 
-                         showExpiringOnly ? expiringItems :
-                         showZeroStockOnly ? zeroStockItems : 
-                         showLowStockOnly ? lowStockPharmacyItems : 
-                         pharmacyStock;
+  // Sort function - alphabetically for most, by expiry date for expiring items
+  const sortStock = (items, isExpiringView) => {
+    if (isExpiringView) {
+      // Sort by expiration date (soonest first)
+      return [...items].sort((a, b) => {
+        const dateA = a.expire_date ? new Date(a.expire_date) : new Date(9999, 11, 31);
+        const dateB = b.expire_date ? new Date(b.expire_date) : new Date(9999, 11, 31);
+        return dateA - dateB;
+      });
+    } else {
+      // Sort alphabetically by display_name
+      return [...items].sort((a, b) => {
+        const nameA = (a.display_name || '').toLowerCase();
+        const nameB = (b.display_name || '').toLowerCase();
+        return nameA.localeCompare(nameB);
+      });
+    }
+  };
+
+  const displayedStock = showExpiredOnly ? sortStock(expiredItems, false) : 
+                         showExpiringOnly ? sortStock(expiringItems, true) :
+                         showZeroStockOnly ? sortStock(zeroStockItems, false) : 
+                         showLowStockOnly ? sortStock(lowStockPharmacyItems, false) : 
+                         sortStock(pharmacyStock, false);
 
   const receiveInventoryMutation = useMutation({
     mutationFn: (data) => {
