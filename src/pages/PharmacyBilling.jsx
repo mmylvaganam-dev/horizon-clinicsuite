@@ -292,7 +292,7 @@ export default function PharmacyBilling() {
       setSelectedPatient(newPatient);
       setPatientSearch(`${newPatient.first_name} ${newPatient.last_name}`);
       setShowWalkInDialog(false);
-      setWalkInForm({ first_name: '', last_name: '', phone: '', date_of_birth: '', gender: '' });
+      setWalkInForm({ first_name: '', last_name: '', phone: '', mobile: '', date_of_birth: '', gender: '' });
       setShowPHNCard(true);
       toast.success('Walk-in patient registered with PHN!');
     }
