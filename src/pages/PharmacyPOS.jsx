@@ -546,6 +546,16 @@ export default function PharmacyPOS() {
                       <p className="font-medium text-slate-900">
                         {getPatientName(sale.patient_id)}
                       </p>
+                      {sale.patient_id && (() => {
+                        const patient = patients.find(p => p.id === sale.patient_id);
+                        return patient ? (
+                          <p className="text-xs text-blue-600 mt-1">
+                            {patient.phone && `📞 ${patient.phone}`}
+                            {patient.phone && patient.mobile && ' | '}
+                            {patient.mobile && `📱 ${patient.mobile}`}
+                          </p>
+                        ) : null;
+                      })()}
                       <p className="text-sm text-slate-500">
                         {new Date(sale.sale_date).toLocaleString()}
                       </p>
