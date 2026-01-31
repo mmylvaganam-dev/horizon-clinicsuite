@@ -9,9 +9,12 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
-    const platformOwnerEmail = 'mylvaganam@premierhealthcanada.ca';
+    const platformOwnerEmails = [
+      'mylvaganam@premierhealthcanada.ca',
+      'mmylvaganam@premierhealthcanada.ca'
+    ];
     
-    if (user.email === platformOwnerEmail) {
+    if (platformOwnerEmails.includes(user.email)) {
       return Response.json({ 
         access_level: 'platform_owner',
         can_view_all_organizations: true,

@@ -10,12 +10,16 @@ Deno.serve(async (req) => {
     }
 
     // Platform owner (no restrictions)
-    const platformOwnerEmail = 'mylvaganam@premierhealthcanada.ca';
-    if (user.email === platformOwnerEmail) {
+    const platformOwnerEmails = [
+      'mylvaganam@premierhealthcanada.ca',
+      'mmylvaganam@premierhealthcanada.ca'
+    ];
+    if (platformOwnerEmails.includes(user.email)) {
       return Response.json({ 
         approved: true, 
         role: 'platform_owner',
-        user_email: user.email 
+        user_email: user.email,
+        has_unrestricted_access: true
       });
     }
 
