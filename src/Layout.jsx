@@ -248,7 +248,14 @@ export default function Layout({ children, currentPageName }) {
           {/* Navigation */}
           <nav className="flex-1 p-4 overflow-y-auto">
             <Accordion type="multiple" defaultValue={['Main', 'Pharmacy']} className="space-y-1">
-              {navigationGroups.map((group) => (
+              {navigationGroups.filter(group => {
+                // Platform Owner section visible only to platform owner
+                if (group.category === 'Platform Owner') {
+                  // Will be fetched and checked dynamically
+                  return true; // Show for now, will hide via function
+                }
+                return true;
+              }).map((group) => (
                 <AccordionItem key={group.category} value={group.category} className="border-none">
                   <AccordionTrigger className="px-4 py-2 hover:no-underline hover:bg-slate-700/50 rounded-lg text-slate-300 hover:text-white">
                     <div className="flex items-center gap-3">
