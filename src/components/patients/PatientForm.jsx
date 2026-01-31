@@ -59,7 +59,16 @@ export default function PatientForm({ open, onOpenChange, patient, onSubmit, isL
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          <Tabs defaultValue="personal" className="w-full">
+           {isEditing && nameChanged && (
+             <Alert className="border-amber-200 bg-amber-50">
+               <AlertCircle className="h-4 w-4 text-amber-600" />
+               <AlertDescription className="text-amber-800">
+                 First and Last name changes require approval. Click "Submit for Approval" to request this change.
+               </AlertDescription>
+             </Alert>
+           )}
+
+           <Tabs defaultValue="personal" className="w-full">
             <TabsList className="grid w-full grid-cols-4 mb-6">
               <TabsTrigger value="personal" className="flex items-center gap-2">
                 <User className="w-4 h-4" />
