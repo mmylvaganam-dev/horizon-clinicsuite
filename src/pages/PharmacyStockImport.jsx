@@ -5,8 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Loader2, Download } from 'lucide-react';
+import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Loader2, Download, Database } from 'lucide-react';
 import toast from 'react-hot-toast';
+import * as XLSX from 'xlsx';
 
 export default function PharmacyStockImport() {
   const [file, setFile] = useState(null);
@@ -27,11 +28,13 @@ export default function PharmacyStockImport() {
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
-      if (selectedFile.name.endsWith('.csv')) {
+      const validExtensions = ['.csv', '.xlsx', '.xls'];
+      const isValid = validExtensions.some(ext => selectedFile.name.toLowerCase().endsWith(ext));
+      if (isValid) {
         setFile(selectedFile);
         setImportResult(null);
       } else {
-        toast.error('Please upload a CSV file (.csv)');
+        toast.error('Please upload a CSV or Excel file (.csv, .xlsx, .xls)');
       }
     }
   };
@@ -44,47 +47,76 @@ export default function PharmacyStockImport() {
 
     setUploading(true);
     try {
-      // Upload the file
-      const uploadResponse = await base44.integrations.Core.UploadFile({ file });
-      const fileUrl = uploadResponse.file_url;
+      let items = [];
 
-      // Extract data from the file
-      const extractResponse = await base44.integrations.Core.ExtractDataFromUploadedFile({
-        file_url: fileUrl,
-        json_schema: {
-          type: "object",
-          properties: {
-            items: {
-              type: "array",
+      // Check if it's an Excel file
+      if (file.name.toLowerCase().endsWith('.xlsx') || file.name.toLowerCase().endsWith('.xls')) {
+        // Read Excel file directly
+        const data = await file.arrayBuffer();
+        const workbook = XLSX.read(data);
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+        // Map Excel columns to our schema
+        items = jsonData.map(row => ({
+          legacy_id: row['Legacy Id'] || row['legacy_id'] || '',
+          barcode: row['Barcode'] || row['barcode'] || '',
+          batch_no: row['Batch No'] || row['batch_no'] || '',
+          display_name: row['Display Name'] || row['display_name'] || '',
+          generic_name: row['Generic name'] || row['generic_name'] || '',
+          expire_date: row['Expire date'] || row['expire_date'] || null,
+          quantity: parseFloat(row['Quantity'] || row['quantity'] || 0),
+          unit_price: parseFloat(row['Unit Price'] || row['unit_price'] || 0),
+          unit_cost: parseFloat(row['Unit Cost'] || row['unit_cost'] || 0),
+          mrp: parseFloat(row['MRP'] || row['mrp'] || 0),
+          quality_status: (row['Quality status'] || row['quality_status'] || 'usable').toLowerCase(),
+          storage_status: row['Storage Status'] || row['storage_status'] || 'stored',
+          supplier: row['Purchased from supplier'] || row['supplier'] || ''
+        }));
+      } else {
+        // CSV - use AI extraction
+        const uploadResponse = await base44.integrations.Core.UploadFile({ file });
+        const fileUrl = uploadResponse.file_url;
+
+        const extractResponse = await base44.integrations.Core.ExtractDataFromUploadedFile({
+          file_url: fileUrl,
+          json_schema: {
+            type: "object",
+            properties: {
               items: {
-                type: "object",
-                properties: {
-                  legacy_id: { type: "string" },
-                  barcode: { type: "string" },
-                  batch_no: { type: "string" },
-                  display_name: { type: "string" },
-                  expire_date: { type: "string" },
-                  quantity: { type: "number" },
-                  unit_price: { type: "number" },
-                  unit_cost: { type: "number" },
-                  mrp: { type: "number" },
-                  quality_status: { type: "string" },
-                  storage_status: { type: "string" },
-                  supplier: { type: "string" }
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    legacy_id: { type: "string" },
+                    barcode: { type: "string" },
+                    batch_no: { type: "string" },
+                    display_name: { type: "string" },
+                    generic_name: { type: "string" },
+                    expire_date: { type: "string" },
+                    quantity: { type: "number" },
+                    unit_price: { type: "number" },
+                    unit_cost: { type: "number" },
+                    mrp: { type: "number" },
+                    quality_status: { type: "string" },
+                    storage_status: { type: "string" },
+                    supplier: { type: "string" }
+                  }
                 }
               }
             }
           }
+        });
+
+        if (extractResponse.status === 'error') {
+          toast.error('Failed to extract data: ' + extractResponse.details);
+          setImportResult({ status: 'error', message: extractResponse.details });
+          return;
         }
-      });
 
-      if (extractResponse.status === 'error') {
-        toast.error('Failed to extract data: ' + extractResponse.details);
-        setImportResult({ status: 'error', message: extractResponse.details });
-        return;
+        items = extractResponse.output?.items || extractResponse.output || [];
       }
-
-      const items = extractResponse.output?.items || extractResponse.output || [];
       
       if (!Array.isArray(items) || items.length === 0) {
         toast.error('No valid data found in the file');
@@ -99,6 +131,7 @@ export default function PharmacyStockImport() {
         barcode: item.barcode || '',
         batch_no: item.batch_no || '',
         display_name: item.display_name || '',
+        generic_name: item.generic_name || '',
         expire_date: item.expire_date || null,
         quantity: parseFloat(item.quantity) || 0,
         unit_price: parseFloat(item.unit_price) || 0,
@@ -129,17 +162,100 @@ export default function PharmacyStockImport() {
   };
 
   const downloadTemplate = () => {
-    const csvContent = `Legacy Id,Barcode,Batch No,Display Name,Expire date,Quantity,Unit Price,Unit Cost,MRP,Quality Status,Storage Status,Purchased from supplier
-DC0700017697,INV0000121685,5027428220,Resourse Diabetic Vanilla 400g,2027-01-17,1,6483,6483,7131.3,usable,stored,VANIKAA MEDICALS
-DC0700017699,INV0000121682,43049510B1,S-26 GOLD Powder No2,2026-10-30,3,3153.15,3153.15,3500,usable,stored,VANIKAA MEDICALS`;
+    const templateData = [
+      {
+        'Legacy Id': 'DC0700017697',
+        'Barcode': 'INV0000121685',
+        'Batch No': '5027428220',
+        'Display Name': 'Resourse Diabetic Vanilla 400g',
+        'Generic name': 'Nutritional Supplement',
+        'Expire date': '2027-01-17',
+        'Quantity': 1,
+        'Unit Price': 6483,
+        'Unit Cost': 6483,
+        'MRP': 7131.3,
+        'Quality status': 'usable',
+        'Storage Status': 'stored',
+        'Purchased from supplier': 'VANIKAA MEDICALS'
+      },
+      {
+        'Legacy Id': 'DC0700017699',
+        'Barcode': 'INV0000121682',
+        'Batch No': '43049510B1',
+        'Display Name': 'S-26 GOLD Powder No2',
+        'Generic name': 'Infant Formula',
+        'Expire date': '2026-10-30',
+        'Quantity': 3,
+        'Unit Price': 3153.15,
+        'Unit Cost': 3153.15,
+        'MRP': 3500,
+        'Quality status': 'usable',
+        'Storage Status': 'stored',
+        'Purchased from supplier': 'VANIKAA MEDICALS'
+      }
+    ];
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'pharmacy_stock_template.csv';
-    a.click();
-    window.URL.revokeObjectURL(url);
+    const worksheet = XLSX.utils.json_to_sheet(templateData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Stock Template');
+    
+    // Set column widths
+    worksheet['!cols'] = [
+      { wch: 15 }, // Legacy Id
+      { wch: 15 }, // Barcode
+      { wch: 12 }, // Batch No
+      { wch: 30 }, // Display Name
+      { wch: 20 }, // Generic name
+      { wch: 12 }, // Expire date
+      { wch: 10 }, // Quantity
+      { wch: 12 }, // Unit Price
+      { wch: 12 }, // Unit Cost
+      { wch: 12 }, // MRP
+      { wch: 15 }, // Quality status
+      { wch: 15 }, // Storage Status
+      { wch: 25 }  // Purchased from supplier
+    ];
+
+    XLSX.writeFile(workbook, 'pharmacy_stock_template.xlsx');
+    toast.success('Template downloaded');
+  };
+
+  const downloadCurrentStock = () => {
+    if (stockItems.length === 0) {
+      toast.error('No stock data to export');
+      return;
+    }
+
+    const exportData = stockItems.map(item => ({
+      'Legacy Id': item.legacy_id || '',
+      'Barcode': item.barcode || '',
+      'Batch No': item.batch_no || '',
+      'Display Name': item.display_name || '',
+      'Generic name': item.generic_name || '',
+      'Expire date': item.expire_date || '',
+      'Quantity': item.quantity || 0,
+      'Unit Price': item.unit_price || 0,
+      'Unit Cost': item.unit_cost || 0,
+      'MRP': item.mrp || 0,
+      'Quality status': item.quality_status || 'usable',
+      'Storage Status': item.storage_status || 'stored',
+      'Purchased from supplier': item.supplier || ''
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Stock Data');
+    
+    // Set column widths
+    worksheet['!cols'] = [
+      { wch: 15 }, { wch: 15 }, { wch: 12 }, { wch: 30 }, { wch: 20 },
+      { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
+      { wch: 15 }, { wch: 15 }, { wch: 25 }
+    ];
+
+    const today = new Date().toISOString().split('T')[0];
+    XLSX.writeFile(workbook, `pharmacy_stock_${today}.xlsx`);
+    toast.success(`Exported ${exportData.length} items`);
   };
 
   return (
@@ -153,16 +269,28 @@ DC0700017699,INV0000121682,43049510B1,S-26 GOLD Powder No2,2026-10-30,3,3153.15,
         <CardContent className="pt-6">
           <div className="flex items-start gap-3">
             <FileSpreadsheet className="w-5 h-5 text-blue-600 mt-0.5" />
-            <div>
-              <p className="font-semibold text-blue-900 mb-2">CSV File Format</p>
-              <p className="text-sm text-blue-700">
-                Your CSV file should contain the following columns: Legacy Id, Barcode, Batch No, Display Name, 
-                Expire date, Quantity, Unit Price, Unit Cost, MRP, Quality Status, Storage Status, Purchased from supplier
+            <div className="flex-1">
+              <p className="font-semibold text-blue-900 mb-2">Excel/CSV File Format</p>
+              <p className="text-sm text-blue-700 mb-3">
+                Your file should contain these columns: Legacy Id, Barcode, Batch No, Display Name, Generic name,
+                Expire date, Quantity, Unit Price, Unit Cost, MRP, Quality status, Storage Status, Purchased from supplier
               </p>
-              <Button variant="outline" size="sm" onClick={downloadTemplate} className="mt-3">
-                <Download className="w-4 h-4 mr-2" />
-                Download Template
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={downloadTemplate} className="bg-white">
+                  <Download className="w-4 h-4 mr-2" />
+                  Download Template
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={downloadCurrentStock}
+                  disabled={stockItems.length === 0}
+                  className="bg-white"
+                >
+                  <Database className="w-4 h-4 mr-2" />
+                  Export Current Stock
+                </Button>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -176,7 +304,7 @@ DC0700017699,INV0000121682,43049510B1,S-26 GOLD Powder No2,2026-10-30,3,3153.15,
           <div>
             <Input
               type="file"
-              accept=".csv"
+              accept=".csv,.xlsx,.xls"
               onChange={handleFileChange}
               className="cursor-pointer"
             />
