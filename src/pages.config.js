@@ -169,6 +169,7 @@ import TaskManagement from './pages/TaskManagement';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
+import AccessPending from './pages/AccessPending';
 import __Layout from './Layout.jsx';
 
 
@@ -295,6 +296,7 @@ export const PAGES = {
     "ThirdPartyProviders": ThirdPartyProviders,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
+    "AccessPending": AccessPending,
 }
 
 export const pagesConfig = {
