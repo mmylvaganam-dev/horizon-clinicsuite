@@ -82,7 +82,7 @@ export default function SalesWorkspace() {
     queryFn: () => base44.entities.CompanyProfile.list(),
   });
 
-  const currency = companies[0]?.base_currency || 'LKR';
+  const currency = 'Rs';
 
   // Add item to cart
   const addToCart = (item, type) => {

@@ -127,7 +127,7 @@ export default function PharmacyBilling() {
     },
   });
 
-  const currency = companies[0]?.base_currency || 'LKR';
+  const currency = 'Rs';
   const [billDiscountPercent, setBillDiscountPercent] = useState(0);
   
   // Set default category
