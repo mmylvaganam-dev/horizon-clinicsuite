@@ -9,8 +9,65 @@ import jsPDF from 'jspdf';
 export default function PHNCard({ open, onOpenChange, patient, branding }) {
   const cardRef = useRef(null);
 
-  const handlePrint = () => {
-    window.print();
+  const handlePrint = async () => {
+    const cardElement = cardRef.current;
+    if (!cardElement) return;
+
+    // Create a canvas from the card
+    const canvas = await html2canvas(cardElement, {
+      scale: 3,
+      backgroundColor: '#ffffff',
+      logging: false
+    });
+
+    // Open a new window for printing
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Print PHN Card - ${patient?.phn || 'Patient'}</title>
+          <style>
+            @page {
+              size: 85.6mm 53.98mm;
+              margin: 0;
+            }
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            body {
+              margin: 0;
+              padding: 0;
+            }
+            img {
+              width: 85.6mm;
+              height: 53.98mm;
+              display: block;
+              page-break-after: always;
+            }
+            @media print {
+              body {
+                margin: 0;
+                padding: 0;
+              }
+            }
+          </style>
+        </head>
+        <body>
+          <img src="${canvas.toDataURL('image/png')}" alt="PHN Card" />
+        </body>
+      </html>
+    `);
+    
+    printWindow.document.close();
+    
+    // Wait for image to load then print
+    setTimeout(() => {
+      printWindow.focus();
+      printWindow.print();
+    }, 250);
   };
 
   const handleDownloadPDF = async () => {
@@ -18,15 +75,16 @@ export default function PHNCard({ open, onOpenChange, patient, branding }) {
     if (!cardElement) return;
 
     const canvas = await html2canvas(cardElement, {
-      scale: 2,
-      backgroundColor: '#ffffff'
+      scale: 3,
+      backgroundColor: '#ffffff',
+      logging: false
     });
 
     const imgData = canvas.toDataURL('image/png');
     const pdf = new jsPDF({
-      orientation: 'portrait',
+      orientation: 'landscape',
       unit: 'mm',
-      format: [85.6, 53.98] // Credit card size
+      format: [53.98, 85.6] // Credit card size (width x height)
     });
 
     pdf.addImage(imgData, 'PNG', 0, 0, 85.6, 53.98);
@@ -46,54 +104,59 @@ export default function PHNCard({ open, onOpenChange, patient, branding }) {
           {/* Card Preview */}
           <div 
             ref={cardRef}
-            className="bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg p-6 text-white shadow-xl"
-            style={{ width: '100%', aspectRatio: '1.586' }}
+            className="bg-gradient-to-br from-teal-500 to-blue-600 rounded-lg text-white shadow-xl"
+            style={{ 
+              width: '100%', 
+              aspectRatio: '1.586',
+              padding: '5%',
+              fontSize: 'clamp(10px, 2.5vw, 14px)'
+            }}
           >
             {/* Header */}
-            <div className="flex items-start justify-between mb-4">
+            <div className="flex items-start justify-between" style={{ marginBottom: '4%' }}>
               <div>
                 {branding?.primary_logo_file_ref ? (
                   <img 
                     src={branding.primary_logo_file_ref} 
                     alt="Logo" 
-                    className="h-10 w-auto"
+                    style={{ height: '8%', maxHeight: '30px', width: 'auto' }}
                   />
                 ) : (
-                  <div className="text-lg font-bold">Health Card</div>
+                  <div style={{ fontSize: '1.2em', fontWeight: 'bold' }}>Health Card</div>
                 )}
               </div>
-              <div className="text-right text-xs opacity-90">
+              <div className="text-right" style={{ fontSize: '0.75em', opacity: 0.9 }}>
                 <div>Patient Health Number</div>
               </div>
             </div>
 
             {/* PHN Number */}
-            <div className="mb-4">
-              <div className="text-2xl font-bold tracking-wider mb-1">
+            <div style={{ marginBottom: '4%' }}>
+              <div style={{ fontSize: '1.6em', fontWeight: 'bold', letterSpacing: '0.05em', marginBottom: '2%' }}>
                 {patient.phn || 'PHN00000000'}
               </div>
-              <div className="h-px bg-white/30 w-full"></div>
+              <div style={{ height: '1px', background: 'rgba(255,255,255,0.3)', width: '100%' }}></div>
             </div>
 
             {/* Patient Info */}
-            <div className="space-y-2 text-sm">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2%', fontSize: '0.9em' }}>
               <div>
-                <div className="text-xs opacity-75">Name</div>
-                <div className="font-semibold">
+                <div style={{ fontSize: '0.7em', opacity: 0.75 }}>Name</div>
+                <div style={{ fontWeight: 600 }}>
                   {patient.first_name} {patient.last_name}
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4%' }}>
                 <div>
-                  <div className="text-xs opacity-75">DOB</div>
-                  <div className="font-medium">
+                  <div style={{ fontSize: '0.7em', opacity: 0.75 }}>DOB</div>
+                  <div style={{ fontWeight: 500 }}>
                     {patient.date_of_birth ? format(new Date(patient.date_of_birth), 'dd/MM/yyyy') : 'N/A'}
                   </div>
                 </div>
                 <div>
-                  <div className="text-xs opacity-75">Gender</div>
-                  <div className="font-medium capitalize">
+                  <div style={{ fontSize: '0.7em', opacity: 0.75 }}>Gender</div>
+                  <div style={{ fontWeight: 500, textTransform: 'capitalize' }}>
                     {patient.gender || 'N/A'}
                   </div>
                 </div>
@@ -101,18 +164,17 @@ export default function PHNCard({ open, onOpenChange, patient, branding }) {
 
               {patient.phone && (
                 <div>
-                  <div className="text-xs opacity-75">Contact</div>
-                  <div className="font-medium">{patient.phone}</div>
+                  <div style={{ fontSize: '0.7em', opacity: 0.75 }}>Contact</div>
+                  <div style={{ fontWeight: 500 }}>{patient.phone}</div>
                 </div>
               )}
             </div>
 
             {/* Barcode Area */}
-            <div className="mt-4 pt-3 border-t border-white/20">
-              <div className="bg-white rounded px-2 py-1 text-center">
+            <div style={{ marginTop: '4%', paddingTop: '3%', borderTop: '1px solid rgba(255,255,255,0.2)' }}>
+              <div style={{ background: 'white', borderRadius: '4px', padding: '2% 2%', textAlign: 'center' }}>
                 <svg 
-                  className="mx-auto h-8"
-                  style={{ width: '100%' }}
+                  style={{ margin: '0 auto', height: '25px', width: '100%' }}
                   viewBox="0 0 200 40"
                 >
                   {/* Simple barcode representation */}
@@ -127,7 +189,7 @@ export default function PHNCard({ open, onOpenChange, patient, branding }) {
                     />
                   ))}
                 </svg>
-                <div className="text-xs text-slate-900 mt-1 font-mono">
+                <div style={{ fontSize: '0.65em', color: '#1e293b', marginTop: '2%', fontFamily: 'monospace', fontWeight: 600 }}>
                   {patient.phn || 'PHN00000000'}
                 </div>
               </div>
@@ -151,21 +213,7 @@ export default function PHNCard({ open, onOpenChange, patient, branding }) {
           </p>
         </div>
 
-        <style jsx>{`
-          @media print {
-            body * {
-              visibility: hidden;
-            }
-            ${cardRef.current && `#${cardRef.current.id}`}, ${cardRef.current && `#${cardRef.current.id}`} * {
-              visibility: visible;
-            }
-            ${cardRef.current && `#${cardRef.current.id}`} {
-              position: absolute;
-              left: 0;
-              top: 0;
-            }
-          }
-        `}</style>
+
       </DialogContent>
     </Dialog>
   );
