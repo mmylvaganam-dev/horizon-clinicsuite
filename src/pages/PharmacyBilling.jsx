@@ -1209,14 +1209,24 @@ export default function PharmacyBilling() {
                 />
               </div>
             </div>
-            <div>
-              <Label>Phone Number</Label>
-              <Input
-                value={walkInForm.phone}
-                onChange={(e) => setWalkInForm({ ...walkInForm, phone: e.target.value })}
-                placeholder="Phone number"
-              />
-            </div>
+            <div className="grid grid-cols-2 gap-4">
+               <div>
+                 <Label>Home Phone</Label>
+                 <Input
+                   value={walkInForm.phone}
+                   onChange={(e) => setWalkInForm({ ...walkInForm, phone: e.target.value })}
+                   placeholder="Optional"
+                 />
+               </div>
+               <div>
+                 <Label>Mobile Phone *</Label>
+                 <Input
+                   value={walkInForm.mobile}
+                   onChange={(e) => setWalkInForm({ ...walkInForm, mobile: e.target.value })}
+                   placeholder="For SMS"
+                 />
+               </div>
+             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label>Date of Birth</Label>
