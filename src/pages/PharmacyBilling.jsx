@@ -1371,6 +1371,13 @@ export default function PharmacyBilling() {
                   )}
                 </Button>
 
+                {!completedSale.customer_email && !completedSale.customer_phone && (
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex gap-2">
+                    <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-amber-700">No email or phone number available. Print invoice only.</p>
+                  </div>
+                )}
+
                 {(completedSale.customer_email || completedSale.customer_phone) && (
                   <>
                     <div className="border-t my-2"></div>
