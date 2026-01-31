@@ -299,14 +299,13 @@ export default function PatientHub() {
         )}
       </div>
 
-      {/* Add Patient Form */}
+      {/* Add/Edit Patient Form */}
       <PatientForm
         open={showAddPatient}
         onOpenChange={setShowAddPatient}
-        onSubmit={async (data) => {
-          await base44.entities.Patient.create(data);
-          setShowAddPatient(false);
-        }}
+        patient={selectedPatient}
+        onSubmit={handleEditPatient}
+        onRequestNameEdit={handleNameEditRequest}
       />
 
       {/* Edit Request Dialog */}
