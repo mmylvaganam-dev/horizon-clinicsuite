@@ -573,18 +573,31 @@ export default function PharmacyPOS() {
                       </p>
                     </div>
                     {sale.status === 'completed' && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedSale(sale);
-                          setShowRefundDialog(true);
-                        }}
-                      >
-                        <RefreshCw className="w-4 h-4 mr-2" />
-                        Refund/Void
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePrintInvoice(sale.id);
+                          }}
+                        >
+                          <Printer className="w-4 h-4 mr-2" />
+                          Print
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedSale(sale);
+                            setShowRefundDialog(true);
+                          }}
+                        >
+                          <RefreshCw className="w-4 h-4 mr-2" />
+                          Refund/Void
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </Card>
