@@ -26,9 +26,9 @@ Deno.serve(async (req) => {
     let attempts = 0;
     
     while (!isUnique && attempts < 10) {
-      // Generate PHN in format: COMPANY_CODE-PHN-6digits (e.g., AR-PHN-000001)
-      const randomDigits = Math.floor(100000 + Math.random() * 900000);
-      phn = `${company.company_code}-PHN-${randomDigits.toString().padStart(6, '0')}`;
+      // Generate PHN in format: PHN-COMPANY_CODE-sequential (e.g., PHN-AHC-000001)
+      const nextNumber = patients.length + 1;
+      phn = `PHN-${company.company_code}-${nextNumber.toString().padStart(6, '0')}`;
       
       // Check if PHN already exists
       isUnique = !patients.some(p => p.phn === phn);
