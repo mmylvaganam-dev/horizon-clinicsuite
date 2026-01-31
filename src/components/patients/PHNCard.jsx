@@ -81,13 +81,22 @@ export default function PHNCard({ open, onOpenChange, patient, branding }) {
     });
 
     const imgData = canvas.toDataURL('image/png');
+    
+    // A4 page with credit card size (85.6mm x 53.98mm)
     const pdf = new jsPDF({
-      orientation: 'landscape',
+      orientation: 'portrait',
       unit: 'mm',
-      format: [53.98, 85.6] // Credit card size (width x height)
+      format: 'a4' // 210mm x 297mm
     });
 
-    pdf.addImage(imgData, 'PNG', 0, 0, 85.6, 53.98);
+    // Center the credit card on the page
+    const cardWidth = 85.6;
+    const cardHeight = 53.98;
+    const pageWidth = 210;
+    const x = (pageWidth - cardWidth) / 2;
+    const y = 20; // 20mm from top
+
+    pdf.addImage(imgData, 'PNG', x, y, cardWidth, cardHeight);
     pdf.save(`PHN_Card_${patient?.phn || 'patient'}.pdf`);
   };
 
