@@ -395,19 +395,31 @@ export default function PharmacyPOS() {
                 <CardContent className="space-y-4">
                   <div>
                     <Label>Patient (Optional)</Label>
-                    <Select value={patientId} onValueChange={setPatientId}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Walk-in customer" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={null}>Walk-in</SelectItem>
-                        {patients.map(patient => (
-                          <SelectItem key={patient.id} value={patient.id}>
-                            {patient.first_name} {patient.last_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <div className="flex gap-2">
+                      <Select value={patientId} onValueChange={setPatientId}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Walk-in customer" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value={null}>Walk-in</SelectItem>
+                          {patients.map(patient => (
+                            <SelectItem key={patient.id} value={patient.id}>
+                              {patient.first_name} {patient.last_name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {patientId && (
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => setPatientId('')}
+                          title="Clear patient selection"
+                        >
+                          <X className="w-4 h-4 text-slate-500" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
 
                   <div>
