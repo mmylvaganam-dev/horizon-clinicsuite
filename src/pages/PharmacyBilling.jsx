@@ -272,18 +272,29 @@ export default function PharmacyBilling() {
     setCart(cart.filter(item => item.stock_id !== stockId));
   };
 
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const createWalkInMutation = useMutation({
     mutationFn: async (data) => {
       // Generate PHN first
       const phnResponse = await base44.functions.invoke('generatePHN', {});
-      const phn = phnResponse.data.phn;
+      const phn = phnResponse?.data?.phn || `WI${Date.now()}`;
       
       // Create as regular patient with walk_in type
       const patientData = {
-        ...data,
+        first_name: data.first_name || '',
+        last_name: data.last_name || '',
+        phone: data.phone || '',
+        mobile: data.mobile || '',
+        date_of_birth: data.date_of_birth || null,
+        gender: data.gender || null,
         phn: phn,
         patient_type: 'walk_in',
-        status: 'active'
+        status: 'active',
+        organization_id: currentUser?.organization_id || null
       };
       
       return base44.entities.Patient.create(patientData);
@@ -634,7 +645,12 @@ export default function PharmacyBilling() {
       return;
     }
     
-    const companyId = companies[0]?.id;
+    const companyId = companies && companies.length > 0 ? companies[0].id : null;
+    if (!companyId) {
+      toast.error('Company information not available');
+      return;
+    }
+    
     sendInvoiceMutation.mutate({
       method: 'email',
       recipient: completedSale.customer_email,
@@ -649,7 +665,12 @@ export default function PharmacyBilling() {
       return;
     }
     
-    const companyId = companies[0]?.id;
+    const companyId = companies && companies.length > 0 ? companies[0].id : null;
+    if (!companyId) {
+      toast.error('Company information not available');
+      return;
+    }
+    
     sendInvoiceMutation.mutate({
       method: 'sms',
       recipient: completedSale.customer_phone,
