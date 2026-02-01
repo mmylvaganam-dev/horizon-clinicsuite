@@ -34,11 +34,11 @@ import { useQuery } from '@tanstack/react-query';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import OrganizationSwitcher from '@/components/shared/OrganizationSwitcher';
-import { useOrganization } from '@/components/OrganizationProvider';
+import { useOrganization, OrganizationProvider } from '@/components/OrganizationProvider';
 
 
 
-export default function Layout({ children, currentPageName }) {
+function LayoutContent({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userApproved, setUserApproved] = useState(null);
   const navigate = useNavigate();
@@ -394,5 +394,13 @@ export default function Layout({ children, currentPageName }) {
         </footer>
         </div>
         </div>
+        );
+        }
+
+        export default function Layout({ children, currentPageName }) {
+        return (
+        <OrganizationProvider>
+        <LayoutContent children={children} currentPageName={currentPageName} />
+        </OrganizationProvider>
         );
         }
