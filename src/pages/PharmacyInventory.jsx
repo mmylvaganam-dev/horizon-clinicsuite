@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,6 +38,7 @@ import { format } from 'date-fns';
 
 export default function PharmacyInventory() {
   const queryClient = useQueryClient();
+  const { orgFilter, withOrgId, selectedOrgId } = useOrgFiltered();
   const [showReceiveDialog, setShowReceiveDialog] = useState(false);
   const [showAdjustDialog, setShowAdjustDialog] = useState(false);
   const [selectedBalance, setSelectedBalance] = useState(null);
@@ -85,24 +87,28 @@ export default function PharmacyInventory() {
   const [showExpiringOnly, setShowExpiringOnly] = useState(false);
 
   const { data: balances = [] } = useQuery({
-    queryKey: ['inventoryBalances'],
-    queryFn: () => base44.entities.InventoryBalance.list('-updated_at'),
+    queryKey: ['inventoryBalances', selectedOrgId],
+    queryFn: () => base44.entities.InventoryBalance.filter(orgFilter, '-updated_at'),
+    enabled: !!selectedOrgId,
   });
 
   const { data: pharmacyStock = [], refetch: refetchPharmacyStock } = useQuery({
-    queryKey: ['pharmacyStock'],
-    queryFn: () => base44.entities.PharmacyStock.list('-created_date'),
-    refetchInterval: 5000, // Auto-refresh every 5 seconds
+    queryKey: ['pharmacyStock', selectedOrgId],
+    queryFn: () => base44.entities.PharmacyStock.filter(orgFilter, '-created_date'),
+    refetchInterval: 5000,
+    enabled: !!selectedOrgId,
   });
 
   const { data: transactions = [] } = useQuery({
-    queryKey: ['inventoryTxns'],
-    queryFn: () => base44.entities.InventoryTxn.list('-created_at', 100),
+    queryKey: ['inventoryTxns', selectedOrgId],
+    queryFn: () => base44.entities.InventoryTxn.filter(orgFilter, '-created_at', 100),
+    enabled: !!selectedOrgId,
   });
 
   const { data: drugs = [] } = useQuery({
-    queryKey: ['drugs'],
-    queryFn: () => base44.entities.DrugCatalog.list(),
+    queryKey: ['drugs', selectedOrgId],
+    queryFn: () => base44.entities.DrugCatalog.filter(orgFilter),
+    enabled: !!selectedOrgId,
   });
 
   const { data: locations = [] } = useQuery({

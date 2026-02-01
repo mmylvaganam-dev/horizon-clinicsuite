@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,6 +15,7 @@ import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 
 export default function StaffDirectory() {
   const queryClient = useQueryClient();
+  const { orgFilter, withOrgId, selectedOrgId } = useOrgFiltered();
   const [showForm, setShowForm] = useState(false);
   const [editingStaff, setEditingStaff] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -39,21 +41,20 @@ export default function StaffDirectory() {
   });
 
   const { data: staff = [] } = useQuery({
-    queryKey: ['staff'],
-    queryFn: () => base44.entities.StaffProfile.list('-created_date'),
+    queryKey: ['staff', selectedOrgId],
+    queryFn: () => base44.entities.StaffProfile.filter(orgFilter, '-created_date'),
+    enabled: !!selectedOrgId,
   });
 
   const { data: credentials = [] } = useQuery({
-    queryKey: ['credentials'],
-    queryFn: () => base44.entities.StaffCredentialDocument.list(),
+    queryKey: ['credentials', selectedOrgId],
+    queryFn: () => base44.entities.StaffCredentialDocument.filter(orgFilter),
+    enabled: !!selectedOrgId,
   });
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
-      const result = await base44.entities.StaffProfile.create({
-        organization_id: user.organization_id || '',
-        ...data
-      });
+      const result = await base44.entities.StaffProfile.create(withOrgId(data));
 
       // Sync to PayeeDirectory
       await base44.functions.invoke('syncStaffToPayee', { staff_id: result.id });
