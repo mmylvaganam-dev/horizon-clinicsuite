@@ -8,6 +8,7 @@ import { Alert } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Upload, Download, FileText, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import * as XLSX from 'xlsx';
 
 export default function PharmacyProductImport() {
   const queryClient = useQueryClient();
@@ -19,6 +20,29 @@ export default function PharmacyProductImport() {
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
+
+  const parseExcel = (arrayBuffer) => {
+    const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+    const data = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+    
+    if (data.length < 2) return [];
+
+    const headers = data[0].map(h => String(h || '').trim());
+    const rows = [];
+
+    for (let i = 1; i < data.length; i++) {
+      const values = data[i];
+      if (values.some(v => v !== null && v !== undefined && String(v).trim())) {
+        const row = {};
+        headers.forEach((header, index) => {
+          row[header] = String(values[index] || '').trim();
+        });
+        rows.push(row);
+      }
+    }
+    return rows;
+  };
 
   const parseCSV = (text) => {
     const lines = text.split('\n').filter(line => line.trim());
@@ -65,8 +89,17 @@ export default function PharmacyProductImport() {
 
     reader.onload = async (e) => {
       try {
-        const text = e.target.result;
-        const rows = parseCSV(text);
+        let rows = [];
+        
+        if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+          // Parse Excel file
+          const arrayBuffer = e.target.result;
+          rows = parseExcel(arrayBuffer);
+        } else {
+          // Parse CSV/TSV file
+          const text = e.target.result;
+          rows = parseCSV(text);
+        }
         
         const results = {
           total: rows.length,
@@ -183,7 +216,7 @@ Sample Syrup\tSample Active\tDrug\tPaediatric\tSyrup\tBottle\t100\tml\t2028-06-3
               <ul className="text-sm text-blue-800 mt-1 space-y-1">
                 <li>• Download the template file and fill in your product data</li>
                 <li>• Required columns: Brand Name, Generic Name, Service Category, Class Of Medicine, Dosage Form, Package Type, Strength, Strength Unit, Expiry Date</li>
-                <li>• Use TAB-separated format (copy from Excel and paste in text editor)</li>
+                <li>• Supported formats: Excel (.xlsx, .xls), CSV, or TAB-separated text</li>
                 <li>• Expiry Date format: YYYY-MM-DD (e.g., 2027-12-31)</li>
                 <li>• After import, you can update pricing and quantities individually</li>
               </ul>
@@ -215,7 +248,7 @@ Sample Syrup\tSample Active\tDrug\tPaediatric\tSyrup\tBottle\t100\tml\t2028-06-3
           <CardContent className="space-y-4">
             <Input
               type="file"
-              accept=".txt,.csv"
+              accept=".txt,.csv,.xlsx,.xls"
               onChange={handleFileChange}
               disabled={importing}
             />
