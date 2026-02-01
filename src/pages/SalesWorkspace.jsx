@@ -109,9 +109,13 @@ export default function SalesWorkspace() {
         setSmsSent(true);
       }
       toast.success('Invoice sent successfully');
+      // Auto-close after sending
+      setTimeout(() => {
+        handleCloseInvoiceDialog();
+      }, 1500);
     },
-    onError: () => {
-      toast.error('Failed to send invoice');
+    onError: (error) => {
+      toast.error('Failed to send invoice: ' + error.message);
     }
   });
 
@@ -411,6 +415,11 @@ export default function SalesWorkspace() {
   const handlePrintInvoice = () => {
     if (!completedSale) return;
     
+    // Auto-close and return to new sale after printing
+    setTimeout(() => {
+      handleCloseInvoiceDialog();
+    }, 1000);
+    
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
       <html>
@@ -563,14 +572,18 @@ export default function SalesWorkspace() {
     }
   };
 
-  const handleAll = () => {
+  const handleAll = async () => {
     handlePrintInvoice();
     if (completedSale?.customer_email) {
-      handleEmailInvoice();
+      await handleEmailInvoice();
     }
     if (completedSale?.customer_phone) {
-      handleSMSInvoice();
+      await handleSMSInvoice();
     }
+    // Auto-close after all actions
+    setTimeout(() => {
+      handleCloseInvoiceDialog();
+    }, 2000);
   };
 
   const handleCloseInvoiceDialog = () => {
