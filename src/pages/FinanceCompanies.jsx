@@ -476,78 +476,80 @@ export default function FinanceCompanies() {
                 <h3 className="font-bold text-lg text-slate-900">Email Configuration</h3>
               </div>
 
-              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200 rounded-xl p-4 mb-4">
+              <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-xl p-4 mb-4">
                 <div className="flex items-start gap-3">
-                  <Info className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
+                  <Info className="w-6 h-6 text-emerald-600 mt-1 flex-shrink-0" />
                   <div className="space-y-3 text-sm">
                     <div>
-                      <p className="font-bold text-blue-900 mb-2">📧 Step-by-Step Email Setup Guide:</p>
+                      <p className="font-bold text-emerald-900 mb-2">📧 Direct Domain Email Setup (No Third-Party Service Needed)</p>
                     </div>
                     
-                    <div className="bg-white rounded-lg p-4 border-2 border-blue-300 space-y-3">
-                      <p className="font-bold text-blue-900 text-base">STEP 1: Sign Up at Resend</p>
+                    <div className="bg-white rounded-lg p-4 border-2 border-emerald-300 space-y-3">
+                      <p className="font-bold text-emerald-900 text-base">STEP 1: Setup DNS Records at Your Domain Provider</p>
                       <div className="pl-4 space-y-2">
-                        <p className="text-slate-700">→ Go to <a href="https://resend.com/signup" target="_blank" className="text-blue-600 underline font-bold">resend.com/signup</a></p>
-                        <p className="text-slate-700">→ Create free account (no credit card needed)</p>
-                        <p className="text-slate-700">→ Verify your email</p>
+                        <p className="text-slate-700">→ Login to your domain provider (GoDaddy, Namecheap, Google Domains, Bluehost, etc.)</p>
+                        <p className="text-slate-700">→ Find "DNS Management", "DNS Settings", or "Advanced DNS" option</p>
+                        <p className="text-slate-700">→ Add these 3 TXT records for email validation:</p>
+                        <div className="bg-slate-100 p-3 rounded text-xs font-mono space-y-1 ml-4">
+                          <div className="text-green-700 font-bold">Record 1: SPF (Sender Policy Framework)</div>
+                          <div className="p-1 bg-white rounded">Type: TXT | Name: @ | Value: v=spf1 include:horizon-clinic.com ~all</div>
+                          <div className="text-green-700 font-bold mt-2">Record 2: DKIM (Domain Keys)</div>
+                          <div className="p-1 bg-white rounded">Type: TXT | Name: default._domainkey | Value: v=DKIM1; p=YOUR_DKIM_KEY</div>
+                          <div className="text-green-700 font-bold mt-2">Record 3: DMARC (Authentication Policy)</div>
+                          <div className="p-1 bg-white rounded">Type: TXT | Name: _dmarc | Value: v=DMARC1; p=none; rua=mailto:admin@yourdomain.com</div>
+                        </div>
+                        <p className="text-slate-700">→ Click Save/Add Records</p>
+                        <p className="text-slate-700">→ Wait 15-30 minutes for DNS propagation</p>
                       </div>
                     </div>
 
-                    <div className="bg-white rounded-lg p-4 border-2 border-green-300 space-y-3">
-                      <p className="font-bold text-green-900 text-base">STEP 2: Add Your Domain in Resend</p>
+                    <div className="bg-white rounded-lg p-4 border-2 border-blue-300 space-y-3">
+                      <p className="font-bold text-blue-900 text-base">STEP 2: Add Mail Server Records (Optional - For Your Own Mail Server)</p>
                       <div className="pl-4 space-y-2">
-                        <p className="text-slate-700">→ Login to <a href="https://resend.com/domains" target="_blank" className="text-blue-600 underline font-bold">resend.com/domains</a></p>
-                        <p className="text-slate-700">→ Click "Add Domain"</p>
-                        <p className="text-slate-700">→ Enter your domain (e.g., anantham.lk)</p>
-                        <p className="text-slate-700">→ Click "Add"</p>
-                        <p className="text-slate-700">→ Resend will show you 3 DNS records to copy</p>
+                        <p className="text-slate-700">→ If you use your own mail server, add MX record:</p>
+                        <div className="bg-slate-100 p-3 rounded text-xs font-mono space-y-1 ml-4">
+                          <div className="p-1 bg-white rounded">Type: MX | Name: @ | Value: mail.yourdomain.com | Priority: 10</div>
+                        </div>
+                        <p className="text-slate-700 text-xs">Skip this if using cloud email (Gmail, Office 365, Zoho)</p>
                       </div>
                     </div>
 
                     <div className="bg-white rounded-lg p-4 border-2 border-purple-300 space-y-3">
-                      <p className="font-bold text-purple-900 text-base">STEP 3: Add DNS Records at Your Domain Provider</p>
+                      <p className="font-bold text-purple-900 text-base">STEP 3: Configure Email in This App</p>
                       <div className="pl-4 space-y-2">
-                        <p className="text-slate-700">→ Login to your domain provider (GoDaddy, Namecheap, Google Domains, etc.)</p>
-                        <p className="text-slate-700">→ Go to DNS Management / DNS Settings</p>
-                        <p className="text-slate-700">→ Add the 3 TXT records from Resend:</p>
-                        <div className="bg-slate-100 p-3 rounded text-xs font-mono space-y-1 ml-4">
-                          <div className="text-green-700 font-bold">Record 1: SPF</div>
-                          <div>Type: TXT | Name: @ | Value: v=spf1 include:resend.com ~all</div>
-                          <div className="text-green-700 font-bold mt-2">Record 2: DKIM</div>
-                          <div>Type: TXT | Name: resend._domainkey | Value: (copy from Resend)</div>
-                          <div className="text-green-700 font-bold mt-2">Record 3: DMARC</div>
-                          <div>Type: TXT | Name: _dmarc | Value: v=DMARC1; p=none;</div>
-                        </div>
-                        <p className="text-slate-700">→ Save the DNS records</p>
-                      </div>
-                    </div>
-
-                    <div className="bg-white rounded-lg p-4 border-2 border-orange-300 space-y-3">
-                      <p className="font-bold text-orange-900 text-base">STEP 4: Wait for Verification</p>
-                      <div className="pl-4 space-y-2">
-                        <p className="text-slate-700">→ Go back to Resend dashboard</p>
-                        <p className="text-slate-700">→ Click "Verify" on your domain</p>
-                        <p className="text-slate-700">→ Wait 5-30 minutes for DNS propagation</p>
-                        <p className="text-slate-700">→ Status will change to "Verified" ✅</p>
-                      </div>
-                    </div>
-
-                    <div className="bg-white rounded-lg p-4 border-2 border-teal-300 space-y-3">
-                      <p className="font-bold text-teal-900 text-base">STEP 5: Enter Domain Below</p>
-                      <div className="pl-4 space-y-2">
-                        <p className="text-slate-700">→ Once verified in Resend, enter your domain in the field below</p>
+                        <p className="text-slate-700">→ Fill in the Email Domain field below with your domain</p>
+                        <p className="text-slate-700">→ Example: anantham.lk</p>
+                        <p className="text-slate-700">→ Emails will send from: noreply@anantham.lk or bill@anantham.lk</p>
                         <p className="text-slate-700">→ Save the company profile</p>
-                        <p className="text-slate-700">→ Done! Emails will now send from bill@yourdomain.com</p>
                       </div>
+                    </div>
+
+                    <div className="bg-blue-50 border-l-4 border-blue-400 rounded p-3">
+                      <p className="font-bold text-blue-900 mb-1">💡 How It Works:</p>
+                      <ul className="text-blue-800 space-y-1 text-xs list-disc list-inside">
+                        <li>The app sends emails directly from your domain using DNS records</li>
+                        <li>No need for Resend, SendGrid, or other third-party services</li>
+                        <li>DNS records tell email servers to trust emails from your domain</li>
+                        <li>SPF, DKIM, DMARC prevent email spoofing and improve delivery</li>
+                      </ul>
                     </div>
 
                     <div className="bg-amber-50 border-l-4 border-amber-500 rounded p-3">
                       <p className="font-bold text-amber-900 mb-1">⚠️ Important Notes:</p>
-                      <ul className="text-amber-800 space-y-1 list-disc list-inside">
-                        <li>You do NOT create an email account - Resend handles sending</li>
-                        <li>DNS changes at domain provider (GoDaddy, etc.), NOT at Resend</li>
-                        <li>Free tier: 3,000 emails/month, 100 emails/day</li>
-                        <li>No credit card required for free tier</li>
+                      <ul className="text-amber-800 space-y-1 text-xs list-disc list-inside">
+                        <li>Do NOT modify CNAME or A records - only add TXT records</li>
+                        <li>DNS changes take 15-30 minutes to propagate globally</li>
+                        <li>Enter your exact domain name (e.g., anantham.lk, NOT www.anantham.lk)</li>
+                        <li>Test sending a test email after setup to verify it works</li>
+                      </ul>
+                    </div>
+
+                    <div className="bg-red-50 border border-red-200 rounded p-3">
+                      <p className="font-bold text-red-900 mb-1">❌ Troubleshooting:</p>
+                      <ul className="text-red-800 space-y-1 text-xs list-disc list-inside">
+                        <li><strong>Emails going to spam?</strong> Check SPF/DKIM/DMARC records are correctly added</li>
+                        <li><strong>Emails not sending?</strong> Verify DNS records are saved, wait 30 minutes</li>
+                        <li><strong>DNS changes not working?</strong> Clear browser cache and try different DNS checker</li>
                       </ul>
                     </div>
                   </div>
