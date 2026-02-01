@@ -319,6 +319,7 @@ export default function PharmacyStockImport() {
   };
 
   const selectedOrg = organizations?.find(o => o.id === contextOrgId);
+  const { isPlatformOwner } = useOrganization();
 
   return (
     <div className="space-y-6">
@@ -329,38 +330,40 @@ export default function PharmacyStockImport() {
         </div>
       </div>
 
-      {/* Organization Selector */}
-      <Card className="bg-amber-50 border-amber-200">
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-amber-600" />
-              <span className="font-semibold text-amber-900">Upload to Organization:</span>
+      {/* Organization Selector - only show for platform owners */}
+      {isPlatformOwner && organizations && organizations.length > 1 && (
+        <Card className="bg-amber-50 border-amber-200">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-amber-600" />
+                <span className="font-semibold text-amber-900">Upload to Organization:</span>
+              </div>
+              <Select value={contextOrgId || ''} onValueChange={setSelectedOrgId}>
+                <SelectTrigger className="w-64 bg-white">
+                  <SelectValue placeholder="Select organization" />
+                </SelectTrigger>
+                <SelectContent>
+                  {organizations?.map((org) => (
+                    <SelectItem key={org.id} value={org.id}>
+                      {org.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {selectedOrg && (
+                <Badge className="bg-amber-600 text-white">
+                  {selectedOrg.name}
+                </Badge>
+              )}
             </div>
-            <Select value={contextOrgId || ''} onValueChange={setSelectedOrgId}>
-              <SelectTrigger className="w-64 bg-white">
-                <SelectValue placeholder="Select organization" />
-              </SelectTrigger>
-              <SelectContent>
-                {organizations?.map((org) => (
-                  <SelectItem key={org.id} value={org.id}>
-                    {org.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {selectedOrg && (
-              <Badge className="bg-amber-600 text-white">
-                {selectedOrg.name}
-              </Badge>
-            )}
-          </div>
-          <p className="text-xs text-amber-700 mt-3">
-            ⚠️ All data in this upload will be added to <strong>{selectedOrg?.name || 'the selected organization'}</strong>. 
-            Make sure you've selected the correct pharmacy before uploading.
-          </p>
-        </CardContent>
-      </Card>
+            <p className="text-xs text-amber-700 mt-3">
+              ⚠️ All data in this upload will be added to <strong>{selectedOrg?.name || 'the selected organization'}</strong>. 
+              Make sure you've selected the correct pharmacy before uploading.
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="pt-6">
