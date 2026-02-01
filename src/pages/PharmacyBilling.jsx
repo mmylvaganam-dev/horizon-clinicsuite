@@ -334,21 +334,23 @@ export default function PharmacyBilling() {
   // Calculate total savings (from MRP)
   const totalSavings = totalMRP - total;
 
-  // Filter patients - prioritize matches
+  // Filter patients - instant search as user types
   const filteredPatients = patients.filter(p => {
     const search = patientSearch.toLowerCase().trim();
-    if (search === '') return false; // Don't show all patients initially
+    if (search === '') return false;
     
     const fullName = `${p.first_name || ''} ${p.last_name || ''}`.toLowerCase();
     const firstName = (p.first_name || '').toLowerCase();
     const lastName = (p.last_name || '').toLowerCase();
     const mobile = (p.mobile || '').toLowerCase();
+    const phone = (p.phone || '').toLowerCase();
     const phn = (p.phn || '').toLowerCase();
     
     return firstName.includes(search) ||
       lastName.includes(search) ||
       fullName.includes(search) ||
       mobile.includes(search) ||
+      phone.includes(search) ||
       phn.includes(search);
   }).slice(0, 10);
 
@@ -417,51 +419,110 @@ export default function PharmacyBilling() {
     }
   });
 
-  const handleCompleteSale = () => {
+  const handleCompleteSale = async () => {
     if (cart.length === 0) {
       toast.error('Cart is empty');
       return;
     }
     
-    const receiptNumber = `RX${Date.now().toString().slice(-8)}`;
-    const customerName = selectedPatient 
-      ? `${selectedPatient.first_name} ${selectedPatient.last_name}`
-      : selectedWalkIn?.name || 'Cash Sale';
-    
-    // Format date/time for Sri Lanka timezone
-    const sriLankaTime = new Date().toLocaleString('en-US', {
-      timeZone: 'Asia/Colombo',
-      dateStyle: 'medium',
-      timeStyle: 'short'
-    });
-    
-    const organizationName = branding?.organization_name || 'Anantham Pharmacy';
-    const locationAddress = branding?.address || '';
-    const locationPhone = branding?.contact_phone || '';
-    
-    const saleData = {
-      receipt_number: receiptNumber,
-      customer_name: customerName,
-      organization_name: organizationName,
-      location_address: locationAddress,
-      location_phone: locationPhone,
-      sale_datetime: sriLankaTime,
-      currency,
-      items: cart,
-      subtotal,
-      discount_amount: finalDiscountAmount,
-      total_savings: totalSavings,
-      tax,
-      total,
-      customer_email: selectedPatient?.email || selectedWalkIn?.email,
-      customer_phone: selectedPatient?.mobile || selectedWalkIn?.phone
-    };
-    
-    setCompletedSale(saleData);
-    setShowInvoiceDialog(true);
-    setTimeout(() => {
-      toast.success('Sale completed successfully');
-    }, 100);
+    try {
+      const loadingToast = toast.loading('Processing sale...');
+      
+      const user = await base44.auth.me();
+      const company = companies.length > 0 ? companies[0] : null;
+      const receiptNumber = `RX${Date.now().toString().slice(-8)}`;
+      const customerName = selectedPatient 
+        ? `${selectedPatient.first_name} ${selectedPatient.last_name}`
+        : selectedWalkIn?.name || 'Cash Sale';
+      
+      // Create the pharmacy sale record
+      const subtotalAmount = subtotal;
+      const taxAmount = tax;
+      const totalAmount = total;
+      
+      const saleData = {
+        organization_id: user?.organization_id || 'default_org',
+        location_id: user?.location_id || 'default_location',
+        patient_id: selectedPatient?.id || null,
+        walk_in_patient_id: selectedWalkIn?.id || null,
+        sale_date: new Date().toISOString(),
+        subtotal: subtotalAmount,
+        tax: taxAmount,
+        discount_amount: finalDiscountAmount,
+        total: totalAmount,
+        status: 'completed',
+        created_by: user?.email || 'system',
+        created_by_email: user?.email || 'system'
+      };
+
+      await base44.entities.PharmacySale.create(saleData);
+      
+      // Update stock quantities
+      for (const item of cart) {
+        const product = pharmacyStock.find(p => p.id === item.stock_id);
+        if (product) {
+          await base44.entities.PharmacyStock.update(item.stock_id, {
+            quantity: Math.max(0, product.quantity - item.quantity)
+          });
+        }
+      }
+
+      // Send SMS notification
+      if (selectedPatient?.mobile || selectedPatient?.phone || selectedWalkIn?.phone) {
+        const phone = selectedPatient?.mobile || selectedPatient?.phone || selectedWalkIn?.phone;
+        const smsMessage = `Thank you for your purchase! Receipt: ${receiptNumber}. Total: ${currency} ${totalAmount.toFixed(2)}. ${company?.company_trade_name || 'Clinic'}`;
+        try {
+          await base44.functions.invoke('sendSaleSMS', {
+            phone: phone,
+            message: smsMessage,
+            patient_name: customerName
+          });
+        } catch (smsError) {
+          console.log('SMS failed:', smsError);
+        }
+      }
+
+      toast.dismiss(loadingToast);
+      toast.success(`Sale ${receiptNumber} completed!`);
+
+      // Format date/time for Sri Lanka timezone
+      const sriLankaTime = new Date().toLocaleString('en-US', {
+        timeZone: 'Asia/Colombo',
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      });
+      
+      const organizationName = branding?.organization_name || 'Anantham Pharmacy';
+      const locationAddress = branding?.address || '';
+      const locationPhone = branding?.contact_phone || '';
+      
+      const completedSaleData = {
+        receipt_number: receiptNumber,
+        customer_name: customerName,
+        organization_name: organizationName,
+        location_address: locationAddress,
+        location_phone: locationPhone,
+        sale_datetime: sriLankaTime,
+        currency,
+        items: cart,
+        subtotal,
+        discount_amount: finalDiscountAmount,
+        total_savings: totalSavings,
+        tax,
+        total,
+        customer_email: selectedPatient?.email || selectedWalkIn?.email,
+        customer_phone: selectedPatient?.mobile || selectedWalkIn?.phone
+      };
+      
+      setCompletedSale(completedSaleData);
+      setShowInvoiceDialog(true);
+      queryClient.invalidateQueries(['pharmacyStock']);
+      
+    } catch (error) {
+      toast.dismiss();
+      toast.error('Sale failed: ' + error.message);
+      console.error(error);
+    }
   };
 
   const handlePrintInvoice = () => {
