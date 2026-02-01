@@ -219,7 +219,6 @@ export default function Layout({ children, currentPageName }) {
       items: [
         { name: 'Organization Settings', page: 'Admin', icon: Settings, description: 'Organization administration - Staff, roles, branding, pricing, and configuration' },
         { name: 'User Access Approvals', page: 'UserApprovals', icon: CheckSquare, description: 'Approve or reject new user access requests for your organization' },
-        { name: 'Company Profile', page: 'FinanceCompanies', icon: Building2, description: 'Your organization details, branding, and business information' },
         { name: 'Pricing & Catalogs', page: 'PricingCatalogs', icon: DollarSign, description: 'Service pricing - Configure service fees, packages, and price lists' },
         { name: 'Patient Edit Approvals', page: 'PatientEditApprovals', icon: CheckSquare, description: 'Review and approve patient information edit requests' },
       ]
