@@ -84,9 +84,9 @@ export default function Layout({ children, currentPageName }) {
       category: 'Pharmacy',
       icon: ShoppingBag,
       items: [
+        { name: 'Point of Sale', page: 'PharmacyBilling', icon: ShoppingBag, description: 'POS system - Sell medicines, process walk-in customers, generate invoices' },
         { name: 'Dashboard', page: 'PharmacyDashboard', icon: Activity, description: 'Pharmacy overview - Sales stats, stock alerts, and quick actions' },
         { name: 'Work Queue', page: 'PharmacyWorkQueue', icon: CheckSquare, description: 'Prescription queue - Review and verify doctor prescriptions, prepare orders for dispensing' },
-        { name: 'Point of Sale', page: 'PharmacyBilling', icon: ShoppingBag, description: 'POS system - Sell medicines, process walk-in customers, generate invoices' },
         { name: 'Inventory', page: 'PharmacyInventory', icon: Package, description: 'Stock management - Track inventory levels, receive stock, adjust quantities, view transactions' },
         { name: 'Barcode Setup', page: 'BarcodeSetup', icon: Activity, description: 'Barcode configuration - Add barcodes to products, scan items, print labels' },
         { name: 'Product Import', page: 'PharmacyProductImport', icon: FileText, description: 'Bulk product upload - Import medicines from CSV file into the system' },
