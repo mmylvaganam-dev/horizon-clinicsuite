@@ -24,7 +24,8 @@ import {
   Sparkles,
   ArrowLeft,
   Info,
-  Globe
+  Globe,
+  Crown
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -32,10 +33,65 @@ import { useQuery } from '@tanstack/react-query';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
+// Platform Owner Section Component
+function PlatformOwnerSection({ currentUser }) {
+  const isPlatformOwner = currentUser?.email === 'madhawaekanayake@gmail.com' || currentUser?.is_platform_owner;
+  
+  if (!isPlatformOwner) return null;
+
+  return (
+    <div className="p-4 border-t border-slate-700/50 bg-purple-900/20">
+      <h3 className="text-xs font-semibold text-purple-300 mb-2 px-4">PLATFORM OWNER</h3>
+      <div className="space-y-1">
+        <Link
+          to={createPageUrl('Admin')}
+          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-700/50 hover:text-white transition-all"
+        >
+          <Globe className="w-4 h-4" />
+          <span className="text-sm">Platform Control Centre</span>
+        </Link>
+        <Link
+          to={createPageUrl('UserManagement')}
+          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-700/50 hover:text-white transition-all"
+        >
+          <Users className="w-4 h-4" />
+          <span className="text-sm">All Users Management</span>
+        </Link>
+        <Link
+          to={createPageUrl('UserApprovals')}
+          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-700/50 hover:text-white transition-all"
+        >
+          <CheckSquare className="w-4 h-4" />
+          <span className="text-sm">Final User Approvals</span>
+        </Link>
+        <Link
+          to={createPageUrl('PlatformBilling')}
+          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-700/50 hover:text-white transition-all"
+        >
+          <DollarSign className="w-4 h-4" />
+          <span className="text-sm">Platform Billing</span>
+        </Link>
+        <Link
+          to={createPageUrl('PlatformOwnership')}
+          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-400 hover:bg-red-900/20 hover:text-red-300 transition-all"
+        >
+          <Crown className="w-4 h-4" />
+          <span className="text-sm font-semibold">Transfer Ownership</span>
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userApproved, setUserApproved] = useState(null);
   const navigate = useNavigate();
+  
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
 
   useEffect(() => {
     const checkApproval = async () => {
@@ -190,18 +246,11 @@ export default function Layout({ children, currentPageName }) {
       ]
     },
     {
-      category: 'Platform Owner',
-      icon: Globe,
-      items: [
-        { name: 'Platform Control Centre', page: 'Admin', icon: Globe, description: 'Global platform management - Organizations, billing, security, data exports (Owner only)' },
-        { name: 'Platform Billing', page: 'PlatformBilling', icon: DollarSign, description: 'Platform invoicing - Manage subscription billing for multiple organizations (admin only)' },
-      ]
-    },
-    {
       category: 'Administration',
       icon: Settings,
       items: [
         { name: 'Organization Admin', page: 'Admin', icon: Settings, description: 'Organization administration - Staff, roles, branding, pricing, and configuration' },
+        { name: 'User Management', page: 'UserManagement', icon: Users, description: 'View and manage users in your organization, assign organization admin roles' },
         { name: 'User Access Approvals', page: 'UserApprovals', icon: CheckSquare, description: 'Approve or reject new user access requests (Admin only)' },
         { name: 'Company Profile', page: 'FinanceCompanies', icon: Building2, description: 'Organization setup - Company details, branding, and business information' },
         { name: 'Pricing & Catalogs', page: 'PricingCatalogs', icon: DollarSign, description: 'Service pricing - Configure service fees, packages, and price lists' },
@@ -246,16 +295,9 @@ export default function Layout({ children, currentPageName }) {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 overflow-y-auto">
-            <Accordion type="multiple" defaultValue={['Main', 'Pharmacy']} className="space-y-1">
-              {navigationGroups.filter(group => {
-                // Platform Owner section visible only to platform owner
-                if (group.category === 'Platform Owner') {
-                  // Will be fetched and checked dynamically
-                  return true; // Show for now, will hide via function
-                }
-                return true;
-              }).map((group) => (
+                    <nav className="flex-1 p-4 overflow-y-auto">
+                      <Accordion type="multiple" defaultValue={['Main', 'Pharmacy']} className="space-y-1">
+                        {navigationGroups.map((group) => (
                 <AccordionItem key={group.category} value={group.category} className="border-none">
                   <AccordionTrigger className="px-4 py-2 hover:no-underline hover:bg-slate-700/50 rounded-lg text-slate-300 hover:text-white">
                     <div className="flex items-center gap-3">
@@ -305,6 +347,9 @@ export default function Layout({ children, currentPageName }) {
               ))}
             </Accordion>
           </nav>
+
+          {/* Platform Owner Section - Only visible to platform owner */}
+          <PlatformOwnerSection currentUser={user} />
 
           {/* Footer */}
           <div className="p-4 border-t border-slate-700/50">
