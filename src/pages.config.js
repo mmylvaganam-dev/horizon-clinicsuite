@@ -175,6 +175,10 @@ import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
 import UserManagement from './pages/UserManagement';
 import PlatformOwnership from './pages/PlatformOwnership';
+import PlatformSetup from './pages/PlatformSetup';
+import PlatformSecurity from './pages/PlatformSecurity';
+import PlatformDataExport from './pages/PlatformDataExport';
+import PlatformIntegrations from './pages/PlatformIntegrations';
 import __Layout from './Layout.jsx';
 
 
@@ -307,6 +311,10 @@ export const PAGES = {
     "VitalsTrend": VitalsTrend,
     "UserManagement": UserManagement,
     "PlatformOwnership": PlatformOwnership,
+    "PlatformSetup": PlatformSetup,
+    "PlatformSecurity": PlatformSecurity,
+    "PlatformDataExport": PlatformDataExport,
+    "PlatformIntegrations": PlatformIntegrations,
 }
 
 export const pagesConfig = {

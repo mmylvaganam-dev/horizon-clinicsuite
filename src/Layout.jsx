@@ -223,10 +223,13 @@ export default function Layout({ children, currentPageName }) {
       category: 'Platform Administration',
       icon: Globe,
       items: [
-        { name: 'Platform Control Centre', page: 'Admin', icon: Globe, description: 'Global platform management - Organizations, billing, security, data exports (Owner only)' },
-        { name: 'User Management', page: 'UserManagement', icon: Users, description: 'View all users across organizations and assign organization admins' },
-        { name: 'Final User Approvals', page: 'UserApprovals', icon: CheckSquare, description: 'Final approval for users after organization admin approval' },
-        { name: 'Platform Billing', page: 'PlatformBilling', icon: DollarSign, description: 'Platform invoicing - Manage subscription billing for organizations' },
+        { name: 'Platform Setup', page: 'PlatformSetup', icon: Building2, description: 'Create and manage multiple organizations/companies' },
+        { name: 'Platform Billing', page: 'PlatformBilling', icon: DollarSign, description: 'Subscription billing for all organizations' },
+        { name: 'Security & Compliance', page: 'PlatformSecurity', icon: Shield, description: 'Audit logs, break-glass, security validation, compliance checklists' },
+        { name: 'Data Export Management', page: 'PlatformDataExport', icon: FileText, description: 'Export approvals, retention policies, archive management' },
+        { name: 'External Integrations', page: 'PlatformIntegrations', icon: Activity, description: 'Patient portal, government reporting, partner management' },
+        { name: 'All Users Management', page: 'UserManagement', icon: Users, description: 'View all users across all organizations, assign org admins' },
+        { name: 'Final User Approvals', page: 'UserApprovals', icon: CheckSquare, description: 'Final approval for users after org admin approval' },
       ],
       platformOwnerOnly: true
     },
