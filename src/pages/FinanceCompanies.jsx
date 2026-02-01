@@ -367,7 +367,7 @@ export default function FinanceCompanies() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto max-w-2xl">
           <DialogHeader>
             <DialogTitle>{editingCompany ? 'Edit Company' : 'Add Company'}</DialogTitle>
           </DialogHeader>
@@ -711,7 +711,7 @@ export default function FinanceCompanies() {
       )}
 
       <Dialog open={orgDialogOpen} onOpenChange={setOrgDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingOrg ? 'Edit Organization' : 'Add Organization'}</DialogTitle>
           </DialogHeader>
