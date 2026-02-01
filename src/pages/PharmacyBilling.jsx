@@ -296,6 +296,10 @@ export default function PharmacyBilling() {
       setWalkInForm({ first_name: '', last_name: '', phone: '', mobile: '', date_of_birth: '', gender: '' });
       setShowPHNCard(true);
       toast.success('Walk-in patient registered with PHN!');
+    },
+    onError: (error) => {
+      console.error('Patient creation error:', error);
+      toast.error(error.message || 'Failed to create patient. Please try again.');
     }
   });
 
@@ -1256,11 +1260,11 @@ export default function PharmacyBilling() {
                  />
                </div>
                <div>
-                 <Label>Mobile Phone *</Label>
+                 <Label>Mobile Phone</Label>
                  <Input
                    value={walkInForm.mobile}
                    onChange={(e) => setWalkInForm({ ...walkInForm, mobile: e.target.value })}
-                   placeholder="For SMS"
+                   placeholder="Optional - for SMS"
                  />
                </div>
              </div>
@@ -1296,9 +1300,9 @@ export default function PharmacyBilling() {
               </Button>
               <Button 
                 onClick={handleCreateWalkIn}
-                disabled={!walkInForm.first_name || !walkInForm.mobile}
+                disabled={!walkInForm.first_name || createWalkInMutation.isPending}
               >
-                Register & Generate PHN
+                {createWalkInMutation.isPending ? 'Registering...' : 'Register & Generate PHN'}
               </Button>
             </div>
           </div>
