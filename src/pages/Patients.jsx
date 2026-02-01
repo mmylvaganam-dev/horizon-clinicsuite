@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 import PHNCard from '@/components/patients/PHNCard';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
@@ -32,6 +33,7 @@ const statusColors = {
 
 export default function Patients() {
   const queryClient = useQueryClient();
+  const { orgFilter, withOrgId, selectedOrgId } = useOrgFiltered();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
@@ -49,8 +51,9 @@ export default function Patients() {
   });
 
   const { data: patients = [], isLoading } = useQuery({
-    queryKey: ['patients'],
-    queryFn: () => base44.entities.Patient.list('-created_date'),
+    queryKey: ['patients', selectedOrgId],
+    queryFn: () => base44.entities.Patient.filter(orgFilter, '-created_date'),
+    enabled: !!selectedOrgId,
   });
 
   const createMutation = useMutation({
@@ -59,10 +62,10 @@ export default function Patients() {
       const phnResponse = await base44.functions.invoke('generatePHN', {});
       const phn = phnResponse.data.phn;
       
-      return base44.entities.Patient.create({
+      return base44.entities.Patient.create(withOrgId({
         ...data,
         phn: phn
-      });
+      }));
     },
     onSuccess: (newPatient) => {
       queryClient.invalidateQueries({ queryKey: ['patients'] });
