@@ -1,5 +1,5 @@
 import React from 'react';
-import { useOrganization } from '@/context/OrganizationContext';
+import { useOrganization } from '@/components/OrganizationProvider';
 import {
   Select,
   SelectContent,

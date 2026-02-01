@@ -34,7 +34,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import OrganizationSwitcher from '@/components/shared/OrganizationSwitcher';
-import { useOrganization } from '@/context/OrganizationContext';
+import { useOrganization } from '@/components/OrganizationProvider';
 
 
 
