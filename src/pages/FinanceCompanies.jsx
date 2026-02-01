@@ -474,23 +474,56 @@ export default function FinanceCompanies() {
               <div className="flex items-center gap-2 mb-4">
                 <Mail className="w-5 h-5 text-blue-600" />
                 <h3 className="font-bold text-lg text-slate-900">Email Configuration</h3>
-                <div className="group relative">
-                  <Info className="w-4 h-4 text-slate-400 cursor-help" />
-                  <div className="hidden group-hover:block absolute left-0 top-6 w-80 bg-slate-900 text-white p-4 rounded-xl shadow-2xl z-50">
-                    <p className="font-bold mb-2">📧 Email Setup</p>
-                    <p className="text-sm">Configure your email domain for sending invoices and notifications. You'll need to configure DNS records (SPF, DKIM) for your domain.</p>
+              </div>
+
+              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-blue-200 rounded-xl p-4 mb-4">
+                <div className="flex items-start gap-3">
+                  <Info className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
+                  <div className="space-y-3 text-sm">
+                    <div>
+                      <p className="font-bold text-blue-900 mb-2">📧 How Email Sending Works:</p>
+                      <p className="text-slate-700">The system uses Base44's email service to send invoices and notifications. To send from your company domain (e.g., bill@yourcompany.com), you need to:</p>
+                    </div>
+                    
+                    <div className="bg-white rounded-lg p-3 space-y-2">
+                      <p className="font-semibold text-slate-900">✅ Recommended: Use Resend (Easiest)</p>
+                      <ol className="list-decimal list-inside space-y-1 text-slate-700 ml-2">
+                        <li>Sign up at <a href="https://resend.com" target="_blank" className="text-blue-600 underline font-semibold">resend.com</a> (free tier available)</li>
+                        <li>Add your domain in Resend dashboard</li>
+                        <li>Copy the DNS records (SPF, DKIM, DMARC)</li>
+                        <li>Add DNS records to your domain registrar (GoDaddy, Namecheap, etc.)</li>
+                        <li>Wait for verification (usually 5-30 minutes)</li>
+                        <li>Enter your domain below once verified</li>
+                      </ol>
+                    </div>
+
+                    <div className="bg-amber-50 border-l-4 border-amber-400 rounded p-3">
+                      <p className="font-semibold text-amber-900 mb-1">⚠️ Important:</p>
+                      <p className="text-amber-800">Without DNS setup, emails may go to spam or fail to deliver. Resend handles all technical setup automatically.</p>
+                    </div>
+
+                    <div className="bg-white rounded-lg p-3">
+                      <p className="font-semibold text-slate-900 mb-2">📋 DNS Records Example:</p>
+                      <div className="text-xs font-mono bg-slate-100 p-2 rounded space-y-1">
+                        <div>TXT @ "v=spf1 include:resend.com ~all"</div>
+                        <div>TXT resend._domainkey "your-dkim-key"</div>
+                        <div>TXT _dmarc "v=DMARC1; p=none;"</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
               
               <div>
-                <Label>Email Domain</Label>
+                <Label>Email Domain (After DNS Setup)</Label>
                 <Input
                   value={formData.email_domain}
                   onChange={(e) => setFormData({...formData, email_domain: e.target.value})}
                   placeholder="yourcompany.com"
                 />
-                <p className="text-xs text-slate-500 mt-1">Domain for sending invoices (e.g., anantham.lk)</p>
+                <p className="text-xs text-slate-500 mt-1">
+                  Your verified domain - emails will be sent from bill@{formData.email_domain || 'yourdomain.com'}
+                </p>
               </div>
             </div>
 
