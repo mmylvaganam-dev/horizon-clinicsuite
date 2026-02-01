@@ -288,35 +288,22 @@ export default function SalesWorkspace() {
 
       // Create pharmacy sale if there are pharmacy items
       if (pharmacyItems.length > 0) {
+        const subtotalAmount = pharmacyItems.reduce((sum, item) => sum + item.total, 0);
+        const taxAmount = 0;
+        const totalAmount = subtotalAmount + taxAmount;
+        
         const saleData = {
           organization_id: user?.organization_id || 'default_org',
           location_id: user?.location_id || 'default_location',
-          receipt_number: receiptNumber,
           patient_id: selectedPatient.id,
-          patient_name: `${selectedPatient.first_name} ${selectedPatient.last_name}`,
-          patient_phone: selectedPatient.mobile || selectedPatient.phone,
           sale_date: new Date().toISOString(),
-          items: pharmacyItems.map(item => {
-            const productId = item.id.replace('pharmacy-', '');
-            const product = pharmacyStock.find(p => p.id === productId);
-            return {
-              product_id: productId,
-              product_name: item.name,
-              batch_no: product?.batch_no || '',
-              quantity: item.quantity,
-              unit_price: item.price,
-              total: item.total
-            };
-          }),
-          subtotal: pharmacyItems.reduce((sum, item) => sum + item.total, 0),
+          subtotal: subtotalAmount,
+          tax: taxAmount,
           discount_amount: 0,
-          tax_amount: 0,
-          total_amount: pharmacyItems.reduce((sum, item) => sum + item.total, 0),
-          payment_method: 'cash',
-          payment_status: 'paid',
+          total: totalAmount,
           status: 'completed',
           created_by: user?.email || 'system',
-          created_by_name: user?.full_name || 'System'
+          created_by_email: user?.email || 'system'
         };
 
         await base44.entities.PharmacySale.create(saleData);
