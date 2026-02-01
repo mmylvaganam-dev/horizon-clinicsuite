@@ -334,22 +334,34 @@ export default function PharmacyBilling() {
   // Calculate total savings (from MRP)
   const totalSavings = totalMRP - total;
 
-  // Filter patients
+  // Filter patients - prioritize matches
   const filteredPatients = patients.filter(p => {
-    const search = patientSearch.toLowerCase();
-    return search === '' ||
-      `${p.first_name} ${p.last_name}`.toLowerCase().includes(search) ||
-      p.mobile?.toLowerCase().includes(search) ||
-      p.patient_id?.toLowerCase().includes(search);
-  }).slice(0, 5);
+    const search = patientSearch.toLowerCase().trim();
+    if (search === '') return false; // Don't show all patients initially
+    
+    const fullName = `${p.first_name || ''} ${p.last_name || ''}`.toLowerCase();
+    const firstName = (p.first_name || '').toLowerCase();
+    const lastName = (p.last_name || '').toLowerCase();
+    const mobile = (p.mobile || '').toLowerCase();
+    const phn = (p.phn || '').toLowerCase();
+    
+    return firstName.includes(search) ||
+      lastName.includes(search) ||
+      fullName.includes(search) ||
+      mobile.includes(search) ||
+      phn.includes(search);
+  }).slice(0, 10);
 
   // Filter walk-in patients
   const filteredWalkIns = walkInPatients.filter(w => {
-    const search = patientSearch.toLowerCase();
-    return search === '' ||
-      w.name.toLowerCase().includes(search) ||
-      w.phone?.toLowerCase().includes(search);
-  }).slice(0, 5);
+    const search = patientSearch.toLowerCase().trim();
+    if (search === '') return false;
+    
+    const name = (w.name || '').toLowerCase();
+    const phone = (w.phone || '').toLowerCase();
+    
+    return name.includes(search) || phone.includes(search);
+  }).slice(0, 10);
 
   const handleSelectPatient = (patient) => {
     setSelectedPatient(patient);
@@ -1175,72 +1187,138 @@ export default function PharmacyBilling() {
 
       {/* Patient Search Dialog */}
       <Dialog open={showPatientDialog} onOpenChange={setShowPatientDialog}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
           <DialogHeader>
-            <DialogTitle>Select Patient or Walk-In Customer</DialogTitle>
+            <DialogTitle>Search & Select Patient</DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4">
-            {/* Registered Patients */}
-            {filteredPatients.length > 0 && (
-              <div>
-                <h3 className="font-semibold text-sm text-slate-700 mb-2">Registered Patients</h3>
-                <div className="space-y-2">
-                  {filteredPatients.map(patient => (
-                    <Card
-                      key={patient.id}
-                      className="p-3 cursor-pointer hover:bg-slate-50 transition-colors"
-                      onClick={() => handleSelectPatient(patient)}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-medium">{patient.first_name} {patient.last_name}</p>
-                          <p className="text-sm text-slate-600">{patient.mobile}</p>
-                          <Badge variant="outline" className="mt-1 text-xs">{patient.patient_id}</Badge>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
-                </div>
-              </div>
+          {/* Search Input in Dialog */}
+          <div className="sticky top-0 bg-white pb-3 border-b">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <Input
+                placeholder="Type patient name, phone, or PHN..."
+                value={patientSearch}
+                onChange={(e) => setPatientSearch(e.target.value)}
+                className="pl-10 h-12 text-base"
+                autoFocus
+              />
+            </div>
+            {patientSearch.trim() && (
+              <p className="text-xs text-slate-500 mt-2">
+                Showing {filteredPatients.length + filteredWalkIns.length} results
+              </p>
             )}
+          </div>
 
-            {/* Walk-In Patients */}
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="font-semibold text-sm text-slate-700">Walk-In Customers</h3>
-                <Button size="sm" variant="outline" onClick={() => setShowWalkInDialog(true)}>
+          <div className="flex-1 overflow-y-auto space-y-4 py-2">
+            {patientSearch.trim() === '' ? (
+              <div className="text-center py-12">
+                <User className="w-16 h-16 mx-auto text-slate-300 mb-4" />
+                <p className="text-slate-600 font-medium">Start typing to search</p>
+                <p className="text-sm text-slate-500 mt-2">Search by name, phone, or PHN</p>
+                <Button 
+                  className="mt-6" 
+                  onClick={() => {
+                    setShowPatientDialog(false);
+                    setShowWalkInDialog(true);
+                  }}
+                >
                   <UserPlus className="w-4 h-4 mr-2" />
-                  New Walk-In
+                  Register New Patient
                 </Button>
               </div>
-              <div className="space-y-2">
-                {filteredWalkIns.length === 0 ? (
-                  <p className="text-sm text-slate-500 text-center py-4">No walk-in customers found</p>
-                ) : (
-                  filteredWalkIns.map(walkIn => (
-                    <Card
-                      key={walkIn.id}
-                      className="p-3 cursor-pointer hover:bg-slate-50 transition-colors"
-                      onClick={() => handleSelectWalkIn(walkIn)}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-medium">{walkIn.name}</p>
-                          <p className="text-sm text-slate-600">{walkIn.phone}</p>
-                          <div className="flex gap-2 mt-1">
-                            {walkIn.discount_percentage > 0 && (
-                              <Badge className="bg-emerald-600 text-xs">{walkIn.discount_percentage}% Discount</Badge>
-                            )}
-                            <Badge variant="outline" className="text-xs">{walkIn.total_visits || 0} visits</Badge>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  ))
-                )}
+            ) : (filteredPatients.length === 0 && filteredWalkIns.length === 0) ? (
+              <div className="text-center py-12">
+                <p className="text-slate-600 font-medium mb-4">No patients found</p>
+                <Button 
+                  onClick={() => {
+                    setShowPatientDialog(false);
+                    setShowWalkInDialog(true);
+                  }}
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Register New Patient
+                </Button>
               </div>
-            </div>
+            ) : (
+              <>
+                {/* Registered Patients */}
+                {filteredPatients.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-sm text-slate-700 mb-3 px-1">Registered Patients ({filteredPatients.length})</h3>
+                    <div className="space-y-2">
+                      {filteredPatients.map(patient => (
+                        <Card
+                          key={patient.id}
+                          className="p-4 cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all border-2"
+                          onClick={() => handleSelectPatient(patient)}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <p className="font-semibold text-lg text-slate-900">
+                                {patient.first_name} {patient.last_name}
+                              </p>
+                              <div className="flex flex-wrap gap-2 mt-2">
+                                {patient.mobile && (
+                                  <Badge variant="outline" className="text-xs">
+                                    📱 {patient.mobile}
+                                  </Badge>
+                                )}
+                                {patient.phn && (
+                                  <Badge variant="outline" className="text-xs bg-blue-50">
+                                    PHN: {patient.phn}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            <Badge className="bg-emerald-600">Select</Badge>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Walk-In Patients */}
+                {filteredWalkIns.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-sm text-slate-700 mb-3 px-1">Walk-In Customers ({filteredWalkIns.length})</h3>
+                    <div className="space-y-2">
+                      {filteredWalkIns.map(walkIn => (
+                        <Card
+                          key={walkIn.id}
+                          className="p-4 cursor-pointer hover:bg-purple-50 hover:border-purple-300 transition-all border-2"
+                          onClick={() => handleSelectWalkIn(walkIn)}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <p className="font-semibold text-lg text-slate-900">{walkIn.name}</p>
+                              <div className="flex flex-wrap gap-2 mt-2">
+                                {walkIn.phone && (
+                                  <Badge variant="outline" className="text-xs">
+                                    📱 {walkIn.phone}
+                                  </Badge>
+                                )}
+                                {walkIn.discount_percentage > 0 && (
+                                  <Badge className="bg-emerald-600 text-xs">
+                                    {walkIn.discount_percentage}% Discount
+                                  </Badge>
+                                )}
+                                <Badge variant="outline" className="text-xs">
+                                  {walkIn.total_visits || 0} visits
+                                </Badge>
+                              </div>
+                            </div>
+                            <Badge className="bg-purple-600">Select</Badge>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>
