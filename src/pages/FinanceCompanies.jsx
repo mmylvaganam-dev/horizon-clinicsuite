@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Building2, Plus, Edit, Package, Lock } from 'lucide-react';
+import { Building2, Plus, Edit, Package, Lock, Mail, MessageSquare, Info, ExternalLink } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import toast from 'react-hot-toast';
@@ -33,6 +33,11 @@ export default function FinanceCompanies() {
     incorporation_number: '',
     fiscal_year_end: '',
     base_currency: 'USD',
+    email_domain: '',
+    sms_api_provider: 'none',
+    sms_api_key: '',
+    sms_api_secret: '',
+    sms_sender_id: '',
     status: 'active'
   });
 
@@ -123,6 +128,11 @@ export default function FinanceCompanies() {
         incorporation_number: '',
         fiscal_year_end: '',
         base_currency: 'LKR',
+        email_domain: '',
+        sms_api_provider: 'none',
+        sms_api_key: '',
+        sms_api_secret: '',
+        sms_sender_id: '',
         status: 'active'
       });
       toast.success(editingCompany ? 'Company updated' : 'Company created');
@@ -139,6 +149,11 @@ export default function FinanceCompanies() {
       incorporation_number: company.incorporation_number || '',
       fiscal_year_end: company.fiscal_year_end || '',
       base_currency: company.base_currency,
+      email_domain: company.email_domain || '',
+      sms_api_provider: company.sms_api_provider || 'none',
+      sms_api_key: company.sms_api_key || '',
+      sms_api_secret: company.sms_api_secret || '',
+      sms_sender_id: company.sms_sender_id || '',
       status: company.status
     });
     setDialogOpen(true);
@@ -455,7 +470,132 @@ export default function FinanceCompanies() {
               />
             </div>
 
-            <div>
+            <div className="border-t-2 border-slate-200 pt-4 mt-4">
+              <div className="flex items-center gap-2 mb-4">
+                <Mail className="w-5 h-5 text-blue-600" />
+                <h3 className="font-bold text-lg text-slate-900">Email Configuration</h3>
+                <div className="group relative">
+                  <Info className="w-4 h-4 text-slate-400 cursor-help" />
+                  <div className="hidden group-hover:block absolute left-0 top-6 w-80 bg-slate-900 text-white p-4 rounded-xl shadow-2xl z-50">
+                    <p className="font-bold mb-2">📧 Email Setup</p>
+                    <p className="text-sm">Configure your email domain for sending invoices and notifications. You'll need to configure DNS records (SPF, DKIM) for your domain.</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <Label>Email Domain</Label>
+                <Input
+                  value={formData.email_domain}
+                  onChange={(e) => setFormData({...formData, email_domain: e.target.value})}
+                  placeholder="yourcompany.com"
+                />
+                <p className="text-xs text-slate-500 mt-1">Domain for sending invoices (e.g., anantham.lk)</p>
+              </div>
+            </div>
+
+            <div className="border-t-2 border-slate-200 pt-4 mt-4">
+              <div className="flex items-center gap-2 mb-4">
+                <MessageSquare className="w-5 h-5 text-green-600" />
+                <h3 className="font-bold text-lg text-slate-900">SMS Configuration</h3>
+                <div className="group relative">
+                  <Info className="w-4 h-4 text-slate-400 cursor-help" />
+                  <div className="hidden group-hover:block absolute left-0 top-6 w-96 bg-slate-900 text-white p-4 rounded-xl shadow-2xl z-50">
+                    <p className="font-bold mb-2">📱 SMS Setup Instructions</p>
+                    <div className="space-y-3 text-sm">
+                      <div>
+                        <p className="font-semibold text-blue-300">Twilio:</p>
+                        <p>1. Sign up at <a href="https://www.twilio.com" target="_blank" className="text-blue-400 underline">twilio.com</a></p>
+                        <p>2. Get Account SID (API Key) and Auth Token (API Secret)</p>
+                        <p>3. Purchase a phone number (Sender ID)</p>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-green-300">Dialog (Sri Lanka):</p>
+                        <p>1. Contact Dialog for SMS API access</p>
+                        <p>2. Get API credentials and sender ID</p>
+                      </div>
+                      <div>
+                        <p className="font-semibold text-orange-300">Mobitel (Sri Lanka):</p>
+                        <p>1. Contact Mobitel for SMS gateway</p>
+                        <p>2. Obtain API credentials</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <Label>SMS Provider</Label>
+                  <Select value={formData.sms_api_provider} onValueChange={(value) => setFormData({...formData, sms_api_provider: value})}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None (SMS Disabled)</SelectItem>
+                      <SelectItem value="twilio">Twilio (Global)</SelectItem>
+                      <SelectItem value="dialog">Dialog (Sri Lanka)</SelectItem>
+                      <SelectItem value="mobitel">Mobitel (Sri Lanka)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {formData.sms_api_provider !== 'none' && (
+                  <>
+                    <div>
+                      <Label>API Key / Account SID</Label>
+                      <Input
+                        value={formData.sms_api_key}
+                        onChange={(e) => setFormData({...formData, sms_api_key: e.target.value})}
+                        placeholder="Enter API Key"
+                        type="password"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>API Secret / Auth Token</Label>
+                      <Input
+                        value={formData.sms_api_secret}
+                        onChange={(e) => setFormData({...formData, sms_api_secret: e.target.value})}
+                        placeholder="Enter API Secret"
+                        type="password"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>Sender ID / Phone Number</Label>
+                      <Input
+                        value={formData.sms_sender_id}
+                        onChange={(e) => setFormData({...formData, sms_sender_id: e.target.value})}
+                        placeholder={formData.sms_api_provider === 'twilio' ? '+1234567890' : 'YourBrand'}
+                      />
+                      <p className="text-xs text-slate-500 mt-1">
+                        {formData.sms_api_provider === 'twilio' 
+                          ? 'Your Twilio phone number (e.g., +1234567890)'
+                          : 'Your approved sender name'}
+                      </p>
+                    </div>
+
+                    <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-3">
+                      <div className="flex items-start gap-2">
+                        <Info className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                        <div className="text-sm text-blue-900">
+                          <p className="font-semibold mb-1">Setup Guide:</p>
+                          <ul className="list-disc list-inside space-y-1">
+                            <li>Create an account with your SMS provider</li>
+                            <li>Copy API credentials to the fields above</li>
+                            <li>Test SMS sending from the system</li>
+                            <li>Monitor usage and costs in provider dashboard</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="border-t-2 border-slate-200 pt-4 mt-4">
               <Label>Status</Label>
               <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
                 <SelectTrigger>
