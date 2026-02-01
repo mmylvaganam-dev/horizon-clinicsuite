@@ -481,34 +481,74 @@ export default function FinanceCompanies() {
                   <Info className="w-6 h-6 text-blue-600 mt-1 flex-shrink-0" />
                   <div className="space-y-3 text-sm">
                     <div>
-                      <p className="font-bold text-blue-900 mb-2">📧 How Email Sending Works:</p>
-                      <p className="text-slate-700">The system uses Base44's email service to send invoices and notifications. To send from your company domain (e.g., bill@yourcompany.com), you need to:</p>
+                      <p className="font-bold text-blue-900 mb-2">📧 Step-by-Step Email Setup Guide:</p>
                     </div>
                     
-                    <div className="bg-white rounded-lg p-3 space-y-2">
-                      <p className="font-semibold text-slate-900">✅ Recommended: Use Resend (Easiest)</p>
-                      <ol className="list-decimal list-inside space-y-1 text-slate-700 ml-2">
-                        <li>Sign up at <a href="https://resend.com" target="_blank" className="text-blue-600 underline font-semibold">resend.com</a> (free tier available)</li>
-                        <li>Add your domain in Resend dashboard</li>
-                        <li>Copy the DNS records (SPF, DKIM, DMARC)</li>
-                        <li>Add DNS records to your domain registrar (GoDaddy, Namecheap, etc.)</li>
-                        <li>Wait for verification (usually 5-30 minutes)</li>
-                        <li>Enter your domain below once verified</li>
-                      </ol>
-                    </div>
-
-                    <div className="bg-amber-50 border-l-4 border-amber-400 rounded p-3">
-                      <p className="font-semibold text-amber-900 mb-1">⚠️ Important:</p>
-                      <p className="text-amber-800">Without DNS setup, emails may go to spam or fail to deliver. Resend handles all technical setup automatically.</p>
-                    </div>
-
-                    <div className="bg-white rounded-lg p-3">
-                      <p className="font-semibold text-slate-900 mb-2">📋 DNS Records Example:</p>
-                      <div className="text-xs font-mono bg-slate-100 p-2 rounded space-y-1">
-                        <div>TXT @ "v=spf1 include:resend.com ~all"</div>
-                        <div>TXT resend._domainkey "your-dkim-key"</div>
-                        <div>TXT _dmarc "v=DMARC1; p=none;"</div>
+                    <div className="bg-white rounded-lg p-4 border-2 border-blue-300 space-y-3">
+                      <p className="font-bold text-blue-900 text-base">STEP 1: Sign Up at Resend</p>
+                      <div className="pl-4 space-y-2">
+                        <p className="text-slate-700">→ Go to <a href="https://resend.com/signup" target="_blank" className="text-blue-600 underline font-bold">resend.com/signup</a></p>
+                        <p className="text-slate-700">→ Create free account (no credit card needed)</p>
+                        <p className="text-slate-700">→ Verify your email</p>
                       </div>
+                    </div>
+
+                    <div className="bg-white rounded-lg p-4 border-2 border-green-300 space-y-3">
+                      <p className="font-bold text-green-900 text-base">STEP 2: Add Your Domain in Resend</p>
+                      <div className="pl-4 space-y-2">
+                        <p className="text-slate-700">→ Login to <a href="https://resend.com/domains" target="_blank" className="text-blue-600 underline font-bold">resend.com/domains</a></p>
+                        <p className="text-slate-700">→ Click "Add Domain"</p>
+                        <p className="text-slate-700">→ Enter your domain (e.g., anantham.lk)</p>
+                        <p className="text-slate-700">→ Click "Add"</p>
+                        <p className="text-slate-700">→ Resend will show you 3 DNS records to copy</p>
+                      </div>
+                    </div>
+
+                    <div className="bg-white rounded-lg p-4 border-2 border-purple-300 space-y-3">
+                      <p className="font-bold text-purple-900 text-base">STEP 3: Add DNS Records at Your Domain Provider</p>
+                      <div className="pl-4 space-y-2">
+                        <p className="text-slate-700">→ Login to your domain provider (GoDaddy, Namecheap, Google Domains, etc.)</p>
+                        <p className="text-slate-700">→ Go to DNS Management / DNS Settings</p>
+                        <p className="text-slate-700">→ Add the 3 TXT records from Resend:</p>
+                        <div className="bg-slate-100 p-3 rounded text-xs font-mono space-y-1 ml-4">
+                          <div className="text-green-700 font-bold">Record 1: SPF</div>
+                          <div>Type: TXT | Name: @ | Value: v=spf1 include:resend.com ~all</div>
+                          <div className="text-green-700 font-bold mt-2">Record 2: DKIM</div>
+                          <div>Type: TXT | Name: resend._domainkey | Value: (copy from Resend)</div>
+                          <div className="text-green-700 font-bold mt-2">Record 3: DMARC</div>
+                          <div>Type: TXT | Name: _dmarc | Value: v=DMARC1; p=none;</div>
+                        </div>
+                        <p className="text-slate-700">→ Save the DNS records</p>
+                      </div>
+                    </div>
+
+                    <div className="bg-white rounded-lg p-4 border-2 border-orange-300 space-y-3">
+                      <p className="font-bold text-orange-900 text-base">STEP 4: Wait for Verification</p>
+                      <div className="pl-4 space-y-2">
+                        <p className="text-slate-700">→ Go back to Resend dashboard</p>
+                        <p className="text-slate-700">→ Click "Verify" on your domain</p>
+                        <p className="text-slate-700">→ Wait 5-30 minutes for DNS propagation</p>
+                        <p className="text-slate-700">→ Status will change to "Verified" ✅</p>
+                      </div>
+                    </div>
+
+                    <div className="bg-white rounded-lg p-4 border-2 border-teal-300 space-y-3">
+                      <p className="font-bold text-teal-900 text-base">STEP 5: Enter Domain Below</p>
+                      <div className="pl-4 space-y-2">
+                        <p className="text-slate-700">→ Once verified in Resend, enter your domain in the field below</p>
+                        <p className="text-slate-700">→ Save the company profile</p>
+                        <p className="text-slate-700">→ Done! Emails will now send from bill@yourdomain.com</p>
+                      </div>
+                    </div>
+
+                    <div className="bg-amber-50 border-l-4 border-amber-500 rounded p-3">
+                      <p className="font-bold text-amber-900 mb-1">⚠️ Important Notes:</p>
+                      <ul className="text-amber-800 space-y-1 list-disc list-inside">
+                        <li>You do NOT create an email account - Resend handles sending</li>
+                        <li>DNS changes at domain provider (GoDaddy, etc.), NOT at Resend</li>
+                        <li>Free tier: 3,000 emails/month, 100 emails/day</li>
+                        <li>No credit card required for free tier</li>
+                      </ul>
                     </div>
                   </div>
                 </div>
