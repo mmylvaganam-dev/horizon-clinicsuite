@@ -88,21 +88,44 @@ export default function PharmacyStockImport() {
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
         // Map Excel columns to our schema
-        items = jsonData.map(row => ({
-          legacy_id: row['Legacy Id'] || row['legacy_id'] || '',
-          barcode: row['Barcode'] || row['barcode'] || '',
-          batch_no: row['Batch No'] || row['batch_no'] || '',
-          display_name: row['Display Name'] || row['display_name'] || '',
-          generic_name: row['Generic name'] || row['generic_name'] || '',
-          expire_date: row['Expire date'] || row['expire_date'] || null,
-          quantity: parseFloat(row['Quantity'] || row['quantity'] || 0),
-          unit_price: parseFloat(row['Unit Price'] || row['unit_price'] || 0),
-          unit_cost: parseFloat(row['Unit Cost'] || row['unit_cost'] || 0),
-          mrp: parseFloat(row['MRP'] || row['mrp'] || 0),
-          quality_status: (row['Quality status'] || row['quality_status'] || 'usable').toLowerCase(),
-          storage_status: row['Storage Status'] || row['storage_status'] || 'stored',
-          supplier: row['Purchased from supplier'] || row['supplier'] || ''
-        }));
+         items = jsonData.map(row => {
+           // Convert batch_no - must be string, not empty or null
+           const batchNo = String(row['Batch No'] || row['batch_no'] || '').trim();
+
+           // Convert expire_date - must be valid date format (YYYY-MM-DD) or null
+           let expireDate = null;
+           const expireDateVal = row['Expire date'] || row['expire_date'];
+           if (expireDateVal) {
+             const dateStr = String(expireDateVal).trim();
+             // If it looks like a date, format it
+             if (dateStr && dateStr !== '' && dateStr !== 'null' && dateStr !== 'undefined') {
+               // Handle Excel date serial numbers (number) by converting to date
+               if (!isNaN(dateStr)) {
+                 const excelDate = new Date((parseInt(dateStr) - 25569) * 86400 * 1000);
+                 expireDate = excelDate.toISOString().split('T')[0];
+               } else {
+                 // Already a date string
+                 expireDate = dateStr;
+               }
+             }
+           }
+
+           return {
+             legacy_id: String(row['Legacy Id'] || row['legacy_id'] || '').trim(),
+             barcode: String(row['Barcode'] || row['barcode'] || '').trim(),
+             batch_no: batchNo,
+             display_name: String(row['Display Name'] || row['display_name'] || '').trim(),
+             generic_name: String(row['Generic name'] || row['generic_name'] || '').trim(),
+             expire_date: expireDate,
+             quantity: parseFloat(row['Quantity'] || row['quantity'] || 0) || 0,
+             unit_price: parseFloat(row['Unit Price'] || row['unit_price'] || 0) || 0,
+             unit_cost: parseFloat(row['Unit Cost'] || row['unit_cost'] || 0) || 0,
+             mrp: parseFloat(row['MRP'] || row['mrp'] || 0) || 0,
+             quality_status: (row['Quality status'] || row['quality_status'] || 'usable').toLowerCase(),
+             storage_status: String(row['Storage Status'] || row['storage_status'] || 'stored').trim(),
+             supplier: String(row['Purchased from supplier'] || row['supplier'] || '').trim()
+           };
+         });
       } else {
         // CSV - use AI extraction
         const uploadResponse = await base44.integrations.Core.UploadFile({ file });
