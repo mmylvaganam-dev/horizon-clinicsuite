@@ -173,6 +173,8 @@ import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import UserApprovals from './pages/UserApprovals';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
+import UserManagement from './pages/UserManagement';
+import PlatformOwnership from './pages/PlatformOwnership';
 import __Layout from './Layout.jsx';
 
 
@@ -303,6 +305,8 @@ export const PAGES = {
     "UserApprovals": UserApprovals,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
+    "UserManagement": UserManagement,
+    "PlatformOwnership": PlatformOwnership,
 }
 
 export const pagesConfig = {

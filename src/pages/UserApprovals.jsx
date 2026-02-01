@@ -20,6 +20,11 @@ export default function UserApprovals() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');
 
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: approvals, isLoading } = useQuery({
     queryKey: ['userApprovals'],
     queryFn: async () => {
@@ -28,13 +33,17 @@ export default function UserApprovals() {
     },
   });
 
-  const approveMutation = useMutation({
+  const isPlatformOwner = currentUser?.email === 'madhawaekanayake@gmail.com' || currentUser?.is_platform_owner;
+  const isOrgAdmin = currentUser?.is_organization_admin;
+
+  const orgAdminApproveMutation = useMutation({
     mutationFn: async (approvalId) => {
       const user = await base44.auth.me();
       return base44.entities.UserApproval.update(approvalId, {
-        status: 'approved',
-        approved_by: user.email,
-        approved_date: new Date().toISOString(),
+        org_admin_status: 'approved',
+        org_admin_approved_by: user.email,
+        org_admin_approved_date: new Date().toISOString(),
+        final_status: 'pending_platform',
       });
     },
     onSuccess: () => {
@@ -42,13 +51,14 @@ export default function UserApprovals() {
     },
   });
 
-  const rejectMutation = useMutation({
+  const orgAdminRejectMutation = useMutation({
     mutationFn: async (approvalId) => {
       const user = await base44.auth.me();
       return base44.entities.UserApproval.update(approvalId, {
-        status: 'rejected',
-        approved_by: user.email,
-        approved_date: new Date().toISOString(),
+        org_admin_status: 'rejected',
+        org_admin_approved_by: user.email,
+        org_admin_approved_date: new Date().toISOString(),
+        final_status: 'rejected',
         rejection_reason: rejectionReason,
       });
     },
@@ -59,32 +69,93 @@ export default function UserApprovals() {
     },
   });
 
-  const pendingApprovals = approvals?.filter(a => a.status === 'pending') || [];
-  const approvedUsers = approvals?.filter(a => a.status === 'approved') || [];
-  const rejectedUsers = approvals?.filter(a => a.status === 'rejected') || [];
+  const platformOwnerApproveMutation = useMutation({
+    mutationFn: async (approvalId) => {
+      const user = await base44.auth.me();
+      return base44.entities.UserApproval.update(approvalId, {
+        platform_owner_status: 'approved',
+        platform_owner_approved_by: user.email,
+        platform_owner_approved_date: new Date().toISOString(),
+        final_status: 'approved',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userApprovals'] });
+    },
+  });
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'pending':
-        return <Badge className="bg-amber-100 text-amber-800"><Clock className="w-3 h-3 mr-1" /> Pending</Badge>;
-      case 'approved':
-        return <Badge className="bg-green-100 text-green-800"><Check className="w-3 h-3 mr-1" /> Approved</Badge>;
-      case 'rejected':
-        return <Badge className="bg-red-100 text-red-800"><X className="w-3 h-3 mr-1" /> Rejected</Badge>;
-      default:
-        return null;
+  const platformOwnerRejectMutation = useMutation({
+    mutationFn: async (approvalId) => {
+      const user = await base44.auth.me();
+      return base44.entities.UserApproval.update(approvalId, {
+        platform_owner_status: 'rejected',
+        platform_owner_approved_by: user.email,
+        platform_owner_approved_date: new Date().toISOString(),
+        final_status: 'rejected',
+        rejection_reason: rejectionReason,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['userApprovals'] });
+      setSelectedUser(null);
+      setRejectionReason('');
+    },
+  });
+
+  // Filter based on user role
+  let pendingOrgApprovals = [];
+  let pendingPlatformApprovals = [];
+  let approvedUsers = [];
+  let rejectedUsers = [];
+
+  if (isPlatformOwner) {
+    // Platform owner sees everything
+    pendingOrgApprovals = approvals?.filter(a => a.final_status === 'pending_org') || [];
+    pendingPlatformApprovals = approvals?.filter(a => a.final_status === 'pending_platform') || [];
+    approvedUsers = approvals?.filter(a => a.final_status === 'approved') || [];
+    rejectedUsers = approvals?.filter(a => a.final_status === 'rejected') || [];
+  } else if (isOrgAdmin) {
+    // Org admin only sees their organization's pending org approvals
+    pendingOrgApprovals = approvals?.filter(a => 
+      a.final_status === 'pending_org' && a.organization_id === currentUser?.organization_id
+    ) || [];
+    approvedUsers = approvals?.filter(a => 
+      a.final_status === 'approved' && a.organization_id === currentUser?.organization_id
+    ) || [];
+    rejectedUsers = approvals?.filter(a => 
+      a.final_status === 'rejected' && a.organization_id === currentUser?.organization_id
+    ) || [];
+  }
+
+  const getStatusBadge = (finalStatus, orgStatus, platformStatus) => {
+    if (finalStatus === 'pending_org') {
+      return <Badge className="bg-amber-100 text-amber-800"><Clock className="w-3 h-3 mr-1" /> Pending Org Admin</Badge>;
     }
+    if (finalStatus === 'pending_platform') {
+      return <Badge className="bg-blue-100 text-blue-800"><Clock className="w-3 h-3 mr-1" /> Pending Platform Owner</Badge>;
+    }
+    if (finalStatus === 'approved') {
+      return <Badge className="bg-green-100 text-green-800"><Check className="w-3 h-3 mr-1" /> Approved</Badge>;
+    }
+    if (finalStatus === 'rejected') {
+      return <Badge className="bg-red-100 text-red-800"><X className="w-3 h-3 mr-1" /> Rejected</Badge>;
+    }
+    return null;
   };
 
-  const UserCard = ({ approval }) => (
+  const UserCard = ({ approval, showOrgActions, showPlatformActions }) => (
     <div className="flex items-center justify-between p-4 border rounded-lg">
       <div className="flex-1">
         <p className="font-medium text-slate-900">{approval.user_email}</p>
         <p className="text-sm text-slate-500">Organization: {approval.organization_id}</p>
-        {approval.approved_date && (
+        {approval.org_admin_approved_date && (
           <p className="text-xs text-slate-400 mt-1">
-            {approval.status === 'approved' ? 'Approved' : 'Rejected'} on{' '}
-            {new Date(approval.approved_date).toLocaleDateString()}
+            Org Admin: {approval.org_admin_status} on {new Date(approval.org_admin_approved_date).toLocaleDateString()}
+          </p>
+        )}
+        {approval.platform_owner_approved_date && (
+          <p className="text-xs text-slate-400 mt-1">
+            Platform Owner: {approval.platform_owner_status} on {new Date(approval.platform_owner_approved_date).toLocaleDateString()}
           </p>
         )}
         {approval.rejection_reason && (
@@ -92,14 +163,14 @@ export default function UserApprovals() {
         )}
       </div>
       <div className="flex items-center gap-3">
-        {getStatusBadge(approval.status)}
-        {approval.status === 'pending' && (
+        {getStatusBadge(approval.final_status, approval.org_admin_status, approval.platform_owner_status)}
+        {showOrgActions && (
           <div className="flex gap-2">
             <Button
               size="sm"
               variant="outline"
-              onClick={() => approveMutation.mutate(approval.id)}
-              disabled={approveMutation.isPending}
+              onClick={() => orgAdminApproveMutation.mutate(approval.id)}
+              disabled={orgAdminApproveMutation.isPending}
               className="text-green-600 hover:text-green-700"
             >
               <Check className="w-4 h-4 mr-1" />
@@ -140,8 +211,66 @@ export default function UserApprovals() {
                     </Button>
                     <Button
                       className="bg-red-600 hover:bg-red-700"
-                      onClick={() => rejectMutation.mutate(approval.id)}
-                      disabled={rejectMutation.isPending}
+                      onClick={() => orgAdminRejectMutation.mutate(approval.id)}
+                      disabled={orgAdminRejectMutation.isPending}
+                    >
+                      Reject Access
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        )}
+        {showPlatformActions && (
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => platformOwnerApproveMutation.mutate(approval.id)}
+              disabled={platformOwnerApproveMutation.isPending}
+              className="text-green-600 hover:text-green-700"
+            >
+              <Check className="w-4 h-4 mr-1" />
+              Final Approve
+            </Button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-red-600 hover:text-red-700"
+                  onClick={() => setSelectedUser(approval)}
+                >
+                  <X className="w-4 h-4 mr-1" />
+                  Reject
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Reject Access Request</DialogTitle>
+                  <DialogDescription>
+                    Platform owner rejection for {approval.user_email}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium">Rejection Reason (optional)</label>
+                    <Textarea
+                      placeholder="Explain why you're rejecting this access request..."
+                      value={rejectionReason}
+                      onChange={(e) => setRejectionReason(e.target.value)}
+                      className="mt-2"
+                    />
+                  </div>
+                  <div className="flex gap-3 justify-end">
+                    <Button variant="outline" onClick={() => setSelectedUser(null)}>
+                      Cancel
+                    </Button>
+                    <Button
+                      className="bg-red-600 hover:bg-red-700"
+                      onClick={() => platformOwnerRejectMutation.mutate(approval.id)}
+                      disabled={platformOwnerRejectMutation.isPending}
                     >
                       Reject Access
                     </Button>
@@ -159,19 +288,43 @@ export default function UserApprovals() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-slate-900">User Access Approvals</h1>
-        <p className="text-slate-600 mt-1">Review and approve new user access requests</p>
+        <p className="text-slate-600 mt-1">
+          {isPlatformOwner 
+            ? 'Two-level approval system - Organization admins approve first, then you give final approval' 
+            : 'Review and approve new user access requests for your organization'}
+        </p>
       </div>
 
-      {pendingApprovals.length > 0 && (
+      {pendingOrgApprovals.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Pending Approvals ({pendingApprovals.length})</CardTitle>
-            <CardDescription>Users waiting for access approval</CardDescription>
+            <CardTitle>Pending Organization Admin Approval ({pendingOrgApprovals.length})</CardTitle>
+            <CardDescription>
+              {isOrgAdmin 
+                ? 'Users waiting for your approval as organization admin' 
+                : 'Users waiting for organization admin approval'}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {pendingApprovals.map((approval) => (
-                <UserCard key={approval.id} approval={approval} />
+              {pendingOrgApprovals.map((approval) => (
+                <UserCard key={approval.id} approval={approval} showOrgActions={isOrgAdmin} />
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {isPlatformOwner && pendingPlatformApprovals.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Pending Your Final Approval ({pendingPlatformApprovals.length})</CardTitle>
+            <CardDescription>Users approved by org admin, awaiting your final approval as platform owner</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {pendingPlatformApprovals.map((approval) => (
+                <UserCard key={approval.id} approval={approval} showPlatformActions={true} />
               ))}
             </div>
           </CardContent>
@@ -182,12 +335,12 @@ export default function UserApprovals() {
         <Card>
           <CardHeader>
             <CardTitle>Approved Users ({approvedUsers.length})</CardTitle>
-            <CardDescription>Users with active access</CardDescription>
+            <CardDescription>Users with active access (both levels approved)</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {approvedUsers.map((approval) => (
-                <UserCard key={approval.id} approval={approval} />
+                <UserCard key={approval.id} approval={approval} showOrgActions={false} showPlatformActions={false} />
               ))}
             </div>
           </CardContent>
@@ -203,7 +356,7 @@ export default function UserApprovals() {
           <CardContent>
             <div className="space-y-3">
               {rejectedUsers.map((approval) => (
-                <UserCard key={approval.id} approval={approval} />
+                <UserCard key={approval.id} approval={approval} showOrgActions={false} showPlatformActions={false} />
               ))}
             </div>
           </CardContent>
