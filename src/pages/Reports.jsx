@@ -66,6 +66,16 @@ export default function Reports() {
     queryFn: () => base44.entities.CompanyProfile.list(),
   });
 
+  const { data: auditLogs = [] } = useQuery({
+    queryKey: ['auditLogs'],
+    queryFn: () => base44.entities.AuditLog.list('-timestamp', 1000),
+  });
+
+  const { data: appointments = [] } = useQuery({
+    queryKey: ['appointments'],
+    queryFn: () => base44.entities.Appointment.list(),
+  });
+
   const currency = companies[0]?.base_currency || 'LKR';
 
   const handleDateRangeChange = (range) => {
@@ -384,6 +394,7 @@ export default function Reports() {
           <TabsTrigger value="charts">Visual Charts</TabsTrigger>
           <TabsTrigger value="details">Revenue Details</TabsTrigger>
           <TabsTrigger value="aging">AR Aging</TabsTrigger>
+          <TabsTrigger value="activity">Activity Logs</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4 mt-6">
@@ -585,6 +596,123 @@ export default function Reports() {
                   <p className="text-2xl font-bold">{currency} {agingData.totalOutstanding.toFixed(2)}</p>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="activity" className="space-y-4 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+              <CardContent className="p-6">
+                <Activity className="w-8 h-8 mb-2 opacity-80" />
+                <p className="text-sm opacity-90">Total Activities</p>
+                <p className="text-3xl font-bold mt-1">
+                  {auditLogs.filter(log => {
+                    const logDate = new Date(log.timestamp);
+                    return logDate >= new Date(filters.startDate) && logDate <= new Date(filters.endDate);
+                  }).length}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-green-500 to-green-600 text-white">
+              <CardContent className="p-6">
+                <Package className="w-8 h-8 mb-2 opacity-80" />
+                <p className="text-sm opacity-90">Pharmacy Sales</p>
+                <p className="text-3xl font-bold mt-1">
+                  {pharmacySales.filter(s => {
+                    const saleDate = new Date(s.sale_date);
+                    return saleDate >= new Date(filters.startDate) && saleDate <= new Date(filters.endDate) && s.status === 'completed';
+                  }).length}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+              <CardContent className="p-6">
+                <Calendar className="w-8 h-8 mb-2 opacity-80" />
+                <p className="text-sm opacity-90">Appointments</p>
+                <p className="text-3xl font-bold mt-1">
+                  {appointments.filter(apt => {
+                    const aptDate = new Date(apt.appointment_date);
+                    return aptDate >= new Date(filters.startDate) && aptDate <= new Date(filters.endDate);
+                  }).length}
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white">
+              <CardContent className="p-6">
+                <Users className="w-8 h-8 mb-2 opacity-80" />
+                <p className="text-sm opacity-90">Home Care Services</p>
+                <p className="text-3xl font-bold mt-1">
+                  {homeCareServices.filter(hc => {
+                    const serviceDate = new Date(hc.service_date);
+                    return serviceDate >= new Date(filters.startDate) && serviceDate <= new Date(filters.endDate);
+                  }).length}
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent System Activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 max-h-[600px] overflow-y-auto">
+                {auditLogs
+                  .filter(log => {
+                    const logDate = new Date(log.timestamp);
+                    return logDate >= new Date(filters.startDate) && logDate <= new Date(filters.endDate);
+                  })
+                  .slice(0, 100)
+                  .map((log, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded hover:bg-slate-100">
+                      <div className="flex items-center gap-3">
+                        <Activity className="w-5 h-5 text-blue-600" />
+                        <div>
+                          <p className="font-medium text-slate-900">{log.description || `${log.action_type} on ${log.entity_type}`}</p>
+                          <p className="text-xs text-slate-500">
+                            {log.module} • {log.user_name || log.user_email} • {format(new Date(log.timestamp), 'MMM d, yyyy HH:mm')}
+                          </p>
+                        </div>
+                      </div>
+                      <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                        log.status === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                      }`}>
+                        {log.status}
+                      </span>
+                    </div>
+                  ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Activity by Module</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={Object.entries(
+                  auditLogs
+                    .filter(log => {
+                      const logDate = new Date(log.timestamp);
+                      return logDate >= new Date(filters.startDate) && logDate <= new Date(filters.endDate);
+                    })
+                    .reduce((acc, log) => {
+                      acc[log.module] = (acc[log.module] || 0) + 1;
+                      return acc;
+                    }, {})
+                ).map(([module, count]) => ({ module, count }))}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="module" angle={-15} textAnchor="end" height={80} />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="count" fill="#3b82f6" />
+                </BarChart>
+              </ResponsiveContainer>
             </CardContent>
           </Card>
         </TabsContent>
