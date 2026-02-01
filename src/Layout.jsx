@@ -34,23 +34,20 @@ import { useQuery } from '@tanstack/react-query';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import OrganizationSwitcher from '@/components/shared/OrganizationSwitcher';
+import { useOrganization } from '@/context/OrganizationContext';
 
 
 
 export default function Layout({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userApproved, setUserApproved] = useState(null);
-  const [selectedOrgId, setSelectedOrgId] = useState(null);
   const navigate = useNavigate();
+  const { isPlatformOwner } = useOrganization();
   
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
-
-  const isPlatformOwner = user?.email === 'madhawaekanayake@gmail.com' || 
-                          user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
-                          user?.is_platform_owner;
 
   useEffect(() => {
     const checkApproval = async () => {
@@ -367,9 +364,7 @@ export default function Layout({ children, currentPageName }) {
             <div className="flex-1 lg:flex-none" />
             
             <div className="flex items-center gap-6">
-              {isPlatformOwner && (
-                <OrganizationSwitcher onOrgChange={setSelectedOrgId} />
-              )}
+              {isPlatformOwner && <OrganizationSwitcher />}
               
               {branding?.primary_logo_file_ref && (
                 <img 
