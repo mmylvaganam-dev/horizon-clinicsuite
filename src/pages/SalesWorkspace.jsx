@@ -276,11 +276,11 @@ export default function SalesWorkspace() {
     }
 
     try {
-      toast.loading('Processing sale...');
-
-      // Get organization and company info
+      const loadingToast = toast.loading('Processing sale...');
+      
       const user = await base44.auth.me();
       const company = companies.length > 0 ? companies[0] : null;
+      const receiptNumber = `INV${Date.now().toString().slice(-8)}`;
 
       // Separate pharmacy items from other services
       const pharmacyItems = cart.filter(item => item.type === 'pharmacy');
@@ -288,8 +288,6 @@ export default function SalesWorkspace() {
 
       // Create pharmacy sale if there are pharmacy items
       if (pharmacyItems.length > 0) {
-        const receiptNumber = `RX${Date.now().toString().slice(-8)}`;
-        
         const saleData = {
           organization_id: user?.organization_id || 'default_org',
           location_id: user?.location_id || 'default_location',
@@ -298,13 +296,18 @@ export default function SalesWorkspace() {
           patient_name: `${selectedPatient.first_name} ${selectedPatient.last_name}`,
           patient_phone: selectedPatient.mobile || selectedPatient.phone,
           sale_date: new Date().toISOString(),
-          items: pharmacyItems.map(item => ({
-            product_id: item.id.replace('pharmacy-', ''),
-            product_name: item.name,
-            quantity: item.quantity,
-            unit_price: item.price,
-            total: item.total
-          })),
+          items: pharmacyItems.map(item => {
+            const productId = item.id.replace('pharmacy-', '');
+            const product = pharmacyStock.find(p => p.id === productId);
+            return {
+              product_id: productId,
+              product_name: item.name,
+              batch_no: product?.batch_no || '',
+              quantity: item.quantity,
+              unit_price: item.price,
+              total: item.total
+            };
+          }),
           subtotal: pharmacyItems.reduce((sum, item) => sum + item.total, 0),
           discount_amount: 0,
           tax_amount: 0,
@@ -313,37 +316,35 @@ export default function SalesWorkspace() {
           payment_status: 'paid',
           status: 'completed',
           created_by: user?.email || 'system',
-          created_by_name: user?.full_name || 'System',
-          notes: 'Sale from New Sale workspace'
+          created_by_name: user?.full_name || 'System'
         };
 
-        const sale = await base44.entities.PharmacySale.create(saleData);
-
-        // Generate and display invoice
-        const invoiceResponse = await base44.functions.invoke('generatePharmacyInvoice', {
-          sale_id: sale.id,
-          company_code: company?.company_code || 'CLINIC'
-        });
-
-        toast.dismiss();
-        toast.success(`Pharmacy sale ${receiptNumber} completed!`);
+        await base44.entities.PharmacySale.create(saleData);
+        
+        // Update stock quantities
+        for (const item of pharmacyItems) {
+          const productId = item.id.replace('pharmacy-', '');
+          const product = pharmacyStock.find(p => p.id === productId);
+          if (product) {
+            await base44.entities.PharmacyStock.update(productId, {
+              quantity: Math.max(0, product.quantity - item.quantity)
+            });
+          }
+        }
       }
 
-      // Handle other services (GP, Specialist, etc.) - create orders/invoices
-      if (otherServices.length > 0) {
-        // Group by service type and create appropriate records
-        // This is a placeholder - you can enhance this based on your needs
-        toast.success(`${otherServices.length} service(s) recorded`);
-      }
+      toast.dismiss(loadingToast);
+      toast.success(`Sale ${receiptNumber} completed successfully!`);
 
       // Reset cart
       setCart([]);
       setSelectedPatient(null);
       setPatientSearch('');
+      queryClient.invalidateQueries(['pharmacyStock']);
       
     } catch (error) {
       toast.dismiss();
-      toast.error('Failed to complete sale: ' + error.message);
+      toast.error('Sale failed: ' + error.message);
       console.error(error);
     }
   };
