@@ -415,11 +415,6 @@ export default function SalesWorkspace() {
   const handlePrintInvoice = () => {
     if (!completedSale) return;
     
-    // Auto-close and return to new sale after printing
-    setTimeout(() => {
-      handleCloseInvoiceDialog();
-    }, 1000);
-    
     const printWindow = window.open('', '_blank');
     printWindow.document.write(`
       <html>
@@ -563,6 +558,10 @@ export default function SalesWorkspace() {
     if (completedSale?.customer_email) {
       handleEmailInvoice();
     }
+    // Auto-close after print and email sent
+    setTimeout(() => {
+      handleCloseInvoiceDialog();
+    }, 2500);
   };
 
   const handlePrintAndSMS = () => {
@@ -570,6 +569,10 @@ export default function SalesWorkspace() {
     if (completedSale?.customer_phone) {
       handleSMSInvoice();
     }
+    // Auto-close after print and SMS sent
+    setTimeout(() => {
+      handleCloseInvoiceDialog();
+    }, 2500);
   };
 
   const handleAll = async () => {
@@ -583,7 +586,7 @@ export default function SalesWorkspace() {
     // Auto-close after all actions
     setTimeout(() => {
       handleCloseInvoiceDialog();
-    }, 2000);
+    }, 3000);
   };
 
   const handleCloseInvoiceDialog = () => {
