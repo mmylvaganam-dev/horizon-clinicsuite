@@ -80,11 +80,7 @@ export default function Admin() {
     enabled: !!selectedUser,
   });
 
-  const isPlatformOwner = userRoles.some(ur => {
-    const role = allRoles.find(r => r.id === ur.role_id);
-    const roleCode = role?.code || role?.role_name;
-    return roleCode === 'PLATFORM_OWNER';
-  });
+  const isPlatformOwner = user?.email === 'madhawaekanayake@gmail.com' || user?.is_platform_owner;
 
   const isAppAdmin = userRoles.some(ur => {
     const role = allRoles.find(r => r.id === ur.role_id);

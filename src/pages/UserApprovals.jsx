@@ -4,7 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, X, Clock } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Check, X, Clock, AlertTriangle } from 'lucide-react';
 import { 
   Dialog,
   DialogContent,
@@ -25,16 +26,25 @@ export default function UserApprovals() {
     queryFn: () => base44.auth.me(),
   });
 
+  const isPlatformOwner = currentUser?.email === 'madhawaekanayake@gmail.com' || currentUser?.is_platform_owner;
+  const isOrgAdmin = currentUser?.is_organization_admin;
+
   const { data: approvals, isLoading } = useQuery({
     queryKey: ['userApprovals'],
     queryFn: async () => {
-      const all = await base44.entities.UserApproval.list();
-      return all;
+      if (isPlatformOwner) {
+        // Platform owner sees all approvals
+        const all = await base44.entities.UserApproval.list();
+        return all;
+      } else if (isOrgAdmin) {
+        // Org admin only sees their organization's approvals
+        const all = await base44.entities.UserApproval.filter({ organization_id: currentUser?.organization_id });
+        return all;
+      }
+      return [];
     },
+    enabled: !!currentUser && (isPlatformOwner || isOrgAdmin),
   });
-
-  const isPlatformOwner = currentUser?.email === 'madhawaekanayake@gmail.com' || currentUser?.is_platform_owner;
-  const isOrgAdmin = currentUser?.is_organization_admin;
 
   const orgAdminApproveMutation = useMutation({
     mutationFn: async (approvalId) => {
@@ -283,6 +293,19 @@ export default function UserApprovals() {
       </div>
     </div>
   );
+
+  // Restrict access to platform owner or org admin only
+  if (!isPlatformOwner && !isOrgAdmin) {
+    return (
+      <div className="space-y-8">
+        <Alert className="bg-red-50 border-red-200">
+          <AlertDescription className="text-red-900">
+            <strong>Access Denied:</strong> Only platform owner or organization admins can access this page.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">

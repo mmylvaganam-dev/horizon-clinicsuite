@@ -24,20 +24,27 @@ export default function UserManagement() {
     queryFn: () => base44.auth.me(),
   });
 
+  const isPlatformOwner = currentUser?.email === 'madhawaekanayake@gmail.com' || currentUser?.is_platform_owner;
+
   const { data: allUsers = [] } = useQuery({
     queryKey: ['allUsers'],
     queryFn: async () => {
+      if (!isPlatformOwner) {
+        // Organization admins only see their org users
+        const users = await base44.entities.User.filter({ organization_id: currentUser?.organization_id });
+        return users;
+      }
+      // Platform owner sees all users
       const users = await base44.entities.User.list();
       return users;
     },
+    enabled: !!currentUser,
   });
 
   const { data: organizations = [] } = useQuery({
     queryKey: ['organizations'],
     queryFn: () => base44.entities.Organization.list(),
   });
-
-  const isPlatformOwner = currentUser?.email === 'madhawaekanayake@gmail.com' || currentUser?.is_platform_owner;
 
   const assignOrgAdminMutation = useMutation({
     mutationFn: async ({ userId, isAdmin }) => {
