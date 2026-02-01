@@ -34,7 +34,7 @@ export default function SalesWorkspace() {
   const [patientSearch, setPatientSearch] = useState('');
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [showPatientDialog, setShowPatientDialog] = useState(false);
-  const [activeServiceTab, setActiveServiceTab] = useState('pharmacy');
+  const [activeServiceTab, setActiveServiceTab] = useState('gp');
 
   // Fetch all service data
   const { data: pharmacyStock = [] } = useQuery({
@@ -441,14 +441,6 @@ export default function SalesWorkspace() {
         <div className="bg-white border-b px-3 lg:px-4 py-3 overflow-x-auto">
           <div className="flex gap-2 min-w-max">
             <Button
-              variant={activeServiceTab === 'pharmacy' ? 'default' : 'outline'}
-              onClick={() => setActiveServiceTab('pharmacy')}
-              className={activeServiceTab === 'pharmacy' ? 'bg-blue-600 hover:bg-blue-700' : 'hover:bg-blue-50'}
-            >
-              <Package className="w-4 h-4 mr-2" />
-              Pharmacy
-            </Button>
-            <Button
               variant={activeServiceTab === 'gp' ? 'default' : 'outline'}
               onClick={() => setActiveServiceTab('gp')}
               className={activeServiceTab === 'gp' ? 'bg-green-600 hover:bg-green-700' : 'hover:bg-green-50'}
@@ -501,36 +493,6 @@ export default function SalesWorkspace() {
 
         {/* Products/Services List */}
         <div className="flex-1 overflow-y-auto p-3 lg:p-4">
-          {activeServiceTab === 'pharmacy' && (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-              {filteredPharmacy.map((item) => (
-                <Card key={item.id} className="cursor-pointer hover:shadow-lg hover:border-blue-400 transition-all" onClick={() => addToCart(item, 'pharmacy')}>
-                  <CardContent className="p-3 lg:p-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Package className="w-4 h-4 text-blue-600" />
-                      <Badge className="bg-blue-100 text-blue-800 text-xs">Pharmacy</Badge>
-                    </div>
-                    <p className="font-semibold text-sm mb-2 line-clamp-2">{item.display_name}</p>
-                    {item.expire_date && (
-                      <Badge className={`text-xs mb-2 ${
-                        new Date(item.expire_date) < new Date() 
-                          ? 'bg-red-100 text-red-700' 
-                          : new Date(item.expire_date) <= new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
-                          ? 'bg-orange-100 text-orange-700'
-                          : 'bg-slate-100 text-slate-700'
-                      }`}>
-                        Exp: {new Date(item.expire_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
-                      </Badge>
-                    )}
-                    {item.batch_no && <p className="text-xs text-slate-500 mb-1">Batch: {item.batch_no}</p>}
-                    <p className="text-lg font-bold text-emerald-600">{currency} {(item.mrp || item.unit_price || 0).toFixed(2)}</p>
-                    <p className="text-xs text-slate-500">Stock: {item.quantity}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-
           {activeServiceTab === 'gp' && (
             filteredGPs.length === 0 && searchQuery !== '' ? (
               <div className="text-center py-12">
