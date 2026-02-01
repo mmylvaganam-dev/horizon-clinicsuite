@@ -113,8 +113,29 @@ export default function AdminOrganizationBranding() {
         secondary_color: branding.secondary_color || '',
         footer_text: branding.footer_text || ''
       });
+    } else {
+      // Reset form when switching orgs or no branding exists
+      setBrandingForm({
+        app_display_name: '',
+        primary_logo_file_ref: '',
+        secondary_logo_file_ref: '',
+        phone_number: '',
+        phone_number_2: '',
+        email: '',
+        custom_domain: '',
+        smtp_host: '',
+        smtp_port: 587,
+        smtp_username: '',
+        smtp_from_email: '',
+        smtp_from_name: '',
+        address: '',
+        website: '',
+        primary_color: '',
+        secondary_color: '',
+        footer_text: ''
+      });
     }
-  }, [branding]);
+  }, [branding, selectedOrg]);
 
   const handleFileUpload = async (e, type) => {
     const file = e.target.files[0];
