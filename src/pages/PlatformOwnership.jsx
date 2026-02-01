@@ -27,7 +27,9 @@ export default function PlatformOwnership() {
     queryFn: () => base44.auth.me(),
   });
 
-  const isPlatformOwner = currentUser?.email === 'madhawaekanayake@gmail.com' || currentUser?.is_platform_owner;
+  const isPlatformOwner = currentUser?.email === 'madhawaekanayake@gmail.com' || 
+                         currentUser?.email === 'mmylvaganam@premierhealthcanada.ca' || 
+                         currentUser?.is_platform_owner;
 
   const transferOwnershipMutation = useMutation({
     mutationFn: async (newEmail) => {
