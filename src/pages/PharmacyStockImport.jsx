@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
+import { useOrganization } from '@/components/OrganizationProvider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Loader2, Download, Database, History, RotateCcw, Info } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Loader2, Download, Database, History, RotateCcw, Info, Building2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import toast from 'react-hot-toast';
@@ -18,6 +20,7 @@ export default function PharmacyStockImport() {
   const [importResult, setImportResult] = useState(null);
   const queryClient = useQueryClient();
   const { orgFilter, withOrgId, selectedOrgId } = useOrgFiltered();
+  const { organizations, selectedOrgId: contextOrgId, setSelectedOrgId } = useOrganization();
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -292,12 +295,49 @@ export default function PharmacyStockImport() {
     toast.success(`Exported ${exportData.length} items`);
   };
 
+  const selectedOrg = organizations?.find(o => o.id === contextOrgId);
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pharmacy Stock Import</h1>
-        <p className="text-slate-500 mt-1">Upload .xlsx Excel files to update inventory</p>
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pharmacy Stock Import</h1>
+          <p className="text-slate-500 mt-1">Upload .xlsx Excel files to update inventory</p>
+        </div>
       </div>
+
+      {/* Organization Selector */}
+      <Card className="bg-amber-50 border-amber-200">
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-amber-600" />
+              <span className="font-semibold text-amber-900">Upload to Organization:</span>
+            </div>
+            <Select value={contextOrgId || ''} onValueChange={setSelectedOrgId}>
+              <SelectTrigger className="w-64 bg-white">
+                <SelectValue placeholder="Select organization" />
+              </SelectTrigger>
+              <SelectContent>
+                {organizations?.map((org) => (
+                  <SelectItem key={org.id} value={org.id}>
+                    {org.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedOrg && (
+              <Badge className="bg-amber-600 text-white">
+                {selectedOrg.name}
+              </Badge>
+            )}
+          </div>
+          <p className="text-xs text-amber-700 mt-3">
+            ⚠️ All data in this upload will be added to <strong>{selectedOrg?.name || 'the selected organization'}</strong>. 
+            Make sure you've selected the correct pharmacy before uploading.
+          </p>
+        </CardContent>
+      </Card>
 
       <Card className="bg-blue-50 border-blue-200">
         <CardContent className="pt-6">
