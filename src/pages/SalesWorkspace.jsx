@@ -318,10 +318,24 @@ export default function SalesWorkspace() {
             });
           }
         }
+
+        // Send SMS notification
+        if (selectedPatient.mobile || selectedPatient.phone) {
+          const smsMessage = `Thank you for your purchase! Receipt: ${receiptNumber}. Total: Rs ${totalAmount.toFixed(2)}. ${company?.company_trade_name || 'Clinic'}`;
+          try {
+            await base44.functions.invoke('sendSaleSMS', {
+              phone: selectedPatient.mobile || selectedPatient.phone,
+              message: smsMessage,
+              patient_name: `${selectedPatient.first_name} ${selectedPatient.last_name}`
+            });
+          } catch (smsError) {
+            console.log('SMS failed:', smsError);
+          }
+        }
       }
 
       toast.dismiss(loadingToast);
-      toast.success(`Sale ${receiptNumber} completed successfully!`);
+      toast.success(`Sale ${receiptNumber} completed! SMS sent to patient.`);
 
       // Reset cart
       setCart([]);
