@@ -338,12 +338,136 @@ export default function AdminOrganizationBranding() {
                 <p className="text-xs text-slate-500 mt-1">Custom domain for white-label access</p>
               </div>
 
+              <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-300">
+               <CardHeader>
+                 <CardTitle className="text-base text-green-900">📧 Complete Email Setup Guide</CardTitle>
+                 <p className="text-xs text-green-700">Step-by-step instructions to enable email sending from your domain</p>
+               </CardHeader>
+               <CardContent className="space-y-6">
+
+                 {/* Step 1 */}
+                 <div className="bg-white rounded-lg border-l-4 border-green-500 p-4">
+                   <p className="font-bold text-green-900 text-sm">STEP 1: Login to Your Domain Provider</p>
+                   <div className="text-xs text-slate-700 mt-2 space-y-1 ml-4">
+                     <p>→ Go to your domain registrar (GoDaddy, Namecheap, Google Domains, Bluehost, etc.)</p>
+                     <p>→ Login with your account credentials</p>
+                     <p>→ Find your domain in "My Domains" or similar section</p>
+                     <p>→ Look for "DNS Management", "DNS Settings", or "Name Servers" option</p>
+                   </div>
+                 </div>
+
+                 {/* Step 2 - Domain Provider Examples */}
+                 <div className="bg-blue-50 rounded-lg border border-blue-200 p-4">
+                   <p className="font-bold text-blue-900 text-sm mb-3">Finding DNS Settings by Provider:</p>
+                   <div className="text-xs text-blue-800 space-y-2 ml-4">
+                     <div><strong>GoDaddy:</strong> Domains → Your domain → DNS → Edit Zone File</div>
+                     <div><strong>Namecheap:</strong> Dashboard → Manage Domain → Advanced DNS</div>
+                     <div><strong>Google Domains:</strong> My domains → Your domain → DNS</div>
+                     <div><strong>Bluehost:</strong> Domains → Your domain → DNS Records</div>
+                     <div><strong>1&1/IONOS:</strong> Manage Domain → DNS Settings</div>
+                   </div>
+                 </div>
+
+                 {/* Step 3 */}
+                 <div className="bg-white rounded-lg border-l-4 border-green-500 p-4">
+                   <p className="font-bold text-green-900 text-sm">STEP 2: Go to Resend to Get DNS Records</p>
+                   <div className="text-xs text-slate-700 mt-2 space-y-1 ml-4">
+                     <p>→ Visit <a href="https://resend.com/domains" target="_blank" className="text-blue-600 underline font-bold">resend.com/domains</a></p>
+                     <p>→ Click on your domain name</p>
+                     <p>→ Copy the 3 DNS records shown (SPF, DKIM, DMARC)</p>
+                     <p>→ Keep this page open or take screenshots</p>
+                   </div>
+                 </div>
+
+                 {/* Step 4 - Add SPF */}
+                 <div className="bg-white rounded-lg border-l-4 border-purple-500 p-4">
+                   <p className="font-bold text-purple-900 text-sm">STEP 3: Add SPF Record (First DNS Record)</p>
+                   <div className="text-xs text-slate-700 mt-2 space-y-2 ml-4">
+                     <p className="font-semibold">In your domain provider's DNS settings:</p>
+                     <div className="bg-slate-100 p-2 rounded font-mono text-xs space-y-1">
+                       <div><span className="text-red-700">Type:</span> TXT</div>
+                       <div><span className="text-red-700">Name:</span> @ (or leave blank)</div>
+                       <div><span className="text-red-700">Value:</span> v=spf1 include:resend.com ~all</div>
+                     </div>
+                     <p>→ Click Add/Save</p>
+                     <p className="text-amber-700 font-semibold">⚠️ Wait 5-10 minutes before adding next record</p>
+                   </div>
+                 </div>
+
+                 {/* Step 5 - Add DKIM */}
+                 <div className="bg-white rounded-lg border-l-4 border-orange-500 p-4">
+                   <p className="font-bold text-orange-900 text-sm">STEP 4: Add DKIM Record (Second DNS Record)</p>
+                   <div className="text-xs text-slate-700 mt-2 space-y-2 ml-4">
+                     <p className="font-semibold">In your domain provider's DNS settings:</p>
+                     <div className="bg-slate-100 p-2 rounded font-mono text-xs space-y-1">
+                       <div><span className="text-red-700">Type:</span> TXT</div>
+                       <div><span className="text-red-700">Name:</span> resend._domainkey</div>
+                       <div><span className="text-red-700">Value:</span> (copy from Resend - it's a long string)</div>
+                     </div>
+                     <p>→ Click Add/Save</p>
+                     <p className="text-amber-700 font-semibold">⚠️ Wait 5-10 minutes before adding next record</p>
+                   </div>
+                 </div>
+
+                 {/* Step 6 - Add DMARC */}
+                 <div className="bg-white rounded-lg border-l-4 border-red-500 p-4">
+                   <p className="font-bold text-red-900 text-sm">STEP 5: Add DMARC Record (Third DNS Record)</p>
+                   <div className="text-xs text-slate-700 mt-2 space-y-2 ml-4">
+                     <p className="font-semibold">In your domain provider's DNS settings:</p>
+                     <div className="bg-slate-100 p-2 rounded font-mono text-xs space-y-1">
+                       <div><span className="text-red-700">Type:</span> TXT</div>
+                       <div><span className="text-red-700">Name:</span> _dmarc</div>
+                       <div><span className="text-red-700">Value:</span> v=DMARC1; p=none;</div>
+                     </div>
+                     <p>→ Click Add/Save</p>
+                   </div>
+                 </div>
+
+                 {/* Step 7 - Verify */}
+                 <div className="bg-white rounded-lg border-l-4 border-teal-500 p-4">
+                   <p className="font-bold text-teal-900 text-sm">STEP 6: Verify DNS in Resend</p>
+                   <div className="text-xs text-slate-700 mt-2 space-y-1 ml-4">
+                     <p>→ Wait 10-30 minutes (DNS propagation)</p>
+                     <p>→ Go back to <a href="https://resend.com/domains" target="_blank" className="text-blue-600 underline">resend.com/domains</a></p>
+                     <p>→ Click "Verify" on your domain</p>
+                     <p>→ Status should change to ✅ <strong>Verified</strong></p>
+                   </div>
+                 </div>
+
+                 {/* Step 8 - Fill in App */}
+                 <div className="bg-white rounded-lg border-l-4 border-indigo-500 p-4">
+                   <p className="font-bold text-indigo-900 text-sm">STEP 7: Configure Email in This App</p>
+                   <div className="text-xs text-slate-700 mt-2 space-y-2 ml-4">
+                     <p className="font-semibold">Once verified, fill in the fields below:</p>
+                     <div className="bg-indigo-50 p-2 rounded space-y-1">
+                       <div><span className="font-bold">Email Domain:</span> yourdomain.com</div>
+                       <div><span className="font-bold">From Email:</span> noreply@yourdomain.com</div>
+                       <div><span className="font-bold">From Name:</span> Your Clinic Name</div>
+                     </div>
+                     <p>→ Click "Save Company Profile"</p>
+                     <p>→ Done! Emails will now send from your domain ✅</p>
+                   </div>
+                 </div>
+
+                 <div className="bg-red-50 border-l-4 border-red-500 rounded p-3">
+                   <p className="font-bold text-red-900 text-sm mb-1">❌ Common Mistakes to Avoid:</p>
+                   <ul className="text-xs text-red-800 space-y-1 list-disc list-inside">
+                     <li>Don't modify CNAME records - only add TXT records</li>
+                     <li>DNS takes 5-30 minutes to propagate globally</li>
+                     <li>Copy DKIM value exactly as shown in Resend</li>
+                     <li>Don't create email accounts - Resend handles all sending</li>
+                   </ul>
+                 </div>
+
+               </CardContent>
+              </Card>
+
               <Card className="bg-slate-50 border-slate-200">
-                <CardHeader>
-                  <CardTitle className="text-base">Custom Email Settings (SMTP)</CardTitle>
-                  <p className="text-xs text-slate-500">Configure custom domain email for sending notifications</p>
-                </CardHeader>
-                <CardContent className="space-y-4">
+               <CardHeader>
+                 <CardTitle className="text-base">Email Configuration Fields</CardTitle>
+                 <p className="text-xs text-slate-500">After DNS setup is verified, fill in these fields:</p>
+               </CardHeader>
+               <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label>SMTP Host</Label>
