@@ -33,53 +33,61 @@ import { useQuery } from '@tanstack/react-query';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-// Platform Owner Section Component
-function PlatformOwnerSection({ currentUser }) {
+// Platform Administration Section - Only for platform owner
+function PlatformAdministration({ currentUser }) {
   const isPlatformOwner = currentUser?.email === 'madhawaekanayake@gmail.com' || currentUser?.is_platform_owner;
   
   if (!isPlatformOwner) return null;
 
   return (
-    <div className="p-4 border-t border-slate-700/50 bg-purple-900/20">
-      <h3 className="text-xs font-semibold text-purple-300 mb-2 px-4">PLATFORM OWNER</h3>
-      <div className="space-y-1">
-        <Link
-          to={createPageUrl('Admin')}
-          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-700/50 hover:text-white transition-all"
-        >
-          <Globe className="w-4 h-4" />
-          <span className="text-sm">Platform Control Centre</span>
-        </Link>
-        <Link
-          to={createPageUrl('UserManagement')}
-          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-700/50 hover:text-white transition-all"
-        >
-          <Users className="w-4 h-4" />
-          <span className="text-sm">All Users Management</span>
-        </Link>
-        <Link
-          to={createPageUrl('UserApprovals')}
-          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-700/50 hover:text-white transition-all"
-        >
-          <CheckSquare className="w-4 h-4" />
-          <span className="text-sm">Final User Approvals</span>
-        </Link>
-        <Link
-          to={createPageUrl('PlatformBilling')}
-          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-700/50 hover:text-white transition-all"
-        >
-          <DollarSign className="w-4 h-4" />
-          <span className="text-sm">Platform Billing</span>
-        </Link>
-        <Link
-          to={createPageUrl('PlatformOwnership')}
-          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-400 hover:bg-red-900/20 hover:text-red-300 transition-all"
-        >
-          <Crown className="w-4 h-4" />
-          <span className="text-sm font-semibold">Transfer Ownership</span>
-        </Link>
+    <>
+      <div className="p-4 border-t border-slate-700/50 bg-purple-900/20">
+        <h3 className="text-xs font-semibold text-purple-300 mb-2 px-4">PLATFORM ADMINISTRATION</h3>
+        <div className="space-y-1">
+          <Link
+            to={createPageUrl('Admin')}
+            className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-700/50 hover:text-white transition-all"
+          >
+            <Globe className="w-4 h-4" />
+            <span className="text-sm">Platform Control Centre</span>
+          </Link>
+          <Link
+            to={createPageUrl('UserManagement')}
+            className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-700/50 hover:text-white transition-all"
+          >
+            <Users className="w-4 h-4" />
+            <span className="text-sm">All Users Management</span>
+          </Link>
+          <Link
+            to={createPageUrl('UserApprovals')}
+            className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-700/50 hover:text-white transition-all"
+          >
+            <CheckSquare className="w-4 h-4" />
+            <span className="text-sm">Final User Approvals</span>
+          </Link>
+          <Link
+            to={createPageUrl('PlatformBilling')}
+            className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-700/50 hover:text-white transition-all"
+          >
+            <DollarSign className="w-4 h-4" />
+            <span className="text-sm">Platform Billing</span>
+          </Link>
+        </div>
       </div>
-    </div>
+
+      <div className="p-4 border-t border-slate-700/50 bg-red-900/20">
+        <h3 className="text-xs font-semibold text-red-300 mb-2 px-4">PLATFORM OWNERSHIP</h3>
+        <div className="space-y-1">
+          <Link
+            to={createPageUrl('PlatformOwnership')}
+            className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-400 hover:bg-red-900/30 hover:text-red-300 transition-all"
+          >
+            <Crown className="w-4 h-4" />
+            <span className="text-sm font-semibold">Transfer Ownership</span>
+          </Link>
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -250,7 +258,6 @@ export default function Layout({ children, currentPageName }) {
       icon: Settings,
       items: [
         { name: 'Organization Admin', page: 'Admin', icon: Settings, description: 'Organization administration - Staff, roles, branding, pricing, and configuration' },
-        { name: 'User Management', page: 'UserManagement', icon: Users, description: 'View and manage users in your organization, assign organization admin roles' },
         { name: 'User Access Approvals', page: 'UserApprovals', icon: CheckSquare, description: 'Approve or reject new user access requests (Admin only)' },
         { name: 'Company Profile', page: 'FinanceCompanies', icon: Building2, description: 'Organization setup - Company details, branding, and business information' },
         { name: 'Pricing & Catalogs', page: 'PricingCatalogs', icon: DollarSign, description: 'Service pricing - Configure service fees, packages, and price lists' },
@@ -348,8 +355,8 @@ export default function Layout({ children, currentPageName }) {
             </Accordion>
           </nav>
 
-          {/* Platform Owner Section - Only visible to platform owner */}
-          <PlatformOwnerSection currentUser={user} />
+          {/* Platform Administration & Ownership - Only visible to platform owner */}
+          <PlatformAdministration currentUser={user} />
 
           {/* Footer */}
           <div className="p-4 border-t border-slate-700/50">
