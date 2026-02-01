@@ -22,12 +22,20 @@ export default function PharmacyProductImport() {
 
   const parseCSV = (text) => {
     const lines = text.split('\n').filter(line => line.trim());
-    const headers = lines[0].split('\t').map(h => h.trim());
+    if (lines.length === 0) return [];
+
+    // Auto-detect delimiter: check if first line has more tabs or commas
+    const firstLine = lines[0];
+    const tabCount = (firstLine.match(/\t/g) || []).length;
+    const commaCount = (firstLine.match(/,/g) || []).length;
+    const delimiter = tabCount > commaCount ? '\t' : ',';
+
+    const headers = lines[0].split(delimiter).map(h => h.trim());
     const data = [];
 
     for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split('\t');
-      if (values.length > 1) {
+      const values = lines[i].split(delimiter);
+      if (values.length > 1 && values.some(v => v.trim())) {
         const row = {};
         headers.forEach((header, index) => {
           row[header] = values[index]?.trim() || '';
