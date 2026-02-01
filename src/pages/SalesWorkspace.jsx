@@ -20,7 +20,11 @@ import {
   Home,
   Package,
   TestTube,
-  Heart
+  Heart,
+  Printer,
+  Mail,
+  MessageSquare,
+  AlertCircle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -35,6 +39,10 @@ export default function SalesWorkspace() {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [showPatientDialog, setShowPatientDialog] = useState(false);
   const [activeServiceTab, setActiveServiceTab] = useState('gp');
+  const [showInvoiceDialog, setShowInvoiceDialog] = useState(false);
+  const [completedSale, setCompletedSale] = useState(null);
+  const [emailSent, setEmailSent] = useState(false);
+  const [smsSent, setSmsSent] = useState(false);
 
   // Fetch all service data
   const { data: pharmacyStock = [] } = useQuery({
@@ -82,7 +90,30 @@ export default function SalesWorkspace() {
     queryFn: () => base44.entities.CompanyProfile.list(),
   });
 
+  const { data: branding } = useQuery({
+    queryKey: ['organizationBranding'],
+    queryFn: async () => {
+      const brandings = await base44.entities.OrganizationBranding.list();
+      return brandings[0];
+    },
+  });
+
   const currency = 'Rs';
+
+  const sendInvoiceMutation = useMutation({
+    mutationFn: (data) => base44.functions.invoke('sendInvoice', data),
+    onSuccess: (_, variables) => {
+      if (variables.method === 'email') {
+        setEmailSent(true);
+      } else if (variables.method === 'sms') {
+        setSmsSent(true);
+      }
+      toast.success('Invoice sent successfully');
+    },
+    onError: () => {
+      toast.error('Failed to send invoice');
+    }
+  });
 
   // Add item to cart
   const addToCart = (item, type) => {
@@ -335,12 +366,39 @@ export default function SalesWorkspace() {
       }
 
       toast.dismiss(loadingToast);
-      toast.success(`Sale ${receiptNumber} completed! SMS sent to patient.`);
+      toast.success(`Sale ${receiptNumber} completed!`);
 
-      // Reset cart
-      setCart([]);
-      setSelectedPatient(null);
-      setPatientSearch('');
+      // Format date/time for Sri Lanka timezone
+      const sriLankaTime = new Date().toLocaleString('en-US', {
+        timeZone: 'Asia/Colombo',
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      });
+      
+      const organizationName = branding?.organization_name || 'Clinic';
+      const locationAddress = branding?.address || '';
+      const locationPhone = branding?.contact_phone || '';
+      
+      const completedSaleData = {
+        receipt_number: receiptNumber,
+        customer_name: `${selectedPatient.first_name} ${selectedPatient.last_name}`,
+        organization_name: organizationName,
+        location_address: locationAddress,
+        location_phone: locationPhone,
+        sale_datetime: sriLankaTime,
+        currency,
+        items: cart,
+        subtotal,
+        discount_amount: 0,
+        total_savings: 0,
+        tax,
+        total,
+        customer_email: selectedPatient?.email,
+        customer_phone: selectedPatient?.mobile || selectedPatient?.phone
+      };
+      
+      setCompletedSale(completedSaleData);
+      setShowInvoiceDialog(true);
       queryClient.invalidateQueries(['pharmacyStock']);
       
     } catch (error) {
@@ -348,6 +406,183 @@ export default function SalesWorkspace() {
       toast.error('Sale failed: ' + error.message);
       console.error(error);
     }
+  };
+
+  const handlePrintInvoice = () => {
+    if (!completedSale) return;
+    
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Invoice ${completedSale.receipt_number}</title>
+          <style>
+            @page { size: 80mm auto; margin: 0; }
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { 
+              font-family: 'Courier New', monospace; 
+              width: 72mm;
+              margin: 0 auto;
+              padding: 5mm;
+              font-size: 11px;
+              line-height: 1.3;
+            }
+            .header { text-align: center; border-bottom: 1px dashed #333; padding-bottom: 5px; margin-bottom: 8px; }
+            .header h1 { font-size: 14px; font-weight: bold; margin-bottom: 3px; }
+            .header p { font-size: 9px; margin: 1px 0; }
+            .info { margin-bottom: 8px; font-size: 10px; }
+            .info-row { display: flex; justify-content: space-between; margin: 2px 0; }
+            .divider { border-top: 1px dashed #333; margin: 5px 0; }
+            .items { margin: 5px 0; }
+            .item { margin: 3px 0; font-size: 10px; }
+            .item-name { font-weight: bold; margin-bottom: 1px; }
+            .item-details { display: flex; justify-content: space-between; font-size: 9px; }
+            .totals { margin-top: 8px; border-top: 1px solid #333; padding-top: 5px; }
+            .total-row { display: flex; justify-content: space-between; margin: 2px 0; font-size: 10px; }
+            .grand-total { font-weight: bold; font-size: 12px; border-top: 1px solid #333; margin-top: 3px; padding-top: 3px; }
+            .footer { text-align: center; margin-top: 10px; padding-top: 5px; border-top: 1px dashed #333; font-size: 9px; }
+            @media print { body { width: 72mm; } }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>${completedSale.organization_name}</h1>
+            ${completedSale.location_address ? `<p>${completedSale.location_address}</p>` : ''}
+            ${completedSale.location_phone ? `<p>Tel: ${completedSale.location_phone}</p>` : ''}
+          </div>
+          
+          <div class="info">
+            <div class="info-row">
+              <span>Receipt:</span>
+              <span><strong>${completedSale.receipt_number}</strong></span>
+            </div>
+            <div class="info-row">
+              <span>Customer:</span>
+              <span>${completedSale.customer_name}</span>
+            </div>
+            <div class="info-row">
+              <span>Date/Time:</span>
+              <span>${completedSale.sale_datetime}</span>
+            </div>
+          </div>
+          
+          <div class="divider"></div>
+          
+          <div class="items">
+            ${completedSale.items.map(item => `
+              <div class="item">
+                <div class="item-name">${item.name}</div>
+                <div class="item-details">
+                  <span>${item.quantity} x ${completedSale.currency} ${item.price.toFixed(2)}</span>
+                  <span><strong>${completedSale.currency} ${item.total.toFixed(2)}</strong></span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          
+          <div class="totals">
+            <div class="total-row">
+              <span>Subtotal:</span>
+              <span>${completedSale.currency} ${completedSale.subtotal.toFixed(2)}</span>
+            </div>
+            <div class="total-row">
+              <span>Tax:</span>
+              <span>${completedSale.currency} ${completedSale.tax.toFixed(2)}</span>
+            </div>
+            <div class="total-row grand-total">
+              <span>TOTAL:</span>
+              <span>${completedSale.currency} ${completedSale.total.toFixed(2)}</span>
+            </div>
+          </div>
+          
+          <div class="footer">
+            <p>Thank you for your visit!</p>
+            <p>Please keep this receipt</p>
+          </div>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    setTimeout(() => {
+      printWindow.focus();
+      printWindow.print();
+    }, 250);
+  };
+
+  const handleEmailInvoice = () => {
+    if (!completedSale?.customer_email) {
+      toast.error('No email address available');
+      return;
+    }
+    
+    const companyId = companies && companies.length > 0 ? companies[0].id : null;
+    if (!companyId) {
+      toast.error('Company information not available');
+      return;
+    }
+    
+    sendInvoiceMutation.mutate({
+      method: 'email',
+      recipient: completedSale.customer_email,
+      sale_data: completedSale,
+      company_id: companyId
+    });
+  };
+
+  const handleSMSInvoice = () => {
+    if (!completedSale?.customer_phone) {
+      toast.error('No phone number available');
+      return;
+    }
+    
+    const companyId = companies && companies.length > 0 ? companies[0].id : null;
+    if (!companyId) {
+      toast.error('Company information not available');
+      return;
+    }
+    
+    sendInvoiceMutation.mutate({
+      method: 'sms',
+      recipient: completedSale.customer_phone,
+      sale_data: completedSale,
+      company_id: companyId
+    });
+  };
+
+  const handlePrintAndEmail = () => {
+    handlePrintInvoice();
+    if (completedSale?.customer_email) {
+      handleEmailInvoice();
+    }
+  };
+
+  const handlePrintAndSMS = () => {
+    handlePrintInvoice();
+    if (completedSale?.customer_phone) {
+      handleSMSInvoice();
+    }
+  };
+
+  const handleAll = () => {
+    handlePrintInvoice();
+    if (completedSale?.customer_email) {
+      handleEmailInvoice();
+    }
+    if (completedSale?.customer_phone) {
+      handleSMSInvoice();
+    }
+  };
+
+  const handleCloseInvoiceDialog = () => {
+    setShowInvoiceDialog(false);
+    setCompletedSale(null);
+    setEmailSent(false);
+    setSmsSent(false);
+    
+    // Reset cart and selections
+    setCart([]);
+    setSelectedPatient(null);
+    setPatientSearch('');
   };
 
   const getTypeIcon = (type) => {
@@ -839,6 +1074,125 @@ export default function SalesWorkspace() {
               ))
             )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Invoice Options Dialog */}
+      <Dialog open={showInvoiceDialog} onOpenChange={setShowInvoiceDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Invoice Ready</DialogTitle>
+          </DialogHeader>
+          
+          {completedSale && (
+            <div className="space-y-4">
+              <div className="bg-slate-50 p-4 rounded-lg">
+                <p className="text-sm text-slate-600">Receipt #{completedSale.receipt_number}</p>
+                <p className="font-semibold">{completedSale.customer_name}</p>
+                <p className="text-2xl font-bold text-indigo-600 mt-2">
+                  {completedSale.currency} {completedSale.total.toFixed(2)}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Button 
+                  className="w-full justify-start" 
+                  variant="outline"
+                  onClick={handlePrintInvoice}
+                >
+                  <Printer className="w-4 h-4 mr-2" />
+                  Print Invoice
+                </Button>
+                
+                <Button 
+                  className="w-full justify-start" 
+                  variant="outline"
+                  onClick={handleEmailInvoice}
+                  disabled={!completedSale.customer_email || sendInvoiceMutation.isPending || emailSent}
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  {emailSent ? (
+                    <>
+                      <Check className="w-4 h-4 mr-2 text-green-600" />
+                      <span className="text-green-600">Email Sent</span>
+                    </>
+                  ) : completedSale.customer_email ? (
+                    `Email to ${completedSale.customer_email}`
+                  ) : (
+                    'Email (No email address)'
+                  )}
+                </Button>
+                
+                <Button 
+                  className="w-full justify-start" 
+                  variant="outline"
+                  onClick={handleSMSInvoice}
+                  disabled={!completedSale.customer_phone || sendInvoiceMutation.isPending || smsSent}
+                >
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  {smsSent ? (
+                    <>
+                      <Check className="w-4 h-4 mr-2 text-green-600" />
+                      <span className="text-green-600">SMS Sent</span>
+                    </>
+                  ) : completedSale.customer_phone ? (
+                    `SMS to ${completedSale.customer_phone}`
+                  ) : (
+                    'SMS (No phone number)'
+                  )}
+                </Button>
+
+                {!completedSale.customer_email && !completedSale.customer_phone && (
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg flex gap-2">
+                    <AlertCircle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-amber-700">No email or phone number available. Print invoice only.</p>
+                  </div>
+                )}
+
+                {(completedSale.customer_email || completedSale.customer_phone) && (
+                  <>
+                    <div className="border-t my-2"></div>
+                    {completedSale.customer_email && completedSale.customer_phone && (
+                      <Button 
+                        className="w-full justify-start bg-indigo-600 hover:bg-indigo-700 text-white" 
+                        onClick={handleAll}
+                        disabled={sendInvoiceMutation.isPending}
+                      >
+                        <Check className="w-4 h-4 mr-2" />
+                        Print, Email & SMS All
+                      </Button>
+                    )}
+                    {completedSale.customer_email && !completedSale.customer_phone && (
+                      <Button 
+                        className="w-full justify-start bg-indigo-600 hover:bg-indigo-700 text-white" 
+                        onClick={handlePrintAndEmail}
+                        disabled={sendInvoiceMutation.isPending}
+                      >
+                        <Check className="w-4 h-4 mr-2" />
+                        Print & Email
+                      </Button>
+                    )}
+                    {completedSale.customer_phone && !completedSale.customer_email && (
+                      <Button 
+                        className="w-full justify-start bg-indigo-600 hover:bg-indigo-700 text-white" 
+                        onClick={handlePrintAndSMS}
+                        disabled={sendInvoiceMutation.isPending}
+                      >
+                        <Check className="w-4 h-4 mr-2" />
+                        Print & SMS
+                      </Button>
+                    )}
+                  </>
+                )}
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <Button onClick={handleCloseInvoiceDialog}>
+                  Done
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </>
