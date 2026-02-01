@@ -57,9 +57,32 @@ export default function PatientHub() {
     return Math.floor((new Date() - new Date(dob)) / (365.25 * 24 * 60 * 60 * 1000));
   };
 
+  const handleCreatePatient = async (data) => {
+    try {
+      // Generate PHN
+      const phnResponse = await base44.functions.invoke('generatePHN', {});
+      const phn = phnResponse?.data?.phn || `PTN${Date.now()}`;
+      
+      // Create patient with PHN and organization
+      const patientData = {
+        ...data,
+        phn: phn,
+        patient_type: 'registered',
+        status: 'active',
+        organization_id: user?.organization_id || null
+      };
+      
+      await base44.entities.Patient.create(patientData);
+      setShowAddPatient(false);
+    } catch (error) {
+      console.error('Patient creation error:', error);
+    }
+  };
+
   const handleEditPatient = async (data) => {
     await base44.entities.Patient.update(selectedPatient.id, data);
     setSelectedPatient(null);
+    setShowAddPatient(false);
   };
 
   const handleNameEditRequest = (data) => {
@@ -304,7 +327,7 @@ export default function PatientHub() {
         open={showAddPatient}
         onOpenChange={setShowAddPatient}
         patient={selectedPatient}
-        onSubmit={handleEditPatient}
+        onSubmit={selectedPatient ? handleEditPatient : handleCreatePatient}
         onRequestNameEdit={handleNameEditRequest}
       />
 
