@@ -156,13 +156,18 @@ import PharmacyWorkspace from './pages/PharmacyWorkspace';
 import PhysicianWorkspace from './pages/PhysicianWorkspace';
 import PlatformBilling from './pages/PlatformBilling';
 import PlatformConfiguration from './pages/PlatformConfiguration';
+import PlatformDataExport from './pages/PlatformDataExport';
+import PlatformIntegrations from './pages/PlatformIntegrations';
+import PlatformOwnership from './pages/PlatformOwnership';
+import PlatformSecurity from './pages/PlatformSecurity';
 import PlatformSettings from './pages/PlatformSettings';
+import PlatformSetup from './pages/PlatformSetup';
 import Prescriptions from './pages/Prescriptions';
 import PricingCatalogs from './pages/PricingCatalogs';
 import Procurement from './pages/Procurement';
-import Reports from './pages/Reports';
 import ProviderDashboard from './pages/ProviderDashboard';
 import ReleaseQueue from './pages/ReleaseQueue';
+import Reports from './pages/Reports';
 import SOAPNotes from './pages/SOAPNotes';
 import SalesWorkspace from './pages/SalesWorkspace';
 import Settings from './pages/Settings';
@@ -171,14 +176,9 @@ import StaffDirectory from './pages/StaffDirectory';
 import TaskManagement from './pages/TaskManagement';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import UserApprovals from './pages/UserApprovals';
+import UserManagement from './pages/UserManagement';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import UserManagement from './pages/UserManagement';
-import PlatformOwnership from './pages/PlatformOwnership';
-import PlatformSetup from './pages/PlatformSetup';
-import PlatformSecurity from './pages/PlatformSecurity';
-import PlatformDataExport from './pages/PlatformDataExport';
-import PlatformIntegrations from './pages/PlatformIntegrations';
 import __Layout from './Layout.jsx';
 
 
@@ -292,13 +292,18 @@ export const PAGES = {
     "PhysicianWorkspace": PhysicianWorkspace,
     "PlatformBilling": PlatformBilling,
     "PlatformConfiguration": PlatformConfiguration,
+    "PlatformDataExport": PlatformDataExport,
+    "PlatformIntegrations": PlatformIntegrations,
+    "PlatformOwnership": PlatformOwnership,
+    "PlatformSecurity": PlatformSecurity,
     "PlatformSettings": PlatformSettings,
+    "PlatformSetup": PlatformSetup,
     "Prescriptions": Prescriptions,
     "PricingCatalogs": PricingCatalogs,
     "Procurement": Procurement,
-    "Reports": Reports,
     "ProviderDashboard": ProviderDashboard,
     "ReleaseQueue": ReleaseQueue,
+    "Reports": Reports,
     "SOAPNotes": SOAPNotes,
     "SalesWorkspace": SalesWorkspace,
     "Settings": Settings,
@@ -307,14 +312,9 @@ export const PAGES = {
     "TaskManagement": TaskManagement,
     "ThirdPartyProviders": ThirdPartyProviders,
     "UserApprovals": UserApprovals,
+    "UserManagement": UserManagement,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "UserManagement": UserManagement,
-    "PlatformOwnership": PlatformOwnership,
-    "PlatformSetup": PlatformSetup,
-    "PlatformSecurity": PlatformSecurity,
-    "PlatformDataExport": PlatformDataExport,
-    "PlatformIntegrations": PlatformIntegrations,
 }
 
 export const pagesConfig = {

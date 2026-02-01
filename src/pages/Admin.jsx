@@ -175,66 +175,6 @@ export default function Admin() {
 
   const adminCategories = [
     {
-      category: 'Platform Setup',
-      description: 'Setup organizations and global configuration (Owner Only)',
-      icon: Globe,
-      color: 'from-rose-500 to-red-600',
-      modules: [
-        { title: 'Company Profile', description: 'Business details', icon: Building2, page: 'FinanceCompanies', ownerOnly: true },
-        { title: 'Organizations', description: 'Create & manage organizations', icon: Building2, page: 'AdminOrganizations', ownerOnly: true },
-        { title: 'Module Permissions', description: 'Control org module access', icon: Shield, page: 'OrganizationModulePermissions', ownerOnly: true },
-        { title: 'Locations', description: 'Clinics & branches', icon: MapPin, page: 'AdminLocations', ownerOnly: true },
-        { title: 'Global Branding', description: 'White-label branding', icon: Settings, page: 'AdminOrganizationBranding', ownerOnly: true },
-      ]
-    },
-    {
-      category: 'Platform Billing',
-      description: 'Subscription billing management (Owner Only)',
-      icon: DollarSign,
-      color: 'from-rose-500 to-red-600',
-      modules: [
-        { title: 'Platform Billing', description: 'Manage subscription billing', icon: DollarSign, page: 'PlatformBilling', ownerOnly: true },
-        { title: 'Platform Configuration', description: 'Global platform settings', icon: Settings, page: 'PlatformConfiguration', ownerOnly: true },
-      ]
-    },
-    {
-      category: 'Security & Compliance',
-      description: 'Audit, monitoring, and validation (Owner Only)',
-      icon: Shield,
-      color: 'from-rose-500 to-red-600',
-      modules: [
-        { title: 'Audit Logs', description: 'View system audit logs', icon: FileText, page: 'AdminAuditLogs', ownerOnly: true },
-        { title: 'Break-Glass Report', description: 'Emergency access audit', icon: Shield, page: 'AdminBreakGlassReport', ownerOnly: true },
-        { title: 'Security Posture', description: 'Access controls & monitoring', icon: Shield, page: 'AdminSecurityPosture', ownerOnly: true },
-        { title: 'Security Validation', description: 'Verify security controls', icon: Shield, page: 'AdminSecurityValidation', ownerOnly: true },
-        { title: 'Compliance Checklist', description: 'Deployment validation', icon: Shield, page: 'AdminComplianceChecklist', ownerOnly: true },
-        { title: 'Go-Live Checklist', description: 'Production readiness validation', icon: Shield, page: 'AdminGoLiveChecklist', ownerOnly: true },
-      ]
-    },
-    {
-      category: 'Data Export & Management',
-      description: 'Export, retention, and archival (Owner Only)',
-      icon: FileText,
-      color: 'from-rose-500 to-red-600',
-      modules: [
-        { title: 'Data Export', description: 'Export bundles', icon: FileText, page: 'DataExport', ownerOnly: true },
-        { title: 'Export Approvals', description: 'Review export requests', icon: Shield, page: 'AdminExportApprovals', ownerOnly: true },
-        { title: 'Retention Policies', description: 'Data retention rules', icon: Activity, page: 'AdminRetentionPolicies', ownerOnly: true },
-        { title: 'Archive Management', description: 'Archived records', icon: FileText, page: 'AdminArchive', ownerOnly: true },
-      ]
-    },
-    {
-      category: 'External Integrations',
-      description: 'Partners, portals, and reporting (Owner Only)',
-      icon: Users,
-      color: 'from-rose-500 to-red-600',
-      modules: [
-        { title: 'Patient Portal', description: 'Portal account management', icon: Users, page: 'AdminPatientPortal', ownerOnly: true },
-        { title: 'Government Reporting', description: 'Regulatory reports', icon: FileText, page: 'GovernmentReporting', ownerOnly: true },
-        { title: 'Partner Management', description: 'Referral partners', icon: Users, page: 'PartnerManagement', ownerOnly: true },
-      ]
-    },
-    {
       category: 'Users & Access Control',
       description: 'Add staff and grant roles',
       icon: Users,
@@ -285,14 +225,14 @@ export default function Admin() {
     },
     {
       category: 'System Operations',
-      description: 'Monitoring, backups, and maintenance',
+      description: 'Monitoring, backups, and maintenance (Platform Owner Only)',
       icon: Activity,
       color: 'from-emerald-500 to-emerald-600',
       modules: [
-        { title: 'System Health', description: 'Data integrity monitoring', icon: Activity, page: 'AdminSystemHealth' },
-        { title: 'Organization Activity', description: 'Aggregate activity metrics', icon: Activity, page: 'AdminOrganizationActivity' },
-        { title: 'System Version', description: 'Version control & schema lock', icon: Shield, page: 'AdminSystemVersion' },
-        { title: 'Backup Status', description: 'Backup operations', icon: Activity, page: 'AdminBackups' },
+        { title: 'System Health', description: 'Data integrity monitoring', icon: Activity, page: 'AdminSystemHealth', ownerOnly: true },
+        { title: 'Organization Activity', description: 'Aggregate activity metrics', icon: Activity, page: 'AdminOrganizationActivity', ownerOnly: true },
+        { title: 'System Version', description: 'Version control & schema lock', icon: Shield, page: 'AdminSystemVersion', ownerOnly: true },
+        { title: 'Backup Status', description: 'Backup operations', icon: Activity, page: 'AdminBackups', ownerOnly: true },
       ]
     },
   ];
@@ -343,76 +283,13 @@ export default function Admin() {
         />
       </div>
 
-      <Tabs defaultValue={isPlatformOwner ? "platform" : "organization"} className="space-y-6">
-        <TabsList className={`grid w-full ${isPlatformOwner ? 'grid-cols-2' : 'grid-cols-1'}`}>
-          {isPlatformOwner && (
-            <TabsTrigger value="platform" className="flex items-center gap-2 bg-rose-100 data-[state=active]:bg-rose-600 data-[state=active]:text-white">
-              <Globe className="w-4 h-4" />
-              Platform Owner
-            </TabsTrigger>
-          )}
+      <Tabs defaultValue="organization" className="space-y-6">
+        <TabsList className="grid w-full grid-cols-1">
           <TabsTrigger value="organization" className="flex items-center gap-2 bg-blue-100 data-[state=active]:bg-blue-600 data-[state=active]:text-white">
             <Building className="w-4 h-4" />
             Organization Admin
           </TabsTrigger>
         </TabsList>
-
-        {/* Platform Owner Tab */}
-        {isPlatformOwner && (
-          <TabsContent value="platform" className="space-y-6">
-            <div className="bg-gradient-to-r from-rose-500 to-red-600 rounded-2xl p-6 text-white shadow-xl">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center">
-                  <Globe className="w-8 h-8 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold">Platform Owner Control Center</h2>
-                  <p className="text-rose-100 text-lg mt-1">Global setup, billing, security & data exports - affects ALL organizations</p>
-                </div>
-              </div>
-            </div>
-
-            {adminCategories
-              .filter(cat => cat.modules.some(m => m.ownerOnly))
-              .map((category, idx) => (
-                <Card key={idx} className="border-4 border-rose-200 bg-gradient-to-br from-rose-50 to-red-50">
-                  <CardHeader>
-                    <div className="flex items-center gap-3">
-                      <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center shadow-lg`}>
-                        <category.icon className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-slate-900 flex items-center gap-2">
-                          {category.category}
-                          <Badge className="bg-rose-600 text-white">Platform Owner Only</Badge>
-                        </CardTitle>
-                        <p className="text-sm text-slate-600">{category.description}</p>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      {category.modules
-                        .filter(m => m.ownerOnly)
-                        .map((module) => (
-                          <button
-                            key={module.page}
-                            onClick={() => navigate(createPageUrl(module.page))}
-                            className="p-4 rounded-xl border-2 border-rose-200 bg-white hover:shadow-lg transition-all transform hover:scale-105 text-left"
-                          >
-                            <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center mb-3 shadow`}>
-                              <module.icon className="w-5 h-5 text-white" />
-                            </div>
-                            <p className="font-semibold text-slate-900 text-sm">{module.title}</p>
-                            <p className="text-xs text-slate-600 mt-1">{module.description}</p>
-                          </button>
-                        ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-          </TabsContent>
-        )}
 
         {/* Organization Admin Tab */}
         <TabsContent value="organization" className="space-y-6">
