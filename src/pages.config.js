@@ -49,6 +49,7 @@
  */
 import AIAssistant from './pages/AIAssistant';
 import AccessPending from './pages/AccessPending';
+import ActivityLog from './pages/ActivityLog';
 import Admin from './pages/Admin';
 import AdminArchive from './pages/AdminArchive';
 import AdminAuditLogs from './pages/AdminAuditLogs';
@@ -130,6 +131,7 @@ import MedicalRecords from './pages/MedicalRecords';
 import Messaging from './pages/Messaging';
 import OperationsReports from './pages/OperationsReports';
 import OrdersResults from './pages/OrdersResults';
+import OrganizationModulePermissions from './pages/OrganizationModulePermissions';
 import OrganizationUserManagement from './pages/OrganizationUserManagement';
 import OwnerWorkspace from './pages/OwnerWorkspace';
 import PartnerManagement from './pages/PartnerManagement';
@@ -158,9 +160,9 @@ import PlatformSettings from './pages/PlatformSettings';
 import Prescriptions from './pages/Prescriptions';
 import PricingCatalogs from './pages/PricingCatalogs';
 import Procurement from './pages/Procurement';
+import Reports from './pages/Reports';
 import ProviderDashboard from './pages/ProviderDashboard';
 import ReleaseQueue from './pages/ReleaseQueue';
-import Reports from './pages/Reports';
 import SOAPNotes from './pages/SOAPNotes';
 import SalesWorkspace from './pages/SalesWorkspace';
 import Settings from './pages/Settings';
@@ -171,14 +173,13 @@ import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import UserApprovals from './pages/UserApprovals';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import OrganizationModulePermissions from './pages/OrganizationModulePermissions';
-import ActivityLog from './pages/ActivityLog';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AIAssistant": AIAssistant,
     "AccessPending": AccessPending,
+    "ActivityLog": ActivityLog,
     "Admin": Admin,
     "AdminArchive": AdminArchive,
     "AdminAuditLogs": AdminAuditLogs,
@@ -260,6 +261,7 @@ export const PAGES = {
     "Messaging": Messaging,
     "OperationsReports": OperationsReports,
     "OrdersResults": OrdersResults,
+    "OrganizationModulePermissions": OrganizationModulePermissions,
     "OrganizationUserManagement": OrganizationUserManagement,
     "OwnerWorkspace": OwnerWorkspace,
     "PartnerManagement": PartnerManagement,
@@ -288,9 +290,9 @@ export const PAGES = {
     "Prescriptions": Prescriptions,
     "PricingCatalogs": PricingCatalogs,
     "Procurement": Procurement,
+    "Reports": Reports,
     "ProviderDashboard": ProviderDashboard,
     "ReleaseQueue": ReleaseQueue,
-    "Reports": Reports,
     "SOAPNotes": SOAPNotes,
     "SalesWorkspace": SalesWorkspace,
     "Settings": Settings,
@@ -301,8 +303,6 @@ export const PAGES = {
     "UserApprovals": UserApprovals,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "OrganizationModulePermissions": OrganizationModulePermissions,
-    "ActivityLog": ActivityLog,
 }
 
 export const pagesConfig = {

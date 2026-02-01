@@ -799,11 +799,16 @@ export default function PharmacyBilling() {
               <div className="relative">
                 <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <Input
-                  placeholder="Search patient or customer"
+                  placeholder="Tap to search patient or customer"
                   value={patientSearch}
-                  onChange={(e) => setPatientSearch(e.target.value)}
+                  onChange={(e) => {
+                    setPatientSearch(e.target.value);
+                    if (!showPatientDialog) setShowPatientDialog(true);
+                  }}
+                  onClick={() => setShowPatientDialog(true)}
                   onFocus={() => setShowPatientDialog(true)}
-                  className="pl-12 h-11 text-base"
+                  className="pl-12 h-11 text-base cursor-pointer"
+                  readOnly={false}
                 />
                 {(selectedPatient || selectedWalkIn) && (
                   <Badge className="absolute right-3 top-1/2 -translate-y-1/2 bg-emerald-600">
@@ -852,11 +857,11 @@ export default function PharmacyBilling() {
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <Input
-                placeholder={`Search by ${activeTab === 'barcods' ? 'barcode (scan or type)' : activeTab === 'name' ? 'drug name' : activeTab === 'generics' ? 'generic name' : 'substitute'}`}
+                placeholder={`Tap to search ${activeTab === 'barcods' ? 'barcode' : activeTab === 'name' ? 'drug name' : activeTab === 'generics' ? 'generic' : 'substitute'}`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-12 h-12 text-base"
-                autoFocus
+                inputMode="search"
               />
             </div>
           </div>

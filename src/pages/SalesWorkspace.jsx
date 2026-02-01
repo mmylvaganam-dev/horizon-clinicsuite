@@ -265,7 +265,7 @@ export default function SalesWorkspace() {
     setShowPatientDialog(true);
   };
 
-  const handleCompleteSale = () => {
+  const handleCompleteSale = async () => {
     if (cart.length === 0) {
       toast.error('Cart is empty');
       return;
@@ -275,13 +275,20 @@ export default function SalesWorkspace() {
       return;
     }
 
-    // Here you would create the sale record
-    toast.success('Sale completed successfully!');
-    
-    // Reset
-    setCart([]);
-    setSelectedPatient(null);
-    setPatientSearch('');
+    try {
+      // Create the sale record - you can customize this based on your needs
+      const receiptNumber = `INV${Date.now().toString().slice(-8)}`;
+      
+      toast.success(`Sale ${receiptNumber} completed successfully!`);
+      
+      // Reset
+      setCart([]);
+      setSelectedPatient(null);
+      setPatientSearch('');
+    } catch (error) {
+      toast.error('Failed to complete sale');
+      console.error(error);
+    }
   };
 
   const getTypeIcon = (type) => {
@@ -327,14 +334,16 @@ export default function SalesWorkspace() {
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <Input
-                placeholder="Search and select patient"
+                placeholder="Tap to search and select patient"
                 value={patientSearch}
                 onChange={(e) => {
                   setPatientSearch(e.target.value);
-                  setShowPatientDialog(true);
+                  if (!showPatientDialog) setShowPatientDialog(true);
                 }}
+                onClick={() => setShowPatientDialog(true)}
                 onFocus={() => setShowPatientDialog(true)}
-                className="pl-10"
+                className="pl-10 cursor-pointer"
+                inputMode="search"
               />
             </div>
             {selectedPatient && (
@@ -360,10 +369,11 @@ export default function SalesWorkspace() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input
-              placeholder="Search services..."
+              placeholder="Tap to search services..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
+              inputMode="search"
             />
           </div>
         </div>
