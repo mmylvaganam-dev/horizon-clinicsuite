@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,6 +17,7 @@ export default function PharmacyStockImport() {
   const [uploading, setUploading] = useState(false);
   const [importResult, setImportResult] = useState(null);
   const queryClient = useQueryClient();
+  const { orgFilter, withOrgId, selectedOrgId } = useOrgFiltered();
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -23,13 +25,15 @@ export default function PharmacyStockImport() {
   });
 
   const { data: stockItems = [], isLoading } = useQuery({
-    queryKey: ['pharmacyStock'],
-    queryFn: () => base44.entities.PharmacyStock.list('-created_date', 100),
+    queryKey: ['pharmacyStock', selectedOrgId],
+    queryFn: () => base44.entities.PharmacyStock.filter(orgFilter, '-created_date', 100),
+    enabled: !!selectedOrgId,
   });
 
   const { data: snapshots = [] } = useQuery({
-    queryKey: ['stockSnapshots'],
-    queryFn: () => base44.entities.StockSnapshot.list('-snapshot_date', 10),
+    queryKey: ['stockSnapshots', selectedOrgId],
+    queryFn: () => base44.entities.StockSnapshot.filter(orgFilter, '-snapshot_date', 10),
+    enabled: !!selectedOrgId,
   });
 
   const handleFileChange = (e) => {
@@ -59,15 +63,14 @@ export default function PharmacyStockImport() {
         const totalValue = stockItems.reduce((sum, item) => 
           sum + ((item.unit_cost || 0) * (item.quantity || 0)), 0
         );
-        
-        await base44.entities.StockSnapshot.create({
-          organization_id: user?.organization_id,
+
+        await base44.entities.StockSnapshot.create(withOrgId({
           snapshot_date: new Date().toISOString(),
           snapshot_data: stockItems,
           total_items: stockItems.length,
           total_value: totalValue,
           notes: 'Automatic backup before stock replacement'
-        });
+        }));
         toast.success('Backup created');
       }
       let items = [];
@@ -148,8 +151,7 @@ export default function PharmacyStockImport() {
       }
 
       // Bulk insert into database
-      const itemsToInsert = items.map(item => ({
-        organization_id: user?.organization_id || '',
+      const itemsToInsert = items.map(item => withOrgId({
         legacy_id: item.legacy_id || '',
         barcode: item.barcode || '',
         batch_no: item.batch_no || '',
@@ -163,7 +165,7 @@ export default function PharmacyStockImport() {
         quality_status: item.quality_status?.toLowerCase() || 'usable',
         storage_status: item.storage_status || 'stored',
         supplier: item.supplier || ''
-      }));
+        }));
 
       if (replaceMode) {
         // Delete all existing stock first
@@ -500,15 +502,14 @@ export default function PharmacyStockImport() {
                             const totalValue = stockItems.reduce((sum, item) => 
                               sum + ((item.unit_cost || 0) * (item.quantity || 0)), 0
                             );
-                            
-                            await base44.entities.StockSnapshot.create({
-                              organization_id: user?.organization_id,
+
+                            await base44.entities.StockSnapshot.create(withOrgId({
                               snapshot_date: new Date().toISOString(),
                               snapshot_data: stockItems,
                               total_items: stockItems.length,
                               total_value: totalValue,
                               notes: 'Backup before restore from ' + format(new Date(snapshot.snapshot_date), 'dd MMM yyyy HH:mm')
-                            });
+                            }));
                           }
                           
                           // Delete current stock

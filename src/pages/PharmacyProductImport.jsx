@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +13,7 @@ import * as XLSX from 'xlsx';
 
 export default function PharmacyProductImport() {
   const queryClient = useQueryClient();
+  const { withOrgId } = useOrgFiltered();
   const [file, setFile] = useState(null);
   const [importing, setImporting] = useState(false);
   const [importResults, setImportResults] = useState(null);
@@ -134,8 +136,7 @@ export default function PharmacyProductImport() {
             // Create display name
             const displayName = row['Brand Name'] || row['Generic Name'] || 'Unknown Product';
             
-            const productData = {
-              organization_id: user?.organization_id || '',
+            const productData = withOrgId({
               brand_name: row['Brand Name'] || '',
               generic_name: row['Generic Name'] || '',
               display_name: displayName,
@@ -152,7 +153,7 @@ export default function PharmacyProductImport() {
               mrp: 0,
               quality_status: 'usable',
               storage_status: 'stored'
-            };
+            });
 
             await base44.entities.PharmacyStock.create(productData);
             results.success++;
