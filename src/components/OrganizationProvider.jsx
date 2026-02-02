@@ -18,27 +18,57 @@ export function OrganizationProvider({ children }) {
                           user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
                           user?.is_platform_owner;
 
+  // For platform owners: load all organizations
   const { data: organizations } = useQuery({
     queryKey: ['allOrganizations'],
     queryFn: async () => {
       if (!isPlatformOwner) return [];
       const orgs = await base44.entities.Organization.list();
-      console.log('Organizations loaded:', orgs);
+      console.log('Platform owner - Organizations loaded:', orgs);
       return orgs;
     },
     enabled: isPlatformOwner,
   });
 
+  // For regular users: get their assigned organization from UserRole
+  const { data: userOrganization } = useQuery({
+    queryKey: ['userOrganization', user?.id],
+    queryFn: async () => {
+      if (isPlatformOwner || !user?.id) return null;
+      
+      // Get user's role assignment to find their organization
+      const userRoles = await base44.entities.UserRole.filter({ user_id: user.id });
+      console.log('Regular user - UserRoles:', userRoles);
+      
+      if (userRoles && userRoles.length > 0) {
+        const orgId = userRoles[0].organization_id;
+        console.log('Regular user - Found organization_id:', orgId);
+        return orgId;
+      }
+      
+      return null;
+    },
+    enabled: !isPlatformOwner && !!user?.id,
+  });
+
   useEffect(() => {
-    console.log('OrganizationProvider - isPlatformOwner:', isPlatformOwner, 'organizations:', organizations?.length, 'selectedOrgId:', selectedOrgId);
+    console.log('OrganizationProvider - isPlatformOwner:', isPlatformOwner, 'user:', user?.email, 'selectedOrgId:', selectedOrgId);
     
+    // Platform owner: auto-select first org
     if (isPlatformOwner && organizations?.length > 0 && !selectedOrgId) {
       const firstOrg = organizations[0];
       console.log('Auto-selecting first organization:', firstOrg.id, firstOrg.name);
       setSelectedOrgId(firstOrg.id);
       sessionStorage.setItem('selectedOrgId', firstOrg.id);
     }
-  }, [organizations, isPlatformOwner, selectedOrgId]);
+    
+    // Regular user: use their assigned organization
+    if (!isPlatformOwner && userOrganization && !selectedOrgId) {
+      console.log('Regular user - Setting organization:', userOrganization);
+      setSelectedOrgId(userOrganization);
+      sessionStorage.setItem('selectedOrgId', userOrganization);
+    }
+  }, [organizations, userOrganization, isPlatformOwner, selectedOrgId]);
 
   const handleOrgChange = (orgId) => {
     setSelectedOrgId(orgId);
