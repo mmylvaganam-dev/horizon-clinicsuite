@@ -159,14 +159,40 @@ export default function PharmacyDashboard() {
         <h2 className="text-lg font-semibold text-slate-700 mb-3">Sales & Operations</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card 
-            className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform"
-            onClick={() => navigate(createPageUrl('PharmacyBilling'))}
+            className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg"
           >
             <CardContent className="p-6">
-              <ShoppingCart className="w-8 h-8 mb-2 opacity-80" />
+              <div className="flex items-center justify-between mb-4">
+                <ShoppingCart className="w-8 h-8 opacity-80" />
+                <Button 
+                  size="sm" 
+                  variant="secondary"
+                  onClick={() => navigate(createPageUrl('PharmacyBilling'))}
+                  className="bg-white/20 hover:bg-white/30 text-white border-0"
+                >
+                  New Sale
+                </Button>
+              </div>
               <p className="text-sm opacity-90">Today's Sales</p>
-              <p className="text-3xl font-bold mt-1">{todaySales.length}</p>
-              <p className="text-xs opacity-80 mt-1">{currency} {todayRevenue.toFixed(2)}</p>
+              <p className="text-3xl font-bold mt-1">{todaySales.length} Sales</p>
+              <p className="text-lg font-semibold mt-1">{currency} {todayRevenue.toFixed(2)}</p>
+              
+              {todaySales.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-white/20 space-y-2 max-h-48 overflow-y-auto">
+                  {todaySales.map((sale) => (
+                    <div key={sale.id} className="text-xs bg-white/10 rounded p-2">
+                      <div className="flex justify-between items-start mb-1">
+                        <span className="font-semibold">{getPatientName(sale.patient_id)}</span>
+                        <span className="font-bold">{currency} {sale.total?.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between items-center text-white/80">
+                        <span>{format(new Date(sale.sale_date), 'hh:mm a')}</span>
+                        <span>{sale.created_by_email?.split('@')[0] || 'Staff'}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
 
