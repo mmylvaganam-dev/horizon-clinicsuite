@@ -61,11 +61,14 @@ export default function PharmacyDashboard() {
     queryFn: () => base44.entities.Patient.list(),
   });
 
-  const { data: pharmacyStock = [] } = useQuery({
+  const { data: pharmacyStock = [], isLoading: stockLoading } = useQuery({
     queryKey: ['pharmacyStock', selectedOrgId],
     queryFn: async () => {
       if (!selectedOrgId) return [];
-      return await base44.entities.PharmacyStock.filter(orgFilter, '-created_date');
+      console.log('PharmacyDashboard - Fetching stock for org:', selectedOrgId);
+      const result = await base44.entities.PharmacyStock.filter(orgFilter, '-created_date');
+      console.log('PharmacyDashboard - Got stock:', result.length, 'items');
+      return result;
     },
     enabled: !!selectedOrgId,
   });

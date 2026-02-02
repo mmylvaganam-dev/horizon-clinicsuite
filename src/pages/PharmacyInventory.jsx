@@ -92,10 +92,15 @@ export default function PharmacyInventory() {
     enabled: !!selectedOrgId,
   });
 
-  const { data: pharmacyStock = [], refetch: refetchPharmacyStock } = useQuery({
+  const { data: pharmacyStock = [], refetch: refetchPharmacyStock, isLoading: stockLoading } = useQuery({
     queryKey: ['pharmacyStock', selectedOrgId],
-    queryFn: () => base44.entities.PharmacyStock.filter(orgFilter, '-created_date'),
-    refetchInterval: 5000,
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      console.log('Fetching pharmacy stock for org:', selectedOrgId, 'with filter:', orgFilter);
+      const result = await base44.entities.PharmacyStock.filter(orgFilter, '-created_date');
+      console.log('Pharmacy stock result:', result.length, 'items');
+      return result;
+    },
     enabled: !!selectedOrgId,
   });
 

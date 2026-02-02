@@ -63,11 +63,14 @@ export default function PharmacyBilling() {
   const [emailSent, setEmailSent] = useState(false);
   const [smsSent, setSmsSent] = useState(false);
 
-  const { data: pharmacyStock = [] } = useQuery({
+  const { data: pharmacyStock = [], isLoading: stockLoading } = useQuery({
     queryKey: ['pharmacyStock', selectedOrgId],
     queryFn: async () => {
       if (!selectedOrgId) return [];
-      return await base44.entities.PharmacyStock.filter(orgFilter, '-created_date');
+      console.log('PharmacyBilling - Fetching stock for org:', selectedOrgId);
+      const result = await base44.entities.PharmacyStock.filter(orgFilter, '-created_date');
+      console.log('PharmacyBilling - Got stock:', result.length, 'items');
+      return result;
     },
     enabled: !!selectedOrgId,
   });
