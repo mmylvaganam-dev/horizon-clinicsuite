@@ -34,23 +34,37 @@ export function OrganizationProvider({ children }) {
 
   // For regular users: get their assigned organization from UserRole
   const { data: userOrganization } = useQuery({
-    queryKey: ['userOrganization', user?.id],
+    queryKey: ['userOrganization', user?.email],
     queryFn: async () => {
-      if (isPlatformOwner || !user?.id) return null;
+      if (isPlatformOwner || !user?.email) return null;
       
       // Get user's role assignment to find their organization
-      const userRoles = await base44.entities.UserRole.filter({ user_id: user.id });
-      console.log('Regular user - UserRoles:', userRoles);
+      const userRoles = await base44.entities.UserRole.list();
+      console.log('Regular user - All UserRoles:', userRoles);
       
-      if (userRoles && userRoles.length > 0) {
-        const orgId = userRoles[0].organization_id;
+      // Find roles for this user by email (since we may not have user.id yet)
+      const myRoles = userRoles.filter(role => 
+        role.user_id === user.id || 
+        role.created_by === user.email ||
+        role.created_by_email === user.email
+      );
+      console.log('Regular user - My UserRoles:', myRoles);
+      
+      if (myRoles && myRoles.length > 0) {
+        const orgId = myRoles[0].organization_id;
         console.log('Regular user - Found organization_id:', orgId);
         return orgId;
       }
       
+      // Fallback: check if user has organization_id directly in their profile
+      if (user.organization_id) {
+        console.log('Regular user - Using user.organization_id:', user.organization_id);
+        return user.organization_id;
+      }
+      
       return null;
     },
-    enabled: !isPlatformOwner && !!user?.id,
+    enabled: !isPlatformOwner && !!user?.email,
   });
 
   useEffect(() => {
