@@ -64,14 +64,26 @@ function LayoutContent({ children, currentPageName }) {
     checkApproval();
   }, [navigate]);
 
+  const { selectedOrgId } = useOrganization();
+  
   const { data: branding } = useQuery({
-    queryKey: ['organizationBranding'],
+    queryKey: ['organizationBranding', selectedOrgId],
     queryFn: async () => {
-      if (!userApproved) return null;
-      const brandings = await base44.entities.OrganizationBranding.list();
+      if (!userApproved || !selectedOrgId) return null;
+      const brandings = await base44.entities.OrganizationBranding.filter({ organization_id: selectedOrgId });
       return brandings[0];
     },
-    enabled: userApproved !== false,
+    enabled: userApproved !== false && !!selectedOrgId,
+  });
+
+  const { data: currentOrganization } = useQuery({
+    queryKey: ['currentOrganization', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return null;
+      const orgs = await base44.entities.Organization.filter({ id: selectedOrgId });
+      return orgs[0];
+    },
+    enabled: !!selectedOrgId,
   });
 
   const navigationGroups = [
@@ -363,21 +375,23 @@ function LayoutContent({ children, currentPageName }) {
 
             <div className="flex-1 lg:flex-none" />
             
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-4">
               {isPlatformOwner && <OrganizationSwitcher />}
+              
+              <div className="flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-teal-50 to-blue-50 rounded-lg border border-teal-200">
+                <Building2 className="w-5 h-5 text-teal-600" />
+                <div className="text-right">
+                  <p className="text-sm font-bold text-slate-900">{currentOrganization?.name || 'Loading...'}</p>
+                  <p className="text-xs text-slate-600">{currentOrganization?.type || 'Organization'}</p>
+                </div>
+              </div>
               
               {branding?.primary_logo_file_ref && (
                 <img 
                   src={branding.primary_logo_file_ref} 
                   alt="Organization Logo" 
-                  className="h-12 w-auto object-contain"
+                  className="h-14 w-auto object-contain border rounded-lg bg-white p-1"
                 />
-              )}
-              {!branding?.primary_logo_file_ref && (
-                <div className="hidden sm:block text-right">
-                  <p className="text-sm font-medium text-slate-900">Horizon ClinicSuite</p>
-                  <p className="text-xs text-slate-500">Electronic Medical Records</p>
-                </div>
               )}
             </div>
           </div>
