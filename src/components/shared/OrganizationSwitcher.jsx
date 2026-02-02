@@ -16,17 +16,26 @@ export default function OrganizationSwitcher() {
     return null;
   }
 
+  const selectedOrg = organizations.find(org => org.id === selectedOrgId);
+  console.log('OrganizationSwitcher - selectedOrgId:', selectedOrgId, 'selectedOrg:', selectedOrg?.name);
+
+  const handleChange = (orgId) => {
+    console.log('Switching to organization:', orgId);
+    onOrgChange(orgId);
+    window.location.reload();
+  };
+
   return (
     <div className="flex items-center gap-2">
       <Building2 className="w-4 h-4 text-slate-600" />
-      <Select value={selectedOrgId || ''} onValueChange={onOrgChange}>
+      <Select value={selectedOrgId || ''} onValueChange={handleChange}>
         <SelectTrigger className="w-56 bg-white border-slate-200">
           <SelectValue placeholder="Select Organization" />
         </SelectTrigger>
         <SelectContent>
           {organizations?.map((org) => (
             <SelectItem key={org.id} value={org.id}>
-              {org.name}
+              {org.name} {org.id === selectedOrgId && '✓'}
             </SelectItem>
           ))}
         </SelectContent>
