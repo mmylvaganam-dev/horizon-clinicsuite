@@ -50,10 +50,6 @@ function LayoutContent({ children, currentPageName }) {
     queryFn: () => base44.auth.me(),
   });
 
-  const isPlatformOwner = user?.email === 'madhawaekanayake@gmail.com' || 
-                          user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
-                          user?.is_platform_owner;
-
   const { data: pendingApprovals = [] } = useQuery({
     queryKey: ['pendingApprovals'],
     queryFn: async () => {
