@@ -178,10 +178,14 @@ export default function PharmacyStockImport() {
 
       // Validate organization is selected
       if (!selectedOrgId) {
+        console.error('Upload failed - No organization selected. selectedOrgId:', selectedOrgId);
         toast.error('No organization selected. Please select an organization first.');
         setImportResult({ status: 'error', message: 'No organization selected' });
         return;
       }
+
+      console.log('Starting import to organization:', selectedOrgId, 'Organization name:', selectedOrg?.name);
+      console.log('Items to import:', items.length);
 
       // Bulk insert into database
       const itemsToInsert = items.map(item => withOrgId({
@@ -202,7 +206,11 @@ export default function PharmacyStockImport() {
 
       // Critical validation: verify all items have organization_id
       const missingOrgId = itemsToInsert.filter(item => !item.organization_id);
+      console.log('Validation - Total items:', itemsToInsert.length, 'Missing org_id:', missingOrgId.length);
+      console.log('Sample item to be inserted:', itemsToInsert[0]);
+      
       if (missingOrgId.length > 0) {
+        console.error('Validation failed - Items missing organization_id:', missingOrgId);
         toast.error(`${missingOrgId.length} items missing organization_id. Upload cancelled.`);
         setImportResult({ status: 'error', message: 'Organization ID validation failed' });
         return;
@@ -217,10 +225,11 @@ export default function PharmacyStockImport() {
       }
 
       await base44.entities.PharmacyStock.bulkCreate(itemsToInsert);
+      console.log('✓ Successfully inserted', itemsToInsert.length, 'items to organization:', selectedOrgId);
 
       queryClient.invalidateQueries({ queryKey: ['pharmacyStock'] });
       queryClient.invalidateQueries({ queryKey: ['stockSnapshots'] });
-      toast.success(`Successfully ${replaceMode ? 'replaced' : 'imported'} ${itemsToInsert.length} items`);
+      toast.success(`Successfully ${replaceMode ? 'replaced' : 'imported'} ${itemsToInsert.length} items to ${selectedOrg?.name}`);
       setImportResult({ 
         status: 'success', 
         count: itemsToInsert.length,
@@ -342,6 +351,14 @@ export default function PharmacyStockImport() {
         <div>
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pharmacy Stock Import</h1>
           <p className="text-slate-500 mt-1">Upload .xlsx Excel files to update inventory</p>
+          {selectedOrg && (
+            <div className="flex items-center gap-2 mt-3">
+              <Building2 className="w-4 h-4 text-teal-600" />
+              <span className="text-sm font-semibold text-teal-900">
+                Uploading to: {selectedOrg.name}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
