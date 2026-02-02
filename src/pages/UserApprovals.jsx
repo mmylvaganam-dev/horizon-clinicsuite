@@ -341,10 +341,13 @@ export default function UserApprovals() {
       )}
 
       {isPlatformOwner && pendingPlatformApprovals.length > 0 && (
-        <Card>
+        <Card className="border-2 border-red-300 bg-red-50">
           <CardHeader>
-            <CardTitle>Pending Your Final Approval ({pendingPlatformApprovals.length})</CardTitle>
-            <CardDescription>Users approved by org admin, awaiting your final approval as platform owner</CardDescription>
+            <CardTitle className="flex items-center gap-2 text-red-900">
+              <AlertTriangle className="w-5 h-5 animate-pulse" />
+              🔔 ACTION REQUIRED - Pending Your Final Approval ({pendingPlatformApprovals.length})
+            </CardTitle>
+            <CardDescription className="text-red-700">Users approved by org admin, awaiting your final approval as platform owner</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">

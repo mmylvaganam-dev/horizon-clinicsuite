@@ -48,6 +48,12 @@ export default function UserManagement() {
     queryFn: () => base44.entities.Organization.list(),
   });
 
+  const { data: userRoles = [] } = useQuery({
+    queryKey: ['userRoles'],
+    queryFn: () => base44.entities.UserRole.list(),
+    enabled: isPlatformOwner,
+  });
+
   const assignOrgAdminMutation = useMutation({
     mutationFn: async ({ userId, isAdmin }) => {
       return base44.entities.User.update(userId, {
@@ -65,10 +71,18 @@ export default function UserManagement() {
     users: allUsers.filter(u => u.organization_id === org.id)
   }));
 
-  const UserCard = ({ user, organization }) => (
+  const getUserRoleDetails = (userId, orgId) => {
+    const roles = userRoles.filter(r => r.user_id === userId && r.organization_id === orgId);
+    return roles;
+  };
+
+  const UserCard = ({ user, organization }) => {
+    const roles = getUserRoleDetails(user.id, organization.id);
+    
+    return (
     <div className="flex items-center justify-between p-4 border rounded-lg">
       <div className="flex-1">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <p className="font-medium text-slate-900">{user.email}</p>
           {user.is_platform_owner && (
             <Badge className="bg-purple-100 text-purple-800">
@@ -82,10 +96,22 @@ export default function UserManagement() {
               Org Admin
             </Badge>
           )}
+          {roles.length > 0 && roles.map((role, idx) => (
+            <Badge key={idx} variant="outline" className="text-xs bg-slate-50">
+              {role.is_primary ? '⭐ ' : ''}{role.role_id}
+            </Badge>
+          ))}
         </div>
         <p className="text-sm text-slate-500 mt-1">Organization: {organization?.name || user.organization_id}</p>
         {user.full_name && <p className="text-sm text-slate-600">{user.full_name}</p>}
-        <p className="text-xs text-slate-400 mt-1">Role: {user.role || 'user'}</p>
+        <div className="flex items-center gap-3 mt-1">
+          <p className="text-xs text-slate-400">System Role: {user.role || 'user'}</p>
+          {roles.length > 0 && (
+            <p className="text-xs text-emerald-600 font-medium">
+              ✓ {roles.length} role assignment{roles.length !== 1 ? 's' : ''}
+            </p>
+          )}
+        </div>
       </div>
       {isPlatformOwner && !user.is_platform_owner && (
         <div className="flex gap-2">
@@ -150,6 +176,7 @@ export default function UserManagement() {
       )}
     </div>
   );
+  };
 
   return (
     <div className="space-y-8">

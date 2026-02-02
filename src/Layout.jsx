@@ -26,7 +26,8 @@ import {
   Info,
   Globe,
   Crown,
-  Shield
+  Shield,
+  AlertTriangle
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -47,6 +48,21 @@ function LayoutContent({ children, currentPageName }) {
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
+  });
+
+  const isPlatformOwner = user?.email === 'madhawaekanayake@gmail.com' || 
+                          user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
+                          user?.is_platform_owner;
+
+  const { data: pendingApprovals = [] } = useQuery({
+    queryKey: ['pendingApprovals'],
+    queryFn: async () => {
+      if (!isPlatformOwner) return [];
+      const all = await base44.entities.UserApproval.filter({ final_status: 'pending_platform' });
+      return all;
+    },
+    enabled: isPlatformOwner,
+    refetchInterval: 30000, // Check every 30 seconds
   });
 
   useEffect(() => {
@@ -381,6 +397,20 @@ function LayoutContent({ children, currentPageName }) {
             <div className="flex-1 lg:flex-none" />
             
             <div className="flex items-center gap-4">
+              {isPlatformOwner && pendingApprovals.length > 0 && (
+                <Button
+                  variant="outline"
+                  className="relative bg-red-50 border-red-300 text-red-700 hover:bg-red-100 animate-pulse"
+                  onClick={() => window.location.href = createPageUrl('UserApprovals')}
+                >
+                  <AlertTriangle className="w-4 h-4 mr-2" />
+                  {pendingApprovals.length} Pending Approval{pendingApprovals.length !== 1 ? 's' : ''}
+                  <span className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 text-white rounded-full text-xs flex items-center justify-center font-bold">
+                    {pendingApprovals.length}
+                  </span>
+                </Button>
+              )}
+              
               {isPlatformOwner && (
                 <div className="border-2 border-blue-300 rounded-lg p-1">
                   <OrganizationSwitcher />
