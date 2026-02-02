@@ -37,10 +37,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { createPageUrl } from '../utils';
 import { useNavigate } from 'react-router-dom';
 import PHNCard from '@/components/patients/PHNCard';
+import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 
 export default function PharmacyBilling() {
   const queryClient = useQueryClient();
   const location = useLocation();
+  const { orgFilter, selectedOrgId } = useOrgFiltered();
   const [sessionDate, setSessionDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [cart, setCart] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -62,8 +64,12 @@ export default function PharmacyBilling() {
   const [smsSent, setSmsSent] = useState(false);
 
   const { data: pharmacyStock = [] } = useQuery({
-    queryKey: ['pharmacyStock'],
-    queryFn: () => base44.entities.PharmacyStock.list('-created_date'),
+    queryKey: ['pharmacyStock', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      return await base44.entities.PharmacyStock.filter(orgFilter, '-created_date');
+    },
+    enabled: !!selectedOrgId,
   });
 
   // Handle prescription from work queue

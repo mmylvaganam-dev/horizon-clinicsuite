@@ -25,9 +25,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import toast from 'react-hot-toast';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
+import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 
 export default function PharmacyRequests() {
   const queryClient = useQueryClient();
+  const { orgFilter, selectedOrgId } = useOrgFiltered();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [dateFrom, setDateFrom] = useState(format(new Date(), 'yyyy-MM-dd'));
@@ -64,8 +66,12 @@ export default function PharmacyRequests() {
   });
 
   const { data: pharmacyStock = [] } = useQuery({
-    queryKey: ['pharmacyStock'],
-    queryFn: () => base44.entities.PharmacyStock.list('-created_date'),
+    queryKey: ['pharmacyStock', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      return await base44.entities.PharmacyStock.filter(orgFilter, '-created_date');
+    },
+    enabled: !!selectedOrgId,
   });
 
   const { data: locations = [] } = useQuery({

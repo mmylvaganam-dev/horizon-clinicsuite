@@ -22,10 +22,12 @@ import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { createPageUrl } from '../utils';
 import { useNavigate } from 'react-router-dom';
+import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 
 export default function PharmacyWorkQueue() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { orgFilter, selectedOrgId } = useOrgFiltered();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPrescription, setSelectedPrescription] = useState(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
@@ -41,8 +43,12 @@ export default function PharmacyWorkQueue() {
   });
 
   const { data: pharmacyStock = [] } = useQuery({
-    queryKey: ['pharmacyStock'],
-    queryFn: () => base44.entities.PharmacyStock.list(),
+    queryKey: ['pharmacyStock', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      return await base44.entities.PharmacyStock.filter(orgFilter);
+    },
+    enabled: !!selectedOrgId,
   });
 
   const updatePrescriptionMutation = useMutation({

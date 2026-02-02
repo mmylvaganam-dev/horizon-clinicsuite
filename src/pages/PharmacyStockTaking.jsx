@@ -23,9 +23,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import toast from 'react-hot-toast';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
+import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 
 export default function PharmacyStockTaking() {
   const queryClient = useQueryClient();
+  const { orgFilter, selectedOrgId } = useOrgFiltered();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [viewMode, setViewMode] = useState('list'); // 'list' or 'grid'
   const [searchQuery, setSearchQuery] = useState('');
@@ -47,8 +49,12 @@ export default function PharmacyStockTaking() {
   });
 
   const { data: pharmacyStock = [] } = useQuery({
-    queryKey: ['pharmacyStock'],
-    queryFn: () => base44.entities.PharmacyStock.list('-created_date'),
+    queryKey: ['pharmacyStock', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      return await base44.entities.PharmacyStock.filter(orgFilter, '-created_date');
+    },
+    enabled: !!selectedOrgId,
   });
 
   // Mock stock taking sessions
