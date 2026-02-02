@@ -22,7 +22,8 @@ import {
   DollarSign,
   TrendingDown as Loss,
   Check,
-  ChevronsUpDown
+  ChevronsUpDown,
+  Trash2
 } from 'lucide-react';
 import BatchesTab from '../components/inventory/BatchesTab';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -278,6 +279,20 @@ export default function PharmacyInventory() {
     },
     onError: (error) => {
       toast.error(error.message || 'Failed to update stock');
+    }
+  });
+
+  const deleteStockMutation = useMutation({
+    mutationFn: async (stockId) => {
+      await base44.entities.PharmacyStock.delete(stockId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pharmacyStock'] });
+      refetchPharmacyStock();
+      toast.success('Stock item deleted successfully!');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to delete stock');
     }
   });
 
@@ -840,6 +855,19 @@ export default function PharmacyInventory() {
                       >
                         <Edit className="w-4 h-4 mr-2" />
                         Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+                        onClick={() => {
+                          if (window.confirm(`Delete "${item.display_name}"?\n\nThis will permanently remove this stock item.`)) {
+                            deleteStockMutation.mutate(item.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
                       </Button>
                     </div>
                   </div>
