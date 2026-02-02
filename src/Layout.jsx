@@ -70,7 +70,9 @@ function LayoutContent({ children, currentPageName }) {
     queryKey: ['organizationBranding', selectedOrgId],
     queryFn: async () => {
       if (!userApproved || !selectedOrgId) return null;
+      console.log('Fetching branding for org:', selectedOrgId);
       const brandings = await base44.entities.OrganizationBranding.filter({ organization_id: selectedOrgId });
+      console.log('Branding loaded:', brandings[0]);
       return brandings[0];
     },
     enabled: userApproved !== false && !!selectedOrgId,
@@ -80,8 +82,11 @@ function LayoutContent({ children, currentPageName }) {
     queryKey: ['currentOrganization', selectedOrgId],
     queryFn: async () => {
       if (!selectedOrgId) return null;
-      const orgs = await base44.entities.Organization.filter({ id: selectedOrgId });
-      return orgs[0];
+      console.log('Fetching organization:', selectedOrgId);
+      const allOrgs = await base44.entities.Organization.list();
+      const org = allOrgs.find(o => o.id === selectedOrgId);
+      console.log('Organization loaded:', org);
+      return org;
     },
     enabled: !!selectedOrgId,
   });
@@ -378,20 +383,26 @@ function LayoutContent({ children, currentPageName }) {
             <div className="flex items-center gap-4">
               {isPlatformOwner && <OrganizationSwitcher />}
               
-              <div className="flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-teal-50 to-blue-50 rounded-lg border border-teal-200">
-                <Building2 className="w-5 h-5 text-teal-600" />
-                <div className="text-right">
-                  <p className="text-sm font-bold text-slate-900">{currentOrganization?.name || 'Loading...'}</p>
-                  <p className="text-xs text-slate-600">{currentOrganization?.type || 'Organization'}</p>
+              {selectedOrgId && (
+                <div className="flex items-center gap-3 px-4 py-2.5 bg-white rounded-lg border-2 border-teal-500 shadow-sm">
+                  {branding?.primary_logo_file_ref ? (
+                    <img 
+                      src={branding.primary_logo_file_ref} 
+                      alt="Logo" 
+                      className="h-10 w-auto object-contain"
+                    />
+                  ) : (
+                    <Building2 className="w-6 h-6 text-teal-600" />
+                  )}
+                  <div className="text-left">
+                    <p className="text-sm font-bold text-slate-900 leading-tight">
+                      {currentOrganization?.name || 'Loading...'}
+                    </p>
+                    <p className="text-xs text-teal-600 font-medium capitalize">
+                      {currentOrganization?.type?.replace('_', ' ') || ''}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              
-              {branding?.primary_logo_file_ref && (
-                <img 
-                  src={branding.primary_logo_file_ref} 
-                  alt="Organization Logo" 
-                  className="h-14 w-auto object-contain border rounded-lg bg-white p-1"
-                />
               )}
             </div>
           </div>
