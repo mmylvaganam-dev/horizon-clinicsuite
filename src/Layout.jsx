@@ -381,7 +381,11 @@ function LayoutContent({ children, currentPageName }) {
             <div className="flex-1 lg:flex-none" />
             
             <div className="flex items-center gap-4">
-              {isPlatformOwner && <OrganizationSwitcher />}
+              {isPlatformOwner && (
+                <div className="border-2 border-blue-300 rounded-lg p-1">
+                  <OrganizationSwitcher />
+                </div>
+              )}
               
               {selectedOrgId && (
                 <div className="flex items-center gap-3 px-4 py-2.5 bg-white rounded-lg border-2 border-teal-500 shadow-sm">

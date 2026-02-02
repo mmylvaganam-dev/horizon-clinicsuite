@@ -54,7 +54,7 @@ export function OrganizationProvider({ children }) {
   });
 
   useEffect(() => {
-    console.log('OrganizationProvider - isPlatformOwner:', isPlatformOwner, 'user:', user?.email, 'selectedOrgId:', selectedOrgId);
+    console.log('OrganizationProvider - isPlatformOwner:', isPlatformOwner, 'user:', user?.email, 'selectedOrgId:', selectedOrgId, 'organizations:', organizations?.length);
     
     // Platform owner: auto-select first org
     if (isPlatformOwner && organizations?.length > 0 && !selectedOrgId) {
@@ -70,7 +70,7 @@ export function OrganizationProvider({ children }) {
       setSelectedOrgId(userOrganization);
       sessionStorage.setItem('selectedOrgId', userOrganization);
     }
-  }, [organizations, userOrganization, isPlatformOwner, selectedOrgId]);
+  }, [organizations, userOrganization, isPlatformOwner, selectedOrgId, user]);
 
   const handleOrgChange = (orgId) => {
     setSelectedOrgId(orgId);
