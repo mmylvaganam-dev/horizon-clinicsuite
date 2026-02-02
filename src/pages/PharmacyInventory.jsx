@@ -743,8 +743,25 @@ export default function PharmacyInventory() {
                 <Card key={item.id} className={`p-5 ${isZeroStock ? 'bg-red-100 border-red-400 border-2' : isExpired ? 'bg-red-50 border-red-300 border-2' : isCritical ? 'bg-rose-50 border-rose-300 border-2' : isExpiringSoon ? 'bg-orange-50 border-orange-200' : isLowStock ? 'bg-amber-50 border-amber-200' : 'bg-white'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <h3 className="font-semibold text-slate-900">{item.display_name}</h3>
+                      <div className="flex items-start gap-2 mb-2">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold text-slate-900">{item.display_name}</h3>
+                            {item.expire_date && (
+                              <Badge className={`font-bold text-xs ${
+                                new Date(item.expire_date) < new Date() 
+                                  ? 'bg-red-600 text-white border-2 border-red-700' 
+                                  : new Date(item.expire_date) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                                  ? 'bg-orange-600 text-white border-2 border-orange-700'
+                                  : new Date(item.expire_date) <= new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
+                                  ? 'bg-amber-500 text-white border-2 border-amber-600'
+                                  : 'bg-slate-100 text-slate-700'
+                              }`}>
+                                {format(new Date(item.expire_date), 'd MMM yyyy')}
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
                         <Badge variant="outline" className="font-mono text-xs">
                           {item.barcode}
                         </Badge>

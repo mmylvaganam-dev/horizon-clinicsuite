@@ -998,19 +998,21 @@ export default function PharmacyBilling() {
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <p className="font-semibold text-base text-slate-900">
+                          <div className="flex items-start gap-2 mb-1">
+                            <p className="font-semibold text-base text-slate-900 flex-1">
                               {item.display_name}
                             </p>
                             {item.expire_date && (
-                              <Badge className={`text-xs ${
+                              <Badge className={`font-bold text-xs whitespace-nowrap ${
                                 new Date(item.expire_date) < new Date() 
-                                  ? 'bg-red-100 text-red-700' 
+                                  ? 'bg-red-600 text-white border-2 border-red-700' 
+                                  : new Date(item.expire_date) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                                  ? 'bg-orange-600 text-white border-2 border-orange-700'
                                   : new Date(item.expire_date) <= new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
-                                  ? 'bg-orange-100 text-orange-700'
+                                  ? 'bg-amber-500 text-white border-2 border-amber-600'
                                   : 'bg-slate-100 text-slate-700'
                               }`}>
-                                Exp: {format(new Date(item.expire_date), 'MMM yyyy')}
+                                {format(new Date(item.expire_date), 'd MMM yyyy')}
                               </Badge>
                             )}
                           </div>
