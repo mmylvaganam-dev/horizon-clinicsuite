@@ -28,6 +28,7 @@ import { createPageUrl } from '../utils';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import MedicineReturnDialog from '../components/pharmacy/MedicineReturnDialog';
+import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 
 export default function PharmacyDashboard() {
   const navigate = useNavigate();
@@ -43,6 +44,7 @@ export default function PharmacyDashboard() {
   const [maxAmount, setMaxAmount] = useState('');
   const [showReturnDialog, setShowReturnDialog] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
+  const { orgFilter, selectedOrgId } = useOrgFiltered();
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -60,8 +62,12 @@ export default function PharmacyDashboard() {
   });
 
   const { data: pharmacyStock = [] } = useQuery({
-    queryKey: ['pharmacyStock'],
-    queryFn: () => base44.entities.PharmacyStock.list('-created_date'),
+    queryKey: ['pharmacyStock', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      return await base44.entities.PharmacyStock.filter(orgFilter, '-created_date');
+    },
+    enabled: !!selectedOrgId,
   });
 
   const { data: receipts = [] } = useQuery({
