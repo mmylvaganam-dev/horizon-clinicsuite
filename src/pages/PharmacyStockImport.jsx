@@ -176,6 +176,13 @@ export default function PharmacyStockImport() {
         return;
       }
 
+      // Validate organization is selected
+      if (!selectedOrgId) {
+        toast.error('No organization selected. Please select an organization first.');
+        setImportResult({ status: 'error', message: 'No organization selected' });
+        return;
+      }
+
       // Bulk insert into database
       const itemsToInsert = items.map(item => withOrgId({
         legacy_id: item.legacy_id || '',
@@ -192,6 +199,14 @@ export default function PharmacyStockImport() {
         storage_status: item.storage_status || 'stored',
         supplier: item.supplier || ''
         }));
+
+      // Critical validation: verify all items have organization_id
+      const missingOrgId = itemsToInsert.filter(item => !item.organization_id);
+      if (missingOrgId.length > 0) {
+        toast.error(`${missingOrgId.length} items missing organization_id. Upload cancelled.`);
+        setImportResult({ status: 'error', message: 'Organization ID validation failed' });
+        return;
+      }
 
       if (replaceMode) {
         // Delete all existing stock first
@@ -583,8 +598,12 @@ export default function PharmacyStockImport() {
                             await base44.entities.PharmacyStock.delete(item.id);
                           }
                           
-                          // Restore from snapshot
-                          await base44.entities.PharmacyStock.bulkCreate(snapshot.snapshot_data);
+                          // Restore from snapshot - ensure organization_id is set
+                          const restoredItems = snapshot.snapshot_data.map(item => ({
+                            ...item,
+                            organization_id: item.organization_id || selectedOrgId
+                          }));
+                          await base44.entities.PharmacyStock.bulkCreate(restoredItems);
                           
                           queryClient.invalidateQueries({ queryKey: ['pharmacyStock'] });
                           queryClient.invalidateQueries({ queryKey: ['stockSnapshots'] });
