@@ -16,7 +16,9 @@ export function OrganizationProvider({ children }) {
 
   const isPlatformOwner = user?.email === 'madhawaekanayake@gmail.com' || 
                           user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
-                          user?.is_platform_owner;
+                          user?.is_platform_owner === true;
+  
+  console.log('OrganizationProvider - User:', user?.email, 'isPlatformOwner:', isPlatformOwner);
 
   // For platform owners: load all organizations
   const { data: organizations } = useQuery({
