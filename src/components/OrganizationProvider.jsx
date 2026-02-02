@@ -43,6 +43,7 @@ export function OrganizationProvider({ children }) {
     <OrganizationContext.Provider
       value={{
         selectedOrgId,
+        setSelectedOrgId: handleOrgChange,
         organizations,
         isPlatformOwner,
         onOrgChange: handleOrgChange,
