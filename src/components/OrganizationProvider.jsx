@@ -22,15 +22,21 @@ export function OrganizationProvider({ children }) {
     queryKey: ['allOrganizations'],
     queryFn: async () => {
       if (!isPlatformOwner) return [];
-      return await base44.entities.Organization.list();
+      const orgs = await base44.entities.Organization.list();
+      console.log('Organizations loaded:', orgs);
+      return orgs;
     },
     enabled: isPlatformOwner,
   });
 
   useEffect(() => {
+    console.log('OrganizationProvider - isPlatformOwner:', isPlatformOwner, 'organizations:', organizations?.length, 'selectedOrgId:', selectedOrgId);
+    
     if (isPlatformOwner && organizations?.length > 0 && !selectedOrgId) {
-      setSelectedOrgId(organizations[0].id);
-      sessionStorage.setItem('selectedOrgId', organizations[0].id);
+      const firstOrg = organizations[0];
+      console.log('Auto-selecting first organization:', firstOrg.id, firstOrg.name);
+      setSelectedOrgId(firstOrg.id);
+      sessionStorage.setItem('selectedOrgId', firstOrg.id);
     }
   }, [organizations, isPlatformOwner, selectedOrgId]);
 
