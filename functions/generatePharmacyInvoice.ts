@@ -189,10 +189,11 @@ Deno.serve(async (req) => {
       <body>
         <div class="container">
           <div class="header">
-            ${logoUrl ? `<img src="${logoUrl}" alt="Logo" style="max-height: 80px; max-width: 200px; margin-bottom: 10px;">` : ''}
-            <h1>${company?.company_trade_name || 'PHARMACY'}</h1>
+            ${logoUrl ? `<img src="${logoUrl}" alt="Logo" style="max-height: 50px; max-width: 65mm; margin-bottom: 5px; display: block; margin-left: auto; margin-right: auto;">` : ''}
+            <h1>${organization?.name || company?.company_trade_name || 'PHARMACY'}</h1>
             <p>${company?.company_legal_name || ''}</p>
-            ${company?.email_domain ? `<p>${company.email_domain}</p>` : ''}
+            ${organization?.address ? `<p>${organization.address}</p>` : ''}
+            ${organization?.phone ? `<p>Tel: ${organization.phone}</p>` : ''}
           </div>
 
           <div class="invoice-details">
