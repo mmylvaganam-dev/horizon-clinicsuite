@@ -31,7 +31,7 @@ import {
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import OrganizationSwitcher from '@/components/shared/OrganizationSwitcher';
@@ -43,7 +43,17 @@ function LayoutContent({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userApproved, setUserApproved] = useState(null);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { isPlatformOwner } = useOrganization();
+
+  // Auto-refresh all data every 60 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      queryClient.refetchQueries();
+    }, 60000); // 60 seconds
+
+    return () => clearInterval(interval);
+  }, [queryClient]);
   
   const { data: user } = useQuery({
     queryKey: ['currentUser'],

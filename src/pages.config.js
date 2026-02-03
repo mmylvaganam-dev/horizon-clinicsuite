@@ -175,11 +175,11 @@ import ShiftHandover from './pages/ShiftHandover';
 import StaffDirectory from './pages/StaffDirectory';
 import TaskManagement from './pages/TaskManagement';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
+import TodaySalesDetails from './pages/TodaySalesDetails';
 import UserApprovals from './pages/UserApprovals';
 import UserManagement from './pages/UserManagement';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import TodaySalesDetails from './pages/TodaySalesDetails';
 import __Layout from './Layout.jsx';
 
 
@@ -312,11 +312,11 @@ export const PAGES = {
     "StaffDirectory": StaffDirectory,
     "TaskManagement": TaskManagement,
     "ThirdPartyProviders": ThirdPartyProviders,
+    "TodaySalesDetails": TodaySalesDetails,
     "UserApprovals": UserApprovals,
     "UserManagement": UserManagement,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "TodaySalesDetails": TodaySalesDetails,
 }
 
 export const pagesConfig = {
