@@ -79,15 +79,23 @@ export default function TodaySalesDetails() {
         saleId: sale.id
       });
       
-      // The function returns HTML directly - open in new window
-      const newWindow = window.open('', '_blank');
-      if (newWindow && response.data) {
-        newWindow.document.write(response.data);
-        newWindow.document.close();
+      // Open the HTML in a new window/tab for printing
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.open();
+        printWindow.document.write(response.data);
+        printWindow.document.close();
+        // Give browser time to render before printing
+        setTimeout(() => {
+          printWindow.focus();
+          printWindow.print();
+        }, 250);
+      } else {
+        alert('Please allow popups to print receipts');
       }
     } catch (error) {
       console.error('Failed to reprint invoice:', error);
-      alert('Failed to reprint invoice. Please try again.');
+      alert('Failed to reprint invoice: ' + error.message);
     } finally {
       setReprintingId(null);
     }
