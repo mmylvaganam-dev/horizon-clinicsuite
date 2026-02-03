@@ -22,6 +22,13 @@ Deno.serve(async (req) => {
     const company = companies[0];
     const currency = company?.base_currency || 'LKR';
 
+    // Fetch organization branding for logo
+    const brandings = await base44.entities.OrganizationBranding.filter({ 
+      organization_id: currentSale.organization_id 
+    });
+    const branding = brandings[0];
+    const logoUrl = branding?.primary_logo_file_ref || null;
+
     let patientInfo = { name: 'Walk-in Customer', phone: '', mobile: '' };
     if (currentSale.patient_id) {
       const patients = await base44.entities.Patient.list();
@@ -72,6 +79,7 @@ Deno.serve(async (req) => {
       <body>
         <div class="container">
           <div class="header">
+            ${logoUrl ? `<img src="${logoUrl}" alt="Logo" style="max-height: 80px; max-width: 200px; margin-bottom: 10px;">` : ''}
             <h1>${company?.company_trade_name || 'PHARMACY'}</h1>
             <p>${company?.company_legal_name || ''}</p>
             ${company?.email_domain ? `<p>${company.email_domain}</p>` : ''}
