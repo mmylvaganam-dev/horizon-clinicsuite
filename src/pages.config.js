@@ -179,6 +179,7 @@ import UserApprovals from './pages/UserApprovals';
 import UserManagement from './pages/UserManagement';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
+import TodaySalesDetails from './pages/TodaySalesDetails';
 import __Layout from './Layout.jsx';
 
 
@@ -315,6 +316,7 @@ export const PAGES = {
     "UserManagement": UserManagement,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
+    "TodaySalesDetails": TodaySalesDetails,
 }
 
 export const pagesConfig = {
