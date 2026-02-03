@@ -85,9 +85,12 @@ Deno.serve(async (req) => {
             padding-bottom: 10px; 
           }
           .header img {
-            max-height: 40px;
-            max-width: 60mm;
+            max-height: 50px;
+            max-width: 65mm;
             margin-bottom: 5px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
           }
           .header h1 { 
             font-size: 16px; 
