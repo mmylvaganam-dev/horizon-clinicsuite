@@ -18,7 +18,15 @@ Deno.serve(async (req) => {
     }
 
     const saleItems = await base44.entities.PharmacySaleItem.filter({ sale_id: saleId });
-    const companies = await base44.entities.CompanyProfile.list();
+    
+    // Fetch organization data
+    const organizations = await base44.entities.Organization.list();
+    const organization = organizations.find(o => o.id === currentSale.organization_id);
+    
+    // Fetch company profile for this organization
+    const companies = await base44.entities.CompanyProfile.filter({ 
+      organization_id: currentSale.organization_id 
+    });
     const company = companies[0];
     const currency = company?.base_currency || 'LKR';
 
