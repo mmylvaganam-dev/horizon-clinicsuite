@@ -19,6 +19,12 @@ import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 
+// Format currency with commas
+const formatCurrency = (amount, currency = 'LKR') => {
+  if (!amount && amount !== 0) return `${currency} 0.00`;
+  return `${currency} ${parseFloat(amount).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+};
+
 export default function TodaySalesDetails() {
   const navigate = useNavigate();
   const [reprintingId, setReprintingId] = useState(null);
@@ -70,12 +76,14 @@ export default function TodaySalesDetails() {
     setReprintingId(sale.id);
     try {
       const response = await base44.functions.invoke('generatePharmacyInvoice', {
-        sale_id: sale.id,
-        reprint: true,
+        saleId: sale.id
       });
       
-      if (response.data?.pdf_url) {
-        window.open(response.data.pdf_url, '_blank');
+      // The function returns HTML directly - open in new window
+      const newWindow = window.open('', '_blank');
+      if (newWindow && response.data) {
+        newWindow.document.write(response.data);
+        newWindow.document.close();
       }
     } catch (error) {
       console.error('Failed to reprint invoice:', error);
@@ -83,6 +91,12 @@ export default function TodaySalesDetails() {
     } finally {
       setReprintingId(null);
     }
+  };
+
+  const [expandedSaleId, setExpandedSaleId] = useState(null);
+
+  const toggleDetails = (saleId) => {
+    setExpandedSaleId(expandedSaleId === saleId ? null : saleId);
   };
 
   return (
@@ -119,7 +133,7 @@ export default function TodaySalesDetails() {
           <CardContent className="p-6">
             <DollarSign className="w-8 h-8 mb-2 opacity-80" />
             <p className="text-sm opacity-90">Total Revenue</p>
-            <p className="text-3xl font-bold mt-1">{currency} {todayRevenue.toFixed(2)}</p>
+            <p className="text-3xl font-bold mt-1">{formatCurrency(todayRevenue, currency)}</p>
             <p className="text-xs opacity-80 mt-1">Today's earnings</p>
           </CardContent>
         </Card>
@@ -128,7 +142,7 @@ export default function TodaySalesDetails() {
           <CardContent className="p-6">
             <DollarSign className="w-8 h-8 mb-2 opacity-80" />
             <p className="text-sm opacity-90">Average Sale</p>
-            <p className="text-3xl font-bold mt-1">{currency} {averageSale.toFixed(2)}</p>
+            <p className="text-3xl font-bold mt-1">{formatCurrency(averageSale, currency)}</p>
             <p className="text-xs opacity-80 mt-1">Per transaction</p>
           </CardContent>
         </Card>
@@ -232,7 +246,7 @@ export default function TodaySalesDetails() {
                         <div className="text-right">
                           <p className="text-sm text-slate-500 mb-1">Total Amount</p>
                           <p className="text-3xl font-bold text-slate-900">
-                            {currency} {sale.total?.toFixed(2)}
+                            {formatCurrency(sale.total, currency)}
                           </p>
                         </div>
 
@@ -250,21 +264,18 @@ export default function TodaySalesDetails() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => {
-                              // View details - could expand or navigate to detail page
-                              console.log('View sale details:', sale);
-                            }}
+                            onClick={() => toggleDetails(sale.id)}
                             className="text-slate-600 hover:text-slate-700"
                           >
                             <Eye className="w-4 h-4 mr-1" />
-                            Details
+                            {expandedSaleId === sale.id ? 'Hide' : 'Details'}
                           </Button>
                         </div>
                       </div>
                     </div>
 
-                    {/* Items preview */}
-                    {sale.items && sale.items.length > 0 && (
+                    {/* Items preview - shown when expanded */}
+                    {expandedSaleId === sale.id && sale.items && sale.items.length > 0 && (
                       <div className="mt-4 pt-4 border-t border-slate-200">
                         <p className="text-xs font-semibold text-slate-500 mb-2">ITEMS SOLD:</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
@@ -274,7 +285,7 @@ export default function TodaySalesDetails() {
                               <div className="flex items-center gap-2">
                                 <Badge variant="outline" className="text-xs">x{item.quantity}</Badge>
                                 <span className="font-semibold text-slate-900">
-                                  {currency} {item.subtotal?.toFixed(2)}
+                                  {formatCurrency(item.subtotal, currency)}
                                 </span>
                               </div>
                             </div>
