@@ -50,29 +50,131 @@ Deno.serve(async (req) => {
         <meta charset="UTF-8">
         <title>Invoice</title>
         <style>
-          * { margin: 0; padding: 0; }
-          body { font-family: Arial, sans-serif; color: #333; }
-          .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-          .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 15px; }
-          .header h1 { font-size: 24px; margin-bottom: 5px; }
-          .header p { font-size: 12px; color: #666; }
-          .invoice-details { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
-          .detail-box { font-size: 12px; }
-          .detail-box h3 { font-size: 12px; font-weight: bold; margin-bottom: 8px; }
-          .detail-box p { margin-bottom: 3px; line-height: 1.4; }
-          table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-          th { background-color: #f0f0f0; padding: 10px; text-align: left; font-size: 12px; font-weight: bold; border: 1px solid #ddd; }
-          td { padding: 10px; font-size: 12px; border: 1px solid #ddd; }
-          .amount { text-align: right; }
-          .summary { margin-left: auto; width: 300px; margin-bottom: 30px; }
-          .summary-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 12px; }
-          .summary-row.total { font-weight: bold; font-size: 14px; border-top: 2px solid #333; padding-top: 10px; }
-          .footer { text-align: center; font-size: 10px; color: #666; margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; }
-          .print-hidden { display: none; }
+          @page {
+            size: 80mm auto;
+            margin: 0;
+          }
+          * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box;
+          }
+          body { 
+            font-family: 'Courier New', monospace;
+            color: #000;
+            width: 80mm;
+            margin: 0 auto;
+            padding: 5mm;
+            font-size: 11px;
+          }
+          .container { 
+            width: 100%;
+          }
+          .header { 
+            text-align: center; 
+            margin-bottom: 10px; 
+            border-bottom: 1px dashed #000; 
+            padding-bottom: 10px; 
+          }
+          .header img {
+            max-height: 40px;
+            max-width: 60mm;
+            margin-bottom: 5px;
+          }
+          .header h1 { 
+            font-size: 16px; 
+            margin-bottom: 3px;
+            font-weight: bold;
+          }
+          .header p { 
+            font-size: 10px; 
+            color: #000;
+            margin: 2px 0;
+          }
+          .invoice-details { 
+            margin-bottom: 10px;
+            font-size: 10px;
+          }
+          .detail-box { 
+            margin-bottom: 8px;
+          }
+          .detail-box h3 { 
+            font-size: 11px; 
+            font-weight: bold; 
+            margin-bottom: 3px;
+            text-decoration: underline;
+          }
+          .detail-box p { 
+            margin: 1px 0;
+            line-height: 1.3;
+          }
+          .divider {
+            border-top: 1px dashed #000;
+            margin: 8px 0;
+          }
+          table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 10px;
+            font-size: 10px;
+          }
+          th { 
+            background-color: transparent;
+            padding: 4px 2px;
+            text-align: left; 
+            font-size: 10px; 
+            font-weight: bold;
+            border-bottom: 1px solid #000;
+          }
+          td { 
+            padding: 4px 2px;
+            font-size: 10px;
+            border-bottom: 1px dashed #ddd;
+          }
+          .item-name {
+            font-weight: bold;
+          }
+          .amount { 
+            text-align: right; 
+          }
+          .summary { 
+            margin-top: 10px;
+            font-size: 11px;
+            border-top: 1px solid #000;
+            padding-top: 8px;
+          }
+          .summary-row { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 3px 0;
+          }
+          .summary-row.total { 
+            font-weight: bold; 
+            font-size: 13px;
+            border-top: 1px solid #000;
+            border-bottom: 1px solid #000;
+            padding: 5px 0;
+            margin-top: 5px;
+          }
+          .footer { 
+            text-align: center; 
+            font-size: 9px;
+            margin-top: 15px; 
+            padding-top: 10px; 
+            border-top: 1px dashed #000; 
+          }
+          .footer p {
+            margin: 2px 0;
+          }
           @media print {
-            body { margin: 0; padding: 0; }
-            .container { max-width: 100%; }
-            .print-hidden { display: none; }
+            body { 
+              margin: 0;
+              padding: 5mm;
+              width: 80mm;
+            }
+            .container { 
+              width: 100%;
+            }
           }
         </style>
       </head>
@@ -87,66 +189,69 @@ Deno.serve(async (req) => {
 
           <div class="invoice-details">
             <div class="detail-box">
-              <h3>BILL TO:</h3>
-              <p><strong>${patientInfo.name}</strong></p>
+              <h3>CUSTOMER</h3>
+              <p>${patientInfo.name}</p>
               ${patientInfo.phn ? `<p>PHN: ${patientInfo.phn}</p>` : ''}
-              ${patientInfo.phone ? `<p>Phone: ${patientInfo.phone}</p>` : ''}
-              ${patientInfo.mobile ? `<p>Mobile: ${patientInfo.mobile}</p>` : ''}
+              ${patientInfo.phone ? `<p>Tel: ${patientInfo.phone}</p>` : ''}
             </div>
-            <div class="detail-box" style="text-align: right;">
-              <p><strong>Invoice #:</strong> ${currentSale.id}</p>
-              <p><strong>Date:</strong> ${new Date(currentSale.sale_date).toLocaleDateString()}</p>
-              <p><strong>Time:</strong> ${new Date(currentSale.sale_date).toLocaleTimeString()}</p>
-              <p><strong>Status:</strong> ${currentSale.status}</p>
+            <div class="divider"></div>
+            <div class="detail-box">
+              <p><strong>Invoice:</strong> ${currentSale.id.slice(0, 8)}</p>
+              <p><strong>Date:</strong> ${new Date(currentSale.sale_date).toLocaleDateString('en-GB')}</p>
+              <p><strong>Time:</strong> ${new Date(currentSale.sale_date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}</p>
             </div>
           </div>
+          <div class="divider"></div>
 
           <table>
             <thead>
               <tr>
-                <th>Item</th>
-                <th style="text-align: center;">Quantity</th>
-                <th class="amount">Unit Price</th>
-                <th class="amount">Amount</th>
+                <th style="width: 40%;">Item</th>
+                <th style="text-align: center; width: 15%;">Qty</th>
+                <th class="amount" style="width: 22%;">Price</th>
+                <th class="amount" style="width: 23%;">Total</th>
               </tr>
             </thead>
             <tbody>
-              ${saleItems.map(item => `
+              ${saleItems.map(item => {
+                const formatAmount = (amt) => parseFloat(amt).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                return `
                 <tr>
-                  <td>${item.item_name}</td>
+                  <td class="item-name">${item.item_name}</td>
                   <td style="text-align: center;">${item.quantity}</td>
-                  <td class="amount">${currency} ${item.unit_price.toFixed(2)}</td>
-                  <td class="amount">${currency} ${item.line_total.toFixed(2)}</td>
+                  <td class="amount">${formatAmount(item.unit_price)}</td>
+                  <td class="amount">${formatAmount(item.line_total)}</td>
                 </tr>
-              `).join('')}
+              `}).join('')}
             </tbody>
           </table>
 
           <div class="summary">
             <div class="summary-row">
               <span>Subtotal:</span>
-              <span>${currency} ${(currentSale.total - currentSale.tax).toFixed(2)}</span>
+              <span>${currency} ${parseFloat(currentSale.total - currentSale.tax).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <div class="summary-row">
               <span>Tax:</span>
-              <span>${currency} ${currentSale.tax.toFixed(2)}</span>
+              <span>${currency} ${parseFloat(currentSale.tax).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <div class="summary-row total">
               <span>TOTAL:</span>
-              <span>${currency} ${currentSale.total.toFixed(2)}</span>
+              <span>${currency} ${parseFloat(currentSale.total).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
           </div>
 
           ${currentSale.notes ? `
-            <div style="margin-bottom: 20px; font-size: 12px; padding: 10px; background-color: #f9f9f9; border: 1px solid #ddd;">
-              <strong>Notes:</strong><br>
-              ${currentSale.notes}
+            <div class="divider"></div>
+            <div style="margin-bottom: 10px; font-size: 10px;">
+              <strong>Notes:</strong> ${currentSale.notes}
             </div>
           ` : ''}
 
           <div class="footer">
-            <p>Thank you for your business!</p>
-            <p>This is a computer-generated invoice</p>
+            <p>** THANK YOU **</p>
+            <p>Please visit again!</p>
+            <p style="margin-top: 5px; font-size: 8px;">Powered by Horizon ClinicSuite</p>
           </div>
         </div>
 
