@@ -62,6 +62,28 @@ export function OrganizationProvider({ children }) {
         return user.organization_id;
       }
       
+      // Final fallback: Check UserApproval records for approved organization
+      console.log('Regular user - Checking UserApproval records...');
+      const approvals = await base44.entities.UserApproval.filter({ user_email: user.email });
+      console.log('Regular user - UserApproval records:', approvals);
+      
+      const approvedOrg = approvals.find(a => 
+        a.final_status === 'approved' || 
+        a.platform_owner_status === 'approved' ||
+        a.org_admin_status === 'approved'
+      );
+      
+      if (approvedOrg) {
+        console.log('Regular user - Found approved organization:', approvedOrg.organization_id);
+        return approvedOrg.organization_id;
+      }
+      
+      // Last resort: If user has any UserApproval record, use that org
+      if (approvals.length > 0) {
+        console.log('Regular user - Using first approval organization:', approvals[0].organization_id);
+        return approvals[0].organization_id;
+      }
+      
       return null;
     },
     enabled: !isPlatformOwner && !!user?.email,
