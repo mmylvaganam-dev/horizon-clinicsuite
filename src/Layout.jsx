@@ -60,12 +60,21 @@ function LayoutContent({ children, currentPageName }) {
     queryFn: () => base44.auth.me(),
   });
 
-  // Ensure platform owner check is always correct
-  const isDefinitelyPlatformOwner = isPlatformOwner || 
-    user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
-    user?.email === 'mylvaganam@premierhealthcanada.ca' ||
-    user?.email === 'madhawaekanayake@gmail.com' ||
+  // DEBUG: Log current user and platform owner status
+  console.log('🔍 Layout Debug - User email:', user?.email, contextUser?.email);
+  console.log('🔍 Layout Debug - isPlatformOwner from context:', isPlatformOwner);
+
+  // CRITICAL: Use contextUser (from OrganizationProvider) as fallback since it loads faster
+  const currentUserEmail = user?.email || contextUser?.email;
+  
+  // Ensure platform owner check is ALWAYS correct - check email first
+  const isDefinitelyPlatformOwner = currentUserEmail === 'mmylvaganam@premierhealthcanada.ca' || 
+    currentUserEmail === 'mylvaganam@premierhealthcanada.ca' ||
+    currentUserEmail === 'madhawaekanayake@gmail.com' ||
+    isPlatformOwner === true ||
     user?.is_platform_owner === true;
+  
+  console.log('🔍 Layout Debug - isDefinitelyPlatformOwner:', isDefinitelyPlatformOwner);
 
   const { data: pendingApprovals = [] } = useQuery({
     queryKey: ['pendingApprovals'],
