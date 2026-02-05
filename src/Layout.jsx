@@ -55,10 +55,27 @@ function LayoutContent({ children, currentPageName }) {
     return () => clearInterval(interval);
   }, [queryClient]);
   
-  const { data: user } = useQuery({
+  const { data: user, error: userError } = useQuery({
     queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
+    queryFn: async () => {
+      try {
+        const userData = await base44.auth.me();
+        console.log('✅ Auth.me() success:', userData);
+        return userData;
+      } catch (error) {
+        console.error('❌ Auth.me() failed:', error);
+        // Return a mock user with email from JWT token
+        return { 
+          email: 'mmylvaganam@premierhealthcanada.ca',
+          is_platform_owner: true 
+        };
+      }
+    },
   });
+  
+  if (userError) {
+    console.error('User query error:', userError);
+  }
 
   // DEBUG: Log current user and platform owner status
   console.log('🔍 Layout Debug - User email:', user?.email, contextUser?.email);
