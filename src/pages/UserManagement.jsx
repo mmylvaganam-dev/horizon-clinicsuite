@@ -85,17 +85,22 @@ export default function UserManagement() {
     enabled: !!currentUser,
   });
 
-  // Map organizations to companies
-  const getCompanyOrganizations = (companyId) => {
-    return organizations.filter(org => org.company_id === companyId);
-  };
+  // Group users by company through their organization assignments
+  const usersByCompanyMap = {};
+  
+  userRoles.forEach(ur => {
+    const org = organizations.find(o => o.id === ur.organization_id);
+    if (org && org.company_id) {
+      if (!usersByCompanyMap[org.company_id]) {
+        usersByCompanyMap[org.company_id] = new Set();
+      }
+      usersByCompanyMap[org.company_id].add(ur.user_id);
+    }
+  });
 
   const getCompanyUsers = (companyId) => {
-    const companyOrgs = getCompanyOrganizations(companyId);
-    const companyOrgIds = companyOrgs.map(o => o.id);
-    const companyUserRoles = userRoles.filter(ur => companyOrgIds.includes(ur.organization_id));
-    const companyUserIds = new Set(companyUserRoles.map(ur => ur.user_id));
-    return allUsers.filter(u => companyUserIds.has(u.id));
+    const userIds = usersByCompanyMap[companyId] || new Set();
+    return allUsers.filter(u => userIds.has(u.id));
   };
 
   const { data: userRoles = [], isLoading: rolesLoading } = useQuery({
@@ -251,6 +256,7 @@ export default function UserManagement() {
     companies: companies.length,
     organizations: organizations.length,
     userRoles: userRoles.length,
+    usersByCompanyMap,
     isPlatformOwner
   });
 
