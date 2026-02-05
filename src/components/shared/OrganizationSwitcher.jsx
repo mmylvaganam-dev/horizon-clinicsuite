@@ -35,7 +35,16 @@ export default function OrganizationSwitcher() {
         <SelectContent>
           {organizations?.map((org) => (
             <SelectItem key={org.id} value={org.id}>
-              {org.name} {org.id === selectedOrgId && '✓'}
+              <div className="flex items-center justify-between w-full">
+                <span>{org.name}</span>
+                <span className={`text-xs px-2 py-0.5 rounded ${
+                  org.status === 'active' ? 'bg-green-100 text-green-700' : 
+                  org.status === 'inactive' ? 'bg-gray-100 text-gray-700' : 
+                  'bg-red-100 text-red-700'
+                }`}>
+                  {org.status}
+                </span>
+              </div>
             </SelectItem>
           ))}
         </SelectContent>
