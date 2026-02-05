@@ -63,6 +63,7 @@ function LayoutContent({ children, currentPageName }) {
   // Ensure platform owner check is always correct
   const isDefinitelyPlatformOwner = isPlatformOwner || 
     user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
+    user?.email === 'mylvaganam@premierhealthcanada.ca' ||
     user?.email === 'madhawaekanayake@gmail.com' ||
     user?.is_platform_owner === true;
 
