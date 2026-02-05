@@ -254,6 +254,7 @@ export default function UserManagement() {
   });
 
   // Group users by company
+  const unassignedUsers = allUsers.filter(u => !u.organization_id);
   const usersByCompany = companies.map(company => {
     const companyUsers = getCompanyUsers(company.id);
     return {
