@@ -65,7 +65,13 @@ export default function UserManagement() {
 
   const { data: organizations = [] } = useQuery({
     queryKey: ['organizations'],
-    queryFn: () => base44.entities.Organization.list(),
+    queryFn: () => {
+      if (isPlatformOwner) {
+        return base44.asServiceRole.entities.Organization.list();
+      }
+      return base44.entities.Organization.list();
+    },
+    enabled: !!currentUser,
   });
 
   const { data: userRoles = [] } = useQuery({
@@ -237,10 +243,17 @@ export default function UserManagement() {
         <Alert className="bg-purple-50 border-purple-200">
           <Crown className="w-4 h-4 text-purple-600" />
           <AlertDescription className="text-purple-900">
-            <strong>Platform Owner View:</strong> You can see all users across all organizations and assign organization admin roles.
+            <strong>Platform Owner View:</strong> Showing {allUsers.length} total users, {userRoles.length} role assignments across {organizations.length} organizations.
           </AlertDescription>
         </Alert>
       )}
+      
+      <Alert className="bg-blue-50 border-blue-200">
+        <Users className="w-4 h-4 text-blue-600" />
+        <AlertDescription className="text-blue-900">
+          <strong>Debug Info:</strong> Total users: {allUsers.length} | Organizations: {organizations.length} | User-Org links: {userRoles.length}
+        </AlertDescription>
+      </Alert>
 
       {usersByOrg.map(({ organization, users }) => (
         <Card key={organization.id}>
