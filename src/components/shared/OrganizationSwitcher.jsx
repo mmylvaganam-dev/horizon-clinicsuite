@@ -12,12 +12,19 @@ import { Building2 } from 'lucide-react';
 export default function OrganizationSwitcher() {
   const { selectedOrgId, organizations, onOrgChange } = useOrganization();
 
+  console.log('🟢 OrganizationSwitcher - Rendering with:', {
+    selectedOrgId,
+    orgCount: organizations?.length,
+    organizations: organizations?.map(o => `${o.name} (${o.status})`)
+  });
+
   if (!organizations || organizations.length === 0) {
+    console.log('⚠️ OrganizationSwitcher - No organizations available, hiding dropdown');
     return null;
   }
 
   const selectedOrg = organizations.find(org => org.id === selectedOrgId);
-  console.log('OrganizationSwitcher - selectedOrgId:', selectedOrgId, 'selectedOrg:', selectedOrg?.name);
+  console.log('🟢 OrganizationSwitcher - Selected org:', selectedOrg?.name, selectedOrg?.status);
 
   const handleChange = (orgId) => {
     console.log('Switching to organization:', orgId);

@@ -449,7 +449,7 @@ function LayoutContent({ children, currentPageName }) {
               )}
               
               {isDefinitelyPlatformOwner && (
-                <div className="border-2 border-blue-300 rounded-lg p-1">
+                <div className="border-2 border-blue-500 rounded-lg p-1 bg-blue-50">
                   <OrganizationSwitcher />
                 </div>
               )}

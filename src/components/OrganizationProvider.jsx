@@ -52,7 +52,8 @@ export function OrganizationProvider({ children }) {
     queryFn: async () => {
       if (!isPlatformOwner) return [];
       const orgs = await base44.entities.Organization.list();
-      console.log('Platform owner - All organizations loaded:', orgs);
+      console.log('🔵 Platform owner - Loading ALL organizations (active + inactive):', orgs.length, 'orgs');
+      console.log('🔵 Organizations:', orgs.map(o => `${o.name} (${o.status})`));
       return orgs; // Platform owners can see all organizations
     },
     enabled: isPlatformOwner,
