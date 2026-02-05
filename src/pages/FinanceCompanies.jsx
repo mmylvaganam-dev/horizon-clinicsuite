@@ -91,7 +91,8 @@ export default function FinanceCompanies() {
   });
 
   // Check if user is platform owner by email
-  const isPlatformOwnerByEmail = ['mylvaganam@premierhealthcanada.ca', 'mmylvaganam@premierhealthcanada.ca'].includes(user?.email);
+  const isPlatformOwnerByEmail = isPlatformOwner || 
+    ['mylvaganam@premierhealthcanada.ca', 'mmylvaganam@premierhealthcanada.ca', 'madhawaekanayake@gmail.com'].includes(user?.email);
 
   const toggleCompanyStatusMutation = useMutation({
     mutationFn: async ({ companyId, newStatus }) => {
