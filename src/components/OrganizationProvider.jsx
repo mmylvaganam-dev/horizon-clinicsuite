@@ -27,8 +27,7 @@ export function OrganizationProvider({ children }) {
             return {
               email: payload.sub,
               is_platform_owner: payload.sub === 'mmylvaganam@premierhealthcanada.ca' || 
-                                 payload.sub === 'mylvaganam@premierhealthcanada.ca' ||
-                                 payload.sub === 'madhawaekanayake@gmail.com'
+                                 payload.sub === 'mylvaganam@premierhealthcanada.ca'
             };
           } catch (e) {
             console.error('Failed to decode JWT:', e);
@@ -40,8 +39,7 @@ export function OrganizationProvider({ children }) {
   });
 
   // CRITICAL: Platform owner status is PERMANENT and based ONLY on email - never affected by organization or company status
-  const isPlatformOwner = user?.email === 'madhawaekanayake@gmail.com' || 
-                          user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
+  const isPlatformOwner = user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
                           user?.email === 'mylvaganam@premierhealthcanada.ca' ||
                           user?.is_platform_owner === true;
   

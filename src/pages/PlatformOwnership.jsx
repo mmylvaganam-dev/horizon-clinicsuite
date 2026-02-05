@@ -35,8 +35,7 @@ export default function PlatformOwnership() {
           return { 
             email: payload.sub,
             is_platform_owner: payload.sub === 'mmylvaganam@premierhealthcanada.ca' || 
-                               payload.sub === 'mylvaganam@premierhealthcanada.ca' ||
-                               payload.sub === 'madhawaekanayake@gmail.com'
+                               payload.sub === 'mylvaganam@premierhealthcanada.ca'
           };
         }
         return null;
@@ -45,8 +44,7 @@ export default function PlatformOwnership() {
   });
 
   // CRITICAL: Platform owner check based on email - ALWAYS true for these emails
-  const isPlatformOwner = currentUser?.email === 'madhawaekanayake@gmail.com' || 
-                         currentUser?.email === 'mmylvaganam@premierhealthcanada.ca' || 
+  const isPlatformOwner = currentUser?.email === 'mmylvaganam@premierhealthcanada.ca' || 
                          currentUser?.email === 'mylvaganam@premierhealthcanada.ca' ||
                          currentUser?.is_platform_owner === true;
   

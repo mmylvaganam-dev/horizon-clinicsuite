@@ -65,10 +65,20 @@ function LayoutContent({ children, currentPageName }) {
       } catch (error) {
         console.error('❌ Auth.me() failed:', error);
         // Return a mock user with email from JWT token
-        return { 
-          email: 'mmylvaganam@premierhealthcanada.ca',
-          is_platform_owner: true 
-        };
+        const token = localStorage.getItem('base44_token') || sessionStorage.getItem('base44_token');
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return {
+              email: payload.sub,
+              is_platform_owner: payload.sub === 'mmylvaganam@premierhealthcanada.ca' || 
+                                 payload.sub === 'mylvaganam@premierhealthcanada.ca'
+            };
+          } catch (e) {
+            console.error('Failed to decode JWT:', e);
+          }
+        }
+        return null;
       }
     },
   });
@@ -87,7 +97,6 @@ function LayoutContent({ children, currentPageName }) {
   // CRITICAL: Platform owner status is PERMANENT - check email FIRST, independent of organization/company status
   const isDefinitelyPlatformOwner = currentUserEmail === 'mmylvaganam@premierhealthcanada.ca' || 
     currentUserEmail === 'mylvaganam@premierhealthcanada.ca' ||
-    currentUserEmail === 'madhawaekanayake@gmail.com' ||
     isPlatformOwner === true ||
     user?.is_platform_owner === true;
   
