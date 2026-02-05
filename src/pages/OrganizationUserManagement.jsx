@@ -56,7 +56,9 @@ export default function OrganizationUserManagement() {
   const isPlatformOwner = userRoles.some(ur => {
     const role = allRoles.find(r => r.id === ur.role_id);
     return role?.code === 'PLATFORM_OWNER';
-  });
+  }) || currentUser?.email === 'mmylvaganam@premierhealthcanada.ca' || 
+     currentUser?.email === 'madhawaekanayake@gmail.com' ||
+     currentUser?.is_platform_owner === true;
 
   const isOrgSuperUser = userRoles.some(ur => {
     const role = allRoles.find(r => r.id === ur.role_id);
