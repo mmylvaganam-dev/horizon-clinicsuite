@@ -91,6 +91,18 @@ export default function FinanceCompanies() {
   // Check if user is platform owner by email
   const isPlatformOwnerByEmail = ['mylvaganam@premierhealthcanada.ca', 'mmylvaganam@premierhealthcanada.ca'].includes(user?.email);
 
+  const toggleCompanyStatusMutation = useMutation({
+    mutationFn: async ({ companyId, newStatus }) => {
+      return await base44.entities.CompanyProfile.update(companyId, { status: newStatus });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['companies'] });
+      queryClient.invalidateQueries({ queryKey: ['organizations'] });
+      queryClient.invalidateQueries({ queryKey: ['allOrganizations'] });
+      toast.success('Company status updated - all related organizations updated');
+    },
+  });
+
   const saveMutation = useMutation({
     mutationFn: async (data) => {
       const company = editingCompany
@@ -294,30 +306,72 @@ export default function FinanceCompanies() {
         </Card>
       ) : (
         <div className="grid md:grid-cols-2 gap-4">
-          {companies.map((company) => (
-            <button
+          {companies.map((company) => {
+            const linkedOrgs = organizations.filter(org => org.company_id === company.id);
+            return (
+            <Card
               key={company.id}
-              onClick={() => handleEdit(company)}
-              className="p-6 rounded-2xl border-4 border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50 hover:shadow-2xl transition-all duration-300 text-left transform hover:scale-102 hover:border-blue-400"
+              className="p-6 rounded-2xl border-4 border-blue-200 bg-gradient-to-br from-blue-50 to-cyan-50 hover:shadow-2xl transition-all duration-300"
             >
               <div className="flex items-start gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-xl transform hover:rotate-3 transition-transform">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-xl">
                   <Building2 className="w-8 h-8 text-white" />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <h3 className="font-bold text-xl text-slate-900">{company.company_legal_name}</h3>
-                    <div className={`px-3 py-1 rounded-full text-xs font-bold ${
-                      company.status === 'active' 
-                        ? 'bg-emerald-500 text-white' 
-                        : 'bg-slate-400 text-white'
-                    }`}>
-                      {company.status.toUpperCase()}
-                    </div>
                   </div>
                   {company.company_trade_name && (
                     <p className="text-sm text-blue-700 font-semibold mb-2">DBA: {company.company_trade_name}</p>
                   )}
+                  
+                  {/* PROMINENT ON/OFF SWITCH */}
+                  <div className="mt-4 p-4 rounded-xl border-4 border-slate-300 bg-white shadow-lg">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-bold text-lg text-slate-900">Company Status</p>
+                        <p className="text-xs text-slate-600 mt-1">
+                          {linkedOrgs.length} organization{linkedOrgs.length !== 1 ? 's' : ''} linked
+                        </p>
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const newStatus = company.status === 'active' ? 'inactive' : 'active';
+                          toggleCompanyStatusMutation.mutate({ companyId: company.id, newStatus });
+                        }}
+                        disabled={toggleCompanyStatusMutation.isPending}
+                        className={`relative w-28 h-14 rounded-full transition-all duration-300 shadow-2xl transform hover:scale-110 ${
+                          company.status === 'active'
+                            ? 'bg-gradient-to-r from-green-500 to-emerald-600'
+                            : 'bg-gradient-to-r from-red-500 to-rose-600'
+                        }`}
+                      >
+                        <div className={`absolute top-1 left-1 w-12 h-12 bg-white rounded-full shadow-lg transition-transform duration-300 ${
+                          company.status === 'active' ? 'translate-x-14' : 'translate-x-0'
+                        }`} />
+                        <span className={`absolute inset-0 flex items-center justify-center font-black text-sm text-white ${
+                          company.status === 'active' ? 'pl-4' : 'pr-4'
+                        }`}>
+                          {company.status === 'active' ? 'ON' : 'OFF'}
+                        </span>
+                      </button>
+                    </div>
+                    {company.status === 'inactive' && (
+                      <p className="text-xs text-red-600 font-bold mt-2 bg-red-50 p-2 rounded border-2 border-red-200">
+                        ⚠️ All linked organizations are hidden and deactivated
+                      </p>
+                    )}
+                  </div>
+                  
+                  <button
+                    onClick={() => handleEdit(company)}
+                    className="mt-3 w-full px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold rounded-lg transition-all"
+                  >
+                    <Edit className="w-4 h-4 inline mr-2" />
+                    Edit Details
+                  </button>
+                  
                   <div className="flex items-center gap-3 mt-3">
                     <div className="px-3 py-1 rounded-lg bg-blue-100 text-blue-700 text-xs font-bold">
                       {company.country_code}
@@ -356,12 +410,14 @@ export default function FinanceCompanies() {
                             isEnabled: checked
                           });
                         }}
+                        disabled={company.status !== 'active'}
                       />
                     </div>
                   ))}
                 </div>
               </div>
-            </button>
+            </Card>
+          )})
           ))}
         </div>
       )}
@@ -670,17 +726,14 @@ export default function FinanceCompanies() {
               </div>
             </div>
 
-            <div className="border-t-2 border-slate-200 pt-4 mt-4">
-              <Label>Status</Label>
-              <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="inactive">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="border-t-2 border-red-200 pt-4 mt-4 bg-red-50 p-4 rounded-lg">
+              <div className="flex items-start gap-3 mb-4">
+                <Info className="w-5 h-5 text-red-600 mt-0.5" />
+                <div>
+                  <p className="font-bold text-red-900">Important: Company Status</p>
+                  <p className="text-xs text-red-700 mt-1">Use the ON/OFF switch on the company card to change status. Setting to OFF will automatically deactivate all linked organizations.</p>
+                </div>
+              </div>
             </div>
 
             <div className="flex justify-end gap-3">
