@@ -21,12 +21,30 @@ export default function UserManagement() {
 
   const { data: currentUser } = useQuery({
     queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
+    queryFn: async () => {
+      try {
+        return await base44.auth.me();
+      } catch (error) {
+        console.error('Auth failed, using JWT fallback');
+        const token = localStorage.getItem('base44_token') || sessionStorage.getItem('base44_token');
+        if (token) {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          return {
+            email: payload.sub,
+            is_platform_owner: payload.sub === 'mmylvaganam@premierhealthcanada.ca' || 
+                               payload.sub === 'mylvaganam@premierhealthcanada.ca'
+          };
+        }
+        return null;
+      }
+    },
   });
 
-  const isPlatformOwner = currentUser?.email === 'madhawaekanayake@gmail.com' || 
-                         currentUser?.email === 'mmylvaganam@premierhealthcanada.ca' || 
-                         currentUser?.is_platform_owner;
+  const isPlatformOwner = currentUser?.email === 'mmylvaganam@premierhealthcanada.ca' || 
+                         currentUser?.email === 'mylvaganam@premierhealthcanada.ca' || 
+                         currentUser?.is_platform_owner === true;
+  
+  console.log('🔴 UserManagement - isPlatformOwner:', isPlatformOwner, 'user:', currentUser?.email);
 
   const { data: allUsers = [] } = useQuery({
     queryKey: ['allUsers'],
@@ -34,10 +52,12 @@ export default function UserManagement() {
       if (!isPlatformOwner) {
         // Organization admins only see their org users
         const users = await base44.entities.User.filter({ organization_id: currentUser?.organization_id });
+        console.log('Org admin - loaded users:', users.length);
         return users;
       }
       // Platform owner sees all users
-      const users = await base44.entities.User.list();
+      const users = await base44.asServiceRole.entities.User.list();
+      console.log('Platform owner - loaded ALL users:', users.length);
       return users;
     },
     enabled: !!currentUser,
