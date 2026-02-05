@@ -407,7 +407,7 @@ function LayoutContent({ children, currentPageName }) {
             <div className="flex-1 lg:flex-none" />
             
             <div className="flex items-center gap-4">
-              {isPlatformOwner && pendingApprovals.length > 0 && (
+              {isDefinitelyPlatformOwner && pendingApprovals.length > 0 && (
                 <Button
                   variant="outline"
                   className="relative bg-red-50 border-red-300 text-red-700 hover:bg-red-100 animate-pulse"
