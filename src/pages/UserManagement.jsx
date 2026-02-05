@@ -249,7 +249,6 @@ export default function UserManagement() {
     companies: companies.length,
     organizations: organizations.length,
     userRoles: userRoles.length,
-    usersByCompanyMap,
     isPlatformOwner
   });
 
