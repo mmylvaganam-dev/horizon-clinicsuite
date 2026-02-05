@@ -85,22 +85,15 @@ export default function UserManagement() {
     enabled: !!currentUser,
   });
 
-  // Group users by company through their organization assignments
-  const usersByCompanyMap = {};
-  
-  userRoles.forEach(ur => {
-    const org = organizations.find(o => o.id === ur.organization_id);
-    if (org && org.company_id) {
-      if (!usersByCompanyMap[org.company_id]) {
-        usersByCompanyMap[org.company_id] = new Set();
-      }
-      usersByCompanyMap[org.company_id].add(ur.user_id);
-    }
-  });
+  // Get all company organizations
+  const getCompanyOrganizations = (companyId) => {
+    return organizations.filter(org => org.company_id === companyId);
+  };
 
+  // Get all users for a company (by organization assignment)
   const getCompanyUsers = (companyId) => {
-    const userIds = usersByCompanyMap[companyId] || new Set();
-    return allUsers.filter(u => userIds.has(u.id));
+    const companyOrgIds = getCompanyOrganizations(companyId).map(o => o.id);
+    return allUsers.filter(u => u.organization_id && companyOrgIds.includes(u.organization_id));
   };
 
   const { data: userRoles = [], isLoading: rolesLoading } = useQuery({
