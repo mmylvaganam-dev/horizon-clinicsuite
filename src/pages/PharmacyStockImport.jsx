@@ -217,14 +217,22 @@ export default function PharmacyStockImport() {
       }
 
       if (replaceMode) {
-        // Delete all existing stock first
+        // Delete all existing stock FIRST before uploading new data
+        console.log('🗑️ Deleting', stockItems.length, 'existing items...');
         for (const item of stockItems) {
-          await base44.entities.PharmacyStock.delete(item.id);
+          try {
+            await base44.entities.PharmacyStock.delete(item.id);
+          } catch (error) {
+            console.warn('Failed to delete item', item.id, ':', error.message);
+          }
         }
-        toast.success('Old stock cleared');
+        console.log('✓ Old stock cleared');
+        toast.success('Old stock cleared - now uploading new stock');
       }
 
+      console.log('📥 Uploading', itemsToInsert.length, 'new items...');
       await base44.entities.PharmacyStock.bulkCreate(itemsToInsert);
+      console.log('✓ New stock uploaded successfully');
       console.log('✓ Successfully inserted', itemsToInsert.length, 'items to organization:', selectedOrgId);
 
       queryClient.invalidateQueries({ queryKey: ['pharmacyStock'] });
