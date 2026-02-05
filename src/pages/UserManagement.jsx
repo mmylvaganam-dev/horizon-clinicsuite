@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Users, Crown, Building2 } from 'lucide-react';
+import { Shield, Users, Crown, Building2, AlertTriangle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Dialog,
@@ -100,6 +100,39 @@ export default function UserManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['allUsers'] });
+    },
+  });
+
+  const assignToOrgMutation = useMutation({
+    mutationFn: async ({ userId, orgId }) => {
+      // Get user role
+      const roles = await base44.asServiceRole.entities.Role.filter({ code: 'user' });
+      const userRoleId = roles.length > 0 ? roles[0].id : null;
+      
+      if (!userRoleId) {
+        throw new Error('Default user role not found');
+      }
+
+      // Create UserRole linkage
+      await base44.asServiceRole.entities.UserRole.create({
+        user_id: userId,
+        role_id: userRoleId,
+        organization_id: orgId,
+        is_primary: true,
+        valid_from: new Date().toISOString().split('T')[0]
+      });
+
+      // Update User.organization_id
+      await base44.asServiceRole.entities.User.update(userId, {
+        organization_id: orgId
+      });
+
+      return true;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['allUsers'] });
+      queryClient.invalidateQueries({ queryKey: ['userRoles'] });
+      setSelectedUser(null);
     },
   });
 
@@ -254,10 +287,52 @@ export default function UserManagement() {
           )}
         </div>
       )}
-      {organization.id === 'unassigned' && (
-        <Badge variant="outline" className="text-slate-500">
-          Not linked to any organization
-        </Badge>
+      {organization.id === 'unassigned' && isPlatformOwner && (
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button
+              size="sm"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              onClick={() => setSelectedUser(user)}
+            >
+              <Building2 className="w-4 h-4 mr-1" />
+              Assign to Organization
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Assign User to Organization</DialogTitle>
+              <DialogDescription>
+                Link {user.email} to an organization
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <Alert className="bg-amber-50 border-amber-200">
+                <Building2 className="w-4 h-4 text-amber-600" />
+                <AlertDescription className="text-amber-900">
+                  This will create a UserRole link and set the primary organization for this user.
+                </AlertDescription>
+              </Alert>
+              <div className="grid gap-2">
+                {organizations.filter(o => o.id !== 'unassigned').map(org => (
+                  <Button
+                    key={org.id}
+                    variant="outline"
+                    className="justify-start h-auto py-3"
+                    onClick={() => assignToOrgMutation.mutate({ userId: user.id, orgId: org.id })}
+                    disabled={assignToOrgMutation.isPending}
+                  >
+                    <Building2 className="w-4 h-4 mr-2" />
+                    <div className="text-left">
+                      <div className="font-medium">{org.name}</div>
+                      <div className="text-xs text-slate-500 capitalize">{org.type?.replace('_', ' ')}</div>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );
