@@ -94,13 +94,18 @@ export default function UserManagement() {
     };
   });
   
-  // Add users without organization assignments
+  // Add users without organization assignments (excluding platform owners)
+  const platformOwnerEmails = ['mmylvaganam@premierhealthcanada.ca', 'mylvaganam@premierhealthcanada.ca'];
   const assignedUserIds = new Set(userRoles.map(ur => ur.user_id));
-  const unassignedUsers = allUsers.filter(u => !assignedUserIds.has(u.id));
+  const unassignedUsers = allUsers.filter(u => 
+    !assignedUserIds.has(u.id) && 
+    !platformOwnerEmails.includes(u.email) &&
+    !u.is_platform_owner
+  );
   
   if (unassignedUsers.length > 0) {
     usersByOrg.push({
-      organization: { id: 'unassigned', name: 'Unassigned Users' },
+      organization: { id: 'unassigned', name: 'Unassigned Users (No Organization)' },
       users: unassignedUsers
     });
   }
@@ -147,7 +152,7 @@ export default function UserManagement() {
           )}
         </div>
       </div>
-      {isPlatformOwner && !user.is_platform_owner && (
+      {isPlatformOwner && !user.is_platform_owner && organization.id !== 'unassigned' && (
         <div className="flex gap-2">
           {user.is_organization_admin ? (
             <Button
@@ -176,15 +181,15 @@ export default function UserManagement() {
                 <DialogHeader>
                   <DialogTitle>Assign Organization Admin</DialogTitle>
                   <DialogDescription>
-                    Grant master admin privileges to {user.email} for {organization?.name}
+                    Grant admin privileges to {user.email} for {organization?.name}
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <Alert>
                     <Shield className="w-4 h-4" />
                     <AlertDescription>
-                      Organization admins can approve new user access requests for their organization. 
-                      You (platform owner) will have final approval authority.
+                      Org Admins can manage users, approve access requests, and configure settings for <strong>{organization?.name}</strong> only.
+                      You (platform owner) retain final approval authority.
                     </AlertDescription>
                   </Alert>
                   <div className="flex gap-3 justify-end">
@@ -207,6 +212,11 @@ export default function UserManagement() {
             </Dialog>
           )}
         </div>
+      )}
+      {organization.id === 'unassigned' && (
+        <Badge variant="outline" className="text-slate-500">
+          Not linked to any organization
+        </Badge>
       )}
     </div>
   );
