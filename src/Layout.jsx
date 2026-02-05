@@ -42,6 +42,7 @@ import { useOrganization, OrganizationProvider } from '@/components/Organization
 function LayoutContent({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userApproved, setUserApproved] = useState(null);
+  const [isBlocked, setIsBlocked] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isPlatformOwner, user: contextUser } = useOrganization();
@@ -116,6 +117,14 @@ function LayoutContent({ children, currentPageName }) {
   useEffect(() => {
     const checkApproval = async () => {
       try {
+        // Check if user is blocked first
+        const blockCheck = await base44.functions.invoke('checkUserBlocked');
+        if (blockCheck.data.blocked) {
+          setIsBlocked(true);
+          setUserApproved(false);
+          return;
+        }
+        
         const response = await base44.functions.invoke('checkUserApproval');
         // All authenticated users are approved - no access pending page
         setUserApproved(true);
@@ -491,7 +500,29 @@ function LayoutContent({ children, currentPageName }) {
 
         {/* Page content */}
         <main className="p-4 lg:p-8">
-          {children}
+          {isBlocked ? (
+            <div className="flex items-center justify-center min-h-[60vh]">
+              <div className="max-w-md text-center space-y-4">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+                  <X className="w-8 h-8 text-red-600" />
+                </div>
+                <h1 className="text-2xl font-bold text-slate-900">Access Denied</h1>
+                <p className="text-slate-600">
+                  Your account has been blocked by the platform administrator.
+                </p>
+                <Button 
+                  variant="outline" 
+                  onClick={() => base44.auth.logout()}
+                  className="mt-4"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              </div>
+            </div>
+          ) : (
+            children
+          )}
         </main>
 
         {/* Footer with version */}
