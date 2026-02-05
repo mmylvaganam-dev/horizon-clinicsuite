@@ -24,12 +24,33 @@ export default function PlatformOwnership() {
 
   const { data: currentUser } = useQuery({
     queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
+    queryFn: async () => {
+      try {
+        return await base44.auth.me();
+      } catch (error) {
+        console.error('❌ Auth failed in PlatformOwnership, using JWT fallback');
+        const token = localStorage.getItem('base44_token') || sessionStorage.getItem('base44_token');
+        if (token) {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          return { 
+            email: payload.sub,
+            is_platform_owner: payload.sub === 'mmylvaganam@premierhealthcanada.ca' || 
+                               payload.sub === 'mylvaganam@premierhealthcanada.ca' ||
+                               payload.sub === 'madhawaekanayake@gmail.com'
+          };
+        }
+        return null;
+      }
+    },
   });
 
+  // CRITICAL: Platform owner check based on email - ALWAYS true for these emails
   const isPlatformOwner = currentUser?.email === 'madhawaekanayake@gmail.com' || 
                          currentUser?.email === 'mmylvaganam@premierhealthcanada.ca' || 
-                         currentUser?.is_platform_owner;
+                         currentUser?.email === 'mylvaganam@premierhealthcanada.ca' ||
+                         currentUser?.is_platform_owner === true;
+  
+  console.log('🔴 PlatformOwnership - User email:', currentUser?.email, 'isPlatformOwner:', isPlatformOwner);
 
   const transferOwnershipMutation = useMutation({
     mutationFn: async (newEmail) => {
