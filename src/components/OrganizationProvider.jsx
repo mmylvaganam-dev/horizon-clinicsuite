@@ -20,14 +20,17 @@ export function OrganizationProvider({ children }) {
   
   console.log('OrganizationProvider - User:', user?.email, 'isPlatformOwner:', isPlatformOwner);
 
-  // For platform owners: load all organizations
+  // For platform owners: load all active organizations
   const { data: organizations } = useQuery({
     queryKey: ['allOrganizations'],
     queryFn: async () => {
       if (!isPlatformOwner) return [];
       const orgs = await base44.entities.Organization.list();
       console.log('Platform owner - Organizations loaded:', orgs);
-      return orgs;
+      // Filter out inactive organizations
+      const activeOrgs = orgs.filter(org => org.status === 'active');
+      console.log('Platform owner - Active organizations:', activeOrgs);
+      return activeOrgs;
     },
     enabled: isPlatformOwner,
   });
