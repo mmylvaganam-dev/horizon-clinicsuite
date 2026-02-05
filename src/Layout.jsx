@@ -44,7 +44,7 @@ function LayoutContent({ children, currentPageName }) {
   const [userApproved, setUserApproved] = useState(null);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { isPlatformOwner } = useOrganization();
+  const { isPlatformOwner, user: contextUser } = useOrganization();
 
   // Auto-refresh all data every 60 seconds
   useEffect(() => {
