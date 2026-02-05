@@ -417,8 +417,8 @@ export default function FinanceCompanies() {
                 </div>
               </div>
             </Card>
-          )})
-          ))}
+          );
+          })}
         </div>
       )}
 
