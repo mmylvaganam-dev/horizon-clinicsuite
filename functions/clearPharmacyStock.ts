@@ -37,19 +37,29 @@ Deno.serve(async (req) => {
 
     console.log('Total items to delete:', allStock.length);
 
-    // Delete sequentially with delays to avoid rate limits
+    // Delete sequentially with longer delays and retry logic
     let deleted = 0;
     let failed = 0;
     
     for (const item of allStock) {
-      try {
-        await base44.asServiceRole.entities.PharmacyStock.delete(item.id);
-        deleted++;
-        // Add delay after each delete
-        await new Promise(resolve => setTimeout(resolve, 50));
-      } catch (error) {
-        console.error('Failed to delete:', item.id, error.message);
-        failed++;
+      let retries = 3;
+      while (retries > 0) {
+        try {
+          await base44.asServiceRole.entities.PharmacyStock.delete(item.id);
+          deleted++;
+          // Wait longer between deletes to avoid rate limits
+          await new Promise(resolve => setTimeout(resolve, 500));
+          break;
+        } catch (error) {
+          retries--;
+          if (retries === 0) {
+            console.error('Failed to delete (after retries):', item.id, error.message);
+            failed++;
+          } else {
+            console.log('Retry delete:', item.id);
+            await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s before retry
+          }
+        }
       }
     }
 
