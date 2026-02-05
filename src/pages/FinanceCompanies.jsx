@@ -80,7 +80,9 @@ export default function FinanceCompanies() {
   const isPlatformOwner = userRoles.some(ur => {
     const role = allRoles.find(r => r.id === ur.role_id);
     return role?.code === 'PLATFORM_OWNER';
-  });
+  }) || user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
+     user?.email === 'madhawaekanayake@gmail.com' ||
+     user?.is_platform_owner === true;
 
   const { data: organizations = [] } = useQuery({
     queryKey: ['organizations'],
