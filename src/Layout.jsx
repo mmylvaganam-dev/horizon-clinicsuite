@@ -69,11 +69,11 @@ function LayoutContent({ children, currentPageName }) {
   const { data: pendingApprovals = [] } = useQuery({
     queryKey: ['pendingApprovals'],
     queryFn: async () => {
-      if (!isPlatformOwner) return [];
+      if (!isDefinitelyPlatformOwner) return [];
       const all = await base44.entities.UserApproval.filter({ final_status: 'pending_platform' });
       return all;
     },
-    enabled: isPlatformOwner,
+    enabled: isDefinitelyPlatformOwner,
     refetchInterval: 30000, // Check every 30 seconds
   });
 
