@@ -88,6 +88,7 @@ import Appointments from './pages/Appointments';
 import AssignMyRoles from './pages/AssignMyRoles';
 import BarcodeSetup from './pages/BarcodeSetup';
 import Billing from './pages/Billing';
+import BlockedUsers from './pages/BlockedUsers';
 import Communications from './pages/Communications';
 import CompanyHierarchy from './pages/CompanyHierarchy';
 import CompanyModuleManagement from './pages/CompanyModuleManagement';
@@ -180,7 +181,6 @@ import UserApprovals from './pages/UserApprovals';
 import UserManagement from './pages/UserManagement';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import BlockedUsers from './pages/BlockedUsers';
 import __Layout from './Layout.jsx';
 
 
@@ -226,6 +226,7 @@ export const PAGES = {
     "AssignMyRoles": AssignMyRoles,
     "BarcodeSetup": BarcodeSetup,
     "Billing": Billing,
+    "BlockedUsers": BlockedUsers,
     "Communications": Communications,
     "CompanyHierarchy": CompanyHierarchy,
     "CompanyModuleManagement": CompanyModuleManagement,
@@ -318,7 +319,6 @@ export const PAGES = {
     "UserManagement": UserManagement,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "BlockedUsers": BlockedUsers,
 }
 
 export const pagesConfig = {

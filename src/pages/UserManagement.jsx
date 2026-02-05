@@ -70,8 +70,8 @@ export default function UserManagement() {
 
   const { data: userRoles = [] } = useQuery({
     queryKey: ['userRoles'],
-    queryFn: () => base44.entities.UserRole.list(),
-    enabled: isPlatformOwner,
+    queryFn: () => base44.asServiceRole.entities.UserRole.list(),
+    enabled: isPlatformOwner && !!currentUser,
   });
 
   const assignOrgAdminMutation = useMutation({
@@ -85,11 +85,25 @@ export default function UserManagement() {
     },
   });
 
-  // Group users by organization
-  const usersByOrg = organizations.map(org => ({
-    organization: org,
-    users: allUsers.filter(u => u.organization_id === org.id)
-  }));
+  // Group users by organization using UserRole linkage
+  const usersByOrg = organizations.map(org => {
+    const orgUserIds = userRoles.filter(ur => ur.organization_id === org.id).map(ur => ur.user_id);
+    return {
+      organization: org,
+      users: allUsers.filter(u => orgUserIds.includes(u.id))
+    };
+  });
+  
+  // Add users without organization assignments
+  const assignedUserIds = new Set(userRoles.map(ur => ur.user_id));
+  const unassignedUsers = allUsers.filter(u => !assignedUserIds.has(u.id));
+  
+  if (unassignedUsers.length > 0) {
+    usersByOrg.push({
+      organization: { id: 'unassigned', name: 'Unassigned Users' },
+      users: unassignedUsers
+    });
+  }
 
   const getUserRoleDetails = (userId, orgId) => {
     const roles = userRoles.filter(r => r.user_id === userId && r.organization_id === orgId);
