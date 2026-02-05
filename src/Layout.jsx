@@ -469,13 +469,13 @@ function LayoutContent({ children, currentPageName }) {
                 </Button>
               )}
               
-              {isDefinitelyPlatformOwner && (
+              {isDefinitelyPlatformOwner && !currentPageName?.startsWith('Platform') && !currentPageName?.includes('UserManagement') && !currentPageName?.includes('UserApprovals') && !currentPageName?.includes('BlockedUsers') && (
                 <div className="border-2 border-blue-500 rounded-lg p-1 bg-blue-50">
                   <OrganizationSwitcher />
                 </div>
               )}
               
-              {selectedOrgId && (
+              {selectedOrgId && !currentPageName?.startsWith('Platform') && !currentPageName?.includes('UserManagement') && !currentPageName?.includes('UserApprovals') && !currentPageName?.includes('BlockedUsers') && (
                 <div className="flex items-center gap-3 px-4 py-2.5 bg-white rounded-lg border-2 border-teal-500 shadow-sm">
                   {branding?.primary_logo_file_ref ? (
                     <img 
