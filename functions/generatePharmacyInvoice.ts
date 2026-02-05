@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
       organization_id: currentSale.organization_id 
     });
     const branding = brandings[0];
-    const logoUrl = branding?.primary_logo_file_ref || null;
+    const logoUrl = branding?.receipt_logo_file_ref || branding?.primary_logo_file_ref || null;
 
     let patientInfo = { name: 'Walk-in Customer', phone: '', mobile: '' };
     if (currentSale.patient_id) {
