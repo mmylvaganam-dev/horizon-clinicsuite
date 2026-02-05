@@ -500,6 +500,14 @@ export default function UserManagement() {
         </Alert>
       )}
 
+      <UnassignedUsersSection
+        unassignedUsers={unassignedUsers}
+        organizations={organizations}
+        companies={companies}
+        onAssign={(data) => assignToOrgMutation.mutate(data)}
+        isAssigning={assignToOrgMutation.isPending}
+      />
+
       {usersByCompany.map(({ company, users }) => (
         <Card key={company.id}>
           <CardHeader>
