@@ -108,10 +108,10 @@ export default function UserManagement() {
     enabled: !!currentUser,
   });
 
-  const assignOrgAdminMutation = useMutation({
+  const assignCompanyAdminMutation = useMutation({
     mutationFn: async ({ userId, isAdmin }) => {
       return base44.asServiceRole.entities.User.update(userId, {
-        is_organization_admin: isAdmin
+        is_company_admin: isAdmin
       });
     },
     onSuccess: () => {
