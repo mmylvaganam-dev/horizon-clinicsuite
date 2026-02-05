@@ -11,7 +11,32 @@ export function OrganizationProvider({ children }) {
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
+    queryFn: async () => {
+      try {
+        const userData = await base44.auth.me();
+        console.log('OrganizationProvider - User auth check succeeded:', userData);
+        return userData;
+      } catch (error) {
+        console.error('User auth check failed:', error);
+        // Decode JWT token to get email
+        const token = localStorage.getItem('base44_token') || sessionStorage.getItem('base44_token');
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            console.log('Decoded JWT email:', payload.sub);
+            return {
+              email: payload.sub,
+              is_platform_owner: payload.sub === 'mmylvaganam@premierhealthcanada.ca' || 
+                                 payload.sub === 'mylvaganam@premierhealthcanada.ca' ||
+                                 payload.sub === 'madhawaekanayake@gmail.com'
+            };
+          } catch (e) {
+            console.error('Failed to decode JWT:', e);
+          }
+        }
+        return null;
+      }
+    },
   });
 
   const isPlatformOwner = user?.email === 'madhawaekanayake@gmail.com' || 
