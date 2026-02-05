@@ -39,12 +39,13 @@ export function OrganizationProvider({ children }) {
     },
   });
 
+  // CRITICAL: Platform owner status is PERMANENT and based ONLY on email - never affected by organization or company status
   const isPlatformOwner = user?.email === 'madhawaekanayake@gmail.com' || 
                           user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
                           user?.email === 'mylvaganam@premierhealthcanada.ca' ||
                           user?.is_platform_owner === true;
   
-  console.log('OrganizationProvider - User:', user?.email, 'isPlatformOwner:', isPlatformOwner);
+  console.log('🔴 PLATFORM OWNER CHECK - Email:', user?.email, 'isPlatformOwner:', isPlatformOwner, 'This should ALWAYS be true for platform owner emails');
 
   // For platform owners: load ALL organizations (including inactive)
   const { data: organizations } = useQuery({

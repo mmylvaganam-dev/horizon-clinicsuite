@@ -84,14 +84,14 @@ function LayoutContent({ children, currentPageName }) {
   // CRITICAL: Use contextUser (from OrganizationProvider) as fallback since it loads faster
   const currentUserEmail = user?.email || contextUser?.email;
   
-  // Ensure platform owner check is ALWAYS correct - check email first
+  // CRITICAL: Platform owner status is PERMANENT - check email FIRST, independent of organization/company status
   const isDefinitelyPlatformOwner = currentUserEmail === 'mmylvaganam@premierhealthcanada.ca' || 
     currentUserEmail === 'mylvaganam@premierhealthcanada.ca' ||
     currentUserEmail === 'madhawaekanayake@gmail.com' ||
     isPlatformOwner === true ||
     user?.is_platform_owner === true;
   
-  console.log('🔍 Layout Debug - isDefinitelyPlatformOwner:', isDefinitelyPlatformOwner);
+  console.log('🔴 Layout - PLATFORM OWNER STATUS:', isDefinitelyPlatformOwner, '(This should ALWAYS be true for platform owner, regardless of org/company status)');
 
   const { data: pendingApprovals = [] } = useQuery({
     queryKey: ['pendingApprovals'],
@@ -340,8 +340,9 @@ function LayoutContent({ children, currentPageName }) {
                     <nav className="flex-1 p-4 overflow-y-auto">
                       <Accordion type="multiple" defaultValue={['Main', 'Pharmacy', 'Platform Administration']} className="space-y-1">
                         {navigationGroups.filter(group => {
-                          // Filter out Platform Administration for non-platform owners
+                          // CRITICAL: Platform Administration visibility is based ONLY on user email - never organization or company status
                           if (group.platformOwnerOnly) {
+                            console.log('🔴 Filtering Platform Administration - isPlatformOwner:', isDefinitelyPlatformOwner);
                             return isDefinitelyPlatformOwner;
                           }
                           return true;
