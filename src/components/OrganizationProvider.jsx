@@ -16,6 +16,7 @@ export function OrganizationProvider({ children }) {
 
   const isPlatformOwner = user?.email === 'madhawaekanayake@gmail.com' || 
                           user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
+                          user?.email === 'mylvaganam@premierhealthcanada.ca' ||
                           user?.is_platform_owner === true;
   
   console.log('OrganizationProvider - User:', user?.email, 'isPlatformOwner:', isPlatformOwner);
