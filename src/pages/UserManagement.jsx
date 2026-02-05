@@ -303,136 +303,146 @@ export default function UserManagement() {
           )}
         </div>
       </div>
-      {isPlatformOwner && !user.is_platform_owner && (
-        <div className="flex gap-2">
+      <div className="flex gap-2">
+        {!user.is_company_admin && (
           <Dialog>
             <DialogTrigger asChild>
               <Button
                 size="sm"
                 variant="outline"
-                className="text-emerald-600 hover:text-emerald-700"
+                className="text-blue-600 hover:text-blue-700"
               >
-                <CheckCircle className="w-4 h-4 mr-1" />
-                Approve
+                <Shield className="w-4 h-4 mr-1" />
+                Make Company Admin
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Approve User</DialogTitle>
+                <DialogTitle>Make Company Admin</DialogTitle>
                 <DialogDescription>
-                  Grant {user.email} platform access for this company
+                  Grant {user.email} company admin privileges for {company?.company_legal_name}
                 </DialogDescription>
               </DialogHeader>
-              <Alert className="bg-emerald-50 border-emerald-200">
-                <CheckCircle className="w-4 h-4 text-emerald-600" />
-                <AlertDescription className="text-emerald-900">
-                  User will be able to access the system with their assigned roles.
+              <Alert className="bg-blue-50 border-blue-200">
+                <Shield className="w-4 h-4 text-blue-600" />
+                <AlertDescription className="text-blue-900">
+                  Company Admins can add, remove, and manage users for this company.
                 </AlertDescription>
               </Alert>
               <div className="flex gap-3 justify-end">
                 <Button variant="outline">Cancel</Button>
                 <Button
-                  className="bg-emerald-600 hover:bg-emerald-700"
-                  onClick={() => approveUserMutation.mutate(user.id)}
-                  disabled={approveUserMutation.isPending}
+                  className="bg-blue-600 hover:bg-blue-700"
+                  onClick={() => assignCompanyAdminMutation.mutate({ userId: user.id, isAdmin: true })}
+                  disabled={assignCompanyAdminMutation.isPending}
                 >
-                  Approve User
+                  Confirm
                 </Button>
               </div>
             </DialogContent>
           </Dialog>
+        )}
 
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                size="sm"
-                variant="outline"
-                className="text-red-600 hover:text-red-700 border-red-200"
-              >
-                <Ban className="w-4 h-4 mr-1" />
-                Block
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Block User</DialogTitle>
-                <DialogDescription>
-                  Permanently block {user.email} from accessing the platform
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <Alert className="bg-red-50 border-red-200">
-                  <Ban className="w-4 h-4 text-red-600" />
-                  <AlertDescription className="text-red-900">
-                    <strong>Warning:</strong> This user will be immediately logged out and unable to access any part of the platform, regardless of organization admin actions.
-                  </AlertDescription>
-                </Alert>
-                <div>
-                  <label className="text-sm font-medium">Reason for blocking:</label>
-                  <textarea
-                    id={`block-reason-${user.id}`}
-                    className="w-full mt-1 p-2 border rounded-md"
-                    rows="3"
-                    placeholder="Enter reason for blocking this user..."
-                  />
-                </div>
-                <div className="flex gap-3 justify-end">
-                  <Button variant="outline">
-                    Cancel
-                  </Button>
-                  <Button
-                    className="bg-red-600 hover:bg-red-700"
-                    onClick={() => {
-                      const reason = document.getElementById(`block-reason-${user.id}`).value;
-                      blockUserMutation.mutate({ userEmail: user.email, reason });
-                    }}
-                    disabled={blockUserMutation.isPending}
-                  >
-                    Block User
-                  </Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+        {user.is_company_admin && (
+          <Button
+            size="sm"
+            variant="outline"
+            className="text-red-600 hover:text-red-700"
+            onClick={() => assignCompanyAdminMutation.mutate({ userId: user.id, isAdmin: false })}
+            disabled={assignCompanyAdminMutation.isPending}
+          >
+            Remove Company Admin
+          </Button>
+        )}
 
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                size="sm"
-                variant="outline"
-                className="text-red-900 hover:text-red-900 border-red-400"
-              >
-                <Trash2 className="w-4 h-4 mr-1" />
-                Delete
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Delete User</DialogTitle>
-                <DialogDescription>
-                  Permanently delete {user.email} from the platform
-                </DialogDescription>
-              </DialogHeader>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-red-600 hover:text-red-700 border-red-200"
+            >
+              <Ban className="w-4 h-4 mr-1" />
+              Block
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Block User</DialogTitle>
+              <DialogDescription>
+                Permanently block {user.email} from accessing the platform
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
               <Alert className="bg-red-50 border-red-200">
-                <Trash2 className="w-4 h-4 text-red-600" />
+                <Ban className="w-4 h-4 text-red-600" />
                 <AlertDescription className="text-red-900">
-                  <strong>Permanent Action:</strong> This cannot be undone. User will be completely removed from the system.
+                  <strong>Warning:</strong> This user will be immediately logged out and unable to access any part of the platform.
                 </AlertDescription>
               </Alert>
+              <div>
+                <label className="text-sm font-medium">Reason for blocking:</label>
+                <textarea
+                  id={`block-reason-${user.id}`}
+                  className="w-full mt-1 p-2 border rounded-md"
+                  rows="3"
+                  placeholder="Enter reason for blocking this user..."
+                />
+              </div>
               <div className="flex gap-3 justify-end">
                 <Button variant="outline">Cancel</Button>
                 <Button
-                  className="bg-red-900 hover:bg-red-950"
-                  onClick={() => deleteUserMutation.mutate(user.id)}
-                  disabled={deleteUserMutation.isPending}
+                  className="bg-red-600 hover:bg-red-700"
+                  onClick={() => {
+                    const reason = document.getElementById(`block-reason-${user.id}`).value;
+                    blockUserMutation.mutate({ userEmail: user.email, reason });
+                  }}
+                  disabled={blockUserMutation.isPending}
                 >
-                  Delete User
+                  Block User
                 </Button>
               </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-      )}
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-red-900 hover:text-red-900 border-red-400"
+            >
+              <Trash2 className="w-4 h-4 mr-1" />
+              Delete
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete User</DialogTitle>
+              <DialogDescription>
+                Permanently delete {user.email} from the platform
+              </DialogDescription>
+            </DialogHeader>
+            <Alert className="bg-red-50 border-red-200">
+              <Trash2 className="w-4 h-4 text-red-600" />
+              <AlertDescription className="text-red-900">
+                <strong>Permanent Action:</strong> This cannot be undone. User will be completely removed from the system.
+              </AlertDescription>
+            </Alert>
+            <div className="flex gap-3 justify-end">
+              <Button variant="outline">Cancel</Button>
+              <Button
+                className="bg-red-900 hover:bg-red-950"
+                onClick={() => deleteUserMutation.mutate(user.id)}
+                disabled={deleteUserMutation.isPending}
+              >
+                Delete User
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
 
 
 
