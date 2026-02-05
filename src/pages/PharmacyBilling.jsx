@@ -112,31 +112,49 @@ export default function PharmacyBilling() {
   }, [location.state, pharmacyStock]);
 
   const { data: patients = [] } = useQuery({
-    queryKey: ['patients'],
-    queryFn: () => base44.entities.Patient.list(),
+    queryKey: ['patients', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      return base44.entities.Patient.filter(orgFilter);
+    },
+    enabled: !!selectedOrgId,
   });
 
   const { data: companies = [] } = useQuery({
-    queryKey: ['companies'],
-    queryFn: () => base44.entities.CompanyProfile.list(),
+    queryKey: ['companies', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      return base44.entities.CompanyProfile.filter(orgFilter);
+    },
+    enabled: !!selectedOrgId,
   });
 
   const { data: productUsage = [] } = useQuery({
-    queryKey: ['productUsage'],
-    queryFn: () => base44.entities.PharmacyProductUsage.list('-frequency_score', 20),
+    queryKey: ['productUsage', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      return base44.entities.PharmacyProductUsage.filter(orgFilter, '-frequency_score', 20);
+    },
+    enabled: !!selectedOrgId,
   });
 
   const { data: walkInPatients = [] } = useQuery({
-    queryKey: ['walkInPatients'],
-    queryFn: () => base44.entities.PharmacyWalkInPatient.list('-last_visit_date'),
+    queryKey: ['walkInPatients', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      return base44.entities.PharmacyWalkInPatient.filter(orgFilter, '-last_visit_date');
+    },
+    enabled: !!selectedOrgId,
   });
 
   const { data: branding } = useQuery({
-    queryKey: ['organizationBranding'],
+    queryKey: ['organizationBranding', selectedOrgId],
     queryFn: async () => {
-      const brandings = await base44.entities.OrganizationBranding.list();
-      return brandings[0];
+      if (!selectedOrgId) return null;
+      const brandings = await base44.entities.OrganizationBranding.filter(orgFilter);
+      return brandings[0] || null;
     },
+    enabled: !!selectedOrgId,
   });
 
   const currency = 'Rs';

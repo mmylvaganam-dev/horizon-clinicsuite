@@ -52,13 +52,21 @@ export default function PharmacyDashboard() {
   });
 
   const { data: sales = [] } = useQuery({
-    queryKey: ['pharmacySales'],
-    queryFn: () => base44.entities.PharmacySale.list('-sale_date'),
+    queryKey: ['pharmacySales', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      return base44.entities.PharmacySale.filter(orgFilter, '-sale_date');
+    },
+    enabled: !!selectedOrgId,
   });
 
   const { data: patients = [] } = useQuery({
-    queryKey: ['patients'],
-    queryFn: () => base44.entities.Patient.list(),
+    queryKey: ['patients', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      return base44.entities.Patient.filter(orgFilter);
+    },
+    enabled: !!selectedOrgId,
   });
 
   const { data: pharmacyStock = [], isLoading: stockLoading } = useQuery({
@@ -74,13 +82,21 @@ export default function PharmacyDashboard() {
   });
 
   const { data: receipts = [] } = useQuery({
-    queryKey: ['pharmacyReceipts'],
-    queryFn: () => base44.entities.PharmacyReceipt.list(),
+    queryKey: ['pharmacyReceipts', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      return base44.entities.PharmacyReceipt.filter(orgFilter);
+    },
+    enabled: !!selectedOrgId,
   });
 
   const { data: companies = [] } = useQuery({
-    queryKey: ['companies'],
-    queryFn: () => base44.entities.CompanyProfile.list(),
+    queryKey: ['companies', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      return base44.entities.CompanyProfile.filter(orgFilter);
+    },
+    enabled: !!selectedOrgId,
   });
 
   const currency = companies && companies.length > 0 ? (companies[0]?.base_currency || 'LKR') : 'LKR';
