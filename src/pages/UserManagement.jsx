@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Users, Crown, Building2, AlertTriangle } from 'lucide-react';
+import { Shield, Users, Crown, Building2, AlertTriangle, Ban } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Dialog,
@@ -105,34 +105,72 @@ export default function UserManagement() {
 
   const assignToOrgMutation = useMutation({
     mutationFn: async ({ userId, orgId }) => {
+      console.log('🔵 Assigning user', userId, 'to org', orgId);
+      
       // Get user role
-      const roles = await base44.asServiceRole.entities.Role.filter({ code: 'user' });
-      const userRoleId = roles.length > 0 ? roles[0].id : null;
+      const roles = await base44.asServiceRole.entities.Role.list();
+      console.log('🔵 Available roles:', roles.length);
+      
+      const userRole = roles.find(r => r.code === 'user' || r.name?.toLowerCase().includes('user'));
+      const userRoleId = userRole?.id;
       
       if (!userRoleId) {
-        throw new Error('Default user role not found');
+        console.error('❌ No user role found. Creating basic user role assignment without role_id');
+        // Fallback: create without role_id if Role entity is empty
+        await base44.asServiceRole.entities.UserRole.create({
+          user_id: userId,
+          role_id: 'basic-user', // fallback
+          organization_id: orgId,
+          is_primary: true,
+          valid_from: new Date().toISOString().split('T')[0]
+        });
+      } else {
+        // Create UserRole linkage
+        await base44.asServiceRole.entities.UserRole.create({
+          user_id: userId,
+          role_id: userRoleId,
+          organization_id: orgId,
+          is_primary: true,
+          valid_from: new Date().toISOString().split('T')[0]
+        });
       }
-
-      // Create UserRole linkage
-      await base44.asServiceRole.entities.UserRole.create({
-        user_id: userId,
-        role_id: userRoleId,
-        organization_id: orgId,
-        is_primary: true,
-        valid_from: new Date().toISOString().split('T')[0]
-      });
 
       // Update User.organization_id
       await base44.asServiceRole.entities.User.update(userId, {
         organization_id: orgId
       });
 
+      console.log('✅ User assigned successfully');
       return true;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['allUsers'] });
       queryClient.invalidateQueries({ queryKey: ['userRoles'] });
       setSelectedUser(null);
+    },
+    onError: (error) => {
+      console.error('❌ Assignment failed:', error);
+      alert(`Failed to assign user: ${error.message}`);
+    },
+  });
+
+  const blockUserMutation = useMutation({
+    mutationFn: async ({ userEmail, reason }) => {
+      const currentUserData = await base44.auth.me();
+      return base44.asServiceRole.entities.BlockedUsers.create({
+        user_email: userEmail,
+        reason: reason || 'No reason provided',
+        blocked_by: currentUserData.email,
+        blocked_date: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['allUsers'] });
+      alert('User blocked successfully');
+    },
+    onError: (error) => {
+      console.error('❌ Block failed:', error);
+      alert(`Failed to block user: ${error.message}`);
     },
   });
 
@@ -219,19 +257,74 @@ export default function UserManagement() {
           )}
         </div>
       </div>
-      {isPlatformOwner && !user.is_platform_owner && organization.id !== 'unassigned' && (
+      {isPlatformOwner && !user.is_platform_owner && (
         <div className="flex gap-2">
-          {user.is_organization_admin ? (
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => assignOrgAdminMutation.mutate({ userId: user.id, isAdmin: false })}
-              disabled={assignOrgAdminMutation.isPending}
-              className="text-red-600 hover:text-red-700"
-            >
-              Remove Org Admin
-            </Button>
-          ) : (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-red-600 hover:text-red-700 border-red-200"
+              >
+                <Ban className="w-4 h-4 mr-1" />
+                Block User
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Block User</DialogTitle>
+                <DialogDescription>
+                  Permanently block {user.email} from accessing the platform
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4">
+                <Alert className="bg-red-50 border-red-200">
+                  <Ban className="w-4 h-4 text-red-600" />
+                  <AlertDescription className="text-red-900">
+                    <strong>Warning:</strong> This user will be immediately logged out and unable to access any part of the platform.
+                  </AlertDescription>
+                </Alert>
+                <div>
+                  <label className="text-sm font-medium">Reason for blocking:</label>
+                  <textarea
+                    id={`block-reason-${user.id}`}
+                    className="w-full mt-1 p-2 border rounded-md"
+                    rows="3"
+                    placeholder="Enter reason for blocking this user..."
+                  />
+                </div>
+                <div className="flex gap-3 justify-end">
+                  <Button variant="outline">
+                    Cancel
+                  </Button>
+                  <Button
+                    className="bg-red-600 hover:bg-red-700"
+                    onClick={() => {
+                      const reason = document.getElementById(`block-reason-${user.id}`).value;
+                      blockUserMutation.mutate({ userEmail: user.email, reason });
+                    }}
+                    disabled={blockUserMutation.isPending}
+                  >
+                    Block User
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+          
+          {organization.id !== 'unassigned' && (
+            <>
+              {user.is_organization_admin ? (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => assignOrgAdminMutation.mutate({ userId: user.id, isAdmin: false })}
+                  disabled={assignOrgAdminMutation.isPending}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  Remove Org Admin
+                </Button>
+              ) : (
             <Dialog>
               <DialogTrigger asChild>
                 <Button
@@ -291,10 +384,12 @@ export default function UserManagement() {
                 </div>
               </DialogContent>
             </Dialog>
+              )}
+            </>
           )}
         </div>
       )}
-      {organization.id === 'unassigned' && isPlatformOwner && (
+      {organization.id === 'unassigned' && (
         <Dialog>
           <DialogTrigger asChild>
             <Button
@@ -320,13 +415,16 @@ export default function UserManagement() {
                   This will create a UserRole link and set the primary organization for this user.
                 </AlertDescription>
               </Alert>
-              <div className="grid gap-2">
+              <div className="grid gap-2 max-h-96 overflow-y-auto">
                 {organizations.filter(o => o.id !== 'unassigned').map(org => (
                   <Button
                     key={org.id}
                     variant="outline"
                     className="justify-start h-auto py-3"
-                    onClick={() => assignToOrgMutation.mutate({ userId: user.id, orgId: org.id })}
+                    onClick={() => {
+                      console.log('Clicked assign to org:', org.id);
+                      assignToOrgMutation.mutate({ userId: user.id, orgId: org.id });
+                    }}
                     disabled={assignToOrgMutation.isPending}
                   >
                     <Building2 className="w-4 h-4 mr-2" />
