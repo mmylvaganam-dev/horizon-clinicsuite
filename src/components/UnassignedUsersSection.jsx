@@ -38,6 +38,10 @@ export default function UnassignedUsersSection({ unassignedUsers, organizations,
     setSelectedOrgId(null);
   };
 
+  const getOrgsByCompany = (companyId) => {
+    return organizations.filter(org => org.company_id === companyId);
+  };
+
   return (
     <Card className="border-red-200 bg-red-50 mb-8">
       <CardHeader>
