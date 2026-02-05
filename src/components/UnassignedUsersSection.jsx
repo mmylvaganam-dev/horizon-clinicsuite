@@ -83,41 +83,61 @@ export default function UnassignedUsersSection({ unassignedUsers, organizations,
                 Assign {selectedUsers.length} User{selectedUsers.length !== 1 ? 's' : ''} to Organization
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>Assign Users to Organization</DialogTitle>
                 <DialogDescription>
                   Select an organization for the {selectedUsers.length} selected user{selectedUsers.length !== 1 ? 's' : ''}
                 </DialogDescription>
               </DialogHeader>
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {companies.length === 0 ? (
-                  <p className="text-sm text-slate-500 text-center py-4">No companies found</p>
-                ) : (
-                  companies.map(company => {
-                    const companyOrgs = organizations.filter(org => org.company_id === company.id);
-                    return (
-                      <div key={company.id} className="space-y-1 border rounded-lg p-3 bg-slate-50">
-                        <p className="font-semibold text-sm text-slate-900">{company.company_legal_name || company.name}</p>
-                        {companyOrgs.length === 0 ? (
-                          <p className="text-xs text-slate-500 pl-6">No organizations in this company</p>
-                        ) : (
-                          companyOrgs.map(org => (
-                            <Button
-                              key={org.id}
-                              variant={selectedOrgId === org.id ? 'default' : 'outline'}
-                              className="w-full justify-start pl-6"
-                              onClick={() => setSelectedOrgId(org.id)}
-                            >
-                              {org.name}
-                            </Button>
-                          ))
-                        )}
-                      </div>
-                    );
-                  })
-                )}
-              </div>
+              {organizations.length === 0 ? (
+                <Alert className="bg-red-50 border-red-300">
+                  <AlertTriangle className="w-4 h-4 text-red-600" />
+                  <AlertDescription className="text-red-900">
+                    No organizations found. Create organizations first before assigning users.
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {companies.length > 0 ? (
+                    companies.map(company => {
+                      const companyOrgs = getOrgsByCompany(company.id);
+                      if (companyOrgs.length === 0) return null;
+                      return (
+                        <div key={company.id} className="space-y-2 border rounded-lg p-4 bg-slate-50">
+                          <p className="font-bold text-slate-900">{company.company_legal_name || company.name}</p>
+                          <div className="space-y-1">
+                            {companyOrgs.map(org => (
+                              <Button
+                                key={org.id}
+                                variant={selectedOrgId === org.id ? 'default' : 'outline'}
+                                className="w-full justify-start"
+                                onClick={() => setSelectedOrgId(org.id)}
+                              >
+                                {org.name}
+                              </Button>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    // Fallback: show all organizations if no companies
+                    <div className="space-y-2">
+                      {organizations.map(org => (
+                        <Button
+                          key={org.id}
+                          variant={selectedOrgId === org.id ? 'default' : 'outline'}
+                          className="w-full justify-start"
+                          onClick={() => setSelectedOrgId(org.id)}
+                        >
+                          {org.name}
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
               <div className="flex gap-3 justify-end pt-4">
                 <Button variant="outline">Cancel</Button>
                 <Button
