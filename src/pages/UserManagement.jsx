@@ -46,7 +46,7 @@ export default function UserManagement() {
   
   console.log('🔴 UserManagement - isPlatformOwner:', isPlatformOwner, 'user:', currentUser?.email);
 
-  const { data: allUsers = [] } = useQuery({
+  const { data: allUsers = [], isLoading: usersLoading } = useQuery({
     queryKey: ['allUsers'],
     queryFn: async () => {
       if (!isPlatformOwner) {
@@ -60,7 +60,7 @@ export default function UserManagement() {
       console.log('Platform owner - loaded ALL users:', users.length);
       return users;
     },
-    enabled: !!currentUser,
+    enabled: !!currentUser && isPlatformOwner,
   });
 
   const { data: organizations = [] } = useQuery({
@@ -137,13 +137,20 @@ export default function UserManagement() {
   });
 
   // Show loading state
-  if (rolesLoading) {
+  if (rolesLoading || usersLoading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <p className="text-slate-600">Loading users...</p>
+        <p className="text-slate-600">Loading users and organizations...</p>
       </div>
     );
   }
+
+  console.log('📊 UserManagement Data:', {
+    allUsers: allUsers.length,
+    organizations: organizations.length,
+    userRoles: userRoles.length,
+    isPlatformOwner
+  });
 
   // Group users by organization using UserRole linkage
   const usersByOrg = organizations.map(org => {
