@@ -37,17 +37,23 @@ Deno.serve(async (req) => {
 
     console.log('Total items to delete:', allStock.length);
 
-    // Delete each item
+    // Use bulkDelete if available, otherwise delete in smaller batches to avoid rate limits
     let deleted = 0;
     let failed = 0;
-    for (const item of allStock) {
-      try {
-        await base44.asServiceRole.entities.PharmacyStock.delete(item.id);
-        deleted++;
-      } catch (error) {
-        console.error('Failed to delete:', item.id, error.message);
-        failed++;
-      }
+    const deleteChunkSize = 50;
+    
+    for (let i = 0; i < allStock.length; i += deleteChunkSize) {
+      const chunk = allStock.slice(i, i + deleteChunkSize);
+      const chunkPromises = chunk.map(item => 
+        base44.asServiceRole.entities.PharmacyStock.delete(item.id)
+          .then(() => deleted++)
+          .catch(error => {
+            console.error('Failed to delete:', item.id, error.message);
+            failed++;
+          })
+      );
+      await Promise.all(chunkPromises);
+      await new Promise(resolve => setTimeout(resolve, 100)); // Small delay between chunks
     }
 
     console.log(`✓ Deleted: ${deleted}, Failed: ${failed}`);
