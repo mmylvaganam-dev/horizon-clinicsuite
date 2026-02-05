@@ -96,6 +96,7 @@ function LayoutContent({ children, currentPageName }) {
   const currentUserEmail = user?.email || contextUser?.email;
   
   // CRITICAL: Platform owner status is PERMANENT - check email FIRST, independent of organization/company status
+  // ONLY these two emails are platform owners
   const isDefinitelyPlatformOwner = currentUserEmail === 'mmylvaganam@premierhealthcanada.ca' || 
     currentUserEmail === 'mylvaganam@premierhealthcanada.ca' ||
     isPlatformOwner === true ||

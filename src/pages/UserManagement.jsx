@@ -74,6 +74,12 @@ export default function UserManagement() {
     enabled: !!currentUser,
   });
 
+  // Create organization lookup map
+  const orgMap = {};
+  organizations.forEach(org => {
+    orgMap[org.id] = org;
+  });
+
   const { data: userRoles = [], isLoading: rolesLoading } = useQuery({
     queryKey: ['userRoles'],
     queryFn: () => {
@@ -195,24 +201,38 @@ export default function UserManagement() {
                   onClick={() => setSelectedUser(user)}
                 >
                   <Shield className="w-4 h-4 mr-1" />
-                  Make Org Admin
+                  Make Admin for {organization?.name}
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>Assign Organization Admin</DialogTitle>
                   <DialogDescription>
-                    Grant admin privileges to {user.email} for {organization?.name}
+                    Grant admin privileges to {user.email} for <strong className="text-blue-700">{organization?.name}</strong>
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
-                  <Alert>
-                    <Shield className="w-4 h-4" />
-                    <AlertDescription>
-                      Org Admins can manage users, approve access requests, and configure settings for <strong>{organization?.name}</strong> only.
-                      You (platform owner) retain final approval authority.
+                  <Alert className="bg-blue-50 border-blue-200">
+                    <Shield className="w-4 h-4 text-blue-600" />
+                    <AlertDescription className="text-blue-900">
+                      Org Admins for <strong>{organization?.name}</strong> can:
+                      <ul className="list-disc ml-5 mt-2 space-y-1">
+                        <li>Approve user access requests for this organization</li>
+                        <li>Manage users and roles within this organization</li>
+                        <li>Configure organization settings</li>
+                      </ul>
+                      <p className="mt-2 text-xs">You (platform owner) retain final approval authority.</p>
                     </AlertDescription>
                   </Alert>
+                  {roles.length === 0 && (
+                    <Alert className="bg-amber-50 border-amber-200">
+                      <AlertTriangle className="w-4 h-4 text-amber-600" />
+                      <AlertDescription className="text-amber-900">
+                        <strong>Warning:</strong> This user has no UserRole assignments for {organization?.name}. 
+                        They may need to be linked to this organization first.
+                      </AlertDescription>
+                    </Alert>
+                  )}
                   <div className="flex gap-3 justify-end">
                     <Button variant="outline" onClick={() => setSelectedUser(null)}>
                       Cancel
@@ -225,7 +245,7 @@ export default function UserManagement() {
                       }}
                       disabled={assignOrgAdminMutation.isPending}
                     >
-                      Confirm Assignment
+                      Confirm as Admin for {organization?.name}
                     </Button>
                   </div>
                 </div>

@@ -26,8 +26,8 @@ export default function UserApprovals() {
     queryFn: () => base44.auth.me(),
   });
 
-  const isPlatformOwner = currentUser?.email === 'madhawaekanayake@gmail.com' || 
-                         currentUser?.email === 'mmylvaganam@premierhealthcanada.ca' || 
+  const isPlatformOwner = currentUser?.email === 'mmylvaganam@premierhealthcanada.ca' || 
+                         currentUser?.email === 'mylvaganam@premierhealthcanada.ca' || 
                          currentUser?.is_platform_owner;
   const isOrgAdmin = currentUser?.is_organization_admin;
 
@@ -84,12 +84,20 @@ export default function UserApprovals() {
   const platformOwnerApproveMutation = useMutation({
     mutationFn: async (approvalId) => {
       const user = await base44.auth.me();
-      return base44.entities.UserApproval.update(approvalId, {
+      // Update approval status
+      await base44.entities.UserApproval.update(approvalId, {
         platform_owner_status: 'approved',
         platform_owner_approved_by: user.email,
         platform_owner_approved_date: new Date().toISOString(),
         final_status: 'approved',
       });
+      // Auto-sync to create UserRole linkage
+      try {
+        await base44.functions.invoke('syncUserApprovalToRoles', { approval_id: approvalId });
+      } catch (error) {
+        console.error('Failed to auto-sync UserRole:', error);
+      }
+      return true;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userApprovals'] });
