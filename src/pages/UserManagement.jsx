@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Users, Crown, Building2, AlertTriangle, Ban } from 'lucide-react';
+import { Shield, Users, Crown, Building2, AlertTriangle, Ban, Trash2, CheckCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Dialog,
@@ -63,6 +63,17 @@ export default function UserManagement() {
     enabled: !!currentUser && isPlatformOwner,
   });
 
+  const { data: companies = [] } = useQuery({
+    queryKey: ['companies'],
+    queryFn: () => {
+      if (isPlatformOwner) {
+        return base44.asServiceRole.entities.CompanyProfile.list();
+      }
+      return base44.entities.CompanyProfile.list();
+    },
+    enabled: !!currentUser,
+  });
+
   const { data: organizations = [] } = useQuery({
     queryKey: ['organizations'],
     queryFn: () => {
@@ -74,11 +85,18 @@ export default function UserManagement() {
     enabled: !!currentUser,
   });
 
-  // Create organization lookup map
-  const orgMap = {};
-  organizations.forEach(org => {
-    orgMap[org.id] = org;
-  });
+  // Map organizations to companies
+  const getCompanyOrganizations = (companyId) => {
+    return organizations.filter(org => org.company_id === companyId);
+  };
+
+  const getCompanyUsers = (companyId) => {
+    const companyOrgs = getCompanyOrganizations(companyId);
+    const companyOrgIds = companyOrgs.map(o => o.id);
+    const companyUserRoles = userRoles.filter(ur => companyOrgIds.includes(ur.organization_id));
+    const companyUserIds = new Set(companyUserRoles.map(ur => ur.user_id));
+    return allUsers.filter(u => companyUserIds.has(u.id));
+  };
 
   const { data: userRoles = [], isLoading: rolesLoading } = useQuery({
     queryKey: ['userRoles'],
@@ -166,11 +184,56 @@ export default function UserManagement() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['allUsers'] });
+      setSelectedUser(null);
       alert('User blocked successfully');
     },
     onError: (error) => {
       console.error('❌ Block failed:', error);
       alert(`Failed to block user: ${error.message}`);
+    },
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async (userId) => {
+      // Delete all UserRole assignments
+      const userRolesToDelete = userRoles.filter(ur => ur.user_id === userId);
+      for (const ur of userRolesToDelete) {
+        await base44.asServiceRole.entities.UserRole.delete(ur.id);
+      }
+      // Delete user
+      return base44.asServiceRole.entities.User.delete(userId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['allUsers'] });
+      queryClient.invalidateQueries({ queryKey: ['userRoles'] });
+      setSelectedUser(null);
+      alert('User deleted successfully');
+    },
+    onError: (error) => {
+      console.error('❌ Delete failed:', error);
+      alert(`Failed to delete user: ${error.message}`);
+    },
+  });
+
+  const approveUserMutation = useMutation({
+    mutationFn: async (userId) => {
+      // Create approval record
+      return base44.asServiceRole.entities.UserApproval.create({
+        user_email: allUsers.find(u => u.id === userId)?.email,
+        status: 'approved',
+        final_status: 'approved',
+        approved_by: currentUser.email,
+        approved_date: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['allUsers'] });
+      setSelectedUser(null);
+      alert('User approved successfully');
+    },
+    onError: (error) => {
+      console.error('❌ Approval failed:', error);
+      alert(`Failed to approve user: ${error.message}`);
     },
   });
 
@@ -185,35 +248,20 @@ export default function UserManagement() {
 
   console.log('📊 UserManagement Data:', {
     allUsers: allUsers.length,
+    companies: companies.length,
     organizations: organizations.length,
     userRoles: userRoles.length,
     isPlatformOwner
   });
 
-  // Group users by organization using UserRole linkage
-  const usersByOrg = organizations.map(org => {
-    const orgUserIds = userRoles.filter(ur => ur.organization_id === org.id).map(ur => ur.user_id);
+  // Group users by company
+  const usersByCompany = companies.map(company => {
+    const companyUsers = getCompanyUsers(company.id);
     return {
-      organization: org,
-      users: allUsers.filter(u => orgUserIds.includes(u.id))
+      company,
+      users: companyUsers
     };
   });
-  
-  // Add users without organization assignments (excluding platform owners)
-  const platformOwnerEmails = ['mmylvaganam@premierhealthcanada.ca', 'mylvaganam@premierhealthcanada.ca'];
-  const assignedUserIds = new Set(userRoles.map(ur => ur.user_id));
-  const unassignedUsers = allUsers.filter(u => 
-    !assignedUserIds.has(u.id) && 
-    !platformOwnerEmails.includes(u.email) &&
-    !u.is_platform_owner
-  );
-  
-  if (unassignedUsers.length > 0) {
-    usersByOrg.push({
-      organization: { id: 'unassigned', name: 'Unassigned Users (No Organization)' },
-      users: unassignedUsers
-    });
-  }
 
   const getUserRoleDetails = (userId, orgId) => {
     const roles = userRoles.filter(r => r.user_id === userId && r.organization_id === orgId);
@@ -264,10 +312,47 @@ export default function UserManagement() {
               <Button
                 size="sm"
                 variant="outline"
+                className="text-emerald-600 hover:text-emerald-700"
+              >
+                <CheckCircle className="w-4 h-4 mr-1" />
+                Approve
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Approve User</DialogTitle>
+                <DialogDescription>
+                  Grant {user.email} platform access for this company
+                </DialogDescription>
+              </DialogHeader>
+              <Alert className="bg-emerald-50 border-emerald-200">
+                <CheckCircle className="w-4 h-4 text-emerald-600" />
+                <AlertDescription className="text-emerald-900">
+                  User will be able to access the system with their assigned roles.
+                </AlertDescription>
+              </Alert>
+              <div className="flex gap-3 justify-end">
+                <Button variant="outline">Cancel</Button>
+                <Button
+                  className="bg-emerald-600 hover:bg-emerald-700"
+                  onClick={() => approveUserMutation.mutate(user.id)}
+                  disabled={approveUserMutation.isPending}
+                >
+                  Approve User
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                size="sm"
+                variant="outline"
                 className="text-red-600 hover:text-red-700 border-red-200"
               >
                 <Ban className="w-4 h-4 mr-1" />
-                Block User
+                Block
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -281,7 +366,7 @@ export default function UserManagement() {
                 <Alert className="bg-red-50 border-red-200">
                   <Ban className="w-4 h-4 text-red-600" />
                   <AlertDescription className="text-red-900">
-                    <strong>Warning:</strong> This user will be immediately logged out and unable to access any part of the platform.
+                    <strong>Warning:</strong> This user will be immediately logged out and unable to access any part of the platform, regardless of organization admin actions.
                   </AlertDescription>
                 </Alert>
                 <div>
@@ -311,21 +396,59 @@ export default function UserManagement() {
               </div>
             </DialogContent>
           </Dialog>
-          
-          {organization.id !== 'unassigned' && (
-            <>
-              {user.is_organization_admin ? (
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button
+                size="sm"
+                variant="outline"
+                className="text-red-900 hover:text-red-900 border-red-400"
+              >
+                <Trash2 className="w-4 h-4 mr-1" />
+                Delete
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete User</DialogTitle>
+                <DialogDescription>
+                  Permanently delete {user.email} from the platform
+                </DialogDescription>
+              </DialogHeader>
+              <Alert className="bg-red-50 border-red-200">
+                <Trash2 className="w-4 h-4 text-red-600" />
+                <AlertDescription className="text-red-900">
+                  <strong>Permanent Action:</strong> This cannot be undone. User will be completely removed from the system.
+                </AlertDescription>
+              </Alert>
+              <div className="flex gap-3 justify-end">
+                <Button variant="outline">Cancel</Button>
                 <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => assignOrgAdminMutation.mutate({ userId: user.id, isAdmin: false })}
-                  disabled={assignOrgAdminMutation.isPending}
-                  className="text-red-600 hover:text-red-700"
+                  className="bg-red-900 hover:bg-red-950"
+                  onClick={() => deleteUserMutation.mutate(user.id)}
+                  disabled={deleteUserMutation.isPending}
                 >
-                  Remove Org Admin
+                  Delete User
                 </Button>
-              ) : (
-            <Dialog>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      )}
+
+      {organization && organization.id !== 'unassigned' && isPlatformOwner && user.is_organization_admin && (
+        <>
+          {user.is_organization_admin ? (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => assignOrgAdminMutation.mutate({ userId: user.id, isAdmin: false })}
+              disabled={assignOrgAdminMutation.isPending}
+              className="text-red-600 hover:text-red-700"
+            >
+              Remove Org Admin
+            </Button>
+          ) : (<Dialog>
               <DialogTrigger asChild>
                 <Button
                   size="sm"
@@ -389,56 +512,7 @@ export default function UserManagement() {
           )}
         </div>
       )}
-      {organization.id === 'unassigned' && (
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button
-              size="sm"
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
-              onClick={() => setSelectedUser(user)}
-            >
-              <Building2 className="w-4 h-4 mr-1" />
-              Assign to Organization
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Assign User to Organization</DialogTitle>
-              <DialogDescription>
-                Link {user.email} to an organization
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4">
-              <Alert className="bg-amber-50 border-amber-200">
-                <Building2 className="w-4 h-4 text-amber-600" />
-                <AlertDescription className="text-amber-900">
-                  This will create a UserRole link and set the primary organization for this user.
-                </AlertDescription>
-              </Alert>
-              <div className="grid gap-2 max-h-96 overflow-y-auto">
-                {organizations.filter(o => o.id !== 'unassigned').map(org => (
-                  <Button
-                    key={org.id}
-                    variant="outline"
-                    className="justify-start h-auto py-3"
-                    onClick={() => {
-                      console.log('Clicked assign to org:', org.id);
-                      assignToOrgMutation.mutate({ userId: user.id, orgId: org.id });
-                    }}
-                    disabled={assignToOrgMutation.isPending}
-                  >
-                    <Building2 className="w-4 h-4 mr-2" />
-                    <div className="text-left">
-                      <div className="font-medium">{org.name}</div>
-                      <div className="text-xs text-slate-500 capitalize">{org.type?.replace('_', ' ')}</div>
-                    </div>
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
+
     </div>
   );
   };
@@ -446,11 +520,9 @@ export default function UserManagement() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">User Management</h1>
+        <h1 className="text-3xl font-bold text-slate-900">Company User Management</h1>
         <p className="text-slate-600 mt-1">
-          {isPlatformOwner 
-            ? 'View all users across organizations and assign organization admins' 
-            : 'View users in your organization'}
+          Platform owner control - Approve/Block users at company level. Prevents app abuse and unauthorized access.
         </p>
       </div>
 
@@ -458,37 +530,29 @@ export default function UserManagement() {
         <Alert className="bg-purple-50 border-purple-200">
           <Crown className="w-4 h-4 text-purple-600" />
           <AlertDescription className="text-purple-900">
-            <strong>Platform Owner View:</strong> Showing {allUsers.length} total users, {userRoles.length} role assignments across {organizations.length} organizations.
+            <strong>Platform Owner Authority:</strong> Showing {allUsers.length} total users across {companies.length} companies. You have final approval/block authority regardless of company admin actions.
           </AlertDescription>
         </Alert>
       )}
-      
-      <Alert className="bg-blue-50 border-blue-200">
-        <Users className="w-4 h-4 text-blue-600" />
-        <AlertDescription className="text-blue-900">
-          <strong>Debug:</strong> {allUsers.length} users | {organizations.length} orgs | {userRoles.length} role links | {usersByOrg.length} groups displayed
-        </AlertDescription>
-      </Alert>
 
-      {usersByOrg.map(({ organization, users }) => (
-        <Card key={organization.id}>
+      {usersByCompany.map(({ company, users }) => (
+        <Card key={company.id}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Building2 className="w-5 h-5" />
-              {organization.name}
+              {company.company_legal_name || company.name}
             </CardTitle>
             <CardDescription>
-              {users.length} user{users.length !== 1 ? 's' : ''} • 
-              {users.filter(u => u.is_organization_admin).length} org admin{users.filter(u => u.is_organization_admin).length !== 1 ? 's' : ''}
+              {users.length} user{users.length !== 1 ? 's' : ''} • Code: {company.company_code} • Country: {company.country_code}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {users.length === 0 ? (
-              <p className="text-center text-slate-500 py-8">No users in this organization yet</p>
+              <p className="text-center text-slate-500 py-8">No users in this company yet</p>
             ) : (
               <div className="space-y-3">
                 {users.map((user) => (
-                  <UserCard key={user.id} user={user} organization={organization} />
+                  <UserCard key={user.id} user={user} organization={{ id: company.id, name: company.company_legal_name }} />
                 ))}
               </div>
             )}
@@ -496,10 +560,10 @@ export default function UserManagement() {
         </Card>
       ))}
 
-      {usersByOrg.length === 0 && (
+      {usersByCompany.length === 0 && (
         <Card>
           <CardContent className="pt-8 text-center">
-            <p className="text-slate-500">No organizations or users found</p>
+            <p className="text-slate-500">No companies or users found</p>
           </CardContent>
         </Card>
       )}
