@@ -23,7 +23,34 @@ Deno.serve(async (req) => {
       });
     }
 
-    // All other authenticated users are approved by default
+    // Check if user is blocked
+    const blockedRecords = await base44.asServiceRole.entities.BlockedUser.filter({ 
+      email: user.email 
+    });
+    
+    if (blockedRecords.length > 0) {
+      return Response.json({ 
+        approved: false, 
+        blocked: true,
+        error: 'Access denied by platform owner' 
+      }, { status: 403 });
+    }
+
+    // Check UserApproval - ALL users must be approved by platform owner
+    const approvals = await base44.asServiceRole.entities.UserApproval.filter({ 
+      user_email: user.email 
+    });
+    
+    const hasApproval = approvals.some(a => a.final_status === 'approved' || a.platform_owner_status === 'approved');
+    
+    if (!hasApproval) {
+      return Response.json({ 
+        approved: false, 
+        needs_approval: true,
+        error: 'Pending platform owner approval' 
+      }, { status: 403 });
+    }
+
     return Response.json({ 
       approved: true, 
       role: 'user',

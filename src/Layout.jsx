@@ -303,6 +303,7 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'External Integrations', page: 'PlatformIntegrations', icon: Activity, description: 'Patient portal, government reporting, partner management' },
         { name: 'All Users Management', page: 'UserManagement', icon: Users, description: 'View all users across all organizations, assign org admins' },
         { name: 'Final User Approvals', page: 'UserApprovals', icon: CheckSquare, description: 'Final approval for users after org admin approval' },
+        { name: 'Blocked Users', page: 'BlockedUsers', icon: Shield, description: 'Permanently block users from accessing the platform' },
         { name: 'Transfer Ownership', page: 'PlatformOwnership', icon: Crown, description: 'Transfer platform ownership to another user' },
       ],
       platformOwnerOnly: true
