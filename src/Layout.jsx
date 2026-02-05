@@ -60,6 +60,12 @@ function LayoutContent({ children, currentPageName }) {
     queryFn: () => base44.auth.me(),
   });
 
+  // Ensure platform owner check is always correct
+  const isDefinitelyPlatformOwner = isPlatformOwner || 
+    user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
+    user?.email === 'madhawaekanayake@gmail.com' ||
+    user?.is_platform_owner === true;
+
   const { data: pendingApprovals = [] } = useQuery({
     queryKey: ['pendingApprovals'],
     queryFn: async () => {
