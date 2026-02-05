@@ -302,7 +302,38 @@ export default function UserManagement() {
           )}
         </div>
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
+        {!user.organization_id && (
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm" variant="outline" className="text-green-600 hover:text-green-700">
+                Assign to Organization
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Assign User to Organization</DialogTitle>
+                <DialogDescription>Select which organization this user belongs to</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-3">
+                {organizations
+                  .filter(org => org.company_id === company.id)
+                  .map(org => (
+                    <Button
+                      key={org.id}
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => assignToOrgMutation.mutate({ userId: user.id, orgId: org.id })}
+                      disabled={assignToOrgMutation.isPending}
+                    >
+                      {org.name}
+                    </Button>
+                  ))}
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+
         {!user.is_company_admin && (
           <Dialog>
             <DialogTrigger asChild>
