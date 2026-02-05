@@ -485,7 +485,7 @@ export default function UserManagement() {
             ) : (
               <div className="space-y-3">
                 {users.map((user) => (
-                  <UserCard key={user.id} user={user} organization={{ id: company.id, name: company.company_legal_name }} />
+                  <UserCard key={user.id} user={user} company={company} />
                 ))}
               </div>
             )}
