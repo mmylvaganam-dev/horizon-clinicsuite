@@ -315,7 +315,7 @@ function LayoutContent({ children, currentPageName }) {
                         {navigationGroups.filter(group => {
                           // Filter out Platform Administration for non-platform owners
                           if (group.platformOwnerOnly) {
-                            return isPlatformOwner;
+                            return isDefinitelyPlatformOwner;
                           }
                           return true;
                         }).map((group) => (
