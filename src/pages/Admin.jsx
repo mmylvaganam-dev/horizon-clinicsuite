@@ -82,7 +82,11 @@ export default function Admin() {
 
   const isPlatformOwner = user?.email === 'madhawaekanayake@gmail.com' || 
                          user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
-                         user?.is_platform_owner;
+                         user?.is_platform_owner === true ||
+                         userRoles.some(ur => {
+                           const role = allRoles.find(r => r.id === ur.role_id);
+                           return role?.code === 'PLATFORM_OWNER';
+                         });
 
   const isAppAdmin = userRoles.some(ur => {
     const role = allRoles.find(r => r.id === ur.role_id);
