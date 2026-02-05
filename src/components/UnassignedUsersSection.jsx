@@ -87,23 +87,32 @@ export default function UnassignedUsersSection({ unassignedUsers, organizations,
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-2 max-h-96 overflow-y-auto">
-                {companies.map(company => (
-                  <div key={company.id} className="space-y-1">
-                    <p className="font-semibold text-sm text-slate-700">{company.company_legal_name}</p>
-                    {organizations
-                      .filter(org => org.company_id === company.id)
-                      .map(org => (
-                        <Button
-                          key={org.id}
-                          variant={selectedOrgId === org.id ? 'default' : 'outline'}
-                          className="w-full justify-start pl-6"
-                          onClick={() => setSelectedOrgId(org.id)}
-                        >
-                          {org.name}
-                        </Button>
-                      ))}
-                  </div>
-                ))}
+                {companies.length === 0 ? (
+                  <p className="text-sm text-slate-500 text-center py-4">No companies found</p>
+                ) : (
+                  companies.map(company => {
+                    const companyOrgs = organizations.filter(org => org.company_id === company.id);
+                    return (
+                      <div key={company.id} className="space-y-1 border rounded-lg p-3 bg-slate-50">
+                        <p className="font-semibold text-sm text-slate-900">{company.company_legal_name || company.name}</p>
+                        {companyOrgs.length === 0 ? (
+                          <p className="text-xs text-slate-500 pl-6">No organizations in this company</p>
+                        ) : (
+                          companyOrgs.map(org => (
+                            <Button
+                              key={org.id}
+                              variant={selectedOrgId === org.id ? 'default' : 'outline'}
+                              className="w-full justify-start pl-6"
+                              onClick={() => setSelectedOrgId(org.id)}
+                            >
+                              {org.name}
+                            </Button>
+                          ))
+                        )}
+                      </div>
+                    );
+                  })
+                )}
               </div>
               <div className="flex gap-3 justify-end pt-4">
                 <Button variant="outline">Cancel</Button>
