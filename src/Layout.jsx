@@ -421,7 +421,7 @@ function LayoutContent({ children, currentPageName }) {
                 </Button>
               )}
               
-              {isPlatformOwner && (
+              {isDefinitelyPlatformOwner && (
                 <div className="border-2 border-blue-300 rounded-lg p-1">
                   <OrganizationSwitcher />
                 </div>
