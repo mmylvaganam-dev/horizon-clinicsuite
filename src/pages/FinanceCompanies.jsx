@@ -93,13 +93,22 @@ export default function FinanceCompanies() {
 
   const toggleCompanyStatusMutation = useMutation({
     mutationFn: async ({ companyId, newStatus }) => {
-      return await base44.entities.CompanyProfile.update(companyId, { status: newStatus });
+      // Update company status
+      await base44.entities.CompanyProfile.update(companyId, { status: newStatus });
+      
+      // Manually cascade to all linked organizations immediately
+      const linkedOrgs = organizations.filter(org => org.company_id === companyId);
+      for (const org of linkedOrgs) {
+        await base44.entities.Organization.update(org.id, { status: newStatus });
+      }
+      
+      return { updated: linkedOrgs.length };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['companies'] });
       queryClient.invalidateQueries({ queryKey: ['organizations'] });
       queryClient.invalidateQueries({ queryKey: ['allOrganizations'] });
-      toast.success('Company status updated - all related organizations updated');
+      toast.success(`Company status updated - ${result.updated} organization${result.updated !== 1 ? 's' : ''} updated`);
     },
   });
 
