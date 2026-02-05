@@ -305,13 +305,10 @@ function LayoutContent({ children, currentPageName }) {
 
           {/* Navigation */}
                     <nav className="flex-1 p-4 overflow-y-auto">
-                      <Accordion type="multiple" defaultValue={['Main', 'Pharmacy']} className="space-y-1">
+                      <Accordion type="multiple" defaultValue={['Main', 'Pharmacy', 'Platform Administration']} className="space-y-1">
                         {navigationGroups.filter(group => {
                           // Filter out Platform Administration for non-platform owners
                           if (group.platformOwnerOnly) {
-                            const isPlatformOwner = user?.email === 'madhawaekanayake@gmail.com' || 
-                                                    user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
-                                                    user?.is_platform_owner;
                             return isPlatformOwner;
                           }
                           return true;
