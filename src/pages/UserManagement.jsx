@@ -267,8 +267,8 @@ export default function UserManagement() {
     return roles;
   };
 
-  const UserCard = ({ user, organization }) => {
-    const roles = getUserRoleDetails(user.id, organization.id);
+  const UserCard = ({ user, company }) => {
+    const roles = getUserRoleDetails(user.id, user.organization_id);
     
     return (
     <div className="flex items-center justify-between p-4 border rounded-lg">
@@ -281,10 +281,10 @@ export default function UserManagement() {
               Platform Owner
             </Badge>
           )}
-          {user.is_organization_admin && (
+          {user.is_company_admin && (
             <Badge className="bg-blue-100 text-blue-800">
               <Shield className="w-3 h-3 mr-1" />
-              Org Admin
+              Company Admin
             </Badge>
           )}
           {roles.length > 0 && roles.map((role, idx) => (
@@ -293,7 +293,6 @@ export default function UserManagement() {
             </Badge>
           ))}
         </div>
-        <p className="text-sm text-slate-500 mt-1">Organization: {organization?.name || user.organization_id}</p>
         {user.full_name && <p className="text-sm text-slate-600">{user.full_name}</p>}
         <div className="flex items-center gap-3 mt-1">
           <p className="text-xs text-slate-400">System Role: {user.role || 'user'}</p>
