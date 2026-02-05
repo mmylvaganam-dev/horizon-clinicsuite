@@ -74,15 +74,21 @@ export default function UserManagement() {
     enabled: !!currentUser,
   });
 
-  const { data: userRoles = [] } = useQuery({
+  const { data: userRoles = [], isLoading: rolesLoading } = useQuery({
     queryKey: ['userRoles'],
-    queryFn: () => base44.asServiceRole.entities.UserRole.list(),
-    enabled: isPlatformOwner && !!currentUser,
+    queryFn: () => {
+      if (isPlatformOwner) {
+        return base44.asServiceRole.entities.UserRole.list();
+      }
+      // Org admins can see role assignments too
+      return base44.entities.UserRole.list();
+    },
+    enabled: !!currentUser,
   });
 
   const assignOrgAdminMutation = useMutation({
     mutationFn: async ({ userId, isAdmin }) => {
-      return base44.entities.User.update(userId, {
+      return base44.asServiceRole.entities.User.update(userId, {
         is_organization_admin: isAdmin
       });
     },
@@ -90,6 +96,15 @@ export default function UserManagement() {
       queryClient.invalidateQueries({ queryKey: ['allUsers'] });
     },
   });
+
+  // Show loading state
+  if (rolesLoading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <p className="text-slate-600">Loading users...</p>
+      </div>
+    );
+  }
 
   // Group users by organization using UserRole linkage
   const usersByOrg = organizations.map(org => {
@@ -251,7 +266,7 @@ export default function UserManagement() {
       <Alert className="bg-blue-50 border-blue-200">
         <Users className="w-4 h-4 text-blue-600" />
         <AlertDescription className="text-blue-900">
-          <strong>Debug Info:</strong> Total users: {allUsers.length} | Organizations: {organizations.length} | User-Org links: {userRoles.length}
+          <strong>Debug:</strong> {allUsers.length} users | {organizations.length} orgs | {userRoles.length} role links | {usersByOrg.length} groups displayed
         </AlertDescription>
       </Alert>
 
