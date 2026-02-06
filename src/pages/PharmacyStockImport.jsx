@@ -29,7 +29,7 @@ export default function PharmacyStockImport() {
 
   const { data: stockItems = [], isLoading } = useQuery({
     queryKey: ['pharmacyStock', selectedOrgId],
-    queryFn: () => base44.entities.PharmacyStock.filter(orgFilter, '-created_date', 100),
+    queryFn: () => base44.entities.PharmacyStock.filter(orgFilter, '-created_date', 5000),
     enabled: !!selectedOrgId,
   });
 
