@@ -116,9 +116,13 @@ export default function UserManagement() {
       return response.data;
     },
     onSuccess: async () => {
-      // Force refetch with a small delay to ensure backend update is complete
-      await queryClient.refetchQueries({ queryKey: ['allUsers'] });
-      await queryClient.refetchQueries({ queryKey: ['userRoles'] });
+      // Force refetch all related data
+      await Promise.all([
+        queryClient.refetchQueries({ queryKey: ['allUsers'] }),
+        queryClient.refetchQueries({ queryKey: ['userRoles'] }),
+        queryClient.refetchQueries({ queryKey: ['organizations'] }),
+        queryClient.refetchQueries({ queryKey: ['companies'] })
+      ]);
       setSelectedUser(null);
     },
     onError: (error) => {
