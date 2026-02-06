@@ -56,33 +56,23 @@ export default function UserManagement() {
         console.log('Org admin - loaded users:', users.length);
         return users;
       }
-      // Platform owner sees all users
-      const users = await base44.asServiceRole.entities.User.list();
-      console.log('Platform owner - loaded ALL users:', users.length);
-      return users;
+      // Platform owner sees all users - use backend function
+      const response = await base44.functions.invoke('listAllUsers');
+      console.log('Platform owner - loaded ALL users:', response.data.users.length);
+      return response.data.users;
     },
     enabled: !!currentUser && isPlatformOwner,
   });
 
   const { data: companies = [] } = useQuery({
     queryKey: ['companies'],
-    queryFn: () => {
-      if (isPlatformOwner) {
-        return base44.asServiceRole.entities.CompanyProfile.list();
-      }
-      return base44.entities.CompanyProfile.list();
-    },
+    queryFn: () => base44.entities.CompanyProfile.list(),
     enabled: !!currentUser,
   });
 
   const { data: organizations = [] } = useQuery({
     queryKey: ['organizations'],
-    queryFn: () => {
-      if (isPlatformOwner) {
-        return base44.asServiceRole.entities.Organization.list();
-      }
-      return base44.entities.Organization.list();
-    },
+    queryFn: () => base44.entities.Organization.list(),
     enabled: !!currentUser,
   });
 
@@ -99,21 +89,17 @@ export default function UserManagement() {
 
   const { data: userRoles = [], isLoading: rolesLoading } = useQuery({
     queryKey: ['userRoles'],
-    queryFn: () => {
-      if (isPlatformOwner) {
-        return base44.asServiceRole.entities.UserRole.list();
-      }
-      // Org admins can see role assignments too
-      return base44.entities.UserRole.list();
-    },
+    queryFn: () => base44.entities.UserRole.list(),
     enabled: !!currentUser,
   });
 
   const assignCompanyAdminMutation = useMutation({
     mutationFn: async ({ userId, isAdmin }) => {
-      return base44.asServiceRole.entities.User.update(userId, {
-        is_company_admin: isAdmin
+      const response = await base44.functions.invoke('assignUserToOrganization', { 
+        userId, 
+        isCompanyAdmin: isAdmin 
       });
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['allUsers'] });
@@ -124,13 +110,10 @@ export default function UserManagement() {
     mutationFn: async ({ userId, orgId }) => {
       console.log('🔵 Assigning user', userId, 'to org', orgId);
       
-      // Simplified: Just update User.organization_id - no need for Role lookup
-      await base44.asServiceRole.entities.User.update(userId, {
-        organization_id: orgId
-      });
-
-      console.log('✅ User assigned to organization successfully');
-      return true;
+      const response = await base44.functions.invoke('assignUserToOrganization', { userId, orgId });
+      
+      console.log('✅ User assigned successfully:', response.data);
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['allUsers'] });
@@ -140,17 +123,16 @@ export default function UserManagement() {
     onError: (error) => {
       console.error('❌ Assignment failed:', error);
       console.error('Error details:', error.response?.data || error);
-      alert(`Failed to assign user: ${error.response?.data?.message || error.message}`);
+      alert(`Failed to assign user: ${error.response?.data?.error || error.message}`);
     },
   });
 
   const blockUserMutation = useMutation({
     mutationFn: async ({ userEmail, reason }) => {
-      const currentUserData = await base44.auth.me();
-      return base44.asServiceRole.entities.BlockedUsers.create({
-        user_email: userEmail,
+      return base44.entities.BlockedUser.create({
+        email: userEmail,
         reason: reason || 'No reason provided',
-        blocked_by: currentUserData.email,
+        blocked_by: currentUser.email,
         blocked_date: new Date().toISOString()
       });
     },
@@ -167,13 +149,11 @@ export default function UserManagement() {
 
   const deleteUserMutation = useMutation({
     mutationFn: async (userId) => {
-      // Delete all UserRole assignments
-      const userRolesToDelete = userRoles.filter(ur => ur.user_id === userId);
-      for (const ur of userRolesToDelete) {
-        await base44.asServiceRole.entities.UserRole.delete(ur.id);
-      }
-      // Delete user
-      return base44.asServiceRole.entities.User.delete(userId);
+      const response = await base44.functions.invoke('assignUserToOrganization', { 
+        userId, 
+        deleteUser: true 
+      });
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['allUsers'] });
@@ -183,14 +163,14 @@ export default function UserManagement() {
     },
     onError: (error) => {
       console.error('❌ Delete failed:', error);
-      alert(`Failed to delete user: ${error.message}`);
+      alert(`Failed to delete user: ${error.response?.data?.error || error.message}`);
     },
   });
 
   const approveUserMutation = useMutation({
     mutationFn: async (userId) => {
       // Create approval record
-      return base44.asServiceRole.entities.UserApproval.create({
+      return base44.entities.UserApproval.create({
         user_email: allUsers.find(u => u.id === userId)?.email,
         status: 'approved',
         final_status: 'approved',
