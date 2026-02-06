@@ -124,40 +124,12 @@ export default function UserManagement() {
     mutationFn: async ({ userId, orgId }) => {
       console.log('🔵 Assigning user', userId, 'to org', orgId);
       
-      // Get user role
-      const roles = await base44.asServiceRole.entities.Role.list();
-      console.log('🔵 Available roles:', roles.length);
-      
-      const userRole = roles.find(r => r.code === 'user' || r.name?.toLowerCase().includes('user'));
-      const userRoleId = userRole?.id;
-      
-      if (!userRoleId) {
-        console.error('❌ No user role found. Creating basic user role assignment without role_id');
-        // Fallback: create without role_id if Role entity is empty
-        await base44.asServiceRole.entities.UserRole.create({
-          user_id: userId,
-          role_id: 'basic-user', // fallback
-          organization_id: orgId,
-          is_primary: true,
-          valid_from: new Date().toISOString().split('T')[0]
-        });
-      } else {
-        // Create UserRole linkage
-        await base44.asServiceRole.entities.UserRole.create({
-          user_id: userId,
-          role_id: userRoleId,
-          organization_id: orgId,
-          is_primary: true,
-          valid_from: new Date().toISOString().split('T')[0]
-        });
-      }
-
-      // Update User.organization_id
+      // Simplified: Just update User.organization_id - no need for Role lookup
       await base44.asServiceRole.entities.User.update(userId, {
         organization_id: orgId
       });
 
-      console.log('✅ User assigned successfully');
+      console.log('✅ User assigned to organization successfully');
       return true;
     },
     onSuccess: () => {
@@ -167,7 +139,8 @@ export default function UserManagement() {
     },
     onError: (error) => {
       console.error('❌ Assignment failed:', error);
-      alert(`Failed to assign user: ${error.message}`);
+      console.error('Error details:', error.response?.data || error);
+      alert(`Failed to assign user: ${error.response?.data?.message || error.message}`);
     },
   });
 
