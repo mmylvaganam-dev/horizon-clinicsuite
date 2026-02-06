@@ -162,7 +162,7 @@ Deno.serve(async (req) => {
       campaign_id: responseData.campaignId || null,
       source_address: sourceAddress || null,
       provider_status: sendResponse.ok ? 'sent' : 'failed',
-      err_code: responseData.errCode || null,
+      err_code: responseData.errCode ? String(responseData.errCode) : null,
       provider_comment: responseData.comment || null,
       recipient_count: validMobiles.length
     };
