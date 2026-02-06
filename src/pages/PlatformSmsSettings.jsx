@@ -101,7 +101,7 @@ export default function PlatformSmsSettings() {
                     <SelectValue placeholder="Select organization..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {companies.map((company) => (
+                    {companies.filter(c => c.organization_id).map((company) => (
                       <SelectItem key={company.id} value={company.organization_id}>
                         <div className="flex items-center gap-2">
                           <Building2 className="w-4 h-4" />
