@@ -183,6 +183,7 @@ import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
 import SendSMS from './pages/SendSMS';
 import SmsLogs from './pages/SmsLogs';
+import PlatformSmsSettings from './pages/PlatformSmsSettings';
 import __Layout from './Layout.jsx';
 
 
@@ -323,6 +324,7 @@ export const PAGES = {
     "VitalsTrend": VitalsTrend,
     "SendSMS": SendSMS,
     "SmsLogs": SmsLogs,
+    "PlatformSmsSettings": PlatformSmsSettings,
 }
 
 export const pagesConfig = {

@@ -300,6 +300,7 @@ function LayoutContent({ children, currentPageName }) {
       items: [
         { name: 'Platform Setup', page: 'PlatformSetup', icon: Building2, description: 'Create and manage multiple organizations/companies' },
         { name: 'Finance Companies', page: 'FinanceCompanies', icon: Building2, description: 'Activate/deactivate companies and manage company status' },
+        { name: 'Platform SMS Settings', page: 'PlatformSmsSettings', icon: MessageSquare, description: 'Configure Dialog eSMS credentials for each company' },
         { name: 'Platform Billing', page: 'PlatformBilling', icon: DollarSign, description: 'Subscription billing for all organizations' },
         { name: 'Security & Compliance', page: 'PlatformSecurity', icon: Shield, description: 'Audit logs, break-glass, security validation, compliance checklists' },
         { name: 'Data Export Management', page: 'PlatformDataExport', icon: FileText, description: 'Export approvals, retention policies, archive management' },

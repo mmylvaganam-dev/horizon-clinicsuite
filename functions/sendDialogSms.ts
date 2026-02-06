@@ -29,7 +29,7 @@ async function getValidToken(base44) {
     const password = Deno.env.get('ESMS_PASSWORD');
     
     if (!username || !password) {
-      throw new Error('ESMS credentials not configured');
+      throw new Error('ESMS credentials not configured - set in Company Profile');
     }
     
     const loginResponse = await fetch(DIALOG_LOGIN_URL, {
@@ -83,6 +83,39 @@ Deno.serve(async (req) => {
     }
     
     const { mobiles, message, sourceAddress, pushUrl, organizationId } = await req.json();
+    
+    if (!organizationId) {
+      return Response.json({ error: 'Organization ID required' }, { status: 400 });
+    }
+    
+    // Get organization to find company
+    const orgs = await base44.asServiceRole.entities.Organization.list();
+    const org = orgs.find(o => o.id === organizationId);
+    
+    if (!org) {
+      return Response.json({ error: 'Organization not found' }, { status: 404 });
+    }
+    
+    // Get company profile for SMS credentials
+    const companies = await base44.asServiceRole.entities.CompanyProfile.filter({ 
+      organization_id: organizationId 
+    });
+    
+    if (companies.length === 0) {
+      return Response.json({ error: 'Company profile not found' }, { status: 404 });
+    }
+    
+    const company = companies[0];
+    
+    if (!company.esms_username || !company.esms_password) {
+      return Response.json({ 
+        error: 'Dialog eSMS credentials not configured for this company. Please configure in Platform SMS Settings.' 
+      }, { status: 400 });
+    }
+    
+    // Override env variables with company-specific credentials
+    Deno.env.set('ESMS_USERNAME', company.esms_username);
+    Deno.env.set('ESMS_PASSWORD', company.esms_password);
     
     if (!mobiles || !Array.isArray(mobiles) || mobiles.length === 0) {
       return Response.json({ error: 'Mobiles array required' }, { status: 400 });
