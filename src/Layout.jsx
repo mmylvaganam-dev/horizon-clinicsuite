@@ -283,6 +283,8 @@ function LayoutContent({ children, currentPageName }) {
       items: [
         { name: 'Messages', page: 'Messaging', icon: MessageSquare, description: 'Internal messaging - Chat with staff, send secure messages within the organization' },
         { name: 'Communications', page: 'Communications', icon: Mail, description: 'Patient communications - Send SMS, emails, and appointment reminders to patients' },
+        { name: 'Send SMS', page: 'SendSMS', icon: MessageSquare, description: 'Send bulk SMS via Dialog eSMS - Send messages to patients and customers' },
+        { name: 'SMS Logs', page: 'SmsLogs', icon: FileText, description: 'View SMS history - Track sent messages, delivery status, and campaign IDs' },
       ]
     },
     {
