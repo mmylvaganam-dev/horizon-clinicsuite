@@ -181,6 +181,8 @@ import UserApprovals from './pages/UserApprovals';
 import UserManagement from './pages/UserManagement';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
+import SendSMS from './pages/SendSMS';
+import SmsLogs from './pages/SmsLogs';
 import __Layout from './Layout.jsx';
 
 
@@ -319,6 +321,8 @@ export const PAGES = {
     "UserManagement": UserManagement,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
+    "SendSMS": SendSMS,
+    "SmsLogs": SmsLogs,
 }
 
 export const pagesConfig = {
