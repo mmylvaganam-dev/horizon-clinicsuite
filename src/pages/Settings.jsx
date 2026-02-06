@@ -15,12 +15,26 @@ import {
   Shield,
   Save,
   Loader2,
-  CheckCircle2
+  CheckCircle2,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
+import { 
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter
+} from '@/components/ui/dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 
 export default function Settings() {
   const [saved, setSaved] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
   
   const { data: user, isLoading } = useQuery({
     queryKey: ['currentUser'],
@@ -70,6 +84,19 @@ export default function Settings() {
 
   const handleSaveNotifications = () => {
     updateMutation.mutate({ notifications });
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText === 'DELETE') {
+      try {
+        // Delete account logic here
+        alert('Account deletion requested. This feature will be implemented by system administrator.');
+        setDeleteDialogOpen(false);
+        setDeleteConfirmText('');
+      } catch (error) {
+        alert('Failed to delete account: ' + error.message);
+      }
+    }
   };
 
   return (
@@ -275,6 +302,69 @@ export default function Settings() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Danger Zone */}
+      <Card className="border-red-200 bg-red-50">
+        <CardHeader>
+          <CardTitle className="text-red-900 flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5" />
+            Danger Zone
+          </CardTitle>
+          <CardDescription className="text-red-700">
+            Irreversible actions that affect your account
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="destructive" className="bg-red-600 hover:bg-red-700">
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Account
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Delete Account</DialogTitle>
+                <DialogDescription>
+                  This action cannot be undone. This will permanently delete your account and remove all associated data.
+                </DialogDescription>
+              </DialogHeader>
+              <Alert className="bg-red-50 border-red-200">
+                <AlertTriangle className="w-4 h-4 text-red-600" />
+                <AlertDescription className="text-red-900">
+                  <strong>Warning:</strong> All your data including patient records, appointments, and medical history will be permanently deleted.
+                </AlertDescription>
+              </Alert>
+              <div className="space-y-2">
+                <Label htmlFor="delete-confirm">Type DELETE to confirm</Label>
+                <Input
+                  id="delete-confirm"
+                  value={deleteConfirmText}
+                  onChange={(e) => setDeleteConfirmText(e.target.value)}
+                  placeholder="DELETE"
+                  className="font-mono"
+                />
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => {
+                  setDeleteDialogOpen(false);
+                  setDeleteConfirmText('');
+                }}>
+                  Cancel
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  onClick={handleDeleteAccount}
+                  disabled={deleteConfirmText !== 'DELETE'}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  Delete Account Permanently
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </CardContent>
+      </Card>
     </div>
   );
 }
