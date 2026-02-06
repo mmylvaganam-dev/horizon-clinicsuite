@@ -37,29 +37,29 @@ Deno.serve(async (req) => {
 
     console.log('Total items to delete:', allStock.length);
 
-    // Delete sequentially with longer delays and retry logic
+    // Delete in small batches with minimal delays
     let deleted = 0;
     let failed = 0;
+    const batchSize = 10;
     
-    for (const item of allStock) {
-      let retries = 3;
-      while (retries > 0) {
-        try {
-          await base44.asServiceRole.entities.PharmacyStock.delete(item.id);
+    for (let i = 0; i < allStock.length; i += batchSize) {
+      const batch = allStock.slice(i, i + batchSize);
+      const results = await Promise.allSettled(
+        batch.map(item => base44.asServiceRole.entities.PharmacyStock.delete(item.id))
+      );
+      
+      results.forEach((result, idx) => {
+        if (result.status === 'fulfilled') {
           deleted++;
-          // Wait longer between deletes to avoid rate limits
-          await new Promise(resolve => setTimeout(resolve, 500));
-          break;
-        } catch (error) {
-          retries--;
-          if (retries === 0) {
-            console.error('Failed to delete (after retries):', item.id, error.message);
-            failed++;
-          } else {
-            console.log('Retry delete:', item.id);
-            await new Promise(resolve => setTimeout(resolve, 2000)); // Wait 2s before retry
-          }
+        } else {
+          console.error('Failed to delete:', batch[idx].id, result.reason?.message);
+          failed++;
         }
+      });
+      
+      // Small delay between batches
+      if (i + batchSize < allStock.length) {
+        await new Promise(resolve => setTimeout(resolve, 200));
       }
     }
 
