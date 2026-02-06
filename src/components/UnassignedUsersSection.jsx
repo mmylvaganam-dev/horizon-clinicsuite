@@ -17,7 +17,14 @@ export default function UnassignedUsersSection({ unassignedUsers, organizations,
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [selectedOrgId, setSelectedOrgId] = useState(null);
 
-  if (unassignedUsers.length === 0) return null;
+  // Filter out platform owners from unassigned users (they don't need organization assignment)
+  const filteredUnassignedUsers = unassignedUsers.filter(u => 
+    !u.is_platform_owner && 
+    u.email !== 'mmylvaganam@premierhealthcanada.ca' && 
+    u.email !== 'mylvaganam@premierhealthcanada.ca'
+  );
+
+  if (filteredUnassignedUsers.length === 0) return null;
 
   const handleSelectUser = (userId, checked) => {
     if (checked) {
@@ -50,7 +57,7 @@ export default function UnassignedUsersSection({ unassignedUsers, organizations,
           Unassigned Users
         </CardTitle>
         <CardDescription className="text-red-700">
-          {unassignedUsers.length} user{unassignedUsers.length !== 1 ? 's' : ''} need to be assigned to an organization
+          {filteredUnassignedUsers.length} user{filteredUnassignedUsers.length !== 1 ? 's' : ''} need to be assigned to an organization
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -61,7 +68,7 @@ export default function UnassignedUsersSection({ unassignedUsers, organizations,
         </Alert>
 
         <div className="space-y-2">
-          {unassignedUsers.map(user => (
+          {filteredUnassignedUsers.map(user => (
             <div key={user.id} className="flex items-center gap-3 p-3 bg-white rounded-lg border">
               <Checkbox
                 checked={selectedUsers.includes(user.id)}
