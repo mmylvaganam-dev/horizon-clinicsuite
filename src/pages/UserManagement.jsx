@@ -115,9 +115,10 @@ export default function UserManagement() {
       console.log('✅ User assigned successfully:', response.data);
       return response.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['allUsers'] });
-      queryClient.invalidateQueries({ queryKey: ['userRoles'] });
+    onSuccess: async () => {
+      // Force refetch with a small delay to ensure backend update is complete
+      await queryClient.refetchQueries({ queryKey: ['allUsers'] });
+      await queryClient.refetchQueries({ queryKey: ['userRoles'] });
       setSelectedUser(null);
     },
     onError: (error) => {
