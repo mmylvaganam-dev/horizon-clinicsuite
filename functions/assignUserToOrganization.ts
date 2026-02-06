@@ -18,18 +18,42 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: Platform owner access required' }, { status: 403 });
     }
 
-    const { userId, orgId } = await req.json();
+    const { userId, orgId, isCompanyAdmin, deleteUser } = await req.json();
 
-    if (!userId || !orgId) {
-      return Response.json({ error: 'userId and orgId are required' }, { status: 400 });
+    if (!userId) {
+      return Response.json({ error: 'userId is required' }, { status: 400 });
     }
 
-    // Update User.organization_id using service role
-    await base44.asServiceRole.entities.User.update(userId, {
-      organization_id: orgId
-    });
+    // Handle user deletion
+    if (deleteUser) {
+      // Delete all UserRole assignments first
+      const userRoles = await base44.asServiceRole.entities.UserRole.filter({ user_id: userId });
+      for (const ur of userRoles) {
+        await base44.asServiceRole.entities.UserRole.delete(ur.id);
+      }
+      // Delete user
+      await base44.asServiceRole.entities.User.delete(userId);
+      console.log('✅ User deleted successfully');
+      return Response.json({ 
+        success: true,
+        message: 'User deleted successfully'
+      });
+    }
 
-    console.log('✅ User assigned to organization successfully');
+    // Update user data using service role
+    const updateData = {};
+    if (orgId) {
+      updateData.organization_id = orgId;
+    }
+    if (isCompanyAdmin !== undefined) {
+      updateData.is_company_admin = isCompanyAdmin;
+    }
+
+    if (Object.keys(updateData).length > 0) {
+      await base44.asServiceRole.entities.User.update(userId, updateData);
+    }
+
+    console.log('✅ User updated successfully');
 
     return Response.json({ 
       success: true,
