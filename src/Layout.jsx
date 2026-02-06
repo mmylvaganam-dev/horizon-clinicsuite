@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { 
   LayoutDashboard, 
@@ -29,6 +29,7 @@ import {
   Shield,
   AlertTriangle
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -44,6 +45,7 @@ function LayoutContent({ children, currentPageName }) {
   const [userApproved, setUserApproved] = useState(null);
   const [isBlocked, setIsBlocked] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const { isPlatformOwner, user: contextUser } = useOrganization();
 
@@ -504,7 +506,7 @@ function LayoutContent({ children, currentPageName }) {
         </header>
 
         {/* Page content */}
-        <main className="p-4 lg:p-8">
+        <main className="p-4 lg:p-8 pb-24 lg:pb-8" style={{ overscrollBehavior: 'none' }}>
           {isBlocked ? (
             <div className="flex items-center justify-center min-h-[60vh]">
               <div className="max-w-md text-center space-y-4">
@@ -526,9 +528,61 @@ function LayoutContent({ children, currentPageName }) {
               </div>
             </div>
           ) : (
-            children
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
           )}
         </main>
+
+        {/* Mobile Bottom Tabs */}
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+          <div className="flex justify-around items-center h-16">
+            <Link
+              to={createPageUrl('DailyOps')}
+              className={`flex flex-col items-center justify-center flex-1 h-full ${
+                currentPageName === 'DailyOps' ? 'text-teal-600' : 'text-slate-400'
+              }`}
+            >
+              <Activity className="w-6 h-6" />
+              <span className="text-xs mt-1">Daily Ops</span>
+            </Link>
+            <Link
+              to={createPageUrl('PatientHub')}
+              className={`flex flex-col items-center justify-center flex-1 h-full ${
+                currentPageName === 'PatientHub' ? 'text-teal-600' : 'text-slate-400'
+              }`}
+            >
+              <Users className="w-6 h-6" />
+              <span className="text-xs mt-1">Patients</span>
+            </Link>
+            <Link
+              to={createPageUrl('PharmacyBilling')}
+              className={`flex flex-col items-center justify-center flex-1 h-full ${
+                currentPageName === 'PharmacyBilling' ? 'text-teal-600' : 'text-slate-400'
+              }`}
+            >
+              <ShoppingBag className="w-6 h-6" />
+              <span className="text-xs mt-1">POS</span>
+            </Link>
+            <Link
+              to={createPageUrl('Admin')}
+              className={`flex flex-col items-center justify-center flex-1 h-full ${
+                currentPageName === 'Admin' ? 'text-teal-600' : 'text-slate-400'
+              }`}
+            >
+              <Settings className="w-6 h-6" />
+              <span className="text-xs mt-1">Admin</span>
+            </Link>
+          </div>
+        </div>
 
         {/* Footer with version */}
         <footer className="border-t border-slate-200 p-4 text-center text-xs text-slate-500">
