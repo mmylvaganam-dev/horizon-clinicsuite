@@ -67,26 +67,6 @@ export default function Admin() {
     queryFn: () => base44.entities.Organization.list(),
   });
 
-  // CRITICAL: Get selected company from dropdown
-  const selectedCompanyId = selectedOrgId && organizations.length > 0
-    ? organizations.find(org => org.id === selectedOrgId)?.company_id
-    : null;
-
-  // CRITICAL: Filter users based on selected company from dropdown
-  const allUsers = isPlatformOwner && selectedCompanyId
-    ? (() => {
-        const companyOrgIds = organizations.filter(org => org.company_id === selectedCompanyId).map(o => o.id);
-        return allUsersUnfiltered.filter(u => u.organization_id && companyOrgIds.includes(u.organization_id));
-      })()
-    : allUsersUnfiltered;
-
-  console.log('🔴 Admin Page Filter:', {
-    selectedOrgId,
-    selectedCompanyId,
-    totalUsers: allUsersUnfiltered.length,
-    filteredUsers: allUsers.length
-  });
-
   // Get organization roles (exclude platform roles)
   const organizationRoles = allRoles.filter(role => {
     const roleCode = role.code || role.role_name;
@@ -109,6 +89,26 @@ export default function Admin() {
                            const role = allRoles.find(r => r.id === ur.role_id);
                            return role?.code === 'PLATFORM_OWNER';
                          });
+
+  // CRITICAL: Get selected company from dropdown
+  const selectedCompanyId = selectedOrgId && organizations.length > 0
+    ? organizations.find(org => org.id === selectedOrgId)?.company_id
+    : null;
+
+  // CRITICAL: Filter users based on selected company from dropdown
+  const allUsers = isPlatformOwner && selectedCompanyId
+    ? (() => {
+        const companyOrgIds = organizations.filter(org => org.company_id === selectedCompanyId).map(o => o.id);
+        return allUsersUnfiltered.filter(u => u.organization_id && companyOrgIds.includes(u.organization_id));
+      })()
+    : allUsersUnfiltered;
+
+  console.log('🔴 Admin Page Filter:', {
+    selectedOrgId,
+    selectedCompanyId,
+    totalUsers: allUsersUnfiltered.length,
+    filteredUsers: allUsers.length
+  });
 
   const isAppAdmin = userRoles.some(ur => {
     const role = allRoles.find(r => r.id === ur.role_id);
