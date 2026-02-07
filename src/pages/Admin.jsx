@@ -31,11 +31,18 @@ import {
 import toast from 'react-hot-toast';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 import { useOrganization } from '@/components/OrganizationProvider';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function Admin() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedUser, setSelectedUser] = useState(null);
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState('user');
   const { selectedOrgId, isPlatformOwner: isPlatformOwnerContext } = useOrganization();
 
   const { data: user } = useQuery({
@@ -114,6 +121,36 @@ export default function Admin() {
     const role = allRoles.find(r => r.id === ur.role_id);
     const roleCode = role?.code || role?.role_name;
     return roleCode === 'APP_ADMIN';
+  });
+
+  const inviteUserMutation = useMutation({
+    mutationFn: async ({ email, role }) => {
+      // Get selected organization for assignment
+      if (!selectedOrgId) {
+        throw new Error('Please select an organization from the dropdown first');
+      }
+      
+      // Invite user
+      await base44.users.inviteUser(email, role);
+      
+      // Auto-assign to selected organization
+      await base44.functions.invoke('assignUserToOrganization', {
+        userEmail: email,
+        organizationId: selectedOrgId
+      });
+      
+      return { email, role };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(['allUsers']);
+      toast.success(`✅ User ${data.email} invited successfully!`);
+      setInviteDialogOpen(false);
+      setInviteEmail('');
+      setInviteRole('user');
+    },
+    onError: (error) => {
+      toast.error(`❌ Failed to invite user: ${error.message}`);
+    }
   });
 
   const seedRolesMutation = useMutation({
@@ -286,11 +323,62 @@ export default function Admin() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">System Administration</h1>
-          <p className="text-slate-500 mt-1">Manage users, permissions, and system configuration</p>
-        </div>
+    <div className="flex items-start justify-between">
+      <div className="flex-1">
+        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">System Administration</h1>
+        <p className="text-slate-500 mt-1">Manage users, permissions, and system configuration</p>
+      </div>
+      <div className="flex items-center gap-3">
+        {isPlatformOwner && selectedOrgId && (
+          <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-teal-600 hover:bg-teal-700 text-white">
+                <Users className="w-4 h-4 mr-2" />
+                Invite User
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Invite User to Selected Company</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 mt-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="text-sm text-blue-900 font-medium">
+                    User will be invited to: <span className="font-bold">{organizations.find(o => o.id === selectedOrgId)?.name}</span>
+                  </p>
+                </div>
+                <div>
+                  <Label>Email Address</Label>
+                  <Input
+                    type="email"
+                    placeholder="user@example.com"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label>Role</Label>
+                  <Select value={inviteRole} onValueChange={setInviteRole}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="user">User</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button
+                  onClick={() => inviteUserMutation.mutate({ email: inviteEmail, role: inviteRole })}
+                  disabled={!inviteEmail || inviteUserMutation.isPending}
+                  className="w-full bg-teal-600 hover:bg-teal-700"
+                >
+                  {inviteUserMutation.isPending ? 'Inviting...' : 'Send Invitation'}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
         <PageInfoTooltip
           title="System Administration"
           description="Central hub for managing all system configuration, security, users, roles, billing, compliance, and operational settings."
