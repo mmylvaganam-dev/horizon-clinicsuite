@@ -14,6 +14,7 @@ import { createPageUrl } from '../utils';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Switch } from '@/components/ui/switch';
 import toast from 'react-hot-toast';
+import { useOrganization } from '@/components/OrganizationProvider';
 
 const statusColors = {
   active: 'bg-emerald-100 text-emerald-700 border-emerald-200',
@@ -31,10 +32,35 @@ export default function AdminOrganizations() {
     license_number: '', status: 'active'
   });
 
-  const { data: organizations = [], isLoading } = useQuery({
+  const { isPlatformOwner, selectedOrgId, user } = useOrganization();
+
+  const { data: allOrganizations = [], isLoading } = useQuery({
     queryKey: ['organizations'],
     queryFn: () => base44.entities.Organization.list('-created_date'),
   });
+
+  // CRITICAL: Filter organizations based on user role
+  // Platform owner: show organizations from selected company only
+  // Company admin: show only their company's organizations
+  const { data: selectedCompany } = useQuery({
+    queryKey: ['selectedCompany', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return null;
+      const selectedOrg = allOrganizations.find(o => o.id === selectedOrgId);
+      if (!selectedOrg?.company_id) return null;
+      const companies = await base44.entities.CompanyProfile.list();
+      return companies.find(c => c.id === selectedOrg.company_id);
+    },
+    enabled: !!selectedOrgId && allOrganizations.length > 0,
+  });
+
+  // Filter organizations: platform owner sees selected company's orgs, company admin sees their company's orgs only
+  const organizations = isPlatformOwner 
+    ? allOrganizations.filter(org => org.company_id === selectedCompany?.id)
+    : allOrganizations.filter(org => 
+        org.company_id === user?.company_id || 
+        (user?.organization_id && allOrganizations.find(o => o.id === user.organization_id)?.company_id === org.company_id)
+      );
 
   const { data: companies = [] } = useQuery({
     queryKey: ['companies'],

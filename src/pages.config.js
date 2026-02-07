@@ -127,6 +127,7 @@ import LISReports from './pages/LISReports';
 import LISResults from './pages/LISResults';
 import LISSpecimens from './pages/LISSpecimens';
 import LabWorkspace from './pages/LabWorkspace';
+import LaunchChecklist from './pages/LaunchChecklist';
 import ManagementReports from './pages/ManagementReports';
 import MedicalRecords from './pages/MedicalRecords';
 import Messaging from './pages/Messaging';
@@ -184,7 +185,6 @@ import UserApprovals from './pages/UserApprovals';
 import UserManagement from './pages/UserManagement';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import LaunchChecklist from './pages/LaunchChecklist';
 import __Layout from './Layout.jsx';
 
 
@@ -269,6 +269,7 @@ export const PAGES = {
     "LISResults": LISResults,
     "LISSpecimens": LISSpecimens,
     "LabWorkspace": LabWorkspace,
+    "LaunchChecklist": LaunchChecklist,
     "ManagementReports": ManagementReports,
     "MedicalRecords": MedicalRecords,
     "Messaging": Messaging,
@@ -326,7 +327,6 @@ export const PAGES = {
     "UserManagement": UserManagement,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "LaunchChecklist": LaunchChecklist,
 }
 
 export const pagesConfig = {
