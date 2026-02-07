@@ -15,10 +15,12 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import UnassignedUsersSection from '@/components/UnassignedUsersSection';
+import { useOrganization } from '@/components/OrganizationProvider';
 
 export default function UserManagement() {
   const queryClient = useQueryClient();
   const [selectedUser, setSelectedUser] = useState(null);
+  const { isPlatformOwner: isPlatformOwnerFromContext, selectedOrgId } = useOrganization();
 
   const { data: currentUser } = useQuery({
     queryKey: ['currentUser'],
@@ -43,9 +45,10 @@ export default function UserManagement() {
 
   const isPlatformOwner = currentUser?.email === 'mmylvaganam@premierhealthcanada.ca' || 
                          currentUser?.email === 'mylvaganam@premierhealthcanada.ca' || 
-                         currentUser?.is_platform_owner === true;
+                         currentUser?.is_platform_owner === true ||
+                         isPlatformOwnerFromContext;
   
-  console.log('🔴 UserManagement - isPlatformOwner:', isPlatformOwner, 'user:', currentUser?.email);
+  console.log('🔴 UserManagement - isPlatformOwner:', isPlatformOwner, 'user:', currentUser?.email, 'selectedOrgId:', selectedOrgId);
 
   const { data: allUsers = [], isLoading: usersLoading } = useQuery({
     queryKey: ['allUsers'],
@@ -75,6 +78,10 @@ export default function UserManagement() {
     queryFn: () => base44.entities.Organization.list(),
     enabled: !!currentUser,
   });
+
+  // Get the selected company based on selectedOrgId
+  const selectedCompany = organizations.find(org => org.id === selectedOrgId)?.company_id;
+  console.log('🔵 Selected company from dropdown:', selectedCompany, 'from org:', selectedOrgId);
 
   // Get all company organizations
   const getCompanyOrganizations = (companyId) => {
@@ -208,18 +215,29 @@ export default function UserManagement() {
     companies: companies.length,
     organizations: organizations.length,
     userRoles: userRoles.length,
-    isPlatformOwner
+    isPlatformOwner,
+    selectedCompany
   });
 
-  // Group users by company
+  // CRITICAL: Filter users by selected company from dropdown
+  // Platform owner: show only users from selected company
+  // Company admin: show only users from their company
   const unassignedUsers = allUsers.filter(u => !u.organization_id);
-  const usersByCompany = companies.map(company => {
-    const companyUsers = getCompanyUsers(company.id);
-    return {
-      company,
-      users: companyUsers
-    };
-  });
+  
+  const usersByCompany = isPlatformOwner && selectedCompany
+    ? companies
+        .filter(company => company.id === selectedCompany)
+        .map(company => ({
+          company,
+          users: getCompanyUsers(company.id)
+        }))
+    : companies.map(company => {
+        const companyUsers = getCompanyUsers(company.id);
+        return {
+          company,
+          users: companyUsers
+        };
+      });
 
   const getUserRoleDetails = (userId, orgId) => {
     const roles = userRoles.filter(r => r.user_id === userId && r.organization_id === orgId);
