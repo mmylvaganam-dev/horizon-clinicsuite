@@ -30,18 +30,20 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
+import { useOrganization } from '@/components/OrganizationProvider';
 
 export default function Admin() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [selectedUser, setSelectedUser] = useState(null);
+  const { selectedOrgId, isPlatformOwner: isPlatformOwnerContext } = useOrganization();
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: allUsers = [] } = useQuery({
+  const { data: allUsersUnfiltered = [] } = useQuery({
     queryKey: ['allUsers'],
     queryFn: () => base44.entities.User.list(),
   });
@@ -63,6 +65,26 @@ export default function Admin() {
   const { data: organizations = [] } = useQuery({
     queryKey: ['organizations'],
     queryFn: () => base44.entities.Organization.list(),
+  });
+
+  // CRITICAL: Get selected company from dropdown
+  const selectedCompanyId = selectedOrgId && organizations.length > 0
+    ? organizations.find(org => org.id === selectedOrgId)?.company_id
+    : null;
+
+  // CRITICAL: Filter users based on selected company from dropdown
+  const allUsers = isPlatformOwner && selectedCompanyId
+    ? (() => {
+        const companyOrgIds = organizations.filter(org => org.company_id === selectedCompanyId).map(o => o.id);
+        return allUsersUnfiltered.filter(u => u.organization_id && companyOrgIds.includes(u.organization_id));
+      })()
+    : allUsersUnfiltered;
+
+  console.log('🔴 Admin Page Filter:', {
+    selectedOrgId,
+    selectedCompanyId,
+    totalUsers: allUsersUnfiltered.length,
+    filteredUsers: allUsers.length
   });
 
   // Get organization roles (exclude platform roles)
