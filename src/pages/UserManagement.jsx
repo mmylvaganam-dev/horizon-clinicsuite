@@ -16,10 +16,17 @@ import {
 } from '@/components/ui/dialog';
 import UnassignedUsersSection from '@/components/UnassignedUsersSection';
 import { useOrganization } from '@/components/OrganizationProvider';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import toast from 'react-hot-toast';
 
 export default function UserManagement() {
   const queryClient = useQueryClient();
   const [selectedUser, setSelectedUser] = useState(null);
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  const [inviteRole, setInviteRole] = useState('user');
   const { isPlatformOwner: isPlatformOwnerFromContext, selectedOrgId } = useOrganization();
 
   const { data: currentUser } = useQuery({
@@ -125,15 +132,21 @@ export default function UserManagement() {
   });
 
   const assignToOrgMutation = useMutation({
-    mutationFn: async ({ userId, orgId }) => {
-      console.log('🔵 Assigning user', userId, 'to org', orgId);
+    mutationFn: async ({ userId, orgId, userEmail }) => {
+      console.log('🔵 Assigning user', userId, userEmail, 'to org', orgId);
       
-      const response = await base44.functions.invoke('assignUserToOrganization', { userId, orgId });
+      // Use userEmail if userId is not available
+      const response = await base44.functions.invoke('assignUserToOrganization', { 
+        userId: userId,
+        userEmail: userEmail,
+        organizationId: orgId 
+      });
       
       console.log('✅ User assigned successfully:', response.data);
       return response.data;
     },
     onSuccess: async () => {
+      toast.success('✅ User assigned to organization successfully!');
       // Force refetch all related data
       await Promise.all([
         queryClient.refetchQueries({ queryKey: ['allUsers'] }),
@@ -146,7 +159,7 @@ export default function UserManagement() {
     onError: (error) => {
       console.error('❌ Assignment failed:', error);
       console.error('Error details:', error.response?.data || error);
-      alert(`Failed to assign user: ${error.response?.data?.error || error.message}`);
+      toast.error(`❌ Failed to assign user: ${error.response?.data?.error || error.message}`);
     },
   });
 
@@ -210,6 +223,23 @@ export default function UserManagement() {
       console.error('❌ Approval failed:', error);
       alert(`Failed to approve user: ${error.message}`);
     },
+  });
+
+  const inviteUserMutation = useMutation({
+    mutationFn: async ({ email, role }) => {
+      await base44.users.inviteUser(email, role);
+      return { email, role };
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(['allUsers']);
+      toast.success(`✅ User ${data.email} invited! Assign them to an organization from "Unassigned Users" section.`);
+      setInviteDialogOpen(false);
+      setInviteEmail('');
+      setInviteRole('user');
+    },
+    onError: (error) => {
+      toast.error(`❌ Failed to invite user: ${error.message}`);
+    }
   });
 
   // Show loading state
@@ -313,7 +343,7 @@ export default function UserManagement() {
                       key={org.id}
                       variant="outline"
                       className="w-full justify-start"
-                      onClick={() => assignToOrgMutation.mutate({ userId: user.id, orgId: org.id })}
+                      onClick={() => assignToOrgMutation.mutate({ userId: user.id, userEmail: user.email, orgId: org.id })}
                       disabled={assignToOrgMutation.isPending}
                     >
                       {org.name}
@@ -472,11 +502,61 @@ export default function UserManagement() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">Company User Management</h1>
-        <p className="text-slate-600 mt-1">
-          Platform owner control - Approve/Block users at company level. Prevents app abuse and unauthorized access.
-        </p>
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold text-slate-900">Company User Management</h1>
+          <p className="text-slate-600 mt-1">
+            Platform owner control - Approve/Block users at company level. Prevents app abuse and unauthorized access.
+          </p>
+        </div>
+        {isPlatformOwner && (
+          <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-teal-600 hover:bg-teal-700 text-white">
+                <Users className="w-4 h-4 mr-2" />
+                Invite New User
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Invite User to Platform</DialogTitle>
+                <DialogDescription>
+                  Invite a new user - they'll appear in "Unassigned Users" for organization assignment
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 mt-4">
+                <div>
+                  <Label>Email Address</Label>
+                  <Input
+                    type="email"
+                    placeholder="user@example.com"
+                    value={inviteEmail}
+                    onChange={(e) => setInviteEmail(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label>Role</Label>
+                  <Select value={inviteRole} onValueChange={setInviteRole}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="user">User</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button
+                  onClick={() => inviteUserMutation.mutate({ email: inviteEmail, role: inviteRole })}
+                  disabled={!inviteEmail || inviteUserMutation.isPending}
+                  className="w-full bg-teal-600 hover:bg-teal-700"
+                >
+                  {inviteUserMutation.isPending ? 'Inviting...' : 'Send Invitation'}
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       {isPlatformOwner && (
