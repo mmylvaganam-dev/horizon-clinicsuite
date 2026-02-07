@@ -396,6 +396,7 @@ export default function Admin() {
           ]}
         />
       </div>
+      </div>
 
       <Tabs defaultValue="organization" className="space-y-6">
         <TabsList className="grid w-full grid-cols-1">
