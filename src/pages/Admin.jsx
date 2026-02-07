@@ -420,6 +420,111 @@ export default function Admin() {
             </div>
           </div>
 
+          {/* Role Assignment Section - For Platform Owner and Org Admin */}
+          {(isPlatformOwner || isAppAdmin) && allRoles.some(r => (r.code || r.role_name) === 'PHYSICIAN') && (
+            <Card className="border-4 border-emerald-300 bg-gradient-to-br from-emerald-50 to-green-50 shadow-2xl">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-emerald-900 text-2xl">
+                  <Shield className="w-7 h-7" />
+                  Assign Roles to Users
+                </CardTitle>
+                <p className="text-emerald-700">Give staff access by assigning functional roles</p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Step 1: Select User */}
+                <div>
+                  <h3 className="font-bold text-lg text-slate-900 mb-3 flex items-center gap-2">
+                    <div className="w-8 h-8 bg-emerald-600 text-white rounded-full flex items-center justify-center text-sm">1</div>
+                    Select Staff Member
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {allUsers.map((u) => (
+                      <button
+                        key={u.id}
+                        onClick={() => setSelectedUser(u)}
+                        className={`p-4 rounded-xl border-2 transition-all text-left ${
+                          selectedUser?.id === u.id
+                            ? 'border-emerald-600 bg-emerald-100 shadow-lg'
+                            : 'border-slate-300 bg-white hover:border-emerald-400'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                            selectedUser?.id === u.id ? 'bg-emerald-600' : 'bg-slate-300'
+                          }`}>
+                            <Users className={`w-5 h-5 ${selectedUser?.id === u.id ? 'text-white' : 'text-slate-600'}`} />
+                          </div>
+                          <div>
+                            <p className="font-bold text-slate-900">{u.full_name}</p>
+                            <p className="text-xs text-slate-600">{u.email}</p>
+                          </div>
+                        </div>
+                        {selectedUser?.id === u.id && (
+                          <div className="mt-2 flex items-center gap-1 text-emerald-700 font-bold text-sm">
+                            <Check className="w-4 h-4" /> Selected
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Step 2: Assign Roles */}
+                {selectedUser && (
+                  <div>
+                    <h3 className="font-bold text-lg text-slate-900 mb-3 flex items-center gap-2">
+                      <div className="w-8 h-8 bg-emerald-600 text-white rounded-full flex items-center justify-center text-sm">2</div>
+                      Assign Roles to {selectedUser.full_name}
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {organizationRoles.map((role) => {
+                        const hasRole = selectedUserRoles.some(ur => ur.role_id === role.id);
+                        const display = getRoleDisplay(role);
+
+                        return (
+                          <button
+                            key={role.id}
+                            onClick={() => handleToggleRole(role.id, hasRole, display.label)}
+                            disabled={toggleRoleMutation.isPending}
+                            className={`p-4 rounded-xl border-3 transition-all text-left ${
+                              hasRole
+                                ? 'border-emerald-500 bg-emerald-100'
+                                : 'border-slate-300 bg-white hover:border-emerald-400'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`w-12 h-12 rounded-lg ${display.color} flex items-center justify-center`}>
+                                <display.icon className="w-6 h-6 text-white" />
+                              </div>
+                              <div className="flex-1">
+                                <p className="font-bold text-slate-900">{display.label}</p>
+                                <p className="text-xs text-slate-600">{role.description || role.code}</p>
+                              </div>
+                              <div>
+                                {hasRole ? (
+                                  <Check className="w-6 h-6 text-emerald-600" />
+                                ) : (
+                                  <X className="w-6 h-6 text-slate-400" />
+                                )}
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {!selectedUser && (
+                  <div className="text-center py-8 text-slate-500">
+                    <Users className="w-16 h-16 mx-auto mb-3 opacity-50" />
+                    <p className="font-semibold">Select a staff member above to assign roles</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {adminCategories
             .filter(cat => cat.modules.some(m => !m.ownerOnly))
             .map((category, idx) => (
