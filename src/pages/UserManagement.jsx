@@ -79,9 +79,18 @@ export default function UserManagement() {
     enabled: !!currentUser,
   });
 
-  // Get the selected company based on selectedOrgId
-  const selectedCompany = organizations.find(org => org.id === selectedOrgId)?.company_id;
-  console.log('🔵 Selected company from dropdown:', selectedCompany, 'from org:', selectedOrgId);
+  // CRITICAL: Get the selected company ID from the dropdown organization selection
+  const selectedCompanyId = selectedOrgId && organizations.length > 0
+    ? organizations.find(org => org.id === selectedOrgId)?.company_id
+    : null;
+  
+  console.log('🔵 UserManagement Filter Debug:', {
+    selectedOrgId,
+    selectedCompanyId,
+    isPlatformOwner,
+    totalUsers: allUsers.length,
+    totalCompanies: companies.length
+  });
 
   // Get all company organizations
   const getCompanyOrganizations = (companyId) => {
@@ -91,7 +100,9 @@ export default function UserManagement() {
   // Get all users for a company (by organization assignment)
   const getCompanyUsers = (companyId) => {
     const companyOrgIds = getCompanyOrganizations(companyId).map(o => o.id);
-    return allUsers.filter(u => u.organization_id && companyOrgIds.includes(u.organization_id));
+    const users = allUsers.filter(u => u.organization_id && companyOrgIds.includes(u.organization_id));
+    console.log(`Users for company ${companyId}:`, users.length, users.map(u => u.email));
+    return users;
   };
 
   const { data: userRoles = [], isLoading: rolesLoading } = useQuery({
@@ -210,34 +221,35 @@ export default function UserManagement() {
     );
   }
 
-  console.log('📊 UserManagement Data:', {
-    allUsers: allUsers.length,
-    companies: companies.length,
-    organizations: organizations.length,
-    userRoles: userRoles.length,
-    isPlatformOwner,
-    selectedCompany
-  });
+  // CRITICAL: Filter companies based on dropdown selection
+  // Platform owner with selection: show ONLY selected company
+  // Platform owner without selection: show all companies
+  // Company admin: show only their company
+  const filteredCompanies = isPlatformOwner && selectedCompanyId
+    ? companies.filter(c => c.id === selectedCompanyId)
+    : isPlatformOwner
+    ? companies
+    : companies.filter(c => c.id === currentUser?.company_id);
 
-  // CRITICAL: Filter users by selected company from dropdown
-  // Platform owner: show only users from selected company
-  // Company admin: show only users from their company
+  console.log('📊 Filtered Companies:', filteredCompanies.map(c => c.company_legal_name));
+
+  // Get unassigned users (users without organization)
   const unassignedUsers = allUsers.filter(u => !u.organization_id);
   
-  const usersByCompany = isPlatformOwner && selectedCompany
-    ? companies
-        .filter(company => company.id === selectedCompany)
-        .map(company => ({
-          company,
-          users: getCompanyUsers(company.id)
-        }))
-    : companies.map(company => {
-        const companyUsers = getCompanyUsers(company.id);
-        return {
-          company,
-          users: companyUsers
-        };
-      });
+  // Map filtered companies to their users
+  const usersByCompany = filteredCompanies.map(company => {
+    const users = getCompanyUsers(company.id);
+    return {
+      company,
+      users
+    };
+  });
+
+  console.log('📊 UserManagement Final Data:', {
+    filteredCompanies: filteredCompanies.length,
+    usersByCompany: usersByCompany.map(c => ({ name: c.company.company_legal_name, users: c.users.length })),
+    unassignedUsers: unassignedUsers.length
+  });
 
   const getUserRoleDetails = (userId, orgId) => {
     const roles = userRoles.filter(r => r.user_id === userId && r.organization_id === orgId);
