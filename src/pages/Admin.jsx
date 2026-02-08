@@ -686,19 +686,19 @@ export default function Admin() {
           {adminCategories
             .filter(cat => cat.modules.some(m => !m.ownerOnly))
             .map((category, idx) => (
-              <Card key={idx} className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
-                <CardHeader>
+              <Card key={idx} className="border-l-4" style={{ borderLeftColor: category.color.split(' ')[0].replace('from-', '#') }}>
+                <CardHeader className="bg-slate-50 border-b">
                   <div className="flex items-center gap-3">
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center shadow-lg`}>
-                      <category.icon className="w-6 h-6 text-white" />
+                    <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center`}>
+                      <category.icon className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <CardTitle className="text-slate-900">{category.category}</CardTitle>
-                      <p className="text-sm text-slate-600">{category.description}</p>
+                      <CardTitle className="text-slate-900 text-base">{category.category}</CardTitle>
+                      <p className="text-xs text-slate-600">{category.description}</p>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {category.modules
                       .filter(m => !m.ownerOnly)
@@ -706,13 +706,13 @@ export default function Admin() {
                         <button
                           key={module.page}
                           onClick={() => navigate(createPageUrl(module.page))}
-                          className="p-4 rounded-xl border-2 border-slate-200 bg-white hover:border-blue-400 hover:shadow-lg transition-all transform hover:scale-105 text-left"
+                          className="p-3 rounded-lg border border-slate-200 bg-white hover:border-teal-300 hover:bg-slate-50 transition-all text-left"
                         >
-                          <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center mb-3 shadow`}>
-                            <module.icon className="w-5 h-5 text-white" />
+                          <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center mb-2`}>
+                            <module.icon className="w-4 h-4 text-white" />
                           </div>
-                          <p className="font-semibold text-slate-900 text-sm">{module.title}</p>
-                          <p className="text-xs text-slate-600 mt-1">{module.description}</p>
+                          <p className="font-medium text-slate-900 text-xs">{module.title}</p>
+                          <p className="text-xs text-slate-500 mt-1">{module.description}</p>
                         </button>
                       ))}
                   </div>
