@@ -159,35 +159,20 @@ export default function SalesActivityManager({ organizationId, isPlatformOwner, 
       )}
 
       {/* Action Buttons */}
-      <div className="grid md:grid-cols-2 gap-4 pt-4 border-t-2">
-        <button
-          onClick={() => {
-            if (confirm(`⚠️ DELETE ALL SALES DATA:\n\n${pharmacySales.length} sales records\n${invoices.length} invoices\n\nThis will permanently delete all sales data. Continue?`)) {
-              clearDataMutation.mutate();
-            }
-          }}
-          disabled={clearDataMutation.isPending}
-          className="p-6 rounded-xl border-4 border-red-400 bg-white hover:bg-red-50 transition-all disabled:opacity-50"
-        >
-          <Trash2 className="w-12 h-12 text-red-600 mb-3 mx-auto" />
-          <p className="font-bold text-xl text-red-900">Clear All Sales</p>
-          <p className="text-sm text-red-700 mt-2">Delete all sales and invoices</p>
-          {clearDataMutation.isPending && <p className="text-sm text-red-600 mt-2 font-bold">🔄 Clearing...</p>}
-        </button>
-
-        {isPlatformOwner && (
+      {isPlatformOwner && (
+        <div className="pt-4 border-t-2">
           <button
             onClick={() => generateTestSaleMutation.mutate()}
             disabled={generateTestSaleMutation.isPending}
-            className="p-6 rounded-xl border-4 border-green-400 bg-white hover:bg-green-50 transition-all disabled:opacity-50"
+            className="w-full p-6 rounded-xl border-4 border-green-400 bg-white hover:bg-green-50 transition-all disabled:opacity-50"
           >
             <TestTube className="w-12 h-12 text-green-600 mb-3 mx-auto" />
             <p className="font-bold text-xl text-green-900">Generate Test Sale</p>
             <p className="text-sm text-green-700 mt-2">Create a sample pharmacy sale</p>
             {generateTestSaleMutation.isPending && <p className="text-sm text-green-600 mt-2 font-bold">🔄 Generating...</p>}
           </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
