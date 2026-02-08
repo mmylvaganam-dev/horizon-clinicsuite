@@ -81,7 +81,6 @@ export default function BankStatementManager() {
   }
   const [newAccountOpen, setNewAccountOpen] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
-  const [selectedMonth, setSelectedMonth] = useState(moment().format('YYYY-MM'));
   const [selectedAccountId, setSelectedAccountId] = useState(null);
   const [uploading, setUploading] = useState(false);
 
@@ -105,12 +104,12 @@ export default function BankStatementManager() {
 
   // Fetch bank statement uploads
   const { data: statements = [] } = useQuery({
-    queryKey: ['bankStatements', selectedOrgId, selectedAccountId, selectedMonth],
+    queryKey: ['bankStatements', selectedOrgId, selectedAccountId],
     queryFn: async () => {
       const filter = { organization_id: selectedOrgId };
       if (selectedAccountId) filter.bank_account_id = selectedAccountId;
       const allStatements = await base44.entities.BankStatementUpload.filter(filter);
-      return allStatements.filter(s => s.statement_month?.startsWith(selectedMonth));
+      return allStatements.sort((a, b) => new Date(b.statement_month) - new Date(a.statement_month));
     },
     enabled: !!selectedOrgId
   });
@@ -150,6 +149,8 @@ export default function BankStatementManager() {
         json_schema: {
           type: "object",
           properties: {
+            statement_period_start: { type: "string" },
+            statement_period_end: { type: "string" },
             transactions: {
               type: "array",
               items: {
@@ -170,11 +171,16 @@ export default function BankStatementManager() {
         }
       });
 
+      // Auto-detect statement month from the data
+      const detectedMonth = extractResult.output.statement_period_start 
+        ? moment(extractResult.output.statement_period_start).format('YYYY-MM')
+        : moment().format('YYYY-MM');
+
       // Create bank statement upload record
       await base44.entities.BankStatementUpload.create({
         organization_id: selectedOrgId,
         bank_account_id: selectedAccountId,
-        statement_month: selectedMonth,
+        statement_month: detectedMonth,
         file_url: uploadResult.file_url,
         opening_balance: extractResult.output.opening_balance || 0,
         closing_balance: extractResult.output.closing_balance || 0,
@@ -208,6 +214,30 @@ export default function BankStatementManager() {
       avgMonthlyDeposits,
       transactionCount: statements.reduce((sum, s) => sum + (s.transaction_count || 0), 0)
     };
+  }, [statements]);
+
+  // Detect missing periods
+  const missingPeriods = React.useMemo(() => {
+    if (statements.length === 0) return [];
+    
+    const sortedStatements = [...statements].sort((a, b) => 
+      new Date(a.statement_month) - new Date(b.statement_month)
+    );
+    
+    const gaps = [];
+    for (let i = 1; i < sortedStatements.length; i++) {
+      const prevMonth = moment(sortedStatements[i - 1].statement_month);
+      const currMonth = moment(sortedStatements[i].statement_month);
+      const monthsDiff = currMonth.diff(prevMonth, 'months');
+      
+      if (monthsDiff > 1) {
+        for (let j = 1; j < monthsDiff; j++) {
+          gaps.push(prevMonth.clone().add(j, 'months').format('YYYY-MM'));
+        }
+      }
+    }
+    
+    return gaps;
   }, [statements]);
 
   // Prepare chart data
@@ -314,7 +344,7 @@ export default function BankStatementManager() {
       {/* Filters */}
       <Card>
         <CardContent className="pt-6">
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-2 gap-4">
             <div>
               <Label>Bank Account</Label>
               <Select value={selectedAccountId || 'all'} onValueChange={(v) => setSelectedAccountId(v === 'all' ? null : v)}>
@@ -331,14 +361,6 @@ export default function BankStatementManager() {
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label>Month</Label>
-              <Input
-                type="month"
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(e.target.value)}
-              />
-            </div>
             <div className="flex items-end">
               <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
                 <DialogTrigger asChild>
@@ -352,6 +374,11 @@ export default function BankStatementManager() {
                     <DialogTitle>Upload Bank Statement</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                      <p className="text-sm text-blue-900">
+                        📅 Statement period will be automatically detected from the file
+                      </p>
+                    </div>
                     <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center">
                       <Upload className="w-12 h-12 text-slate-400 mx-auto mb-4" />
                       <p className="text-sm text-slate-600 mb-4">Upload CSV, Excel, or PDF bank statement</p>
@@ -378,6 +405,30 @@ export default function BankStatementManager() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Missing Periods Alert */}
+      {missingPeriods.length > 0 && (
+        <Card className="border-2 border-red-500 bg-gradient-to-r from-red-50 to-orange-50 shadow-lg">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <AlertCircle className="w-12 h-12 text-red-600 flex-shrink-0" />
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-red-900 mb-2">⚠️ Missing Statements Detected</h3>
+                <p className="text-red-700 mb-3">
+                  The following periods are missing bank statements. Please upload them for complete financial tracking.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {missingPeriods.map(period => (
+                    <Badge key={period} className="bg-red-600 text-white text-sm px-3 py-1">
+                      {moment(period).format('MMMM YYYY')}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* KPI Cards */}
       <div className="grid md:grid-cols-5 gap-4">
