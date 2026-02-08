@@ -26,7 +26,9 @@ import {
   ChevronRight,
   Info,
   Globe,
-  Building
+  Building,
+  Trash2,
+  TestTube
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
@@ -120,6 +122,45 @@ export default function Admin() {
     const role = allRoles.find(r => r.id === ur.role_id);
     const roleCode = role?.code || role?.role_name;
     return roleCode === 'APP_ADMIN';
+  });
+
+  const clearDataMutation = useMutation({
+    mutationFn: async () => {
+      if (!selectedOrgId) {
+        throw new Error('Please select an organization first');
+      }
+      const response = await base44.functions.invoke('clearAllSalesData', { 
+        organizationId: selectedOrgId 
+      });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries();
+      toast.success(`✅ Cleared ${data.cleared.pharmacySales} sales, ${data.cleared.auditLogs} logs successfully!`);
+    },
+    onError: (error) => {
+      toast.error(`❌ Error: ${error.message}`);
+    }
+  });
+
+  const generateTestSaleMutation = useMutation({
+    mutationFn: async () => {
+      if (!selectedOrgId) {
+        throw new Error('Please select an organization first');
+      }
+      const response = await base44.functions.invoke('generateTestSale', { 
+        organizationId: selectedOrgId,
+        locationId: organizations.find(o => o.id === selectedOrgId)?.location_id
+      });
+      return response.data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries();
+      toast.success(`✅ Test sale created: ${data.sale.saleNumber} - ${data.sale.itemCount} items`);
+    },
+    onError: (error) => {
+      toast.error(`❌ Error: ${error.message}`);
+    }
   });
 
   const inviteUserMutation = useMutation({
@@ -440,6 +481,53 @@ export default function Admin() {
               </div>
             </div>
           </div>
+
+          {/* Test Data Management - Platform Owner Only */}
+          {isPlatformOwner && (
+            <Card className="border-4 border-orange-300 bg-gradient-to-br from-orange-50 to-yellow-50 shadow-2xl">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-orange-900 text-2xl">
+                  <TestTube className="w-7 h-7" />
+                  🧪 Test Data Management
+                </CardTitle>
+                <p className="text-orange-700">Clear old data and generate test sales for testing</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="bg-yellow-100 border-2 border-yellow-400 rounded-lg p-4">
+                  <p className="text-yellow-900 font-bold">⚠️ WARNING: These actions affect the selected organization only</p>
+                  <p className="text-sm text-yellow-800 mt-1">Make sure you have selected the correct organization from the dropdown above</p>
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-4">
+                  <button
+                    onClick={() => {
+                      if (confirm('⚠️ This will DELETE all sales data, invoices, receipts, and audit logs for the selected organization. Are you sure?')) {
+                        clearDataMutation.mutate();
+                      }
+                    }}
+                    disabled={!selectedOrgId || clearDataMutation.isPending}
+                    className="p-6 rounded-xl border-4 border-red-400 bg-white hover:bg-red-50 transition-all disabled:opacity-50"
+                  >
+                    <Trash2 className="w-12 h-12 text-red-600 mb-3 mx-auto" />
+                    <p className="font-bold text-xl text-red-900">Clear All Sales Data</p>
+                    <p className="text-sm text-red-700 mt-2">Delete all sales, invoices, and audit logs</p>
+                    {clearDataMutation.isPending && <p className="text-sm text-red-600 mt-2 font-bold">🔄 Clearing...</p>}
+                  </button>
+
+                  <button
+                    onClick={() => generateTestSaleMutation.mutate()}
+                    disabled={!selectedOrgId || generateTestSaleMutation.isPending}
+                    className="p-6 rounded-xl border-4 border-green-400 bg-white hover:bg-green-50 transition-all disabled:opacity-50"
+                  >
+                    <TestTube className="w-12 h-12 text-green-600 mb-3 mx-auto" />
+                    <p className="font-bold text-xl text-green-900">Generate Test Sale</p>
+                    <p className="text-sm text-green-700 mt-2">Create a sample pharmacy sale with random items</p>
+                    {generateTestSaleMutation.isPending && <p className="text-sm text-green-600 mt-2 font-bold">🔄 Generating...</p>}
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Role Assignment Section - For Platform Owner and Org Admin */}
           {(isPlatformOwner || isAppAdmin) && allRoles.some(r => (r.code || r.role_name) === 'PHYSICIAN') && (
