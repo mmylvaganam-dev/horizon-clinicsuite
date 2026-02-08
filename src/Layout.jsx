@@ -45,6 +45,10 @@ function LayoutContent({ children, currentPageName }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userApproved, setUserApproved] = useState(null);
   const [isBlocked, setIsBlocked] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [pullStart, setPullStart] = useState(0);
+  const [pullDistance, setPullDistance] = useState(0);
+  const mainContentRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
@@ -58,6 +62,38 @@ function LayoutContent({ children, currentPageName }) {
 
     return () => clearInterval(interval);
   }, [queryClient]);
+
+  // Pull-to-refresh mechanism
+  const handleTouchStart = (e) => {
+    if (mainContentRef.current?.scrollTop === 0) {
+      setPullStart(e.touches[0].clientY);
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (pullStart > 0) {
+      const currentY = e.touches[0].clientY;
+      const distance = currentY - pullStart;
+      if (distance > 0 && distance < 150) {
+        setPullDistance(distance);
+      }
+    }
+  };
+
+  const handleTouchEnd = async () => {
+    if (pullDistance > 80) {
+      setIsRefreshing(true);
+      await queryClient.refetchQueries();
+      setTimeout(() => {
+        setIsRefreshing(false);
+        setPullDistance(0);
+        setPullStart(0);
+      }, 1000);
+    } else {
+      setPullDistance(0);
+      setPullStart(0);
+    }
+  };
   
   const { data: user, error: userError } = useQuery({
     queryKey: ['currentUser'],
@@ -510,7 +546,28 @@ function LayoutContent({ children, currentPageName }) {
         </header>
 
         {/* Page content */}
-        <main className="p-4 lg:p-8 pb-24 lg:pb-8" style={{ overscrollBehavior: 'none' }}>
+        <main 
+          ref={mainContentRef}
+          className="p-4 lg:p-8 pb-24 lg:pb-8 relative" 
+          style={{ overscrollBehavior: 'none' }}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Pull to refresh indicator */}
+          {pullDistance > 0 && (
+            <div 
+              className="absolute top-0 left-0 right-0 flex justify-center items-center transition-all"
+              style={{ 
+                transform: `translateY(${Math.min(pullDistance - 60, 40)}px)`,
+                opacity: Math.min(pullDistance / 80, 1)
+              }}
+            >
+              <div className="bg-white rounded-full p-2 shadow-lg">
+                <RefreshCw className={`w-6 h-6 text-teal-600 ${isRefreshing ? 'animate-spin' : ''}`} />
+              </div>
+            </div>
+          )}
           {isBlocked ? (
             <div className="flex items-center justify-center min-h-[60vh]">
               <div className="max-w-md text-center space-y-4">
@@ -546,45 +603,45 @@ function LayoutContent({ children, currentPageName }) {
           )}
         </main>
 
-        {/* Mobile Bottom Tabs */}
+        {/* Mobile Bottom Tabs with History Preservation */}
         <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-40" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
           <div className="flex justify-around items-center h-16">
-            <Link
-              to={createPageUrl('DailyOps')}
+            <button
+              onClick={() => navigate(createPageUrl('DailyOps'))}
               className={`flex flex-col items-center justify-center flex-1 h-full ${
                 currentPageName === 'DailyOps' ? 'text-teal-600' : 'text-slate-400'
               }`}
             >
               <Activity className="w-6 h-6" />
               <span className="text-xs mt-1">Daily Ops</span>
-            </Link>
-            <Link
-              to={createPageUrl('PatientHub')}
+            </button>
+            <button
+              onClick={() => navigate(createPageUrl('PatientHub'))}
               className={`flex flex-col items-center justify-center flex-1 h-full ${
                 currentPageName === 'PatientHub' ? 'text-teal-600' : 'text-slate-400'
               }`}
             >
               <Users className="w-6 h-6" />
               <span className="text-xs mt-1">Patients</span>
-            </Link>
-            <Link
-              to={createPageUrl('PharmacyBilling')}
+            </button>
+            <button
+              onClick={() => navigate(createPageUrl('PharmacyBilling'))}
               className={`flex flex-col items-center justify-center flex-1 h-full ${
                 currentPageName === 'PharmacyBilling' ? 'text-teal-600' : 'text-slate-400'
               }`}
             >
               <ShoppingBag className="w-6 h-6" />
               <span className="text-xs mt-1">POS</span>
-            </Link>
-            <Link
-              to={createPageUrl('Admin')}
+            </button>
+            <button
+              onClick={() => navigate(createPageUrl('Admin'))}
               className={`flex flex-col items-center justify-center flex-1 h-full ${
                 currentPageName === 'Admin' ? 'text-teal-600' : 'text-slate-400'
               }`}
             >
               <Settings className="w-6 h-6" />
               <span className="text-xs mt-1">Admin</span>
-            </Link>
+            </button>
           </div>
         </div>
 
