@@ -37,6 +37,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import SalesActivityManager from '../components/admin/SalesActivityManager';
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -482,49 +483,23 @@ export default function Admin() {
             </div>
           </div>
 
-          {/* Test Data Management - Platform Owner Only */}
-          {isPlatformOwner && (
+          {/* Sales Data Management - Org Admin & Platform Owner */}
+          {(isPlatformOwner || isAppAdmin) && (
             <Card className="border-4 border-orange-300 bg-gradient-to-br from-orange-50 to-yellow-50 shadow-2xl">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-orange-900 text-2xl">
-                  <TestTube className="w-7 h-7" />
-                  🧪 Test Data Management
+                  <Activity className="w-7 h-7" />
+                  Sales & Activity Management
                 </CardTitle>
-                <p className="text-orange-700">Clear old data and generate test sales for testing</p>
+                <p className="text-orange-700">View and manage sales data for testing and cleanup</p>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="bg-yellow-100 border-2 border-yellow-400 rounded-lg p-4">
-                  <p className="text-yellow-900 font-bold">⚠️ WARNING: These actions affect the selected organization only</p>
-                  <p className="text-sm text-yellow-800 mt-1">Make sure you have selected the correct organization from the dropdown above</p>
-                </div>
-                
-                <div className="grid md:grid-cols-2 gap-4">
-                  <button
-                    onClick={() => {
-                      if (confirm('⚠️ This will DELETE all sales data, invoices, receipts, and audit logs for the selected organization. Are you sure?')) {
-                        clearDataMutation.mutate();
-                      }
-                    }}
-                    disabled={!selectedOrgId || clearDataMutation.isPending}
-                    className="p-6 rounded-xl border-4 border-red-400 bg-white hover:bg-red-50 transition-all disabled:opacity-50"
-                  >
-                    <Trash2 className="w-12 h-12 text-red-600 mb-3 mx-auto" />
-                    <p className="font-bold text-xl text-red-900">Clear All Sales Data</p>
-                    <p className="text-sm text-red-700 mt-2">Delete all sales, invoices, and audit logs</p>
-                    {clearDataMutation.isPending && <p className="text-sm text-red-600 mt-2 font-bold">🔄 Clearing...</p>}
-                  </button>
-
-                  <button
-                    onClick={() => generateTestSaleMutation.mutate()}
-                    disabled={!selectedOrgId || generateTestSaleMutation.isPending}
-                    className="p-6 rounded-xl border-4 border-green-400 bg-white hover:bg-green-50 transition-all disabled:opacity-50"
-                  >
-                    <TestTube className="w-12 h-12 text-green-600 mb-3 mx-auto" />
-                    <p className="font-bold text-xl text-green-900">Generate Test Sale</p>
-                    <p className="text-sm text-green-700 mt-2">Create a sample pharmacy sale with random items</p>
-                    {generateTestSaleMutation.isPending && <p className="text-sm text-green-600 mt-2 font-bold">🔄 Generating...</p>}
-                  </button>
-                </div>
+                <SalesActivityManager 
+                  organizationId={selectedOrgId}
+                  isPlatformOwner={isPlatformOwner}
+                  clearDataMutation={clearDataMutation}
+                  generateTestSaleMutation={generateTestSaleMutation}
+                />
               </CardContent>
             </Card>
           )}
