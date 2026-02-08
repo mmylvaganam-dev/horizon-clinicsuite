@@ -102,12 +102,11 @@ export default function Admin() {
     ? organizations.find(org => org.id === selectedOrgId)?.company_id
     : null;
 
-  // CRITICAL: Filter users based on selected company from dropdown
-  const allUsers = isPlatformOwner && selectedCompanyId
-    ? (() => {
-        const companyOrgIds = organizations.filter(org => org.company_id === selectedCompanyId).map(o => o.id);
-        return allUsersUnfiltered.filter(u => u.organization_id && companyOrgIds.includes(u.organization_id));
-      })()
+  // CRITICAL: Show users for the selected organization only
+  // Platform owner: show users from selected org's company
+  // Regular admin: show all users (no filtering)
+  const allUsers = isPlatformOwner && selectedOrgId
+    ? allUsersUnfiltered.filter(u => u.organization_id === selectedOrgId || !u.organization_id)
     : allUsersUnfiltered;
 
   console.log('🔴 Admin Page Filter:', {

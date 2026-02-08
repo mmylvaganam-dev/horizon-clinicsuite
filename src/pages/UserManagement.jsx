@@ -147,13 +147,16 @@ export default function UserManagement() {
     },
     onSuccess: async () => {
       toast.success('✅ User assigned to organization successfully!');
-      // Force refetch all related data
+      // Force refetch all related data with delays to ensure backend updates
+      await new Promise(resolve => setTimeout(resolve, 500));
       await Promise.all([
         queryClient.refetchQueries({ queryKey: ['allUsers'] }),
         queryClient.refetchQueries({ queryKey: ['userRoles'] }),
         queryClient.refetchQueries({ queryKey: ['organizations'] }),
         queryClient.refetchQueries({ queryKey: ['companies'] })
       ]);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await queryClient.refetchQueries({ queryKey: ['allUsers'] });
       setSelectedUser(null);
     },
     onError: (error) => {
