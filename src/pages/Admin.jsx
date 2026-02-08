@@ -39,6 +39,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import SalesActivityManager from '../components/admin/SalesActivityManager';
+import SystemHealthChecker from '../components/admin/SystemHealthChecker';
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -483,6 +484,22 @@ export default function Admin() {
               </div>
             </div>
           </div>
+
+          {/* System Health Check - Platform Owner Only */}
+          {isPlatformOwner && (
+            <Card className="border-4 border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-2xl">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-blue-900 text-2xl">
+                  <Activity className="w-7 h-7" />
+                  🔍 Complete System Health Check
+                </CardTitle>
+                <p className="text-blue-700">Test all functionality - Database, Pages, Services, Email, SMS, Printing - Everything A to Z</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <SystemHealthChecker organizationId={selectedOrgId} />
+              </CardContent>
+            </Card>
+          )}
 
           {/* Sales Management - Org Admin & Platform Owner */}
           {(isPlatformOwner || isAppAdmin) && (
