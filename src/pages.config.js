@@ -185,6 +185,9 @@ import UserApprovals from './pages/UserApprovals';
 import UserManagement from './pages/UserManagement';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
+import SalesAnalytics from './pages/SalesAnalytics';
+import SaleDeletionRequests from './pages/SaleDeletionRequests';
+import OrgAdminAuditReport from './pages/OrgAdminAuditReport';
 import __Layout from './Layout.jsx';
 
 
@@ -327,6 +330,9 @@ export const PAGES = {
     "UserManagement": UserManagement,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
+    "SalesAnalytics": SalesAnalytics,
+    "SaleDeletionRequests": SaleDeletionRequests,
+    "OrgAdminAuditReport": OrgAdminAuditReport,
 }
 
 export const pagesConfig = {
