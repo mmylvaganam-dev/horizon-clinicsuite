@@ -10,14 +10,16 @@ export default function SalesActivityManager({ organizationId, isPlatformOwner, 
   const [showDetails, setShowDetails] = useState(false);
   const queryClient = useQueryClient();
 
-  // Fetch sales data
+  // Fetch sales data - ALWAYS fetch to show counts
   const { data: pharmacySales = [], isLoading: loadingSales } = useQuery({
     queryKey: ['pharmacySales', organizationId],
     queryFn: async () => {
       if (!organizationId) return [];
-      return await base44.entities.PharmacySaleHeader.filter({ organization_id: organizationId });
+      const sales = await base44.entities.PharmacySaleHeader.filter({ organization_id: organizationId });
+      console.log('📊 Sales loaded:', sales.length, 'records');
+      return sales;
     },
-    enabled: !!organizationId && showDetails,
+    enabled: !!organizationId,
   });
 
   const { data: invoices = [], isLoading: loadingInvoices } = useQuery({
@@ -26,7 +28,7 @@ export default function SalesActivityManager({ organizationId, isPlatformOwner, 
       if (!organizationId) return [];
       return await base44.entities.InvoiceHeader.filter({ organization_id: organizationId });
     },
-    enabled: !!organizationId && showDetails,
+    enabled: !!organizationId,
   });
 
   const deleteSaleMutation = useMutation({
