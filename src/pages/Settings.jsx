@@ -86,16 +86,38 @@ export default function Settings() {
     updateMutation.mutate({ notifications });
   };
 
+  const deleteAccountMutation = useMutation({
+    mutationFn: async () => {
+      // Log audit entry
+      await base44.entities.AuditLog.create({
+        action: 'delete_account_request',
+        entity_name: 'User',
+        entity_id: user.id,
+        details: `User ${user.email} requested account deletion`,
+        user_email: user.email
+      });
+      // Block the account instead of deleting (safer approach)
+      await base44.entities.BlockedUser.create({
+        email: user.email,
+        reason: 'Self-requested account deletion',
+        blocked_by: user.email,
+        blocked_date: new Date().toISOString()
+      });
+    },
+    onSuccess: () => {
+      alert('Account deletion request logged. Your account has been blocked. Please contact support for final deletion.');
+      base44.auth.logout();
+    },
+    onError: (error) => {
+      alert('Failed to delete account: ' + error.message);
+    }
+  });
+
   const handleDeleteAccount = async () => {
     if (deleteConfirmText === 'DELETE') {
-      try {
-        // Delete account logic here
-        alert('Account deletion requested. This feature will be implemented by system administrator.');
-        setDeleteDialogOpen(false);
-        setDeleteConfirmText('');
-      } catch (error) {
-        alert('Failed to delete account: ' + error.message);
-      }
+      deleteAccountMutation.mutate();
+      setDeleteDialogOpen(false);
+      setDeleteConfirmText('');
     }
   };
 
