@@ -22,7 +22,8 @@ import {
   BarChart3,
   CheckCircle2,
   Clock,
-  AlertCircle
+  AlertCircle,
+  Lock
 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import moment from 'moment';
@@ -32,6 +33,47 @@ const COLORS = ['#14b8a6', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
 export default function BankStatementManager() {
   const { selectedOrgId } = useOrganization();
   const queryClient = useQueryClient();
+
+  // Check user access
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me()
+  });
+
+  const { data: userRoles = [] } = useQuery({
+    queryKey: ['userRoles', currentUser?.id, selectedOrgId],
+    queryFn: async () => {
+      if (!currentUser?.id || !selectedOrgId) return [];
+      const roles = await base44.entities.UserRole.filter({
+        user_id: currentUser.id,
+        organization_id: selectedOrgId
+      });
+      return roles;
+    },
+    enabled: !!currentUser?.id && !!selectedOrgId
+  });
+
+  const hasAccess = currentUser?.bank_statement_access === true || userRoles.some(r => r.role_id === 'ORG_SUPER_USER' || r.role_id === 'PLATFORM_OWNER');
+
+  if (!hasAccess) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="max-w-md">
+          <CardContent className="pt-6 text-center space-y-4">
+            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+              <Lock className="w-10 h-10 text-red-600" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900">Access Denied</h2>
+              <p className="text-slate-600 mt-2">
+                You don't have permission to view bank statements. Please contact your organization administrator.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
   const [newAccountOpen, setNewAccountOpen] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [selectedMonth, setSelectedMonth] = useState(moment().format('YYYY-MM'));
