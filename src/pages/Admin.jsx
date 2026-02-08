@@ -130,15 +130,17 @@ export default function Admin() {
         throw new Error('Please select an organization from the dropdown first');
       }
       
-      console.log('🔵 Inviting user:', email, 'with role:', role);
+      console.log('🔵 Step 1: Inviting user:', email, 'with role:', role);
       
-      // Invite user
+      // Invite user - this creates the user account
       await base44.users.inviteUser(email, role);
       
-      console.log('✅ User invited, now assigning to org:', selectedOrgId);
+      console.log('✅ Step 2: User invited, waiting 2 seconds for user creation...');
       
-      // Wait a moment for user to be created
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Wait longer for user to be fully created in database
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      console.log('🔵 Step 3: Now assigning to org:', selectedOrgId);
       
       // Auto-assign to selected organization using email
       const assignResponse = await base44.functions.invoke('assignUserToOrganization', {
@@ -146,21 +148,22 @@ export default function Admin() {
         organizationId: selectedOrgId
       });
       
-      console.log('✅ Assignment response:', assignResponse.data);
+      console.log('✅ Step 4: Assignment complete:', assignResponse.data);
       
-      return { email, role };
+      return { email, role, orgId: selectedOrgId };
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries(['allUsers']);
-      queryClient.invalidateQueries(['userRoles']);
-      toast.success(`✅ User ${data.email} invited and assigned successfully!`);
+    onSuccess: async (data) => {
+      console.log('✅ Step 5: Success! Refreshing data...');
+      await queryClient.invalidateQueries(['allUsers']);
+      await queryClient.invalidateQueries(['userRoles']);
+      toast.success(`✅ User ${data.email} invited and assigned to organization!`);
       setInviteDialogOpen(false);
       setInviteEmail('');
       setInviteRole('user');
     },
     onError: (error) => {
       console.error('❌ Invite mutation error:', error);
-      toast.error(`❌ Failed to invite user: ${error.message}`);
+      toast.error(`❌ Error: ${error.message || 'Failed to invite user'}`);
     }
   });
 
@@ -340,7 +343,7 @@ export default function Admin() {
         <p className="text-slate-500 mt-1">Manage users, permissions, and system configuration</p>
       </div>
       <div className="flex items-center gap-3">
-        {isPlatformOwner && selectedOrgId && (
+        {isPlatformOwner && (
           <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
             <DialogTrigger asChild>
               <Button className="bg-teal-600 hover:bg-teal-700 text-white">
@@ -350,14 +353,22 @@ export default function Admin() {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Invite User to Selected Company</DialogTitle>
+                <DialogTitle>Invite User to Organization</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 mt-4">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                  <p className="text-sm text-blue-900 font-medium">
-                    User will be invited to: <span className="font-bold">{organizations.find(o => o.id === selectedOrgId)?.name}</span>
-                  </p>
-                </div>
+                {selectedOrgId ? (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <p className="text-sm text-blue-900 font-medium">
+                      User will be invited to: <span className="font-bold">{organizations.find(o => o.id === selectedOrgId)?.name}</span>
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-3">
+                    <p className="text-sm text-yellow-900 font-medium">
+                      ⚠️ Select an organization from dropdown first, then invite users
+                    </p>
+                  </div>
+                )}
                 <div>
                   <Label>Email Address</Label>
                   <Input
@@ -381,10 +392,10 @@ export default function Admin() {
                 </div>
                 <Button
                   onClick={() => inviteUserMutation.mutate({ email: inviteEmail, role: inviteRole })}
-                  disabled={!inviteEmail || inviteUserMutation.isPending}
+                  disabled={!inviteEmail || !selectedOrgId || inviteUserMutation.isPending}
                   className="w-full bg-teal-600 hover:bg-teal-700"
                 >
-                  {inviteUserMutation.isPending ? 'Inviting...' : 'Send Invitation'}
+                  {inviteUserMutation.isPending ? 'Inviting...' : selectedOrgId ? 'Send Invitation' : 'Select Organization First'}
                 </Button>
               </div>
             </DialogContent>
