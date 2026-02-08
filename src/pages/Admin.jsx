@@ -473,47 +473,44 @@ export default function Admin() {
 
         {/* Organization Admin Tab */}
         <TabsContent value="organization" className="space-y-6">
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 text-white shadow-xl">
+          <div className="bg-white border-l-4 border-teal-600 rounded-lg p-6 shadow-sm">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center">
-                <Building className="w-8 h-8 text-white" />
+              <div className="w-12 h-12 bg-teal-600 rounded-lg flex items-center justify-center">
+                <Building className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold">Organization Administration</h2>
-                <p className="text-blue-100 text-lg mt-1">Add staff, grant roles, configure branding, pricing & daily operations</p>
+                <h2 className="text-xl font-semibold text-slate-900">Organization Administration</h2>
+                <p className="text-slate-600 text-sm mt-1">Manage staff access, roles, and financial controls</p>
               </div>
             </div>
           </div>
 
           {/* Bank Statement Access Control - Org Admin Only */}
           {(isPlatformOwner || isAppAdmin) && (
-            <Card className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 border-2 border-purple-300 shadow-xl" style={{ transform: 'perspective(1000px) rotateX(2deg)' }}>
-              <CardHeader className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white rounded-t-lg">
-                <CardTitle className="flex items-center gap-3 text-2xl">
-                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm" style={{ transform: 'translateZ(20px)' }}>
-                    <Building2 className="w-7 h-7" />
-                  </div>
+            <Card className="border-l-4 border-blue-600">
+              <CardHeader className="bg-slate-50 border-b">
+                <CardTitle className="flex items-center gap-3 text-lg text-slate-900">
+                  <Building2 className="w-5 h-5 text-blue-600" />
                   Bank Statement Access Control
                 </CardTitle>
-                <p className="text-purple-100 mt-2">Grant or revoke bank statement viewing permissions for staff</p>
+                <p className="text-sm text-slate-600 mt-1">Grant or revoke bank statement viewing permissions</p>
               </CardHeader>
               <CardContent className="pt-6">
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {allUsers.map((u) => {
                     const hasAccess = u.bank_statement_access === true;
                     return (
                       <div 
                         key={u.id} 
-                        className="flex items-center justify-between p-4 bg-white rounded-xl border-2 border-purple-200 shadow-md hover:shadow-xl transition-all"
-                        style={{ transform: 'perspective(1000px) rotateX(1deg)' }}
+                        className="flex items-center justify-between p-4 bg-slate-50 rounded-lg border border-slate-200 hover:bg-slate-100 transition-colors"
                       >
-                        <div className="flex items-center gap-4">
-                          <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg ${hasAccess ? 'bg-gradient-to-br from-green-400 to-teal-500' : 'bg-gradient-to-br from-gray-400 to-gray-500'}`}>
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold ${hasAccess ? 'bg-teal-600' : 'bg-slate-400'}`}>
                             {u.full_name?.charAt(0) || u.email?.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <p className="font-semibold text-slate-900">{u.full_name || u.email}</p>
-                            <p className="text-sm text-slate-500">{u.email}</p>
+                            <p className="font-medium text-slate-900">{u.full_name || u.email}</p>
+                            <p className="text-xs text-slate-500">{u.email}</p>
                           </div>
                         </div>
                         <Button
@@ -521,22 +518,19 @@ export default function Admin() {
                             try {
                               await base44.entities.User.update(u.id, { bank_statement_access: !hasAccess });
                               queryClient.invalidateQueries(['allUsers']);
-                              toast.success(hasAccess ? '🔒 Bank access revoked' : '✅ Bank access granted');
+                              toast.success(hasAccess ? 'Bank access revoked' : 'Bank access granted');
                             } catch (error) {
                               toast.error('Failed to update access: ' + error.message);
                             }
                           }}
-                          className={`${
-                            hasAccess 
-                              ? 'bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700' 
-                              : 'bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700'
-                          } text-white font-semibold shadow-lg`}
-                          style={{ transform: 'translateZ(10px)' }}
+                          variant={hasAccess ? "destructive" : "default"}
+                          size="sm"
+                          className={hasAccess ? '' : 'bg-teal-600 hover:bg-teal-700'}
                         >
                           {hasAccess ? (
                             <>
                               <Lock className="w-4 h-4 mr-2" />
-                              Revoke Access
+                              Revoke
                             </>
                           ) : (
                             <>
@@ -555,15 +549,15 @@ export default function Admin() {
 
           {/* System Health Check - Platform Owner Only */}
           {isPlatformOwner && (
-            <Card className="border-4 border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-2xl">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-blue-900 text-2xl">
-                  <Activity className="w-7 h-7" />
-                  🔍 Complete System Health Check
+            <Card className="border-l-4 border-green-600">
+              <CardHeader className="bg-slate-50 border-b">
+                <CardTitle className="flex items-center gap-3 text-lg text-slate-900">
+                  <Activity className="w-5 h-5 text-green-600" />
+                  System Health Check
                 </CardTitle>
-                <p className="text-blue-700">Test all functionality - Database, Pages, Services, Email, SMS, Printing - Everything A to Z</p>
+                <p className="text-sm text-slate-600 mt-1">Comprehensive system diagnostics and validation</p>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="pt-6">
                 <SystemHealthChecker organizationId={selectedOrgId} />
               </CardContent>
             </Card>
@@ -571,15 +565,15 @@ export default function Admin() {
 
           {/* Sales Management - Org Admin & Platform Owner */}
           {(isPlatformOwner || isAppAdmin) && (
-            <Card className="border-4 border-orange-300 bg-gradient-to-br from-orange-50 to-yellow-50 shadow-2xl">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-orange-900 text-2xl">
-                  <Package className="w-7 h-7" />
+            <Card className="border-l-4 border-orange-600">
+              <CardHeader className="bg-slate-50 border-b">
+                <CardTitle className="flex items-center gap-3 text-lg text-slate-900">
+                  <Package className="w-5 h-5 text-orange-600" />
                   Sales Management
                 </CardTitle>
-                <p className="text-orange-700">View and manage sales records</p>
+                <p className="text-sm text-slate-600 mt-1">View and manage sales records</p>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="pt-6">
                 <SalesActivityManager 
                   organizationId={selectedOrgId}
                   isPlatformOwner={isPlatformOwner}
@@ -592,46 +586,43 @@ export default function Admin() {
 
           {/* Role Assignment Section - For Platform Owner and Org Admin */}
           {(isPlatformOwner || isAppAdmin) && allRoles.some(r => (r.code || r.role_name) === 'PHYSICIAN') && (
-            <Card className="border-4 border-emerald-300 bg-gradient-to-br from-emerald-50 to-green-50 shadow-2xl">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-emerald-900 text-2xl">
-                  <Shield className="w-7 h-7" />
-                  Assign Roles to Users
+            <Card className="border-l-4 border-indigo-600">
+              <CardHeader className="bg-slate-50 border-b">
+                <CardTitle className="flex items-center gap-3 text-lg text-slate-900">
+                  <Shield className="w-5 h-5 text-indigo-600" />
+                  Role Assignment
                 </CardTitle>
-                <p className="text-emerald-700">Give staff access by assigning functional roles</p>
+                <p className="text-sm text-slate-600 mt-1">Assign functional roles to staff members</p>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="pt-6 space-y-6">
                 {/* Step 1: Select User */}
                 <div>
-                  <h3 className="font-bold text-lg text-slate-900 mb-3 flex items-center gap-2">
-                    <div className="w-8 h-8 bg-emerald-600 text-white rounded-full flex items-center justify-center text-sm">1</div>
-                    Select Staff Member
-                  </h3>
+                  <h3 className="font-medium text-slate-900 mb-3">1. Select Staff Member</h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     {allUsers.map((u) => (
                       <button
                         key={u.id}
                         onClick={() => setSelectedUser(u)}
-                        className={`p-4 rounded-xl border-2 transition-all text-left ${
+                        className={`p-3 rounded-lg border transition-all text-left ${
                           selectedUser?.id === u.id
-                            ? 'border-emerald-600 bg-emerald-100 shadow-lg'
-                            : 'border-slate-300 bg-white hover:border-emerald-400'
+                            ? 'border-teal-600 bg-teal-50'
+                            : 'border-slate-200 bg-white hover:border-teal-300 hover:bg-slate-50'
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            selectedUser?.id === u.id ? 'bg-emerald-600' : 'bg-slate-300'
+                          <div className={`w-9 h-9 rounded-full flex items-center justify-center font-semibold ${
+                            selectedUser?.id === u.id ? 'bg-teal-600 text-white' : 'bg-slate-200 text-slate-600'
                           }`}>
-                            <Users className={`w-5 h-5 ${selectedUser?.id === u.id ? 'text-white' : 'text-slate-600'}`} />
+                            {u.full_name?.charAt(0) || u.email?.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <p className="font-bold text-slate-900">{u.full_name}</p>
-                            <p className="text-xs text-slate-600">{u.email}</p>
+                            <p className="font-medium text-slate-900 text-sm">{u.full_name}</p>
+                            <p className="text-xs text-slate-500">{u.email}</p>
                           </div>
                         </div>
                         {selectedUser?.id === u.id && (
-                          <div className="mt-2 flex items-center gap-1 text-emerald-700 font-bold text-sm">
-                            <Check className="w-4 h-4" /> Selected
+                          <div className="mt-2 flex items-center gap-1 text-teal-700 text-xs font-medium">
+                            <Check className="w-3 h-3" /> Selected
                           </div>
                         )}
                       </button>
@@ -642,11 +633,8 @@ export default function Admin() {
                 {/* Step 2: Assign Roles */}
                 {selectedUser && (
                   <div>
-                    <h3 className="font-bold text-lg text-slate-900 mb-3 flex items-center gap-2">
-                      <div className="w-8 h-8 bg-emerald-600 text-white rounded-full flex items-center justify-center text-sm">2</div>
-                      Assign Roles to {selectedUser.full_name}
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <h3 className="font-medium text-slate-900 mb-3">2. Assign Roles to {selectedUser.full_name}</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {organizationRoles.map((role) => {
                         const hasRole = selectedUserRoles.some(ur => ur.role_id === role.id);
                         const display = getRoleDisplay(role);
@@ -656,25 +644,25 @@ export default function Admin() {
                             key={role.id}
                             onClick={() => handleToggleRole(role.id, hasRole, display.label)}
                             disabled={toggleRoleMutation.isPending}
-                            className={`p-4 rounded-xl border-3 transition-all text-left ${
+                            className={`p-3 rounded-lg border transition-all text-left ${
                               hasRole
-                                ? 'border-emerald-500 bg-emerald-100'
-                                : 'border-slate-300 bg-white hover:border-emerald-400'
+                                ? 'border-teal-600 bg-teal-50'
+                                : 'border-slate-200 bg-white hover:border-teal-300 hover:bg-slate-50'
                             }`}
                           >
                             <div className="flex items-center gap-3">
-                              <div className={`w-12 h-12 rounded-lg ${display.color} flex items-center justify-center`}>
-                                <display.icon className="w-6 h-6 text-white" />
+                              <div className={`w-10 h-10 rounded-lg ${display.color} flex items-center justify-center`}>
+                                <display.icon className="w-5 h-5 text-white" />
                               </div>
                               <div className="flex-1">
-                                <p className="font-bold text-slate-900">{display.label}</p>
-                                <p className="text-xs text-slate-600">{role.description || role.code}</p>
+                                <p className="font-medium text-slate-900 text-sm">{display.label}</p>
+                                <p className="text-xs text-slate-500">{role.description || role.code}</p>
                               </div>
                               <div>
                                 {hasRole ? (
-                                  <Check className="w-6 h-6 text-emerald-600" />
+                                  <Check className="w-5 h-5 text-teal-600" />
                                 ) : (
-                                  <X className="w-6 h-6 text-slate-400" />
+                                  <X className="w-5 h-5 text-slate-300" />
                                 )}
                               </div>
                             </div>
@@ -686,9 +674,9 @@ export default function Admin() {
                 )}
 
                 {!selectedUser && (
-                  <div className="text-center py-8 text-slate-500">
-                    <Users className="w-16 h-16 mx-auto mb-3 opacity-50" />
-                    <p className="font-semibold">Select a staff member above to assign roles</p>
+                  <div className="text-center py-12 bg-slate-50 rounded-lg border border-dashed border-slate-300">
+                    <Users className="w-12 h-12 mx-auto mb-3 text-slate-400" />
+                    <p className="text-sm text-slate-600">Select a staff member above to assign roles</p>
                   </div>
                 )}
               </CardContent>
