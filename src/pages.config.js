@@ -86,6 +86,7 @@ import Analytics from './pages/Analytics';
 import AppAdministration from './pages/AppAdministration';
 import Appointments from './pages/Appointments';
 import AssignMyRoles from './pages/AssignMyRoles';
+import BankStatementManager from './pages/BankStatementManager';
 import BarcodeSetup from './pages/BarcodeSetup';
 import Billing from './pages/Billing';
 import BlockedUsers from './pages/BlockedUsers';
@@ -188,7 +189,6 @@ import UserApprovals from './pages/UserApprovals';
 import UserManagement from './pages/UserManagement';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import BankStatementManager from './pages/BankStatementManager';
 import __Layout from './Layout.jsx';
 
 
@@ -232,6 +232,7 @@ export const PAGES = {
     "AppAdministration": AppAdministration,
     "Appointments": Appointments,
     "AssignMyRoles": AssignMyRoles,
+    "BankStatementManager": BankStatementManager,
     "BarcodeSetup": BarcodeSetup,
     "Billing": Billing,
     "BlockedUsers": BlockedUsers,
@@ -334,7 +335,6 @@ export const PAGES = {
     "UserManagement": UserManagement,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "BankStatementManager": BankStatementManager,
 }
 
 export const pagesConfig = {

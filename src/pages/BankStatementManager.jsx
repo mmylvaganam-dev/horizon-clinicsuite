@@ -40,6 +40,11 @@ export default function BankStatementManager() {
     queryFn: () => base44.auth.me()
   });
 
+  // CRITICAL: Platform owner ALWAYS has full access - no restrictions
+  const isPlatformOwner = currentUser?.email === 'mmylvaganam@premierhealthcanada.ca' || 
+                         currentUser?.email === 'mylvaganam@premierhealthcanada.ca' ||
+                         currentUser?.is_platform_owner === true;
+
   const { data: userRoles = [] } = useQuery({
     queryKey: ['userRoles', currentUser?.id, selectedOrgId],
     queryFn: async () => {
@@ -50,10 +55,10 @@ export default function BankStatementManager() {
       });
       return roles;
     },
-    enabled: !!currentUser?.id && !!selectedOrgId
+    enabled: !!currentUser?.id && !!selectedOrgId && !isPlatformOwner
   });
 
-  const hasAccess = currentUser?.bank_statement_access === true || userRoles.some(r => r.role_id === 'ORG_SUPER_USER' || r.role_id === 'PLATFORM_OWNER');
+  const hasAccess = isPlatformOwner || currentUser?.bank_statement_access === true || userRoles.some(r => r.role_id === 'ORG_SUPER_USER' || r.role_id === 'PLATFORM_OWNER');
 
   if (!hasAccess) {
     return (
