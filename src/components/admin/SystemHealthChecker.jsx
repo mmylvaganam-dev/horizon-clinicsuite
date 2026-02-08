@@ -26,11 +26,17 @@ export default function SystemHealthChecker({ organizationId }) {
 
   const runHealthCheck = useMutation({
     mutationFn: async () => {
+      console.log('🔵 Starting health check for org:', organizationId);
       const response = await base44.functions.invoke('runSystemHealthCheck', { organizationId });
+      console.log('✅ Health check response:', response);
       return response.data;
     },
     onSuccess: (data) => {
+      console.log('✅ Health check data received:', data);
       setResults(data);
+    },
+    onError: (error) => {
+      console.error('❌ Health check error:', error);
     }
   });
 
