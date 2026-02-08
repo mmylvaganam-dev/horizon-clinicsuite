@@ -5,11 +5,20 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
 
-    if (!user || !user.is_platform_owner) {
-      return Response.json({ error: 'Unauthorized - Platform Owner only' }, { status: 403 });
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { organizationId } = await req.json();
+    // Platform owner check - using email directly
+    const isPlatformOwner = user.email === 'mmylvaganam@premierhealthcanada.ca' || 
+                           user.email === 'mylvaganam@premierhealthcanada.ca';
+
+    if (!isPlatformOwner) {
+      return Response.json({ error: 'Forbidden - Platform Owner only' }, { status: 403 });
+    }
+
+    const body = await req.json();
+    const { organizationId } = body;
     
     const results = {
       timestamp: new Date().toISOString(),
@@ -168,12 +177,12 @@ Deno.serve(async (req) => {
 
     // Test 7: Email Configuration
     try {
-      const hasEmailConfig = Deno.env.get('RESEND_API_KEY') || true; // Email is available via Core integration
+      // Email is available via Core integration - always available
       results.tests.push({ 
         category: 'Communications', 
         test: 'Email Service', 
         status: 'passed', 
-        message: 'Email service available via Core integration' 
+        message: 'Email service available via Core.SendEmail integration' 
       });
       results.summary.passed++;
     } catch (error) {
@@ -339,14 +348,18 @@ Deno.serve(async (req) => {
 
     // Create alert if there are failures
     if (results.summary.failed > 0) {
-      await base44.asServiceRole.entities.PlatformAdminNote.create({
-        note_type: 'system_health_alert',
-        severity: 'high',
-        title: `System Health Check Failed - ${organizationId}`,
-        description: `${results.summary.failed} critical issues detected. Health score: ${results.healthScore}%`,
-        metadata: { organizationId, results },
-        status: 'active'
-      });
+      try {
+        await base44.asServiceRole.entities.PlatformAdminNote.create({
+          note_type: 'system_health_alert',
+          severity: 'high',
+          title: `System Health Check Failed - ${organizationId}`,
+          description: `${results.summary.failed} critical issues detected. Health score: ${results.healthScore}%`,
+          metadata: { organizationId, results },
+          status: 'active'
+        });
+      } catch (alertError) {
+        console.error('Failed to create alert:', alertError);
+      }
     }
 
     return Response.json(results);
