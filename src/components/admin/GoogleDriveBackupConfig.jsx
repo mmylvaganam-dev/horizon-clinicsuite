@@ -103,40 +103,25 @@ export default function GoogleDriveBackupConfig({ selectedOrgId }) {
               )}
             </div>
             <div>
-              <Label className="text-sm font-semibold text-slate-900">Enable Automated Backups</Label>
-              <p className="text-xs text-slate-500">Turn on scheduled backups to Google Drive</p>
+              <Label className="text-sm font-semibold text-slate-900">Include in Automated Backups</Label>
+              <p className="text-xs text-slate-500">Backups run every 12 hours for all active companies</p>
             </div>
           </div>
           <Switch
-            checked={companyProfile?.google_drive_backup_enabled || false}
+            checked={companyProfile?.google_drive_backup_enabled !== false}
             onCheckedChange={(checked) => {
               updateCompanyMutation.mutate({ google_drive_backup_enabled: checked });
             }}
           />
         </div>
 
-        {/* Backup Schedule */}
-        <div className="space-y-2">
-          <Label className="flex items-center gap-2 text-sm font-medium text-slate-900">
-            <Calendar className="w-4 h-4 text-slate-500" />
-            Backup Frequency
-          </Label>
-          <Select
-            value={companyProfile?.backup_schedule || 'weekly'}
-            onValueChange={(value) => {
-              updateCompanyMutation.mutate({ backup_schedule: value });
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="daily">Daily</SelectItem>
-              <SelectItem value="weekly">Weekly</SelectItem>
-              <SelectItem value="monthly">Monthly</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        {/* Backup Schedule Info */}
+        <Alert className="bg-blue-50 border-blue-200">
+          <Calendar className="w-4 h-4 text-blue-600" />
+          <AlertDescription className="text-blue-800 text-xs">
+            <strong>Automated Schedule:</strong> Every 12 hours. Old backups are automatically deleted, keeping only the latest version.
+          </AlertDescription>
+        </Alert>
 
         {/* Google Drive Folder ID (Optional) */}
         <div className="space-y-2">
@@ -181,9 +166,10 @@ export default function GoogleDriveBackupConfig({ selectedOrgId }) {
         {/* Info Alert */}
         <Alert>
           <Info className="w-4 h-4" />
-          <AlertDescription className="text-xs">
-            <strong>What gets backed up:</strong> Patients, Appointments, Pharmacy Sales, Stock, Invoices.
-            Files are saved as JSON format with organization name and date.
+          <AlertDescription className="text-xs space-y-1">
+            <div><strong>What gets backed up:</strong> Patients, Appointments, Pharmacy Sales, Stock, Invoices for all organizations in this company.</div>
+            <div><strong>Retention:</strong> Only the most recent backup is kept. Old backups are automatically deleted.</div>
+            <div><strong>Schedule:</strong> Runs every 12 hours for all active companies system-wide.</div>
           </AlertDescription>
         </Alert>
       </CardContent>
