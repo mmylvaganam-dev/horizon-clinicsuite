@@ -28,7 +28,8 @@ import {
   Globe,
   Building,
   Trash2,
-  TestTube
+  TestTube,
+  Package
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
