@@ -273,6 +273,7 @@ function LayoutContent({ children, currentPageName }) {
       category: 'Reports',
       icon: BarChart3,
       items: [
+        { name: 'Sales Analytics', page: 'SalesAnalytics', icon: DollarSign, description: 'Pharmacy revenue analytics - View sales trends, request deletions' },
         { name: 'Reports', page: 'Reports', icon: FileText, description: 'Report library - Access all clinical, financial, and operational reports' },
         { name: 'Operations Reports', page: 'OperationsReports', icon: BarChart3, description: 'Operational analytics - Patient flow, appointments, and service utilization' },
         { name: 'Management Reports', page: 'ManagementReports', icon: FileText, description: 'Executive reports - KPIs, performance metrics, and strategic insights' },
@@ -304,6 +305,7 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Finance Companies', page: 'FinanceCompanies', icon: Building2, description: 'Activate/deactivate companies and manage company status' },
         { name: 'Platform SMS Settings', page: 'PlatformSmsSettings', icon: MessageSquare, description: 'Configure Dialog eSMS credentials for each company' },
         { name: 'Platform Billing', page: 'PlatformBilling', icon: DollarSign, description: 'Subscription billing for all organizations' },
+        { name: 'Org Admin Audit Report', page: 'OrgAdminAuditReport', icon: Shield, description: 'Track all deletion actions by organization administrators' },
         { name: 'Security & Compliance', page: 'PlatformSecurity', icon: Shield, description: 'Audit logs, break-glass, security validation, compliance checklists' },
         { name: 'Data Export Management', page: 'PlatformDataExport', icon: FileText, description: 'Export approvals, retention policies, archive management' },
         { name: 'External Integrations', page: 'PlatformIntegrations', icon: Activity, description: 'Patient portal, government reporting, partner management' },
@@ -320,6 +322,7 @@ function LayoutContent({ children, currentPageName }) {
       items: [
         { name: 'Organization Settings', page: 'Admin', icon: Settings, description: 'Organization administration - Staff, roles, branding, pricing, and configuration' },
         { name: 'User Access Approvals', page: 'UserApprovals', icon: CheckSquare, description: 'Approve or reject new user access requests for your organization' },
+        { name: 'Sale Deletion Requests', page: 'SaleDeletionRequests', icon: CheckSquare, description: 'Review and approve staff sale deletion requests' },
         { name: 'Pricing & Catalogs', page: 'PricingCatalogs', icon: DollarSign, description: 'Service pricing - Configure service fees, packages, and price lists' },
         { name: 'Patient Edit Approvals', page: 'PatientEditApprovals', icon: CheckSquare, description: 'Review and approve patient information edit requests' },
       ]
