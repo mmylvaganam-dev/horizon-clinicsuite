@@ -383,27 +383,27 @@ function LayoutContent({ children, currentPageName }) {
 
       {/* Sidebar */}
       <aside className={`
-        fixed top-0 left-0 z-50 h-full w-72 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 
+        fixed top-0 left-0 z-50 h-full w-72 bg-white border-r border-slate-200
         transform transition-transform duration-300 ease-out
         lg:translate-x-0
         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="p-6 border-b border-slate-700/50">
+          <div className="p-6 border-b border-slate-200 bg-slate-50">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center shadow-lg shadow-teal-500/20">
+              <div className="w-10 h-10 rounded-lg bg-teal-600 flex items-center justify-center">
                 <Activity className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-white tracking-tight">Horizon</h1>
-                <p className="text-xs text-teal-400 font-medium">ClinicSuite</p>
+                <h1 className="text-lg font-bold text-slate-900">Horizon</h1>
+                <p className="text-xs text-teal-600 font-medium">ClinicSuite</p>
               </div>
             </div>
           </div>
 
           {/* Navigation */}
-                    <nav className="flex-1 p-4 overflow-y-auto">
+                    <nav className="flex-1 p-4 overflow-y-auto bg-slate-50">
                       <Accordion type="multiple" defaultValue={['Main', 'Pharmacy', 'Platform Administration']} className="space-y-1">
                         {navigationGroups.filter(group => {
                           // CRITICAL: Platform Administration visibility is based ONLY on user email - never organization or company status
@@ -414,9 +414,9 @@ function LayoutContent({ children, currentPageName }) {
                           return true;
                         }).map((group) => (
                 <AccordionItem key={group.category} value={group.category} className="border-none">
-                  <AccordionTrigger className="px-4 py-2 hover:no-underline hover:bg-slate-700/50 rounded-lg text-slate-300 hover:text-white">
+                  <AccordionTrigger className="px-3 py-2 hover:no-underline hover:bg-white rounded-lg text-slate-700 hover:text-slate-900">
                     <div className="flex items-center gap-3">
-                      <group.icon className="w-5 h-5" />
+                      <group.icon className="w-4 h-4" />
                       <span className="font-semibold text-sm">{group.category}</span>
                     </div>
                   </AccordionTrigger>
@@ -432,14 +432,14 @@ function LayoutContent({ children, currentPageName }) {
                                   to={createPageUrl(item.page)}
                                   onClick={() => setSidebarOpen(false)}
                                   className={`
-                                    flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 group
+                                    flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 group
                                     ${isActive 
-                                      ? 'bg-teal-500/20 text-teal-400 shadow-lg shadow-teal-500/10' 
-                                      : 'text-slate-400 hover:bg-slate-700/50 hover:text-white'
+                                      ? 'bg-teal-600 text-white' 
+                                      : 'text-slate-600 hover:bg-white hover:text-slate-900'
                                     }
                                   `}
                                 >
-                                  <item.icon className={`w-4 h-4 transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`} />
+                                  <item.icon className={`w-4 h-4`} />
                                   <span className="text-sm">{item.name}</span>
                                   {isActive && <ChevronRight className="w-3 h-3 ml-auto" />}
                                 </Link>
@@ -464,11 +464,11 @@ function LayoutContent({ children, currentPageName }) {
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t border-slate-700/50">
+          <div className="p-4 border-t border-slate-200 bg-slate-50">
             <Button
               variant="ghost"
               onClick={handleLogout}
-              className="w-full justify-start gap-3 text-slate-400 hover:text-white hover:bg-slate-700/50"
+              className="w-full justify-start gap-3 text-slate-600 hover:text-slate-900 hover:bg-white"
             >
               <LogOut className="w-5 h-5" />
               Sign Out
@@ -480,7 +480,7 @@ function LayoutContent({ children, currentPageName }) {
       {/* Main content */}
       <div className="lg:pl-72">
         {/* Top bar */}
-        <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/50">
+        <header className="sticky top-0 z-30 bg-white border-b border-slate-200">
           <div className="flex items-center justify-between h-16 px-4 lg:px-8">
             <div className="flex items-center gap-2">
               <button
@@ -504,39 +504,39 @@ function LayoutContent({ children, currentPageName }) {
               {isDefinitelyPlatformOwner && pendingApprovals.length > 0 && (
                 <Button
                   variant="outline"
-                  className="relative bg-red-50 border-red-300 text-red-700 hover:bg-red-100 animate-pulse"
+                  className="relative border-red-600 text-red-700 hover:bg-red-50"
                   onClick={() => window.location.href = createPageUrl('UserApprovals')}
                 >
                   <AlertTriangle className="w-4 h-4 mr-2" />
-                  {pendingApprovals.length} Pending Approval{pendingApprovals.length !== 1 ? 's' : ''}
-                  <span className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 text-white rounded-full text-xs flex items-center justify-center font-bold">
+                  {pendingApprovals.length} Pending
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-600 text-white rounded-full text-xs flex items-center justify-center font-bold">
                     {pendingApprovals.length}
                   </span>
                 </Button>
               )}
               
               {isDefinitelyPlatformOwner && !currentPageName?.startsWith('Platform') && !currentPageName?.includes('UserManagement') && !currentPageName?.includes('UserApprovals') && !currentPageName?.includes('BlockedUsers') && (
-                <div className="border-2 border-blue-500 rounded-lg p-1 bg-blue-50">
+                <div className="border border-teal-600 rounded-lg p-1 bg-teal-50">
                   <OrganizationSwitcher />
                 </div>
               )}
               
               {selectedOrgId && !currentPageName?.startsWith('Platform') && !currentPageName?.includes('UserManagement') && !currentPageName?.includes('UserApprovals') && !currentPageName?.includes('BlockedUsers') && (
-                <div className="flex items-center gap-3 px-4 py-2.5 bg-white rounded-lg border-2 border-teal-500 shadow-sm">
+                <div className="flex items-center gap-3 px-4 py-2 bg-white rounded-lg border border-slate-200">
                   {branding?.primary_logo_file_ref ? (
                     <img 
                       src={branding.primary_logo_file_ref} 
                       alt="Logo" 
-                      className="h-10 w-auto object-contain"
+                      className="h-8 w-auto object-contain"
                     />
                   ) : (
-                    <Building2 className="w-6 h-6 text-teal-600" />
+                    <Building2 className="w-5 h-5 text-teal-600" />
                   )}
                   <div className="text-left">
-                    <p className="text-sm font-bold text-slate-900 leading-tight">
+                    <p className="text-sm font-semibold text-slate-900 leading-tight">
                       {currentOrganization?.name || 'Loading...'}
                     </p>
-                    <p className="text-xs text-teal-600 font-medium capitalize">
+                    <p className="text-xs text-slate-500 capitalize">
                       {currentOrganization?.type?.replace('_', ' ') || ''}
                     </p>
                   </div>
