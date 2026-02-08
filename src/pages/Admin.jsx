@@ -483,15 +483,15 @@ export default function Admin() {
             </div>
           </div>
 
-          {/* Sales Data Management - Org Admin & Platform Owner */}
+          {/* Sales Management - Org Admin & Platform Owner */}
           {(isPlatformOwner || isAppAdmin) && (
             <Card className="border-4 border-orange-300 bg-gradient-to-br from-orange-50 to-yellow-50 shadow-2xl">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-orange-900 text-2xl">
-                  <Activity className="w-7 h-7" />
-                  Sales & Activity Management
+                  <Package className="w-7 h-7" />
+                  Sales Management
                 </CardTitle>
-                <p className="text-orange-700">View and manage sales data for testing and cleanup</p>
+                <p className="text-orange-700">View and manage sales records</p>
               </CardHeader>
               <CardContent className="space-y-4">
                 <SalesActivityManager 

@@ -20,15 +20,6 @@ export default function SalesActivityManager({ organizationId, isPlatformOwner, 
     enabled: !!organizationId && showDetails,
   });
 
-  const { data: auditLogs = [], isLoading: loadingLogs } = useQuery({
-    queryKey: ['auditLogs', organizationId],
-    queryFn: async () => {
-      if (!organizationId) return [];
-      return await base44.entities.AuditLog.filter({ organization_id: organizationId });
-    },
-    enabled: !!organizationId && showDetails,
-  });
-
   const { data: invoices = [], isLoading: loadingInvoices } = useQuery({
     queryKey: ['invoices', organizationId],
     queryFn: async () => {
@@ -80,18 +71,14 @@ export default function SalesActivityManager({ organizationId, isPlatformOwner, 
   return (
     <div className="space-y-4">
       <div className="bg-blue-100 border-2 border-blue-400 rounded-lg p-4">
-        <p className="text-blue-900 font-bold">📊 Data Summary</p>
-        <div className="grid md:grid-cols-3 gap-3 mt-3">
+        <p className="text-blue-900 font-bold">📊 Sales Summary</p>
+        <div className="grid md:grid-cols-2 gap-3 mt-3">
           <div className="bg-white rounded-lg p-3">
-            <p className="text-sm text-slate-600">Sales Records</p>
+            <p className="text-sm text-slate-600">Total Sales</p>
             <p className="text-2xl font-bold text-slate-900">{pharmacySales.length}</p>
           </div>
           <div className="bg-white rounded-lg p-3">
-            <p className="text-sm text-slate-600">Audit Logs</p>
-            <p className="text-2xl font-bold text-slate-900">{auditLogs.length}</p>
-          </div>
-          <div className="bg-white rounded-lg p-3">
-            <p className="text-sm text-slate-600">Total Sales Value</p>
+            <p className="text-sm text-slate-600">Total Revenue</p>
             <p className="text-2xl font-bold text-slate-900">${totalSales.toFixed(2)}</p>
           </div>
         </div>
@@ -103,101 +90,68 @@ export default function SalesActivityManager({ organizationId, isPlatformOwner, 
           variant="outline"
           className="flex-1"
         >
-          {showDetails ? '🔼 Hide Details' : '🔽 Show All Sales & Activities'}
+          {showDetails ? '🔼 Hide Sales List' : '🔽 Show All Sales'}
         </Button>
       </div>
 
       {showDetails && (
         <div className="space-y-4">
-          {loadingSales || loadingLogs || loadingInvoices ? (
+          {loadingSales || loadingInvoices ? (
             <div className="text-center py-8">
               <Activity className="w-12 h-12 animate-spin mx-auto text-blue-600" />
-              <p className="text-slate-600 mt-2">Loading data...</p>
+              <p className="text-slate-600 mt-2">Loading sales...</p>
             </div>
           ) : (
-            <>
-              {/* Sales List */}
-              <Card className="border-2 border-slate-200">
-                <CardContent className="p-4">
-                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
-                    <Package className="w-5 h-5" />
-                    Pharmacy Sales ({pharmacySales.length})
-                  </h3>
-                  {pharmacySales.length === 0 ? (
-                    <p className="text-slate-500 text-center py-4">No sales records found</p>
-                  ) : (
-                    <div className="space-y-2 max-h-96 overflow-y-auto">
-                      {pharmacySales.map((sale) => (
-                        <div key={sale.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border">
-                          <div className="flex-1">
-                            <p className="font-bold text-slate-900">{sale.sale_number}</p>
-                            <div className="flex gap-4 text-sm text-slate-600 mt-1">
-                              <span className="flex items-center gap-1">
-                                <Calendar className="w-3 h-3" />
-                                {new Date(sale.sale_date).toLocaleDateString()}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <DollarSign className="w-3 h-3" />
-                                ${sale.total_amount?.toFixed(2)}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <User className="w-3 h-3" />
-                                {sale.created_by_user}
-                              </span>
-                            </div>
-                            {sale.notes && (
-                              <p className="text-xs text-slate-500 mt-1">{sale.notes}</p>
-                            )}
-                          </div>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => {
-                              if (confirm(`Delete sale ${sale.sale_number}?`)) {
-                                deleteSaleMutation.mutate(sale.id);
-                              }
-                            }}
-                            disabled={deleteSaleMutation.isPending}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Recent Activities */}
-              <Card className="border-2 border-slate-200">
-                <CardContent className="p-4">
-                  <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
-                    <Activity className="w-5 h-5" />
-                    Recent Activities ({auditLogs.slice(0, 20).length})
-                  </h3>
-                  {auditLogs.length === 0 ? (
-                    <p className="text-slate-500 text-center py-4">No activity logs found</p>
-                  ) : (
-                    <div className="space-y-2 max-h-64 overflow-y-auto">
-                      {auditLogs.slice(0, 20).map((log) => (
-                        <div key={log.id} className="p-3 bg-slate-50 rounded-lg border text-sm">
-                          <div className="flex justify-between">
-                            <span className="font-bold text-slate-900">{log.action_type}</span>
-                            <span className="text-xs text-slate-500">
-                              {new Date(log.timestamp).toLocaleString()}
+            <Card className="border-2 border-slate-200">
+              <CardContent className="p-4">
+                <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                  <Package className="w-5 h-5" />
+                  All Sales ({pharmacySales.length})
+                </h3>
+                {pharmacySales.length === 0 ? (
+                  <p className="text-slate-500 text-center py-4">No sales records found</p>
+                ) : (
+                  <div className="space-y-2 max-h-96 overflow-y-auto">
+                    {pharmacySales.map((sale) => (
+                      <div key={sale.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg border">
+                        <div className="flex-1">
+                          <p className="font-bold text-slate-900">{sale.sale_number}</p>
+                          <div className="flex gap-4 text-sm text-slate-600 mt-1">
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              {new Date(sale.sale_date).toLocaleDateString()}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <DollarSign className="w-3 h-3" />
+                              ${sale.total_amount?.toFixed(2)}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <User className="w-3 h-3" />
+                              {sale.created_by_user}
                             </span>
                           </div>
-                          <p className="text-slate-600 mt-1">{log.description}</p>
-                          <p className="text-xs text-slate-500 mt-1">
-                            {log.user_name} ({log.user_email})
-                          </p>
+                          {sale.notes && (
+                            <p className="text-xs text-slate-500 mt-1">{sale.notes}</p>
+                          )}
                         </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => {
+                            if (confirm(`Delete sale ${sale.sale_number}?`)) {
+                              deleteSaleMutation.mutate(sale.id);
+                            }
+                          }}
+                          disabled={deleteSaleMutation.isPending}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           )}
         </div>
       )}
@@ -206,7 +160,7 @@ export default function SalesActivityManager({ organizationId, isPlatformOwner, 
       <div className="grid md:grid-cols-2 gap-4 pt-4 border-t-2">
         <button
           onClick={() => {
-            if (confirm(`⚠️ DELETE ALL:\n\n${pharmacySales.length} sales\n${auditLogs.length} audit logs\n${invoices.length} invoices\n\nAre you absolutely sure?`)) {
+            if (confirm(`⚠️ DELETE ALL SALES DATA:\n\n${pharmacySales.length} sales records\n${invoices.length} invoices\n\nThis will permanently delete all sales data. Continue?`)) {
               clearDataMutation.mutate();
             }
           }}
@@ -214,8 +168,8 @@ export default function SalesActivityManager({ organizationId, isPlatformOwner, 
           className="p-6 rounded-xl border-4 border-red-400 bg-white hover:bg-red-50 transition-all disabled:opacity-50"
         >
           <Trash2 className="w-12 h-12 text-red-600 mb-3 mx-auto" />
-          <p className="font-bold text-xl text-red-900">Clear All Data</p>
-          <p className="text-sm text-red-700 mt-2">Delete all sales, invoices, and audit logs</p>
+          <p className="font-bold text-xl text-red-900">Clear All Sales</p>
+          <p className="text-sm text-red-700 mt-2">Delete all sales and invoices</p>
           {clearDataMutation.isPending && <p className="text-sm text-red-600 mt-2 font-bold">🔄 Clearing...</p>}
         </button>
 
