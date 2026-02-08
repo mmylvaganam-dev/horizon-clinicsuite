@@ -28,7 +28,8 @@ import {
   Crown,
   Shield,
   AlertTriangle,
-  RefreshCw
+  RefreshCw,
+  Cloud
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
