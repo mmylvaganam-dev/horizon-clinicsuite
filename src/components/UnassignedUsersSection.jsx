@@ -38,7 +38,12 @@ export default function UnassignedUsersSection({ unassignedUsers, organizations,
     if (!selectedOrgId || selectedUsers.length === 0) return;
     
     selectedUsers.forEach(userId => {
-      onAssign({ userId, orgId: selectedOrgId });
+      const user = unassignedUsers.find(u => u.id === userId);
+      onAssign({ 
+        userId, 
+        userEmail: user?.email,
+        orgId: selectedOrgId 
+      });
     });
     
     setSelectedUsers([]);

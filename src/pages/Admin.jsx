@@ -130,25 +130,36 @@ export default function Admin() {
         throw new Error('Please select an organization from the dropdown first');
       }
       
+      console.log('🔵 Inviting user:', email, 'with role:', role);
+      
       // Invite user
       await base44.users.inviteUser(email, role);
       
-      // Auto-assign to selected organization
-      await base44.functions.invoke('assignUserToOrganization', {
+      console.log('✅ User invited, now assigning to org:', selectedOrgId);
+      
+      // Wait a moment for user to be created
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Auto-assign to selected organization using email
+      const assignResponse = await base44.functions.invoke('assignUserToOrganization', {
         userEmail: email,
         organizationId: selectedOrgId
       });
+      
+      console.log('✅ Assignment response:', assignResponse.data);
       
       return { email, role };
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries(['allUsers']);
-      toast.success(`✅ User ${data.email} invited successfully!`);
+      queryClient.invalidateQueries(['userRoles']);
+      toast.success(`✅ User ${data.email} invited and assigned successfully!`);
       setInviteDialogOpen(false);
       setInviteEmail('');
       setInviteRole('user');
     },
     onError: (error) => {
+      console.error('❌ Invite mutation error:', error);
       toast.error(`❌ Failed to invite user: ${error.message}`);
     }
   });

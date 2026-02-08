@@ -18,21 +18,37 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: Platform owner access required' }, { status: 403 });
     }
 
-    const { userId, orgId, isCompanyAdmin, deleteUser } = await req.json();
+    const { userId, userEmail, orgId, organizationId, isCompanyAdmin, deleteUser } = await req.json();
 
-    if (!userId) {
-      return Response.json({ error: 'userId is required' }, { status: 400 });
+    // Accept either userId or userEmail
+    let targetUserId = userId;
+    
+    if (!targetUserId && userEmail) {
+      // Find user by email
+      const users = await base44.asServiceRole.entities.User.filter({ email: userEmail });
+      if (users.length === 0) {
+        return Response.json({ error: 'User not found with email: ' + userEmail }, { status: 404 });
+      }
+      targetUserId = users[0].id;
+      console.log('✅ Found user by email:', userEmail, '-> userId:', targetUserId);
     }
+
+    if (!targetUserId) {
+      return Response.json({ error: 'userId or userEmail is required' }, { status: 400 });
+    }
+    
+    // Use organizationId if orgId not provided
+    const targetOrgId = orgId || organizationId;
 
     // Handle user deletion
     if (deleteUser) {
       // Delete all UserRole assignments first
-      const userRoles = await base44.asServiceRole.entities.UserRole.filter({ user_id: userId });
+      const userRoles = await base44.asServiceRole.entities.UserRole.filter({ user_id: targetUserId });
       for (const ur of userRoles) {
         await base44.asServiceRole.entities.UserRole.delete(ur.id);
       }
       // Delete user
-      await base44.asServiceRole.entities.User.delete(userId);
+      await base44.asServiceRole.entities.User.delete(targetUserId);
       console.log('✅ User deleted successfully');
       return Response.json({ 
         success: true,
@@ -42,15 +58,17 @@ Deno.serve(async (req) => {
 
     // Update user data using service role
     const updateData = {};
-    if (orgId) {
-      updateData.organization_id = orgId;
+    if (targetOrgId) {
+      updateData.organization_id = targetOrgId;
+      console.log('✅ Setting organization_id to:', targetOrgId);
     }
     if (isCompanyAdmin !== undefined) {
       updateData.is_company_admin = isCompanyAdmin;
     }
 
     if (Object.keys(updateData).length > 0) {
-      await base44.asServiceRole.entities.User.update(userId, updateData);
+      await base44.asServiceRole.entities.User.update(targetUserId, updateData);
+      console.log('✅ User updated with:', updateData);
     }
 
     console.log('✅ User updated successfully');
