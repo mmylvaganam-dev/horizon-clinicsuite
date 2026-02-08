@@ -485,6 +485,74 @@ export default function Admin() {
             </div>
           </div>
 
+          {/* Bank Statement Access Control - Org Admin Only */}
+          {(isPlatformOwner || isAppAdmin) && (
+            <Card className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 border-2 border-purple-300 shadow-xl" style={{ transform: 'perspective(1000px) rotateX(2deg)' }}>
+              <CardHeader className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 text-white rounded-t-lg">
+                <CardTitle className="flex items-center gap-3 text-2xl">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm" style={{ transform: 'translateZ(20px)' }}>
+                    <Building2 className="w-7 h-7" />
+                  </div>
+                  Bank Statement Access Control
+                </CardTitle>
+                <p className="text-purple-100 mt-2">Grant or revoke bank statement viewing permissions for staff</p>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  {allUsers.map((u) => {
+                    const hasAccess = u.bank_statement_access === true;
+                    return (
+                      <div 
+                        key={u.id} 
+                        className="flex items-center justify-between p-4 bg-white rounded-xl border-2 border-purple-200 shadow-md hover:shadow-xl transition-all"
+                        style={{ transform: 'perspective(1000px) rotateX(1deg)' }}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg ${hasAccess ? 'bg-gradient-to-br from-green-400 to-teal-500' : 'bg-gradient-to-br from-gray-400 to-gray-500'}`}>
+                            {u.full_name?.charAt(0) || u.email?.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="font-semibold text-slate-900">{u.full_name || u.email}</p>
+                            <p className="text-sm text-slate-500">{u.email}</p>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={async () => {
+                            try {
+                              await base44.entities.User.update(u.id, { bank_statement_access: !hasAccess });
+                              queryClient.invalidateQueries(['allUsers']);
+                              toast.success(hasAccess ? '🔒 Bank access revoked' : '✅ Bank access granted');
+                            } catch (error) {
+                              toast.error('Failed to update access: ' + error.message);
+                            }
+                          }}
+                          className={`${
+                            hasAccess 
+                              ? 'bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700' 
+                              : 'bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700'
+                          } text-white font-semibold shadow-lg`}
+                          style={{ transform: 'translateZ(10px)' }}
+                        >
+                          {hasAccess ? (
+                            <>
+                              <Lock className="w-4 h-4 mr-2" />
+                              Revoke Access
+                            </>
+                          ) : (
+                            <>
+                              <Check className="w-4 h-4 mr-2" />
+                              Grant Access
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {/* System Health Check - Platform Owner Only */}
           {isPlatformOwner && (
             <Card className="border-4 border-blue-300 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-2xl">
