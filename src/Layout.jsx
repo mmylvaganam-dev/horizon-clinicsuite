@@ -342,6 +342,7 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Platform Setup', page: 'PlatformSetup', icon: Building2, description: 'Create and manage multiple organizations/companies' },
         { name: 'Finance Companies', page: 'FinanceCompanies', icon: Building2, description: 'Activate/deactivate companies and manage company status' },
         { name: 'Platform SMS Settings', page: 'PlatformSmsSettings', icon: MessageSquare, description: 'Configure Dialog eSMS credentials for each company' },
+        { name: 'Google Drive Backups', page: 'PlatformBackupSettings', icon: Cloud, description: 'Configure automated backups to Google Drive for each company' },
         { name: 'Platform Billing', page: 'PlatformBilling', icon: DollarSign, description: 'Subscription billing for all organizations' },
         { name: 'Org Admin Audit Report', page: 'OrgAdminAuditReport', icon: Shield, description: 'Track all deletion actions by organization administrators' },
         { name: 'Security & Compliance', page: 'PlatformSecurity', icon: Shield, description: 'Audit logs, break-glass, security validation, compliance checklists' },

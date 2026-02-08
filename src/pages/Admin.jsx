@@ -40,7 +40,6 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import SalesActivityManager from '../components/admin/SalesActivityManager';
 import SystemHealthChecker from '../components/admin/SystemHealthChecker';
-import GoogleDriveBackupConfig from '../components/admin/GoogleDriveBackupConfig';
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -562,11 +561,6 @@ export default function Admin() {
                 <SystemHealthChecker organizationId={selectedOrgId} />
               </CardContent>
             </Card>
-          )}
-
-          {/* Google Drive Backup Configuration */}
-          {(isPlatformOwner || isAppAdmin) && (
-            <GoogleDriveBackupConfig selectedOrgId={selectedOrgId} />
           )}
 
           {/* Sales Management - Org Admin & Platform Owner */}
