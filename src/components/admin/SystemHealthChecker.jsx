@@ -19,7 +19,7 @@ import {
   Heart,
   Loader2
 } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 
 export default function SystemHealthChecker({ organizationId }) {
   const [results, setResults] = useState(null);
@@ -138,8 +138,11 @@ export default function SystemHealthChecker({ organizationId }) {
                   <p className="text-4xl font-bold">{results.summary.failed}</p>
                 </div>
               </div>
-              <div className="mt-4">
-                <Progress value={results.healthScore} className="h-3" />
+              <div className="mt-4 bg-white/30 rounded-full h-4 overflow-hidden">
+                <div 
+                  className="h-full bg-white transition-all duration-500"
+                  style={{ width: `${results.healthScore}%` }}
+                />
               </div>
             </CardContent>
           </Card>
