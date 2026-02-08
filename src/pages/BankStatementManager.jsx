@@ -1,0 +1,529 @@
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { useOrganization } from '@/components/OrganizationProvider';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Upload, 
+  Building2, 
+  Plus, 
+  TrendingUp, 
+  TrendingDown, 
+  DollarSign,
+  Calendar,
+  FileText,
+  BarChart3,
+  CheckCircle2,
+  Clock,
+  AlertCircle
+} from 'lucide-react';
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import moment from 'moment';
+
+const COLORS = ['#14b8a6', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
+
+export default function BankStatementManager() {
+  const { selectedOrgId } = useOrganization();
+  const queryClient = useQueryClient();
+  const [newAccountOpen, setNewAccountOpen] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [selectedMonth, setSelectedMonth] = useState(moment().format('YYYY-MM'));
+  const [selectedAccountId, setSelectedAccountId] = useState(null);
+  const [uploading, setUploading] = useState(false);
+
+  const [newAccount, setNewAccount] = useState({
+    account_name: '',
+    account_number: '',
+    bank_name: '',
+    account_type: 'checking',
+    currency: 'USD'
+  });
+
+  // Fetch bank accounts
+  const { data: bankAccounts = [] } = useQuery({
+    queryKey: ['bankAccounts', selectedOrgId],
+    queryFn: async () => {
+      const accounts = await base44.entities.BankAccount.filter({ organization_id: selectedOrgId });
+      return accounts;
+    },
+    enabled: !!selectedOrgId
+  });
+
+  // Fetch bank statement uploads
+  const { data: statements = [] } = useQuery({
+    queryKey: ['bankStatements', selectedOrgId, selectedAccountId, selectedMonth],
+    queryFn: async () => {
+      const filter = { organization_id: selectedOrgId };
+      if (selectedAccountId) filter.bank_account_id = selectedAccountId;
+      const allStatements = await base44.entities.BankStatementUpload.filter(filter);
+      return allStatements.filter(s => s.statement_month?.startsWith(selectedMonth));
+    },
+    enabled: !!selectedOrgId
+  });
+
+  // Create bank account
+  const createAccountMutation = useMutation({
+    mutationFn: (data) => base44.entities.BankAccount.create({
+      ...data,
+      organization_id: selectedOrgId
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['bankAccounts']);
+      setNewAccountOpen(false);
+      setNewAccount({
+        account_name: '',
+        account_number: '',
+        bank_name: '',
+        account_type: 'checking',
+        currency: 'USD'
+      });
+    }
+  });
+
+  // Upload bank statement
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !selectedAccountId) return;
+
+    setUploading(true);
+    try {
+      // Upload file
+      const { data: uploadResult } = await base44.integrations.Core.UploadFile({ file });
+      
+      // Extract data from file
+      const { data: extractResult } = await base44.integrations.Core.ExtractDataFromUploadedFile({
+        file_url: uploadResult.file_url,
+        json_schema: {
+          type: "object",
+          properties: {
+            transactions: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  date: { type: "string" },
+                  description: { type: "string" },
+                  amount: { type: "number" },
+                  type: { type: "string" }
+                }
+              }
+            },
+            opening_balance: { type: "number" },
+            closing_balance: { type: "number" },
+            total_deposits: { type: "number" },
+            total_withdrawals: { type: "number" }
+          }
+        }
+      });
+
+      // Create bank statement upload record
+      await base44.entities.BankStatementUpload.create({
+        organization_id: selectedOrgId,
+        bank_account_id: selectedAccountId,
+        statement_month: selectedMonth,
+        file_url: uploadResult.file_url,
+        opening_balance: extractResult.output.opening_balance || 0,
+        closing_balance: extractResult.output.closing_balance || 0,
+        total_deposits: extractResult.output.total_deposits || 0,
+        total_withdrawals: extractResult.output.total_withdrawals || 0,
+        transaction_count: extractResult.output.transactions?.length || 0,
+        upload_status: 'processed',
+        processed_at: new Date().toISOString()
+      });
+
+      queryClient.invalidateQueries(['bankStatements']);
+      setUploadDialogOpen(false);
+    } catch (error) {
+      alert('Failed to upload statement: ' + error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Calculate KPIs
+  const kpis = React.useMemo(() => {
+    const totalDeposits = statements.reduce((sum, s) => sum + (s.total_deposits || 0), 0);
+    const totalWithdrawals = statements.reduce((sum, s) => sum + (s.total_withdrawals || 0), 0);
+    const netCashFlow = totalDeposits - totalWithdrawals;
+    const avgMonthlyDeposits = statements.length > 0 ? totalDeposits / statements.length : 0;
+    
+    return {
+      totalDeposits,
+      totalWithdrawals,
+      netCashFlow,
+      avgMonthlyDeposits,
+      transactionCount: statements.reduce((sum, s) => sum + (s.transaction_count || 0), 0)
+    };
+  }, [statements]);
+
+  // Prepare chart data
+  const monthlyData = React.useMemo(() => {
+    return statements.map(s => ({
+      month: moment(s.statement_month).format('MMM YYYY'),
+      deposits: s.total_deposits || 0,
+      withdrawals: s.total_withdrawals || 0,
+      netFlow: (s.total_deposits || 0) - (s.total_withdrawals || 0)
+    }));
+  }, [statements]);
+
+  const incomeExpenseData = [
+    { name: 'Income', value: kpis.totalDeposits },
+    { name: 'Expenses', value: kpis.totalWithdrawals }
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">Bank Statement Manager</h1>
+          <p className="text-slate-500 mt-1">Upload and analyze bank statements</p>
+        </div>
+        <Dialog open={newAccountOpen} onOpenChange={setNewAccountOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-teal-600 hover:bg-teal-700">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Bank Account
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New Bank Account</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label>Account Name</Label>
+                <Input
+                  value={newAccount.account_name}
+                  onChange={(e) => setNewAccount({ ...newAccount, account_name: e.target.value })}
+                  placeholder="Business Checking"
+                />
+              </div>
+              <div>
+                <Label>Account Number</Label>
+                <Input
+                  value={newAccount.account_number}
+                  onChange={(e) => setNewAccount({ ...newAccount, account_number: e.target.value })}
+                  placeholder="****1234"
+                />
+              </div>
+              <div>
+                <Label>Bank Name</Label>
+                <Input
+                  value={newAccount.bank_name}
+                  onChange={(e) => setNewAccount({ ...newAccount, bank_name: e.target.value })}
+                  placeholder="Chase Bank"
+                />
+              </div>
+              <div>
+                <Label>Account Type</Label>
+                <Select value={newAccount.account_type} onValueChange={(v) => setNewAccount({ ...newAccount, account_type: v })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="checking">Checking</SelectItem>
+                    <SelectItem value="savings">Savings</SelectItem>
+                    <SelectItem value="credit">Credit</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Currency</Label>
+                <Select value={newAccount.currency} onValueChange={(v) => setNewAccount({ ...newAccount, currency: v })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="USD">USD</SelectItem>
+                    <SelectItem value="EUR">EUR</SelectItem>
+                    <SelectItem value="GBP">GBP</SelectItem>
+                    <SelectItem value="LKR">LKR</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setNewAccountOpen(false)}>Cancel</Button>
+              <Button 
+                onClick={() => createAccountMutation.mutate(newAccount)}
+                disabled={!newAccount.account_name || !newAccount.bank_name}
+                className="bg-teal-600 hover:bg-teal-700"
+              >
+                Create Account
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      {/* Filters */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="grid md:grid-cols-3 gap-4">
+            <div>
+              <Label>Bank Account</Label>
+              <Select value={selectedAccountId || 'all'} onValueChange={(v) => setSelectedAccountId(v === 'all' ? null : v)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="All Accounts" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Accounts</SelectItem>
+                  {bankAccounts.map(acc => (
+                    <SelectItem key={acc.id} value={acc.id}>
+                      {acc.account_name} ({acc.bank_name})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Month</Label>
+              <Input
+                type="month"
+                value={selectedMonth}
+                onChange={(e) => setSelectedMonth(e.target.value)}
+              />
+            </div>
+            <div className="flex items-end">
+              <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700" disabled={!selectedAccountId}>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload Statement
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Upload Bank Statement</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 text-center">
+                      <Upload className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+                      <p className="text-sm text-slate-600 mb-4">Upload CSV, Excel, or PDF bank statement</p>
+                      <input
+                        type="file"
+                        accept=".csv,.xlsx,.xls,.pdf"
+                        onChange={handleFileUpload}
+                        className="hidden"
+                        id="file-upload"
+                        disabled={uploading}
+                      />
+                      <label htmlFor="file-upload">
+                        <Button asChild disabled={uploading}>
+                          <span>
+                            {uploading ? 'Uploading...' : 'Choose File'}
+                          </span>
+                        </Button>
+                      </label>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* KPI Cards */}
+      <div className="grid md:grid-cols-5 gap-4">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-500">Total Deposits</p>
+                <p className="text-2xl font-bold text-green-600">${kpis.totalDeposits.toLocaleString()}</p>
+              </div>
+              <TrendingUp className="w-8 h-8 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-500">Total Withdrawals</p>
+                <p className="text-2xl font-bold text-red-600">${kpis.totalWithdrawals.toLocaleString()}</p>
+              </div>
+              <TrendingDown className="w-8 h-8 text-red-600" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-500">Net Cash Flow</p>
+                <p className={`text-2xl font-bold ${kpis.netCashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  ${kpis.netCashFlow.toLocaleString()}
+                </p>
+              </div>
+              <DollarSign className="w-8 h-8 text-blue-600" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-500">Avg Monthly Income</p>
+                <p className="text-2xl font-bold text-teal-600">${kpis.avgMonthlyDeposits.toLocaleString()}</p>
+              </div>
+              <BarChart3 className="w-8 h-8 text-teal-600" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-500">Transactions</p>
+                <p className="text-2xl font-bold text-slate-900">{kpis.transactionCount}</p>
+              </div>
+              <FileText className="w-8 h-8 text-slate-600" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Charts */}
+      <div className="grid md:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Monthly Cash Flow Trend</CardTitle>
+            <CardDescription>Deposits vs Withdrawals over time</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={monthlyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="deposits" stroke="#10b981" strokeWidth={2} name="Deposits" />
+                <Line type="monotone" dataKey="withdrawals" stroke="#ef4444" strokeWidth={2} name="Withdrawals" />
+                <Line type="monotone" dataKey="netFlow" stroke="#3b82f6" strokeWidth={2} name="Net Flow" />
+              </LineChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Income vs Expenses</CardTitle>
+            <CardDescription>Overall financial breakdown</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={incomeExpenseData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ name, value }) => `${name}: $${value.toLocaleString()}`}
+                  outerRadius={100}
+                  fill="#8884d8"
+                  dataKey="value"
+                >
+                  {incomeExpenseData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={index === 0 ? '#10b981' : '#ef4444'} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card className="md:col-span-2">
+          <CardHeader>
+            <CardTitle>Monthly Comparison</CardTitle>
+            <CardDescription>Bar chart of deposits and withdrawals</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={monthlyData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="deposits" fill="#10b981" name="Deposits" />
+                <Bar dataKey="withdrawals" fill="#ef4444" name="Withdrawals" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Statement History */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Uploaded Statements</CardTitle>
+          <CardDescription>History of all uploaded bank statements</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {statements.length === 0 ? (
+            <div className="text-center py-12 text-slate-500">
+              <FileText className="w-12 h-12 mx-auto mb-4 text-slate-300" />
+              <p>No statements uploaded yet</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {statements.map(statement => {
+                const account = bankAccounts.find(a => a.id === statement.bank_account_id);
+                return (
+                  <div key={statement.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
+                    <div className="flex items-center gap-4">
+                      <Building2 className="w-8 h-8 text-teal-600" />
+                      <div>
+                        <p className="font-semibold">{account?.account_name || 'Unknown Account'}</p>
+                        <p className="text-sm text-slate-500">{moment(statement.statement_month).format('MMMM YYYY')}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-6">
+                      <div>
+                        <p className="text-xs text-slate-500">Deposits</p>
+                        <p className="font-semibold text-green-600">${statement.total_deposits?.toLocaleString()}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-500">Withdrawals</p>
+                        <p className="font-semibold text-red-600">${statement.total_withdrawals?.toLocaleString()}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-slate-500">Transactions</p>
+                        <p className="font-semibold">{statement.transaction_count}</p>
+                      </div>
+                      <Badge className={statement.upload_status === 'processed' ? 'bg-green-500' : 'bg-yellow-500'}>
+                        {statement.upload_status === 'processed' ? (
+                          <>
+                            <CheckCircle2 className="w-3 h-3 mr-1" />
+                            Processed
+                          </>
+                        ) : (
+                          <>
+                            <Clock className="w-3 h-3 mr-1" />
+                            Pending
+                          </>
+                        )}
+                      </Badge>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

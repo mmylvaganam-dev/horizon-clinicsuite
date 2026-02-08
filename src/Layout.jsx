@@ -302,6 +302,7 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Payroll', page: 'PayrollManagement', icon: DollarSign, description: 'Salary processing - Calculate and manage staff payments and deductions' },
         { name: 'Third-Party Providers', page: 'ThirdPartyProviders', icon: Users, description: 'External providers - Manage visiting consultants and contract staff' },
         { name: 'Vendors', page: 'VendorManagement', icon: Building2, description: 'Vendor registry - Supplier contacts, purchase history, and agreements' },
+        { name: 'Bank Statements', page: 'BankStatementManager', icon: Building2, description: 'Bank statement management - Upload statements, track cash flow, view financial KPIs and charts' },
         { name: 'Finance Dashboard', page: 'FinanceDashboard', icon: DollarSign, description: 'Financial overview - Revenue, expenses, and profitability metrics' },
         { name: 'Finance Ledger', page: 'FinanceLedger', icon: DollarSign, description: 'General ledger - Journal entries, accounts, and financial transactions' },
       ]

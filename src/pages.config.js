@@ -133,6 +133,7 @@ import MedicalRecords from './pages/MedicalRecords';
 import Messaging from './pages/Messaging';
 import OperationsReports from './pages/OperationsReports';
 import OrdersResults from './pages/OrdersResults';
+import OrgAdminAuditReport from './pages/OrgAdminAuditReport';
 import OrganizationModulePermissions from './pages/OrganizationModulePermissions';
 import OrganizationUserManagement from './pages/OrganizationUserManagement';
 import OwnerWorkspace from './pages/OwnerWorkspace';
@@ -172,6 +173,8 @@ import ProviderDashboard from './pages/ProviderDashboard';
 import ReleaseQueue from './pages/ReleaseQueue';
 import Reports from './pages/Reports';
 import SOAPNotes from './pages/SOAPNotes';
+import SaleDeletionRequests from './pages/SaleDeletionRequests';
+import SalesAnalytics from './pages/SalesAnalytics';
 import SalesWorkspace from './pages/SalesWorkspace';
 import SendSMS from './pages/SendSMS';
 import Settings from './pages/Settings';
@@ -185,9 +188,7 @@ import UserApprovals from './pages/UserApprovals';
 import UserManagement from './pages/UserManagement';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import SalesAnalytics from './pages/SalesAnalytics';
-import SaleDeletionRequests from './pages/SaleDeletionRequests';
-import OrgAdminAuditReport from './pages/OrgAdminAuditReport';
+import BankStatementManager from './pages/BankStatementManager';
 import __Layout from './Layout.jsx';
 
 
@@ -278,6 +279,7 @@ export const PAGES = {
     "Messaging": Messaging,
     "OperationsReports": OperationsReports,
     "OrdersResults": OrdersResults,
+    "OrgAdminAuditReport": OrgAdminAuditReport,
     "OrganizationModulePermissions": OrganizationModulePermissions,
     "OrganizationUserManagement": OrganizationUserManagement,
     "OwnerWorkspace": OwnerWorkspace,
@@ -317,6 +319,8 @@ export const PAGES = {
     "ReleaseQueue": ReleaseQueue,
     "Reports": Reports,
     "SOAPNotes": SOAPNotes,
+    "SaleDeletionRequests": SaleDeletionRequests,
+    "SalesAnalytics": SalesAnalytics,
     "SalesWorkspace": SalesWorkspace,
     "SendSMS": SendSMS,
     "Settings": Settings,
@@ -330,9 +334,7 @@ export const PAGES = {
     "UserManagement": UserManagement,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "SalesAnalytics": SalesAnalytics,
-    "SaleDeletionRequests": SaleDeletionRequests,
-    "OrgAdminAuditReport": OrgAdminAuditReport,
+    "BankStatementManager": BankStatementManager,
 }
 
 export const pagesConfig = {
