@@ -386,7 +386,7 @@ export default function Admin() {
         <p className="text-slate-500 mt-1">Manage users, permissions, and system configuration</p>
       </div>
       <div className="flex items-center gap-3">
-        {isPlatformOwner && (
+        {(isPlatformOwner || isAppAdmin) && (
           <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
             <DialogTrigger asChild>
               <Button className="bg-teal-600 hover:bg-teal-700 text-white">
