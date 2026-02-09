@@ -34,11 +34,11 @@ export default function BankStatementManager() {
   const { selectedOrgId } = useOrganization();
   const queryClient = useQueryClient();
 
+  // CRITICAL: All useState hooks MUST be at the top, before any conditional returns
   const [newAccountOpen, setNewAccountOpen] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [selectedAccountId, setSelectedAccountId] = useState(null);
   const [uploading, setUploading] = useState(false);
-
   const [newAccount, setNewAccount] = useState({
     account_nickname: '',
     account_mask_last4: '',
