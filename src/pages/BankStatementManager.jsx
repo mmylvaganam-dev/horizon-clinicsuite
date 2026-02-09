@@ -85,11 +85,25 @@ export default function BankStatementManager() {
   const [uploading, setUploading] = useState(false);
 
   const [newAccount, setNewAccount] = useState({
-    account_name: '',
-    account_number: '',
+    account_nickname: '',
+    account_mask_last4: '',
     bank_name: '',
-    account_type: 'checking',
     currency: 'USD'
+  });
+
+  // Fetch company profile first
+  const { data: companyProfile } = useQuery({
+    queryKey: ['companyProfile', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return null;
+      const org = await base44.entities.Organization.list();
+      const currentOrg = org.find(o => o.id === selectedOrgId);
+      if (!currentOrg?.company_id) return null;
+      
+      const companies = await base44.entities.CompanyProfile.filter({ id: currentOrg.company_id });
+      return companies[0];
+    },
+    enabled: !!selectedOrgId
   });
 
   // Fetch bank accounts
@@ -116,20 +130,31 @@ export default function BankStatementManager() {
 
   // Create bank account
   const createAccountMutation = useMutation({
-    mutationFn: (data) => base44.entities.BankAccount.create({
-      ...data,
-      organization_id: selectedOrgId
-    }),
+    mutationFn: (data) => {
+      if (!companyProfile?.id) {
+        throw new Error('Company profile not found. Please contact support.');
+      }
+      return base44.entities.BankAccount.create({
+        organization_id: selectedOrgId,
+        company_ref: companyProfile.id,
+        bank_name: data.bank_name,
+        account_nickname: data.account_nickname,
+        account_mask_last4: data.account_mask_last4,
+        currency: data.currency
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries(['bankAccounts']);
       setNewAccountOpen(false);
       setNewAccount({
-        account_name: '',
-        account_number: '',
+        account_nickname: '',
+        account_mask_last4: '',
         bank_name: '',
-        account_type: 'checking',
         currency: 'USD'
       });
+    },
+    onError: (error) => {
+      alert('Failed to create account: ' + error.message);
     }
   });
 
@@ -276,19 +301,20 @@ export default function BankStatementManager() {
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label>Account Name</Label>
+                <Label>Account Nickname</Label>
                 <Input
-                  value={newAccount.account_name}
-                  onChange={(e) => setNewAccount({ ...newAccount, account_name: e.target.value })}
+                  value={newAccount.account_nickname}
+                  onChange={(e) => setNewAccount({ ...newAccount, account_nickname: e.target.value })}
                   placeholder="Business Checking"
                 />
               </div>
               <div>
-                <Label>Account Number</Label>
+                <Label>Last 4 Digits of Account</Label>
                 <Input
-                  value={newAccount.account_number}
-                  onChange={(e) => setNewAccount({ ...newAccount, account_number: e.target.value })}
-                  placeholder="****1234"
+                  value={newAccount.account_mask_last4}
+                  onChange={(e) => setNewAccount({ ...newAccount, account_mask_last4: e.target.value.slice(0, 4) })}
+                  placeholder="1234"
+                  maxLength={4}
                 />
               </div>
               <div>
@@ -300,19 +326,6 @@ export default function BankStatementManager() {
                 />
               </div>
               <div>
-                <Label>Account Type</Label>
-                <Select value={newAccount.account_type} onValueChange={(v) => setNewAccount({ ...newAccount, account_type: v })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="checking">Checking</SelectItem>
-                    <SelectItem value="savings">Savings</SelectItem>
-                    <SelectItem value="credit">Credit</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
                 <Label>Currency</Label>
                 <Select value={newAccount.currency} onValueChange={(v) => setNewAccount({ ...newAccount, currency: v })}>
                   <SelectTrigger>
@@ -322,6 +335,7 @@ export default function BankStatementManager() {
                     <SelectItem value="USD">USD</SelectItem>
                     <SelectItem value="EUR">EUR</SelectItem>
                     <SelectItem value="GBP">GBP</SelectItem>
+                    <SelectItem value="CAD">CAD</SelectItem>
                     <SelectItem value="LKR">LKR</SelectItem>
                   </SelectContent>
                 </Select>
@@ -331,7 +345,7 @@ export default function BankStatementManager() {
               <Button variant="outline" onClick={() => setNewAccountOpen(false)}>Cancel</Button>
               <Button 
                 onClick={() => createAccountMutation.mutate(newAccount)}
-                disabled={!newAccount.account_name || !newAccount.bank_name}
+                disabled={!newAccount.account_nickname || !newAccount.bank_name || !companyProfile}
                 className="bg-teal-600 hover:bg-teal-700"
               >
                 Create Account
@@ -355,7 +369,7 @@ export default function BankStatementManager() {
                   <SelectItem value="all">All Accounts</SelectItem>
                   {bankAccounts.map(acc => (
                     <SelectItem key={acc.id} value={acc.id}>
-                      {acc.account_name} ({acc.bank_name})
+                      {acc.account_nickname} - {acc.bank_name} ****{acc.account_mask_last4}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -584,7 +598,7 @@ export default function BankStatementManager() {
                     <div className="flex items-center gap-4">
                       <Building2 className="w-8 h-8 text-teal-600" />
                       <div>
-                        <p className="font-semibold">{account?.account_name || 'Unknown Account'}</p>
+                        <p className="font-semibold">{account?.account_nickname || 'Unknown Account'} - {account?.bank_name}</p>
                         <p className="text-sm text-slate-500">{moment(statement.statement_month).format('MMMM YYYY')}</p>
                       </div>
                     </div>
