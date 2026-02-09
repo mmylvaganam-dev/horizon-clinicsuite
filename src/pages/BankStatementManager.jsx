@@ -34,6 +34,18 @@ export default function BankStatementManager() {
   const { selectedOrgId } = useOrganization();
   const queryClient = useQueryClient();
 
+  const [newAccountOpen, setNewAccountOpen] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [selectedAccountId, setSelectedAccountId] = useState(null);
+  const [uploading, setUploading] = useState(false);
+
+  const [newAccount, setNewAccount] = useState({
+    account_nickname: '',
+    account_mask_last4: '',
+    bank_name: '',
+    currency: 'USD'
+  });
+
   // Check user access
   const { data: currentUser } = useQuery({
     queryKey: ['currentUser'],
@@ -79,17 +91,6 @@ export default function BankStatementManager() {
       </div>
     );
   }
-  const [newAccountOpen, setNewAccountOpen] = useState(false);
-  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
-  const [selectedAccountId, setSelectedAccountId] = useState(null);
-  const [uploading, setUploading] = useState(false);
-
-  const [newAccount, setNewAccount] = useState({
-    account_nickname: '',
-    account_mask_last4: '',
-    bank_name: '',
-    currency: 'USD'
-  });
 
   // Fetch company profile first
   const { data: companyProfile } = useQuery({
