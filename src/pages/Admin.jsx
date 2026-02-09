@@ -538,7 +538,7 @@ export default function Admin() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          {u.organization_id !== selectedOrgId && (
+                          {isPlatformOwner && u.organization_id !== selectedOrgId && (
                             <Button
                               onClick={() => assignExistingUserMutation.mutate({ userId: u.id, userEmail: u.email })}
                               disabled={assignExistingUserMutation.isPending}
