@@ -70,29 +70,7 @@ export default function BankStatementManager() {
     enabled: !!currentUser?.id && !!selectedOrgId && !isPlatformOwner
   });
 
-  const hasAccess = isPlatformOwner || currentUser?.bank_statement_access === true || userRoles.some(r => r.role_id === 'ORG_SUPER_USER' || r.role_id === 'PLATFORM_OWNER');
-
-  if (!hasAccess) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Card className="max-w-md">
-          <CardContent className="pt-6 text-center space-y-4">
-            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-              <Lock className="w-10 h-10 text-red-600" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-slate-900">Access Denied</h2>
-              <p className="text-slate-600 mt-2">
-                You don't have permission to view bank statements. Please contact your organization administrator.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  // Fetch company profile first
+  // Fetch company profile first - MUST be before conditional return
   const { data: companyProfile } = useQuery({
     queryKey: ['companyProfile', selectedOrgId],
     queryFn: async () => {
@@ -226,6 +204,9 @@ export default function BankStatementManager() {
     }
   };
 
+  // Check access AFTER all hooks
+  const hasAccess = isPlatformOwner || currentUser?.bank_statement_access === true || userRoles.some(r => r.role_id === 'ORG_SUPER_USER' || r.role_id === 'PLATFORM_OWNER');
+
   // Calculate KPIs
   const kpis = React.useMemo(() => {
     const totalDeposits = statements.reduce((sum, s) => sum + (s.total_deposits || 0), 0);
@@ -280,6 +261,27 @@ export default function BankStatementManager() {
     { name: 'Income', value: kpis.totalDeposits },
     { name: 'Expenses', value: kpis.totalWithdrawals }
   ];
+
+  // Show access denied AFTER all hooks are called
+  if (!hasAccess) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="max-w-md">
+          <CardContent className="pt-6 text-center space-y-4">
+            <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto">
+              <Lock className="w-10 h-10 text-red-600" />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900">Access Denied</h2>
+              <p className="text-slate-600 mt-2">
+                You don't have permission to view bank statements. Please contact your organization administrator.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
