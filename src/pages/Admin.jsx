@@ -443,7 +443,7 @@ export default function Admin() {
         <p className="text-slate-500 mt-1">Manage users, permissions, and system configuration</p>
       </div>
       <div className="flex items-center gap-3">
-        {(isPlatformOwner || isAppAdmin) && (
+        {(isPlatformOwner || isAppAdmin || isOrgAdmin) && (
           <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
             <DialogTrigger asChild>
               <Button className="bg-teal-600 hover:bg-teal-700 text-white">
@@ -461,6 +461,11 @@ export default function Admin() {
                     <p className="text-sm text-blue-900 font-medium">
                       User will be invited to: <span className="font-bold">{organizations.find(o => o.id === selectedOrgId)?.name}</span>
                     </p>
+                    {isOrgAdmin && (
+                      <p className="text-xs text-blue-700 mt-2">
+                        ℹ️ This invitation will require platform owner approval before the user gains access.
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-3">
@@ -491,7 +496,7 @@ export default function Admin() {
                   </Select>
                 </div>
                 <Button
-                  onClick={() => inviteUserMutation.mutate({ email: inviteEmail, role: inviteRole })}
+                  onClick={() => inviteUserMutation.mutate({ email: inviteEmail, role: inviteRole, requiresApproval: isOrgAdmin })}
                   disabled={!inviteEmail || !selectedOrgId || inviteUserMutation.isPending}
                   className="w-full bg-teal-600 hover:bg-teal-700"
                 >
