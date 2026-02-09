@@ -517,12 +517,14 @@ function LayoutContent({ children, currentPageName }) {
                 </Button>
               )}
               
+              {/* PLATFORM OWNER ONLY: Organization Switcher */}
               {isDefinitelyPlatformOwner && !currentPageName?.startsWith('Platform') && !currentPageName?.includes('UserManagement') && !currentPageName?.includes('UserApprovals') && !currentPageName?.includes('BlockedUsers') && (
                 <div className="border border-teal-600 rounded-lg p-1 bg-teal-50">
                   <OrganizationSwitcher />
                 </div>
               )}
               
+              {/* EVERYONE: Show current organization info */}
               {selectedOrgId && !currentPageName?.startsWith('Platform') && !currentPageName?.includes('UserManagement') && !currentPageName?.includes('UserApprovals') && !currentPageName?.includes('BlockedUsers') && (
                 <div className="flex items-center gap-3 px-4 py-2 bg-white rounded-lg border border-slate-200">
                   {branding?.primary_logo_file_ref ? (
