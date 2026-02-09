@@ -210,6 +210,30 @@ export default function Admin() {
     }
   });
 
+  const assignExistingUserMutation = useMutation({
+    mutationFn: async ({ userId, userEmail }) => {
+      if (!selectedOrgId) {
+        throw new Error('Please select an organization from the dropdown first');
+      }
+      
+      const assignResponse = await base44.functions.invoke('assignUserToOrganization', {
+        userId,
+        userEmail,
+        organizationId: selectedOrgId
+      });
+      
+      return { userId, userEmail, orgId: selectedOrgId, data: assignResponse.data };
+    },
+    onSuccess: async (data) => {
+      await queryClient.invalidateQueries(['allUsers']);
+      await queryClient.invalidateQueries(['userRoles']);
+      toast.success(`✅ User assigned to ${organizations.find(o => o.id === selectedOrgId)?.name}!`);
+    },
+    onError: (error) => {
+      toast.error(`❌ Error: ${error.message || 'Failed to assign user'}`);
+    }
+  });
+
   const seedRolesMutation = useMutation({
     mutationFn: async () => {
       const response = await base44.functions.invoke('seedFunctionalRoles', {});
@@ -513,32 +537,46 @@ export default function Admin() {
                             <p className="text-xs text-slate-500">{u.email}</p>
                           </div>
                         </div>
-                        <Button
-                          onClick={async () => {
-                            try {
-                              await base44.entities.User.update(u.id, { bank_statement_access: !hasAccess });
-                              queryClient.invalidateQueries(['allUsers']);
-                              toast.success(hasAccess ? 'Bank access revoked' : 'Bank access granted');
-                            } catch (error) {
-                              toast.error('Failed to update access: ' + error.message);
-                            }
-                          }}
-                          variant={hasAccess ? "destructive" : "default"}
-                          size="sm"
-                          className={hasAccess ? '' : 'bg-teal-600 hover:bg-teal-700'}
-                        >
-                          {hasAccess ? (
-                            <>
-                              <Lock className="w-4 h-4 mr-2" />
-                              Revoke
-                            </>
-                          ) : (
-                            <>
-                              <Check className="w-4 h-4 mr-2" />
-                              Grant Access
-                            </>
+                        <div className="flex items-center gap-2">
+                          {u.organization_id !== selectedOrgId && (
+                            <Button
+                              onClick={() => assignExistingUserMutation.mutate({ userId: u.id, userEmail: u.email })}
+                              disabled={assignExistingUserMutation.isPending}
+                              size="sm"
+                              variant="outline"
+                              className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                            >
+                              <Building2 className="w-4 h-4 mr-2" />
+                              Assign to Org
+                            </Button>
                           )}
-                        </Button>
+                          <Button
+                            onClick={async () => {
+                              try {
+                                await base44.entities.User.update(u.id, { bank_statement_access: !hasAccess });
+                                queryClient.invalidateQueries(['allUsers']);
+                                toast.success(hasAccess ? 'Bank access revoked' : 'Bank access granted');
+                              } catch (error) {
+                                toast.error('Failed to update access: ' + error.message);
+                              }
+                            }}
+                            variant={hasAccess ? "destructive" : "default"}
+                            size="sm"
+                            className={hasAccess ? '' : 'bg-teal-600 hover:bg-teal-700'}
+                          >
+                            {hasAccess ? (
+                              <>
+                                <Lock className="w-4 h-4 mr-2" />
+                                Revoke
+                              </>
+                            ) : (
+                              <>
+                                <Check className="w-4 h-4 mr-2" />
+                                Grant Access
+                              </>
+                            )}
+                          </Button>
+                        </div>
                       </div>
                     );
                   })}
