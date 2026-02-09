@@ -174,39 +174,65 @@ export default function Admin() {
   });
 
   const inviteUserMutation = useMutation({
-    mutationFn: async ({ email, role }) => {
+    mutationFn: async ({ email, role, requiresApproval }) => {
       // Get selected organization for assignment
       if (!selectedOrgId) {
         throw new Error('Please select an organization from the dropdown first');
       }
-      
-      console.log('🔵 Step 1: Inviting user:', email, 'with role:', role);
-      
+
+      console.log('🔵 Step 1: Inviting user:', email, 'with role:', role, 'requiresApproval:', requiresApproval);
+
       // Invite user - this creates the user account
       await base44.users.inviteUser(email, role);
-      
+
       console.log('✅ Step 2: User invited, waiting 2 seconds for user creation...');
-      
+
       // Wait longer for user to be fully created in database
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      console.log('🔵 Step 3: Now assigning to org:', selectedOrgId);
-      
-      // Auto-assign to selected organization using email
-      const assignResponse = await base44.functions.invoke('assignUserToOrganization', {
-        userEmail: email,
-        organizationId: selectedOrgId
-      });
-      
-      console.log('✅ Step 4: Assignment complete:', assignResponse.data);
-      
-      return { email, role, orgId: selectedOrgId };
+
+      // If platform owner inviting (no approval needed), auto-assign
+      // If org admin inviting (requires approval), create UserApproval record
+      if (!requiresApproval) {
+        console.log('🔵 Step 3: Platform owner - Auto assigning to org:', selectedOrgId);
+
+        // Auto-assign to selected organization using email
+        const assignResponse = await base44.functions.invoke('assignUserToOrganization', {
+          userEmail: email,
+          organizationId: selectedOrgId
+        });
+
+        console.log('✅ Step 4: Assignment complete:', assignResponse.data);
+        return { email, role, orgId: selectedOrgId, requiresApproval: false };
+      } else {
+        console.log('🔵 Step 3: Org admin - Creating UserApproval for platform owner review');
+
+        // Create UserApproval record for platform owner to review
+        const approvalResponse = await base44.entities.UserApproval.create({
+          user_email: email,
+          organization_id: selectedOrgId,
+          org_admin_status: 'approved',
+          org_admin_approved_by: user.email,
+          org_admin_approved_date: new Date().toISOString(),
+          platform_owner_status: 'pending',
+          final_status: 'pending_platform'
+        });
+
+        console.log('✅ Step 4: UserApproval created:', approvalResponse);
+        return { email, role, orgId: selectedOrgId, requiresApproval: true };
+      }
     },
     onSuccess: async (data) => {
       console.log('✅ Step 5: Success! Refreshing data...');
       await queryClient.invalidateQueries(['allUsers']);
       await queryClient.invalidateQueries(['userRoles']);
-      toast.success(`✅ User ${data.email} invited and assigned to organization!`);
+      await queryClient.invalidateQueries(['userApprovals']);
+
+      if (data.requiresApproval) {
+        toast.success(`✅ User ${data.email} invited! Sent to platform owner for approval.`);
+      } else {
+        toast.success(`✅ User ${data.email} invited and assigned to organization!`);
+      }
+
       setInviteDialogOpen(false);
       setInviteEmail('');
       setInviteRole('user');
