@@ -127,6 +127,13 @@ export default function Admin() {
     return roleCode === 'APP_ADMIN';
   });
 
+  // Check if user is org admin (has ORG_SUPER_USER or similar role in their organization)
+  const isOrgAdmin = !isPlatformOwner && userRoles.some(ur => {
+    const role = allRoles.find(r => r.id === ur.role_id);
+    const roleCode = role?.code || role?.role_name;
+    return ['ORG_SUPER_USER', 'CLINIC_ADMIN_STAFF'].includes(roleCode);
+  });
+
   const clearDataMutation = useMutation({
     mutationFn: async () => {
       if (!selectedOrgId) {
