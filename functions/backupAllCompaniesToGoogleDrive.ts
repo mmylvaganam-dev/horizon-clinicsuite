@@ -132,6 +132,34 @@ Deno.serve(async (req) => {
         
         const driveFile = await uploadResponse.json();
         
+        // Delete old backups - keep only last 6
+        if (company.google_drive_folder_id) {
+          try {
+            const listResponse = await fetch(
+              `https://www.googleapis.com/drive/v3/files?q='${company.google_drive_folder_id}' in parents and name contains '${company.company_legal_name.replace(/[^a-zA-Z0-9]/g, '_')}_Backup'&orderBy=createdTime desc&fields=files(id,name,createdTime)`,
+              {
+                headers: { 'Authorization': `Bearer ${accessToken}` }
+              }
+            );
+            
+            if (listResponse.ok) {
+              const files = await listResponse.json();
+              // Keep 6 most recent, delete the rest
+              const filesToDelete = files.files?.slice(6) || [];
+              
+              for (const file of filesToDelete) {
+                await fetch(`https://www.googleapis.com/drive/v3/files/${file.id}`, {
+                  method: 'DELETE',
+                  headers: { 'Authorization': `Bearer ${accessToken}` }
+                });
+                console.log(`Deleted old backup: ${file.name}`);
+              }
+            }
+          } catch (error) {
+            console.error('Failed to cleanup old backups:', error);
+          }
+        }
+        
         // Update company profile with new backup info
         await base44.asServiceRole.entities.CompanyProfile.update(company.id, {
           last_backup_date: new Date().toISOString(),
