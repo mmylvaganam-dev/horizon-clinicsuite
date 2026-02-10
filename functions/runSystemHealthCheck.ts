@@ -414,70 +414,88 @@ Deno.serve(async (req) => {
       results.summary.failed++;
     }
 
-    // Test 15: Google Drive Connection Test (if backup enabled)
-    try {
-      const organization = await base44.entities.Organization.list();
-      const currentOrg = organization.find(o => o.id === organizationId);
-      
-      if (currentOrg) {
-        const companies = await base44.entities.CompanyProfile.filter({ id: currentOrg.company_id });
-        const company = companies[0];
-        
-        if (company?.google_drive_backup_enabled && company?.google_drive_folder_id) {
-          try {
-            const accessToken = await base44.asServiceRole.connectors.getAccessToken('googledrive');
-            
-            // Test folder access
-            const folderTestResponse = await fetch(
-              `https://www.googleapis.com/drive/v3/files/${company.google_drive_folder_id}?fields=id,name`,
-              { headers: { 'Authorization': `Bearer ${accessToken}` } }
-            );
-            
-            if (folderTestResponse.ok) {
-              const folder = await folderTestResponse.json();
-              results.tests.push({ 
-                category: 'Backup', 
-                test: 'Google Drive Connection', 
-                status: 'passed', 
-                message: `Connected to folder: ${folder.name}`,
-                folderName: folder.name
-              });
-              results.summary.passed++;
-            } else {
+    // Test 15: Google Drive Connection Test (if backup enabled and testGoogleDrive param is true)
+    const testGoogleDrive = body.testGoogleDrive || false;
+
+    if (testGoogleDrive) {
+      try {
+        const organization = await base44.entities.Organization.list();
+        const currentOrg = organization.find(o => o.id === organizationId);
+
+        if (currentOrg) {
+          const companies = await base44.entities.CompanyProfile.filter({ id: currentOrg.company_id });
+          const company = companies[0];
+
+          if (company?.google_drive_backup_enabled && company?.google_drive_folder_id) {
+            try {
+              const accessToken = await base44.asServiceRole.connectors.getAccessToken('googledrive');
+
+              // Test folder access with timeout
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+              const folderTestResponse = await fetch(
+                `https://www.googleapis.com/drive/v3/files/${company.google_drive_folder_id}?fields=id,name`,
+                { 
+                  headers: { 'Authorization': `Bearer ${accessToken}` },
+                  signal: controller.signal
+                }
+              );
+              clearTimeout(timeoutId);
+
+              if (folderTestResponse.ok) {
+                const folder = await folderTestResponse.json();
+                results.tests.push({ 
+                  category: 'Backup', 
+                  test: 'Google Drive Connection', 
+                  status: 'passed', 
+                  message: `Connected to folder: ${folder.name}`,
+                  folderName: folder.name
+                });
+                results.summary.passed++;
+              } else {
+                results.tests.push({ 
+                  category: 'Backup', 
+                  test: 'Google Drive Connection', 
+                  status: 'failed', 
+                  message: 'Cannot access configured backup folder - check folder ID and permissions' 
+                });
+                results.summary.failed++;
+              }
+            } catch (driveError) {
               results.tests.push({ 
                 category: 'Backup', 
                 test: 'Google Drive Connection', 
                 status: 'failed', 
-                message: 'Cannot access configured backup folder - check folder ID and permissions' 
+                message: `Google Drive connection failed: ${driveError.message}` 
               });
               results.summary.failed++;
             }
-          } catch (driveError) {
+          } else {
             results.tests.push({ 
               category: 'Backup', 
               test: 'Google Drive Connection', 
-              status: 'failed', 
-              message: `Google Drive connection failed: ${driveError.message}` 
+              status: 'skipped', 
+              message: 'Google Drive backup not configured' 
             });
-            results.summary.failed++;
           }
-        } else {
-          results.tests.push({ 
-            category: 'Backup', 
-            test: 'Google Drive Connection', 
-            status: 'skipped', 
-            message: 'Google Drive backup not configured' 
-          });
         }
+      } catch (error) {
+        results.tests.push({ 
+          category: 'Backup', 
+          test: 'Google Drive Connection', 
+          status: 'warning', 
+          message: `Could not verify: ${error.message}` 
+        });
+        results.summary.warnings++;
       }
-    } catch (error) {
+    } else {
       results.tests.push({ 
         category: 'Backup', 
         test: 'Google Drive Connection', 
-        status: 'warning', 
-        message: `Could not verify: ${error.message}` 
+        status: 'skipped', 
+        message: 'Live connection test skipped (pass testGoogleDrive: true to enable)' 
       });
-      results.summary.warnings++;
     }
 
     // Calculate overall health score
