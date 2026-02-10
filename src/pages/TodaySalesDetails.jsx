@@ -44,6 +44,11 @@ export default function TodaySalesDetails() {
     queryFn: () => base44.entities.PharmacyReceipt.list(),
   });
 
+  const { data: saleItems = [] } = useQuery({
+    queryKey: ['pharmacySaleItems'],
+    queryFn: () => base44.entities.PharmacySaleItem.list(),
+  });
+
   const { data: companies = [] } = useQuery({
     queryKey: ['companies'],
     queryFn: () => base44.entities.CompanyProfile.list(),
@@ -191,7 +196,8 @@ export default function TodaySalesDetails() {
             <div className="divide-y max-h-[600px] overflow-y-auto">
               {todaySales.map((sale, index) => {
                 const receipt = receipts.find(r => r.sale_id === sale.id);
-                const itemCount = sale.items?.length || 0;
+                const itemsForSale = saleItems.filter(item => item.sale_id === sale.id);
+                const itemCount = itemsForSale.length;
                 
                 return (
                   <div key={sale.id} className="p-6 hover:bg-slate-50 transition-colors">
@@ -283,17 +289,17 @@ export default function TodaySalesDetails() {
                     </div>
 
                     {/* Items preview - shown when expanded */}
-                    {expandedSaleId === sale.id && sale.items && sale.items.length > 0 && (
+                    {expandedSaleId === sale.id && itemsForSale.length > 0 && (
                       <div className="mt-4 pt-4 border-t border-slate-200">
                         <p className="text-xs font-semibold text-slate-500 mb-2">ITEMS SOLD:</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                          {sale.items.map((item, idx) => (
+                          {itemsForSale.map((item, idx) => (
                             <div key={idx} className="text-sm bg-slate-50 rounded p-2 flex justify-between items-center">
-                              <span className="text-slate-700">{item.product_name}</span>
+                              <span className="text-slate-700">{item.item_name}</span>
                               <div className="flex items-center gap-2">
                                 <Badge variant="outline" className="text-xs">x{item.quantity}</Badge>
                                 <span className="font-semibold text-slate-900">
-                                  {formatCurrency(item.subtotal, currency)}
+                                  {formatCurrency(item.line_total, currency)}
                                 </span>
                               </div>
                             </div>

@@ -446,14 +446,11 @@ export default function PharmacyBilling() {
     }
   });
 
-  const handleCompleteSale = async () => {
-    if (cart.length === 0) {
-      toast.error('Cart is empty');
-      return;
-    }
-    
-    try {
-      const loadingToast = toast.loading('Processing sale...');
+  const createSaleMutation = useMutation({
+    mutationFn: async () => {
+      if (cart.length === 0) {
+        throw new Error('Cart is empty');
+      }
       
       const user = await base44.auth.me();
       const company = companies.length > 0 ? companies[0] : null;
@@ -482,7 +479,7 @@ export default function PharmacyBilling() {
         created_by_email: user?.email || 'system'
       };
 
-      await base44.entities.PharmacySale.create(saleData);
+      const sale = await base44.entities.PharmacySale.create(saleData);
       
       // Update stock quantities
       for (const item of cart) {
@@ -509,9 +506,6 @@ export default function PharmacyBilling() {
         }
       }
 
-      toast.dismiss(loadingToast);
-      toast.success(`Sale ${receiptNumber} completed!`);
-
       // Format date/time for Sri Lanka timezone
       const sriLankaTime = new Date().toLocaleString('en-US', {
         timeZone: 'Asia/Colombo',
@@ -523,7 +517,7 @@ export default function PharmacyBilling() {
       const locationAddress = branding?.address || '';
       const locationPhone = branding?.contact_phone || '';
       
-      const completedSaleData = {
+      return {
         receipt_number: receiptNumber,
         customer_name: customerName,
         organization_name: organizationName,
@@ -532,24 +526,29 @@ export default function PharmacyBilling() {
         sale_datetime: sriLankaTime,
         currency,
         items: cart,
-        subtotal,
+        subtotal: subtotalAmount,
         discount_amount: finalDiscountAmount,
         total_savings: totalSavings,
-        tax,
-        total,
+        tax: taxAmount,
+        total: totalAmount,
         customer_email: selectedPatient?.email || selectedWalkIn?.email,
         customer_phone: selectedPatient?.mobile || selectedWalkIn?.phone
       };
-      
+    },
+    onSuccess: (completedSaleData) => {
+      queryClient.invalidateQueries(['pharmacyStock']);
+      toast.success(`Sale ${completedSaleData.receipt_number} completed!`);
       setCompletedSale(completedSaleData);
       setShowInvoiceDialog(true);
-      queryClient.invalidateQueries(['pharmacyStock']);
-      
-    } catch (error) {
-      toast.dismiss();
+    },
+    onError: (error) => {
       toast.error('Sale failed: ' + error.message);
       console.error(error);
     }
+  });
+
+  const handleCompleteSale = () => {
+    createSaleMutation.mutate();
   };
 
   const handlePrintInvoice = () => {
@@ -1260,11 +1259,11 @@ export default function PharmacyBilling() {
             </div>
             <Button 
               className="w-full bg-indigo-600 hover:bg-indigo-700 h-9 lg:h-10 text-sm lg:text-base" 
-              disabled={cart.length === 0}
+              disabled={cart.length === 0 || createSaleMutation.isPending}
               onClick={handleCompleteSale}
             >
               <Check className="w-4 h-4 lg:w-5 lg:h-5 mr-2" />
-              Complete Sale
+              {createSaleMutation.isPending ? 'Processing...' : 'Complete Sale'}
             </Button>
             {cart.length > 0 && !selectedPatient && !selectedWalkIn && (
               <p className="text-[10px] lg:text-xs text-slate-500 text-center">
