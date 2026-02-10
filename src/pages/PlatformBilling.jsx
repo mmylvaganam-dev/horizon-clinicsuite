@@ -35,24 +35,10 @@ export default function PlatformBilling() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: userRoles = [] } = useQuery({
-    queryKey: ['userRoles', user?.id],
-    queryFn: async () => {
-      const roles = await base44.entities.UserRole.filter({ user_id: user.id });
-      return roles;
-    },
-    enabled: !!user,
-  });
-
-  const { data: allRoles = [] } = useQuery({
-    queryKey: ['allRoles'],
-    queryFn: () => base44.entities.Role.list(),
-  });
-
-  const isPlatformOwner = userRoles.some(ur => {
-    const role = allRoles.find(r => r.id === ur.role_id);
-    return role?.code === 'PLATFORM_OWNER';
-  });
+  // CRITICAL: Platform owner status is based ONLY on email
+  const isPlatformOwner = user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
+    user?.email === 'mylvaganam@premierhealthcanada.ca' ||
+    user?.is_platform_owner === true;
 
   if (user && !isPlatformOwner) {
     return (
