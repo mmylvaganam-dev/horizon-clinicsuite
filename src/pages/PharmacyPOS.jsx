@@ -63,6 +63,11 @@ export default function PharmacyPOS() {
     queryFn: () => base44.entities.PharmacySale.list('-sale_date'),
   });
 
+  const { data: saleItems = [] } = useQuery({
+    queryKey: ['pharmacySaleItems'],
+    queryFn: () => base44.entities.PharmacySaleItem.list(),
+  });
+
   const { data: receipts = [] } = useQuery({
     queryKey: ['pharmacyReceipts'],
     queryFn: () => base44.entities.PharmacyReceipt.list(),
@@ -531,6 +536,8 @@ export default function PharmacyPOS() {
               ? prescriptions.find(p => p.id === prescriptionLink.left_id)
               : null;
 
+            const itemsForSale = saleItems.filter(item => item.sale_id === sale.id);
+
             return (
               <div key={sale.id}>
                 <Card className="p-5 bg-white border-0 shadow-sm hover:shadow-md transition-all">
@@ -545,6 +552,9 @@ export default function PharmacyPOS() {
                         </Badge>
                         <Badge variant="outline">
                           {getReceiptNumber(sale.id)}
+                        </Badge>
+                        <Badge variant="outline" className="bg-blue-100 text-blue-700">
+                          {itemsForSale.length} items
                         </Badge>
                         {linkedPrescription && (
                           <Badge variant="outline" className="bg-purple-100 text-purple-700 border-purple-200">
@@ -602,7 +612,25 @@ export default function PharmacyPOS() {
                   </div>
                 </Card>
                 {expandedSale === sale.id && (
-                  <div className="ml-6 mt-2">
+                  <div className="ml-6 mt-2 space-y-2">
+                    {itemsForSale.length > 0 && (
+                      <Card className="bg-slate-50 border-slate-200">
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-sm">Sale Items</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-2">
+                          {itemsForSale.map((item, idx) => (
+                            <div key={idx} className="flex justify-between items-center text-sm bg-white p-2 rounded border">
+                              <span className="font-medium">{item.item_name}</span>
+                              <div className="flex items-center gap-3">
+                                <Badge variant="outline">x{item.quantity}</Badge>
+                                <span className="font-semibold text-teal-600">{currency} {item.line_total.toFixed(2)}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </CardContent>
+                      </Card>
+                    )}
                     <LinkedRecords recordType="PharmacySale" recordId={sale.id} />
                   </div>
                 )}

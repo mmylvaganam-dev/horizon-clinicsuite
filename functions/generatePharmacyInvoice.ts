@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Sale not found' }, { status: 404 });
     }
 
-    const saleItems = await base44.entities.PharmacySaleItem.filter({ sale_id: saleId });
+    const saleItems = await base44.asServiceRole.entities.PharmacySaleItem.filter({ sale_id: saleId });
     
     // Fetch organization data
     const organizations = await base44.entities.Organization.list();

@@ -481,6 +481,17 @@ export default function PharmacyBilling() {
 
       const sale = await base44.entities.PharmacySale.create(saleData);
       
+      // Create sale line items
+      for (const item of cart) {
+        await base44.entities.PharmacySaleItem.create({
+          sale_id: sale.id,
+          item_name: item.display_name,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          line_total: item.total
+        });
+      }
+      
       // Update stock quantities
       for (const item of cart) {
         const product = pharmacyStock.find(p => p.id === item.stock_id);
