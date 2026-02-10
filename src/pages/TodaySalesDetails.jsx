@@ -29,29 +29,56 @@ export default function TodaySalesDetails() {
   const navigate = useNavigate();
   const [reprintingId, setReprintingId] = useState(null);
 
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const organizationId = user?.organization_id;
+
   const { data: sales = [] } = useQuery({
-    queryKey: ['pharmacySaleHeaders'],
-    queryFn: () => base44.entities.PharmacySaleHeader.list('-sale_date'),
+    queryKey: ['pharmacySaleHeaders', organizationId],
+    queryFn: async () => {
+      if (!organizationId) return [];
+      return base44.entities.PharmacySaleHeader.filter({ organization_id: organizationId }, '-sale_date');
+    },
+    enabled: !!organizationId,
   });
 
   const { data: patients = [] } = useQuery({
-    queryKey: ['patients'],
-    queryFn: () => base44.entities.Patient.list(),
+    queryKey: ['patients', organizationId],
+    queryFn: async () => {
+      if (!organizationId) return [];
+      return base44.entities.Patient.filter({ organization_id: organizationId });
+    },
+    enabled: !!organizationId,
   });
 
   const { data: receipts = [] } = useQuery({
-    queryKey: ['pharmacyReceipts'],
-    queryFn: () => base44.entities.PharmacyReceipt.list(),
+    queryKey: ['pharmacyReceipts', organizationId],
+    queryFn: async () => {
+      if (!organizationId) return [];
+      return base44.entities.PharmacyReceipt.filter({ organization_id: organizationId });
+    },
+    enabled: !!organizationId,
   });
 
   const { data: saleItems = [] } = useQuery({
-    queryKey: ['pharmacySaleLines'],
-    queryFn: () => base44.entities.PharmacySaleLine.list(),
+    queryKey: ['pharmacySaleLines', organizationId],
+    queryFn: async () => {
+      if (!organizationId) return [];
+      return base44.entities.PharmacySaleLine.filter({ organization_id: organizationId });
+    },
+    enabled: !!organizationId,
   });
 
   const { data: companies = [] } = useQuery({
-    queryKey: ['companies'],
-    queryFn: () => base44.entities.CompanyProfile.list(),
+    queryKey: ['companies', organizationId],
+    queryFn: async () => {
+      if (!organizationId) return [];
+      return base44.entities.CompanyProfile.list();
+    },
+    enabled: !!organizationId,
   });
 
   const currency = companies && companies.length > 0 ? (companies[0]?.base_currency || 'LKR') : 'LKR';
