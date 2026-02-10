@@ -30,8 +30,8 @@ export default function TodaySalesDetails() {
   const [reprintingId, setReprintingId] = useState(null);
 
   const { data: sales = [] } = useQuery({
-    queryKey: ['pharmacySales'],
-    queryFn: () => base44.entities.PharmacySale.list('-sale_date'),
+    queryKey: ['pharmacySaleHeaders'],
+    queryFn: () => base44.entities.PharmacySaleHeader.list('-sale_date'),
   });
 
   const { data: patients = [] } = useQuery({
@@ -45,8 +45,8 @@ export default function TodaySalesDetails() {
   });
 
   const { data: saleItems = [] } = useQuery({
-    queryKey: ['pharmacySaleItems'],
-    queryFn: () => base44.entities.PharmacySaleItem.list(),
+    queryKey: ['pharmacySaleLines'],
+    queryFn: () => base44.entities.PharmacySaleLine.list(),
   });
 
   const { data: companies = [] } = useQuery({
@@ -63,7 +63,7 @@ export default function TodaySalesDetails() {
   };
 
   const getReceiptNumber = (saleId) => {
-    const receipt = receipts.find(r => r.sale_id === saleId);
+    const receipt = receipts.find(r => r.sale_header_id === saleId);
     return receipt?.receipt_number || 'N/A';
   };
 
@@ -74,7 +74,7 @@ export default function TodaySalesDetails() {
     return saleDate.toDateString() === today.toDateString() && s.status === 'completed';
   });
 
-  const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total || 0), 0);
+  const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total_amount || 0), 0);
   const averageSale = todaySales.length > 0 ? (todayRevenue / todaySales.length) : 0;
 
   const handleReprintInvoice = async (sale) => {
@@ -195,8 +195,8 @@ export default function TodaySalesDetails() {
           ) : (
             <div className="divide-y max-h-[600px] overflow-y-auto">
               {todaySales.map((sale, index) => {
-                const receipt = receipts.find(r => r.sale_id === sale.id);
-                const itemsForSale = saleItems.filter(item => item.sale_id === sale.id);
+                const receipt = receipts.find(r => r.sale_header_id === sale.id);
+                const itemsForSale = saleItems.filter(item => item.sale_header_id === sale.id);
                 const itemCount = itemsForSale.length;
                 
                 return (
@@ -260,7 +260,7 @@ export default function TodaySalesDetails() {
                         <div className="text-right">
                           <p className="text-sm text-slate-500 mb-1">Total Amount</p>
                           <p className="text-3xl font-bold text-slate-900">
-                            {formatCurrency(sale.total, currency)}
+                            {formatCurrency(sale.total_amount, currency)}
                           </p>
                         </div>
 

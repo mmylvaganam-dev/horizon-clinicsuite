@@ -11,13 +11,13 @@ Deno.serve(async (req) => {
     const { saleId } = await req.json();
 
     // Fetch sale and related data
-    const sale = await base44.entities.PharmacySale.list();
+    const sale = await base44.entities.PharmacySaleHeader.list();
     const currentSale = sale.find(s => s.id === saleId);
     if (!currentSale) {
       return Response.json({ error: 'Sale not found' }, { status: 404 });
     }
 
-    const saleItems = await base44.asServiceRole.entities.PharmacySaleItem.filter({ sale_id: saleId });
+    const saleItems = await base44.asServiceRole.entities.PharmacySaleLine.filter({ sale_header_id: saleId });
     
     // Fetch organization data
     const organizations = await base44.entities.Organization.list();
@@ -241,15 +241,19 @@ Deno.serve(async (req) => {
           <div class="summary">
             <div class="summary-row">
               <span>Subtotal:</span>
-              <span>${currency} ${parseFloat(currentSale.total - currentSale.tax).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span>${currency} ${parseFloat(currentSale.subtotal || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            </div>
+            <div class="summary-row">
+              <span>Discount:</span>
+              <span>${currency} ${parseFloat(currentSale.discount_amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <div class="summary-row">
               <span>Tax:</span>
-              <span>${currency} ${parseFloat(currentSale.tax).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span>${currency} ${parseFloat(currentSale.tax_amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <div class="summary-row total">
               <span>TOTAL:</span>
-              <span>${currency} ${parseFloat(currentSale.total).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span>${currency} ${parseFloat(currentSale.total_amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
           </div>
 
