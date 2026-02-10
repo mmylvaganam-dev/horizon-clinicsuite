@@ -147,19 +147,32 @@ export default function PlatformBackupSettings() {
             </div>
 
             {/* Google Drive Folder ID */}
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Google Drive Folder ID (Optional)</Label>
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Google Drive Folder ID</Label>
               <Input
-                placeholder="Leave blank to backup to root folder"
+                placeholder="Paste folder ID here (e.g., 1AbC2DeF3GhI4JkL5MnO6PqR)"
                 value={selectedCompany.google_drive_folder_id || ''}
                 onChange={(e) => {
                   updateCompanyMutation.mutate({ google_drive_folder_id: e.target.value });
                 }}
-                className="font-mono text-xs"
+                className="font-mono text-sm"
               />
-              <p className="text-xs text-slate-500">
-                Get folder ID from URL: drive.google.com/drive/folders/<strong>FOLDER_ID</strong>
-              </p>
+              
+              <Alert className="bg-blue-50 border-blue-200">
+                <Info className="w-4 h-4 text-blue-600" />
+                <AlertDescription className="text-blue-800 text-xs space-y-2">
+                  <div><strong>How to get Folder ID:</strong></div>
+                  <div className="space-y-1 pl-4">
+                    <div>1. Create a folder in Google Drive (e.g., "Anantham Backups")</div>
+                    <div>2. Open the folder</div>
+                    <div>3. Copy the ID from URL:</div>
+                    <div className="bg-white p-2 rounded border border-blue-300 font-mono text-[10px] break-all">
+                      drive.google.com/drive/folders/<strong className="bg-yellow-200">1xYz123AbC456DeF</strong>
+                    </div>
+                    <div>4. Paste ONLY the ID part (after /folders/)</div>
+                  </div>
+                </AlertDescription>
+              </Alert>
             </div>
 
             {/* Last Backup Info */}
@@ -173,10 +186,12 @@ export default function PlatformBackupSettings() {
             )}
 
             {/* Schedule Info */}
-            <Alert className="bg-blue-50 border-blue-200">
-              <Calendar className="w-4 h-4 text-blue-600" />
-              <AlertDescription className="text-blue-800 text-xs">
-                <strong>Schedule:</strong> Automated backups run every 12 hours for all active companies. Old backups are automatically deleted.
+            <Alert className="bg-green-50 border-green-200">
+              <Calendar className="w-4 h-4 text-green-600" />
+              <AlertDescription className="text-green-800 text-xs">
+                <strong>Backup Schedule:</strong> Every 12 hours for active companies<br />
+                <strong>Retention:</strong> Keeps last 6 backups (approximately 3 days)<br />
+                <strong>Storage:</strong> Older backups automatically deleted to save space
               </AlertDescription>
             </Alert>
           </CardContent>
@@ -204,8 +219,8 @@ export default function PlatformBackupSettings() {
             <Info className="w-4 h-4" />
             <AlertDescription className="text-xs space-y-1">
               <div><strong>What gets backed up:</strong> All organizations, patients, appointments, pharmacy sales, stock, and invoices.</div>
-              <div><strong>Retention:</strong> Only the latest backup is kept per company.</div>
-              <div><strong>Format:</strong> JSON files organized by company name and date.</div>
+              <div><strong>Retention:</strong> Last 6 backups kept per company (approx. 3 days of history).</div>
+              <div><strong>Format:</strong> JSON files named CompanyName_Backup_YYYY-MM-DD.json</div>
             </AlertDescription>
           </Alert>
         </CardContent>
