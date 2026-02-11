@@ -152,7 +152,7 @@ export default function PharmacyDashboard() {
   const todaySales = sales.filter(s => {
     const saleDate = new Date(s.sale_date);
     const today = new Date();
-    return saleDate.toDateString() === today.toDateString() && s.status === 'completed';
+    return saleDate.toDateString() === today.toDateString() && (s.status === 'paid' || s.status === 'completed');
   });
 
   const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total_amount || 0), 0);
@@ -166,9 +166,10 @@ export default function PharmacyDashboard() {
   ).length;
 
   const statusColors = {
+    paid: 'bg-emerald-100 text-emerald-700 border-emerald-200',
     completed: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-    refunded: 'bg-amber-100 text-amber-700 border-amber-200',
-    voided: 'bg-rose-100 text-rose-700 border-rose-200'
+    refund: 'bg-amber-100 text-amber-700 border-amber-200',
+    void: 'bg-rose-100 text-rose-700 border-rose-200'
   };
 
   const handleViewDetails = (sale) => {
@@ -441,9 +442,9 @@ export default function PharmacyDashboard() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="all">All Status</SelectItem>
-                            <SelectItem value="completed">Completed</SelectItem>
-                            <SelectItem value="refunded">Refunded</SelectItem>
-                            <SelectItem value="voided">Voided</SelectItem>
+                            <SelectItem value="paid">Paid</SelectItem>
+                            <SelectItem value="refund">Refund</SelectItem>
+                            <SelectItem value="void">Void</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
@@ -543,7 +544,7 @@ export default function PharmacyDashboard() {
                              <Eye className="w-3 h-3 mr-1" />
                              View
                            </Button>
-                           {sale.status === 'completed' && (
+                           {(sale.status === 'paid' || sale.status === 'completed') && (
                              <Button 
                                size="sm" 
                                variant="outline" 
@@ -666,7 +667,7 @@ export default function PharmacyDashboard() {
                 <RefreshCw className="w-12 h-12 mx-auto text-slate-300 mb-4" />
                 <p className="text-slate-500 mb-4">Refund processing</p>
                 <div className="space-y-3 max-w-lg mx-auto">
-                  {sales.filter(s => s.status === 'refunded').slice(0, 5).map(sale => (
+                 {sales.filter(s => s.status === 'refund').slice(0, 5).map(sale => (
                     <Card key={sale.id} className="p-4 text-left">
                       <div className="flex justify-between items-center">
                         <div>
