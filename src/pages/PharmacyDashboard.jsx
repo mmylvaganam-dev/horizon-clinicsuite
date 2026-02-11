@@ -111,15 +111,14 @@ export default function PharmacyDashboard() {
 
   const currency = companies && companies.length > 0 ? (companies[0]?.base_currency || 'LKR') : 'LKR';
 
-  const getPatientName = (patientId) => {
-    if (!patientId) return 'Walk-in Customer';
-    const patient = patients.find(p => p.id === patientId);
+  const getPatientName = (patientRef) => {
+    if (!patientRef) return 'Walk-in Customer';
+    const patient = patients.find(p => p.id === patientRef);
     return patient ? `${patient.first_name} ${patient.last_name}` : 'Unknown';
   };
 
-  const getReceiptNumber = (saleId) => {
-    const receipt = receipts.find(r => r.sale_header_id === saleId);
-    return receipt?.receipt_number || 'N/A';
+  const getReceiptNumber = (sale) => {
+    return sale?.sale_number || 'N/A';
   };
 
   // Filter sales by date and search
@@ -132,13 +131,13 @@ export default function PharmacyDashboard() {
     const dateMatch = saleDate >= fromDate && saleDate <= toDate;
     
     const searchMatch = searchQuery === '' || 
-      getPatientName(sale.patient_id).toLowerCase().includes(searchQuery.toLowerCase()) ||
-      getReceiptNumber(sale.id).toLowerCase().includes(searchQuery.toLowerCase());
+      getPatientName(sale.patient_ref).toLowerCase().includes(searchQuery.toLowerCase()) ||
+      getReceiptNumber(sale).toLowerCase().includes(searchQuery.toLowerCase());
 
     const statusMatch = statusFilter === 'all' || sale.status === statusFilter;
     
-    const amountMatch = (!minAmount || (sale.total_amount || 0) >= parseFloat(minAmount)) &&
-                        (!maxAmount || (sale.total_amount || 0) <= parseFloat(maxAmount));
+    const amountMatch = (!minAmount || (sale.total || 0) >= parseFloat(minAmount)) &&
+                        (!maxAmount || (sale.total || 0) <= parseFloat(maxAmount));
 
     return dateMatch && searchMatch && statusMatch && amountMatch;
   });
@@ -155,7 +154,7 @@ export default function PharmacyDashboard() {
     return saleDate.toDateString() === today.toDateString() && (s.status === 'paid' || s.status === 'completed');
   });
 
-  const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total_amount || 0), 0);
+  const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total || 0), 0);
   
   const lowStockCount = pharmacyStock.filter(item => 
     item.quantity <= 10 && item.quality_status === 'usable'
@@ -247,12 +246,12 @@ export default function PharmacyDashboard() {
                   {todaySales.slice(0, 5).map((sale) => (
                     <div key={sale.id} className="text-xs bg-white/10 rounded p-2 hover:bg-white/20 transition-colors">
                       <div className="flex justify-between items-start mb-1">
-                        <span className="font-semibold">{getPatientName(sale.patient_id)}</span>
-                        <span className="font-bold">{currency} {sale.total_amount?.toFixed(2)}</span>
+                        <span className="font-semibold">{getPatientName(sale.patient_ref)}</span>
+                        <span className="font-bold">{currency} {sale.total?.toFixed(2)}</span>
                       </div>
                       <div className="flex justify-between items-center text-white/80">
                         <span>{format(new Date(sale.sale_date), 'hh:mm a')}</span>
-                        <span>{sale.created_by_email?.split('@')[0] || 'Staff'}</span>
+                        <span>{sale.created_by?.split('@')[0] || 'Staff'}</span>
                       </div>
                     </div>
                   ))}
@@ -517,17 +516,17 @@ export default function PharmacyDashboard() {
                           </div>
                           <div className="col-span-2">
                             <Badge variant="outline" className="font-mono">
-                              {getReceiptNumber(sale.id)}
+                              {getReceiptNumber(sale)}
                             </Badge>
                           </div>
                           <div className="col-span-3">
                             <p className="text-sm font-medium text-slate-900">
-                              {getPatientName(sale.patient_id)}
+                              {getPatientName(sale.patient_ref)}
                             </p>
                           </div>
                           <div className="col-span-2">
                             <p className="text-lg font-bold text-slate-900">
-                              {currency} {sale.total_amount?.toFixed(2)}
+                              {currency} {sale.total?.toFixed(2)}
                             </p>
                           </div>
                           <div className="col-span-1">
@@ -671,11 +670,11 @@ export default function PharmacyDashboard() {
                     <Card key={sale.id} className="p-4 text-left">
                       <div className="flex justify-between items-center">
                         <div>
-                          <p className="font-medium">{getReceiptNumber(sale.id)}</p>
-                          <p className="text-sm text-slate-500">{getPatientName(sale.patient_id)}</p>
+                          <p className="font-medium">{getReceiptNumber(sale)}</p>
+                          <p className="text-sm text-slate-500">{getPatientName(sale.patient_ref)}</p>
                         </div>
                         <div className="text-right">
-                          <p className="font-bold text-rose-600">{currency} {sale.total_amount?.toFixed(2)}</p>
+                          <p className="font-bold text-rose-600">{currency} {sale.total?.toFixed(2)}</p>
                           <Badge className="bg-rose-100 text-rose-700 mt-1">Refunded</Badge>
                         </div>
                       </div>
@@ -777,7 +776,7 @@ export default function PharmacyDashboard() {
                 <div className="grid grid-cols-2 gap-3 text-sm">
                   <div>
                     <p className="text-slate-600">Receipt #</p>
-                    <p className="font-semibold">{getReceiptNumber(selectedSale.id)}</p>
+                    <p className="font-semibold">{getReceiptNumber(selectedSale)}</p>
                   </div>
                   <div>
                     <p className="text-slate-600">Date</p>
@@ -785,7 +784,7 @@ export default function PharmacyDashboard() {
                   </div>
                   <div>
                     <p className="text-slate-600">Customer</p>
-                    <p className="font-semibold">{getPatientName(selectedSale.patient_id)}</p>
+                    <p className="font-semibold">{getPatientName(selectedSale.patient_ref)}</p>
                   </div>
                   <div>
                     <p className="text-slate-600">Status</p>
@@ -818,19 +817,13 @@ export default function PharmacyDashboard() {
                   <span>Subtotal:</span>
                   <span className="font-semibold">{currency} {selectedSale.subtotal?.toFixed(2)}</span>
                 </div>
-                {selectedSale.discount_amount > 0 && (
-                  <div className="flex justify-between text-sm text-emerald-600">
-                    <span>Discount:</span>
-                    <span className="font-semibold">- {currency} {selectedSale.discount_amount?.toFixed(2)}</span>
-                  </div>
-                )}
                 <div className="flex justify-between text-sm">
                   <span>Tax:</span>
-                  <span className="font-semibold">{currency} {selectedSale.tax?.toFixed(2)}</span>
+                  <span className="font-semibold">{currency} {selectedSale.tax_total?.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-lg font-bold pt-2 border-t">
                   <span>Total:</span>
-                  <span className="text-indigo-600">{currency} {selectedSale.total_amount?.toFixed(2)}</span>
+                  <span className="text-indigo-600">{currency} {selectedSale.total?.toFixed(2)}</span>
                 </div>
               </div>
 

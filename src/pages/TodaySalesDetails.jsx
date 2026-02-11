@@ -83,15 +83,14 @@ export default function TodaySalesDetails() {
 
   const currency = companies && companies.length > 0 ? (companies[0]?.base_currency || 'LKR') : 'LKR';
 
-  const getPatientName = (patientId) => {
-    if (!patientId) return 'Walk-in Customer';
-    const patient = patients.find(p => p.id === patientId);
+  const getPatientName = (patientRef) => {
+    if (!patientRef) return 'Walk-in Customer';
+    const patient = patients.find(p => p.id === patientRef);
     return patient ? `${patient.first_name} ${patient.last_name}` : 'Unknown';
   };
 
-  const getReceiptNumber = (saleId) => {
-    const receipt = receipts.find(r => r.sale_header_id === saleId);
-    return receipt?.receipt_number || 'N/A';
+  const getReceiptNumber = (sale) => {
+    return sale?.sale_number || 'N/A';
   };
 
   // Filter only today's paid sales
@@ -101,7 +100,7 @@ export default function TodaySalesDetails() {
     return saleDate.toDateString() === today.toDateString() && (s.status === 'paid' || s.status === 'completed');
   });
 
-  const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total_amount || 0), 0);
+  const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total || 0), 0);
   const averageSale = todaySales.length > 0 ? (todayRevenue / todaySales.length) : 0;
 
   const handleReprintInvoice = async (sale) => {
@@ -235,7 +234,7 @@ export default function TodaySalesDetails() {
                             #{index + 1}
                           </Badge>
                           <Badge variant="outline" className="font-mono">
-                            {getReceiptNumber(sale.id)}
+                            {getReceiptNumber(sale)}
                           </Badge>
                           <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">
                             {sale.status}
@@ -247,7 +246,7 @@ export default function TodaySalesDetails() {
                             <User className="w-5 h-5 text-blue-500 mt-0.5" />
                             <div>
                               <p className="text-xs text-slate-500 uppercase tracking-wide">Customer</p>
-                              <p className="font-semibold text-slate-900">{getPatientName(sale.patient_id)}</p>
+                              <p className="font-semibold text-slate-900">{getPatientName(sale.patient_ref)}</p>
                             </div>
                           </div>
 
@@ -266,7 +265,7 @@ export default function TodaySalesDetails() {
                             <div>
                               <p className="text-xs text-slate-500 uppercase tracking-wide">Sold By</p>
                               <p className="font-semibold text-slate-900">
-                                {sale.created_by_email?.split('@')[0] || 'Staff'}
+                                {sale.created_by?.split('@')[0] || 'Staff'}
                               </p>
                             </div>
                           </div>
@@ -287,7 +286,7 @@ export default function TodaySalesDetails() {
                         <div className="text-right">
                           <p className="text-sm text-slate-500 mb-1">Total Amount</p>
                           <p className="text-3xl font-bold text-slate-900">
-                            {formatCurrency(sale.total_amount, currency)}
+                            {formatCurrency(sale.total, currency)}
                           </p>
                         </div>
 
