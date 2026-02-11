@@ -479,16 +479,16 @@ export default function PharmacyBilling() {
         created_by_email: user?.email || 'system'
       };
 
-      const sale = await base44.entities.PharmacySale.create(saleData);
+      const sale = await base44.entities.PharmacySaleHeader.create(saleData);
       
       // Create sale line items
       for (const item of cart) {
-        await base44.entities.PharmacySaleItem.create({
-          sale_id: sale.id,
-          item_name: item.display_name,
+        await base44.entities.PharmacySaleLine.create({
+          sale_header_id: sale.id,
+          product_name: item.display_name,
           quantity: item.quantity,
           unit_price: item.unit_price,
-          line_total: item.total
+          total_price: item.total
         });
       }
       
