@@ -44,6 +44,7 @@ export default function PharmacyDashboard() {
   const [maxAmount, setMaxAmount] = useState('');
   const [showReturnDialog, setShowReturnDialog] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
+  const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const { orgFilter, selectedOrgId } = useOrgFiltered();
 
   const { data: user } = useQuery({
@@ -95,6 +96,15 @@ export default function PharmacyDashboard() {
     queryFn: async () => {
       if (!selectedOrgId) return [];
       return base44.entities.CompanyProfile.filter(orgFilter);
+    },
+    enabled: !!selectedOrgId,
+  });
+
+  const { data: saleLines = [] } = useQuery({
+    queryKey: ['pharmacySaleLines', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      return base44.entities.PharmacySaleLine.filter(orgFilter);
     },
     enabled: !!selectedOrgId,
   });
@@ -159,6 +169,27 @@ export default function PharmacyDashboard() {
     completed: 'bg-emerald-100 text-emerald-700 border-emerald-200',
     refunded: 'bg-amber-100 text-amber-700 border-amber-200',
     voided: 'bg-rose-100 text-rose-700 border-rose-200'
+  };
+
+  const handleViewDetails = (sale) => {
+    const items = saleLines.filter(line => line.sale_header_id === sale.id);
+    setSelectedSale({ ...sale, items });
+    setShowDetailsDialog(true);
+  };
+
+  const handleReprintInvoice = async (sale) => {
+    try {
+      const response = await base44.functions.invoke('generatePharmacyInvoice', { saleId: sale.id });
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(response.data);
+      printWindow.document.close();
+      setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+      }, 250);
+    } catch (error) {
+      console.error('Reprint failed:', error);
+    }
   };
 
   return (
@@ -504,37 +535,28 @@ export default function PharmacyDashboard() {
                             </Badge>
                           </div>
                           <div className="col-span-2 flex justify-end gap-2">
-                           {sale.status === 'completed' && (
-                             <>
-                               <Button 
-                                 size="sm" 
-                                 variant="outline"
-                                 onClick={() => navigate(createPageUrl('PharmacyPOS'))}
-                               >
-                                 In Progress
-                               </Button>
-                               <Button 
-                                 size="sm" 
-                                 variant="outline" 
-                                 className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                                 onClick={() => {
-                                   setSelectedSale(sale);
-                                   setShowReturnDialog(true);
-                                 }}
-                               >
-                                 <RotateCw className="w-3 h-3 mr-1" />
-                                 Return
-                               </Button>
-                             </>
-                           )}
                            <Button 
                              size="sm" 
                              variant="outline"
-                             onClick={() => navigate(createPageUrl('PharmacyPOS'))}
+                             onClick={() => handleViewDetails(sale)}
                            >
-                             <FileText className="w-3 h-3 mr-1" />
+                             <Eye className="w-3 h-3 mr-1" />
                              View
                            </Button>
+                           {sale.status === 'completed' && (
+                             <Button 
+                               size="sm" 
+                               variant="outline" 
+                               className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                               onClick={() => {
+                                 setSelectedSale(sale);
+                                 setShowReturnDialog(true);
+                               }}
+                             >
+                               <RotateCw className="w-3 h-3 mr-1" />
+                               Return
+                             </Button>
+                           )}
                           </div>
                         </div>
                       </div>
@@ -740,6 +762,90 @@ export default function PharmacyDashboard() {
         currency={currency}
         user={user}
       />
+
+      {/* Sale Details Dialog */}
+      <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Sale Details</DialogTitle>
+          </DialogHeader>
+          
+          {selectedSale && (
+            <div className="space-y-4">
+              <div className="bg-slate-50 p-4 rounded-lg">
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <p className="text-slate-600">Receipt #</p>
+                    <p className="font-semibold">{getReceiptNumber(selectedSale.id)}</p>
+                  </div>
+                  <div>
+                    <p className="text-slate-600">Date</p>
+                    <p className="font-semibold">{format(new Date(selectedSale.sale_date), 'PPP p')}</p>
+                  </div>
+                  <div>
+                    <p className="text-slate-600">Customer</p>
+                    <p className="font-semibold">{getPatientName(selectedSale.patient_id)}</p>
+                  </div>
+                  <div>
+                    <p className="text-slate-600">Status</p>
+                    <Badge className={statusColors[selectedSale.status]}>{selectedSale.status}</Badge>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="font-semibold mb-3">Items</h3>
+                <div className="space-y-2">
+                  {selectedSale.items && selectedSale.items.length > 0 ? (
+                    selectedSale.items.map((item, idx) => (
+                      <div key={idx} className="flex justify-between items-center py-2 border-b">
+                        <div className="flex-1">
+                          <p className="font-medium">{item.product_name}</p>
+                          <p className="text-sm text-slate-500">Qty: {item.quantity} × {currency} {item.unit_price?.toFixed(2)}</p>
+                        </div>
+                        <p className="font-bold">{currency} {item.total_price?.toFixed(2)}</p>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-slate-500 text-center py-4">No items found</p>
+                  )}
+                </div>
+              </div>
+
+              <div className="border-t pt-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Subtotal:</span>
+                  <span className="font-semibold">{currency} {selectedSale.subtotal?.toFixed(2)}</span>
+                </div>
+                {selectedSale.discount_amount > 0 && (
+                  <div className="flex justify-between text-sm text-emerald-600">
+                    <span>Discount:</span>
+                    <span className="font-semibold">- {currency} {selectedSale.discount_amount?.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm">
+                  <span>Tax:</span>
+                  <span className="font-semibold">{currency} {selectedSale.tax?.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-lg font-bold pt-2 border-t">
+                  <span>Total:</span>
+                  <span className="text-indigo-600">{currency} {selectedSale.total_amount?.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setShowDetailsDialog(false)}>
+                  Close
+                </Button>
+                <Button onClick={() => handleReprintInvoice(selectedSale)}>
+                  <FileText className="w-4 h-4 mr-2" />
+                  Reprint Invoice
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
