@@ -469,12 +469,14 @@ export default function PharmacyBilling() {
         location_id: user?.location_id || 'default_location',
         patient_id: selectedPatient?.id || null,
         walk_in_patient_id: selectedWalkIn?.id || null,
+        sale_number: receiptNumber,
         sale_date: new Date().toISOString(),
         subtotal: subtotalAmount,
-        tax: taxAmount,
+        tax_total: taxAmount,
         discount_amount: finalDiscountAmount,
         total: totalAmount,
-        status: 'completed',
+        status: 'paid',
+        payment_method: 'cash',
         created_by: user?.email || 'system',
         created_by_email: user?.email || 'system'
       };
@@ -484,7 +486,10 @@ export default function PharmacyBilling() {
       // Create sale line items
       for (const item of cart) {
         await base44.entities.PharmacySaleLine.create({
+          organization_id: user?.organization_id || 'default_org',
+          location_id: user?.location_id || 'default_location',
           sale_header_id: sale.id,
+          stock_id: item.stock_id,
           product_name: item.display_name,
           quantity: item.quantity,
           unit_price: item.unit_price,

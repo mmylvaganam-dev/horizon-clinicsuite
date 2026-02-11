@@ -94,11 +94,11 @@ export default function TodaySalesDetails() {
     return receipt?.receipt_number || 'N/A';
   };
 
-  // Filter only today's completed sales
+  // Filter only today's paid sales
   const todaySales = sales.filter(s => {
     const saleDate = new Date(s.sale_date);
     const today = new Date();
-    return saleDate.toDateString() === today.toDateString() && s.status === 'completed';
+    return saleDate.toDateString() === today.toDateString() && (s.status === 'paid' || s.status === 'completed');
   });
 
   const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total_amount || 0), 0);
@@ -321,15 +321,15 @@ export default function TodaySalesDetails() {
                         <p className="text-xs font-semibold text-slate-500 mb-2">ITEMS SOLD:</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                           {itemsForSale.map((item, idx) => (
-                            <div key={idx} className="text-sm bg-slate-50 rounded p-2 flex justify-between items-center">
-                              <span className="text-slate-700">{item.item_name}</span>
-                              <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="text-xs">x{item.quantity}</Badge>
-                                <span className="font-semibold text-slate-900">
-                                  {formatCurrency(item.line_total, currency)}
-                                </span>
-                              </div>
-                            </div>
+                           <div key={idx} className="text-sm bg-slate-50 rounded p-2 flex justify-between items-center">
+                             <span className="text-slate-700">{item.product_name}</span>
+                             <div className="flex items-center gap-2">
+                               <Badge variant="outline" className="text-xs">x{item.quantity}</Badge>
+                               <span className="font-semibold text-slate-900">
+                                 {formatCurrency(item.total_price, currency)}
+                               </span>
+                             </div>
+                           </div>
                           ))}
                         </div>
                       </div>
