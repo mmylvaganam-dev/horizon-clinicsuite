@@ -467,18 +467,15 @@ export default function PharmacyBilling() {
       const saleData = {
         organization_id: user?.organization_id || 'default_org',
         location_id: user?.location_id || 'default_location',
-        patient_id: selectedPatient?.id || null,
-        walk_in_patient_id: selectedWalkIn?.id || null,
+        patient_ref: selectedPatient?.id || selectedWalkIn?.id || null,
         sale_number: receiptNumber,
         sale_date: new Date().toISOString(),
         subtotal: subtotalAmount,
         tax_total: taxAmount,
-        discount_amount: finalDiscountAmount,
         total: totalAmount,
         status: 'paid',
         payment_method: 'cash',
-        created_by: user?.email || 'system',
-        created_by_email: user?.email || 'system'
+        notes: finalDiscountAmount > 0 ? `Discount: Rs ${finalDiscountAmount.toFixed(2)}` : ''
       };
 
       const sale = await base44.entities.PharmacySaleHeader.create(saleData);
