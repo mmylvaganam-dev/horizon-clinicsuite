@@ -454,6 +454,9 @@ export default function Admin() {
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Invite User to Organization</DialogTitle>
+                <p className="text-sm text-slate-600 mt-2">
+                  Send an invitation email to add a new user to your organization
+                </p>
               </DialogHeader>
               <div className="space-y-4 mt-4">
                 {selectedOrgId ? (
