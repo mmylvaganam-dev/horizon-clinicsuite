@@ -182,12 +182,16 @@ export default function Admin() {
 
       console.log('🔵 Step 1: Inviting user:', email, 'with role:', role, 'requiresApproval:', requiresApproval);
 
-      // Invite user - this creates the user account
-      await base44.users.inviteUser(email, role);
+      try {
+        // Invite user - this creates the user account
+        await base44.users.inviteUser(email, role);
+        console.log('✅ Step 2: User invited successfully');
+      } catch (inviteError) {
+        console.error('❌ Invite error:', inviteError);
+        throw new Error(`Failed to send invitation: ${inviteError.message}`);
+      }
 
-      console.log('✅ Step 2: User invited, waiting 2 seconds for user creation...');
-
-      // Wait longer for user to be fully created in database
+      // Wait for user to be created in database
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       // If platform owner inviting (no approval needed), auto-assign
@@ -195,30 +199,40 @@ export default function Admin() {
       if (!requiresApproval) {
         console.log('🔵 Step 3: Platform owner - Auto assigning to org:', selectedOrgId);
 
-        // Auto-assign to selected organization using email
-        const assignResponse = await base44.functions.invoke('assignUserToOrganization', {
-          userEmail: email,
-          organizationId: selectedOrgId
-        });
+        try {
+          // Auto-assign to selected organization using email
+          const assignResponse = await base44.functions.invoke('assignUserToOrganization', {
+            userEmail: email,
+            organizationId: selectedOrgId
+          });
 
-        console.log('✅ Step 4: Assignment complete:', assignResponse.data);
-        return { email, role, orgId: selectedOrgId, requiresApproval: false };
+          console.log('✅ Step 4: Assignment complete:', assignResponse.data);
+          return { email, role, orgId: selectedOrgId, requiresApproval: false };
+        } catch (assignError) {
+          console.error('❌ Assignment error:', assignError);
+          throw new Error(`User invited but assignment failed: ${assignError.message}`);
+        }
       } else {
         console.log('🔵 Step 3: Org admin - Creating UserApproval for platform owner review');
 
-        // Create UserApproval record for platform owner to review
-        const approvalResponse = await base44.entities.UserApproval.create({
-          user_email: email,
-          organization_id: selectedOrgId,
-          org_admin_status: 'approved',
-          org_admin_approved_by: user.email,
-          org_admin_approved_date: new Date().toISOString(),
-          platform_owner_status: 'pending',
-          final_status: 'pending_platform'
-        });
+        try {
+          // Create UserApproval record for platform owner to review
+          const approvalResponse = await base44.entities.UserApproval.create({
+            user_email: email,
+            organization_id: selectedOrgId,
+            org_admin_status: 'approved',
+            org_admin_approved_by: user.email,
+            org_admin_approved_date: new Date().toISOString(),
+            platform_owner_status: 'pending',
+            final_status: 'pending_platform'
+          });
 
-        console.log('✅ Step 4: UserApproval created:', approvalResponse);
-        return { email, role, orgId: selectedOrgId, requiresApproval: true };
+          console.log('✅ Step 4: UserApproval created:', approvalResponse);
+          return { email, role, orgId: selectedOrgId, requiresApproval: true };
+        } catch (approvalError) {
+          console.error('❌ Approval creation error:', approvalError);
+          throw new Error(`User invited but approval creation failed: ${approvalError.message}`);
+        }
       }
     },
     onSuccess: async (data) => {
@@ -228,9 +242,9 @@ export default function Admin() {
       await queryClient.invalidateQueries(['userApprovals']);
 
       if (data.requiresApproval) {
-        toast.success(`✅ User ${data.email} invited! Sent to platform owner for approval.`);
+        toast.success(`✅ User ${data.email} invited! Sent to platform owner for approval.`, { duration: 5000 });
       } else {
-        toast.success(`✅ User ${data.email} invited and assigned to organization!`);
+        toast.success(`✅ User ${data.email} invited and assigned to organization!`, { duration: 5000 });
       }
 
       setInviteDialogOpen(false);
@@ -239,7 +253,8 @@ export default function Admin() {
     },
     onError: (error) => {
       console.error('❌ Invite mutation error:', error);
-      toast.error(`❌ Error: ${error.message || 'Failed to invite user'}`);
+      const errorMessage = error.response?.data?.message || error.message || 'Failed to invite user';
+      toast.error(`❌ ${errorMessage}`, { duration: 6000 });
     }
   });
 
