@@ -182,32 +182,44 @@ export default function Admin() {
       console.log('🔵 INVITE START:', { email, role, requiresApproval, selectedOrgId, isPlatformOwner });
       toast.loading('Sending invitation...', { id: 'invite-toast' });
 
+      // Step 1: Send invitation email
+      console.log('🔵 Step 1: Sending invitation email...');
       try {
-        // Step 1: Send invitation email
-        console.log('🔵 Calling base44.users.inviteUser...');
-        await base44.users.inviteUser(email, role);
-        console.log('✅ Invitation email sent successfully');
-        toast.loading('Invitation sent! Setting up account...', { id: 'invite-toast' });
+        const inviteResult = await base44.users.inviteUser(email, role);
+        console.log('✅ Invitation API response:', inviteResult);
+        toast.loading('✅ Email sent! Creating account...', { id: 'invite-toast' });
+      } catch (inviteError) {
+        console.error('❌ Invite API Error:', inviteError);
+        toast.error(`❌ Failed to send invitation: ${inviteError.message}`, { id: 'invite-toast', duration: 8000 });
+        throw inviteError;
+      }
 
-        // Step 2: Wait for user creation
-        await new Promise(resolve => setTimeout(resolve, 2000));
+      // Step 2: Wait for user creation
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-        // Step 3: Platform owner - auto assign, Org admin - create approval
-        if (isPlatformOwner) {
-          console.log('🔵 Platform owner flow - Auto assigning...');
-          toast.loading('Assigning to organization...', { id: 'invite-toast' });
-          
+      // Step 3: Platform owner - auto assign, Org admin - create approval
+      if (isPlatformOwner) {
+        console.log('🔵 Step 2: Platform owner - Auto assigning to org...');
+        toast.loading('🔄 Assigning to organization...', { id: 'invite-toast' });
+        
+        try {
           const assignResponse = await base44.functions.invoke('assignUserToOrganization', {
             userEmail: email,
             organizationId: selectedOrgId
           });
 
           console.log('✅ Assignment complete:', assignResponse.data);
-          toast.success(`✅ ${email} invited and assigned!`, { id: 'invite-toast', duration: 5000 });
+          toast.success(`✅ ${email} invited and assigned successfully!`, { id: 'invite-toast', duration: 6000 });
           return { email, role, orgId: selectedOrgId };
-        } else {
-          console.log('🔵 Org admin flow - Creating approval request...');
-          
+        } catch (assignError) {
+          console.error('❌ Assignment Error:', assignError);
+          toast.error(`❌ User invited but assignment failed: ${assignError.message}`, { id: 'invite-toast', duration: 8000 });
+          throw assignError;
+        }
+      } else {
+        console.log('🔵 Step 2: Org admin - Creating approval request...');
+        
+        try {
           await base44.entities.UserApproval.create({
             user_email: email,
             organization_id: selectedOrgId,
@@ -219,14 +231,13 @@ export default function Admin() {
           });
 
           console.log('✅ Approval request created');
-          toast.success(`✅ ${email} invited! Awaiting platform owner approval.`, { id: 'invite-toast', duration: 5000 });
+          toast.success(`✅ ${email} invited! Awaiting platform owner approval.`, { id: 'invite-toast', duration: 6000 });
           return { email, role, orgId: selectedOrgId };
+        } catch (approvalError) {
+          console.error('❌ Approval Creation Error:', approvalError);
+          toast.error(`❌ User invited but approval creation failed: ${approvalError.message}`, { id: 'invite-toast', duration: 8000 });
+          throw approvalError;
         }
-      } catch (error) {
-        console.error('❌ INVITE ERROR:', error);
-        const errorMsg = error.response?.data?.message || error.message || 'Unknown error';
-        toast.error(`❌ Failed: ${errorMsg}`, { id: 'invite-toast', duration: 8000 });
-        throw error;
       }
     },
     onSuccess: async () => {
