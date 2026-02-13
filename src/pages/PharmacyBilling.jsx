@@ -31,7 +31,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { createPageUrl } from '../utils';
@@ -63,17 +63,32 @@ export default function PharmacyBilling() {
   const [emailSent, setEmailSent] = useState(false);
   const [smsSent, setSmsSent] = useState(false);
 
-  const { data: pharmacyStock = [], isLoading: stockLoading } = useQuery({
+  const { data: pharmacyStock = [], isLoading: stockLoading, error: stockError } = useQuery({
     queryKey: ['pharmacyStock', selectedOrgId],
     queryFn: async () => {
-      if (!selectedOrgId) return [];
+      if (!selectedOrgId) {
+        console.log('PharmacyBilling - No org selected');
+        return [];
+      }
       console.log('PharmacyBilling - Fetching stock for org:', selectedOrgId);
-      const result = await base44.entities.PharmacyStock.filter(orgFilter, '-created_date');
-      console.log('PharmacyBilling - Got stock:', result.length, 'items');
-      return result;
+      try {
+        const result = await base44.entities.PharmacyStock.filter(orgFilter, '-created_date');
+        console.log('PharmacyBilling - Got stock:', result.length, 'items');
+        return result;
+      } catch (error) {
+        console.error('PharmacyBilling - Stock fetch error:', error);
+        throw error;
+      }
     },
     enabled: !!selectedOrgId,
   });
+
+  React.useEffect(() => {
+    if (stockError) {
+      console.error('PharmacyBilling - Stock query error:', stockError);
+      toast.error('Failed to load pharmacy stock');
+    }
+  }, [stockError]);
 
   // Handle prescription from work queue
   useEffect(() => {
@@ -829,6 +844,20 @@ export default function PharmacyBilling() {
     setPrescriptionFile(null);
     setPrescriptionUrl(null);
   };
+
+  console.log('PharmacyBilling - Rendering with:', { selectedOrgId, stockCount: pharmacyStock.length, cartCount: cart.length });
+
+  if (!selectedOrgId) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <Card className="p-8 max-w-md text-center">
+          <AlertCircle className="w-16 h-16 mx-auto text-amber-500 mb-4" />
+          <h2 className="text-xl font-bold mb-2">No Organization Selected</h2>
+          <p className="text-slate-600 mb-4">Please select an organization from the top right to continue.</p>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex flex-col bg-slate-50">
