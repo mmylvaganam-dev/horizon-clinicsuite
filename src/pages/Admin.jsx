@@ -79,6 +79,15 @@ export default function Admin() {
     queryFn: () => base44.entities.Organization.list(),
   });
 
+  // CRITICAL: Define isPlatformOwner BEFORE using it in queries
+  const isPlatformOwner = user?.email === 'madhawaekanayake@gmail.com' || 
+                         user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
+                         user?.is_platform_owner === true ||
+                         userRoles.some(ur => {
+                           const role = allRoles.find(r => r.id === ur.role_id);
+                           return role?.code === 'PLATFORM_OWNER';
+                         });
+
   const { data: pendingInvitations = [] } = useQuery({
     queryKey: ['pendingInvitations', selectedOrgId],
     queryFn: async () => {
@@ -105,14 +114,6 @@ export default function Admin() {
     },
     enabled: !!selectedUser,
   });
-
-  const isPlatformOwner = user?.email === 'madhawaekanayake@gmail.com' || 
-                         user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
-                         user?.is_platform_owner === true ||
-                         userRoles.some(ur => {
-                           const role = allRoles.find(r => r.id === ur.role_id);
-                           return role?.code === 'PLATFORM_OWNER';
-                         });
 
   // CRITICAL: Get selected company from dropdown
   const selectedCompanyId = selectedOrgId && organizations.length > 0
