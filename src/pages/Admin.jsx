@@ -119,11 +119,9 @@ export default function Admin() {
     ? organizations.find(org => org.id === selectedOrgId)?.company_id
     : null;
 
-  // CRITICAL: Show users for the selected organization only
-  // Platform owner: show users from selected org's company
-  // Regular admin: show all users (no filtering)
-  const allUsers = isPlatformOwner && selectedOrgId
-    ? allUsersUnfiltered.filter(u => u.organization_id === selectedOrgId || !u.organization_id)
+  // Organization-level filtering: Show only users from the selected organization
+  const allUsers = selectedOrgId
+    ? allUsersUnfiltered.filter(u => u.organization_id === selectedOrgId)
     : allUsersUnfiltered;
 
   console.log('🔴 Admin Page Filter:', {
