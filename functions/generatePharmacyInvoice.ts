@@ -244,16 +244,12 @@ Deno.serve(async (req) => {
               <span>${currency} ${parseFloat(currentSale.subtotal || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <div class="summary-row">
-              <span>Discount:</span>
-              <span>${currency} ${parseFloat(currentSale.discount_amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-            </div>
-            <div class="summary-row">
               <span>Tax:</span>
-              <span>${currency} ${parseFloat(currentSale.tax_amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span>${currency} ${parseFloat(currentSale.tax_total || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
             <div class="summary-row total">
               <span>TOTAL:</span>
-              <span>${currency} ${parseFloat(currentSale.total_amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span>${currency} ${parseFloat(currentSale.total || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </div>
           </div>
 
