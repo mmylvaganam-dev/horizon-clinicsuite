@@ -79,6 +79,18 @@ export default function Admin() {
     queryFn: () => base44.entities.Organization.list(),
   });
 
+  const { data: pendingInvitations = [] } = useQuery({
+    queryKey: ['pendingInvitations', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      return await base44.entities.UserApproval.filter({ 
+        organization_id: selectedOrgId,
+        final_status: 'pending_platform'
+      });
+    },
+    enabled: !!selectedOrgId && isPlatformOwner,
+  });
+
   // Get organization roles (exclude platform roles)
   const organizationRoles = allRoles.filter(role => {
     const roleCode = role.code || role.role_name;
@@ -180,6 +192,31 @@ export default function Admin() {
       }
 
       console.log('🔵 INVITE START:', { email, role, requiresApproval, selectedOrgId, isPlatformOwner });
+      toast.loading('Checking for duplicates...', { id: 'invite-toast' });
+
+      // Check if user already exists
+      const existingUsers = await base44.entities.User.list();
+      const userExists = existingUsers.some(u => u.email === email);
+      
+      if (userExists) {
+        const existingUser = existingUsers.find(u => u.email === email);
+        if (existingUser.organization_id === selectedOrgId) {
+          toast.error('❌ User already exists in this organization!', { id: 'invite-toast', duration: 5000 });
+          throw new Error('User already exists in this organization');
+        }
+      }
+
+      // Check for duplicate pending approval
+      const pendingApprovals = await base44.entities.UserApproval.filter({
+        user_email: email,
+        organization_id: selectedOrgId
+      });
+      
+      if (pendingApprovals.length > 0) {
+        toast.error('❌ Invitation already pending for this user!', { id: 'invite-toast', duration: 5000 });
+        throw new Error('Duplicate invitation - already pending');
+      }
+
       toast.loading('Sending invitation...', { id: 'invite-toast' });
 
       // Step 1: Send invitation email
@@ -244,6 +281,7 @@ export default function Admin() {
       console.log('✅ Mutation success - Refreshing data...');
       await queryClient.invalidateQueries(['allUsers']);
       await queryClient.invalidateQueries(['userRoles']);
+      await queryClient.invalidateQueries(['pendingInvitations']);
       setInviteDialogOpen(false);
       setInviteEmail('');
       setInviteRole('user');
@@ -274,6 +312,20 @@ export default function Admin() {
     },
     onError: (error) => {
       toast.error(`❌ Error: ${error.message || 'Failed to assign user'}`);
+    }
+  });
+
+  const deleteInvitationMutation = useMutation({
+    mutationFn: async (invitationId) => {
+      await base44.entities.UserApproval.delete(invitationId);
+      return invitationId;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(['pendingInvitations']);
+      toast.success('✅ Duplicate invitation deleted!');
+    },
+    onError: (error) => {
+      toast.error(`❌ Error: ${error.message || 'Failed to delete invitation'}`);
     }
   });
 
@@ -559,6 +611,50 @@ export default function Admin() {
               </div>
             </div>
           </div>
+
+          {/* Pending Invitations - Platform Owner Only */}
+          {isPlatformOwner && pendingInvitations.length > 0 && (
+            <Card className="border-l-4 border-yellow-600">
+              <CardHeader className="bg-yellow-50 border-b">
+                <CardTitle className="flex items-center gap-3 text-lg text-slate-900">
+                  <Users className="w-5 h-5 text-yellow-600" />
+                  Pending Invitations ({pendingInvitations.length})
+                </CardTitle>
+                <p className="text-sm text-slate-600 mt-1">Review and manage duplicate or pending user invitations</p>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <div className="space-y-3">
+                  {pendingInvitations.map((invitation) => (
+                    <div 
+                      key={invitation.id}
+                      className="flex items-center justify-between p-4 bg-yellow-50 rounded-lg border border-yellow-200"
+                    >
+                      <div>
+                        <p className="font-medium text-slate-900">{invitation.user_email}</p>
+                        <p className="text-xs text-slate-500">
+                          Requested by: {invitation.org_admin_approved_by || 'Unknown'}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          Status: {invitation.final_status}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          onClick={() => deleteInvitationMutation.mutate(invitation.id)}
+                          disabled={deleteInvitationMutation.isPending}
+                          variant="destructive"
+                          size="sm"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Bank Statement Access Control - Org Admin Only */}
           {(isPlatformOwner || isAppAdmin) && (
