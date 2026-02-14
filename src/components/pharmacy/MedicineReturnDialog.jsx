@@ -189,19 +189,24 @@ export default function MedicineReturnDialog({ open, onOpenChange, sale, saleIte
   };
 
   const addItem = (saleItem) => {
-    if (selectedItems.some(item => item.product_id === saleItem.product_id)) {
+    const productId = saleItem.product_id || saleItem.stock_id;
+    if (selectedItems.some(item => item.product_id === productId)) {
       toast.error('Item already added');
       return;
     }
-    setSelectedItems([...selectedItems, {
-      product_id: saleItem.product_id || saleItem.stock_id,
-      product_name: saleItem.product_name_cache || saleItem.product_name,
-      unit_price: saleItem.unit_price,
+    
+    const newItem = {
+      product_id: productId,
+      product_name: saleItem.product_name_cache || saleItem.product_name || 'Unknown',
+      unit_price: saleItem.unit_price || 0,
       batch_no: saleItem.batch_no || '',
       return_qty: 1,
       max_qty: saleItem.qty || saleItem.quantity || 1,
       reason: returnReason
-    }]);
+    };
+    
+    console.log('🟢 Adding item to return:', newItem);
+    setSelectedItems([...selectedItems, newItem]);
   };
 
   const removeItem = (productId) => {

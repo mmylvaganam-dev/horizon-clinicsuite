@@ -184,8 +184,10 @@ export default function PharmacyDashboard() {
     setShowDetailsDialog(true);
   };
 
-  const handleMedicineReturn = (sale) => {
+  const handleMedicineReturn = async (sale) => {
     const items = saleLines.filter(line => line.sale_header_id === sale.id);
+    console.log('🔵 Opening return dialog with sale:', sale.id, 'items:', items.length);
+    console.log('🔵 Items being passed:', items);
     setSelectedSale({ ...sale, items });
     setShowReturnDialog(true);
   };
