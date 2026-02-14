@@ -69,8 +69,10 @@ export default function CPPManager({ patientId }) {
 
   const acceptSuggestionMutation = useMutation({
     mutationFn: async (suggestion) => {
-      // Add suggested problems
-      const problems = suggestion.suggested_changes_json.add_problems || [];
+      if (!user) throw new Error('User not loaded');
+
+      const problems = suggestion.suggested_changes_json?.add_problems || [];
+      
       for (const prob of problems) {
         await base44.entities.CPPItem.create({
           organization_id: '',
@@ -84,44 +86,41 @@ export default function CPPManager({ patientId }) {
         });
       }
 
-      // Mark suggestion as accepted
       await base44.entities.CPPUpdateSuggestion.update(suggestion.id, {
         status: 'accepted',
         reviewed_by: user.id,
         reviewed_by_email: user.email,
         reviewed_at: new Date().toISOString()
       });
-
-      // Audit
-      await base44.entities.AuditLog.create({
-        timestamp: new Date().toISOString(),
-        user_id: user.id,
-        user_email: user.email,
-        patient_id: patientId,
-        module: 'CPP',
-        action: 'accept_suggestion',
-        record_type: 'CPPUpdateSuggestion',
-        record_id: suggestion.id,
-        metadata: { problems_added: problems.length }
-      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cppItems', patientId] });
       queryClient.invalidateQueries({ queryKey: ['cppSuggestions', patientId] });
-      toast.success('Suggestion accepted');
+      toast.success('Problems added to CPP');
+    },
+    onError: (error) => {
+      console.error('Error accepting suggestion:', error);
+      toast.error('Failed: ' + error.message);
     }
   });
 
   const rejectSuggestionMutation = useMutation({
-    mutationFn: (suggestionId) => base44.entities.CPPUpdateSuggestion.update(suggestionId, {
-      status: 'rejected',
-      reviewed_by: user.id,
-      reviewed_by_email: user.email,
-      reviewed_at: new Date().toISOString()
-    }),
+    mutationFn: (suggestionId) => {
+      if (!user) throw new Error('User not loaded');
+      return base44.entities.CPPUpdateSuggestion.update(suggestionId, {
+        status: 'rejected',
+        reviewed_by: user.id,
+        reviewed_by_email: user.email,
+        reviewed_at: new Date().toISOString()
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cppSuggestions', patientId] });
       toast.success('Suggestion rejected');
+    },
+    onError: (error) => {
+      console.error('Error rejecting suggestion:', error);
+      toast.error('Failed: ' + error.message);
     }
   });
 
@@ -231,13 +230,23 @@ export default function CPPManager({ patientId }) {
                     ))}
                   </div>
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={() => acceptSuggestionMutation.mutate(sug)}>
+                    <Button 
+                      size="sm" 
+                      onClick={() => acceptSuggestionMutation.mutate(sug)}
+                      disabled={acceptSuggestionMutation.isPending || !user}
+                      className="bg-teal-600 hover:bg-teal-700 text-white"
+                    >
                       <Check className="w-4 h-4 mr-1" />
-                      Accept
+                      {acceptSuggestionMutation.isPending ? 'Adding...' : 'Accept'}
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => rejectSuggestionMutation.mutate(sug.id)}>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => rejectSuggestionMutation.mutate(sug.id)}
+                      disabled={rejectSuggestionMutation.isPending || !user}
+                    >
                       <X className="w-4 h-4 mr-1" />
-                      Reject
+                      {rejectSuggestionMutation.isPending ? 'Rejecting...' : 'Reject'}
                     </Button>
                   </div>
                 </div>
