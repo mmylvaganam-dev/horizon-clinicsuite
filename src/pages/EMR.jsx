@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { usePatientAccess, logPatientProfileView } from '../components/rbac/PatientAccessControl';
+// Access control removed - all users have full EMR access
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -26,15 +26,6 @@ export default function EMR() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPatient, setSelectedPatient] = useState(null);
-  const access = usePatientAccess();
-
-  useEffect(() => {
-    if (selectedPatient && access.user) {
-      const accessLevel = access.canViewFullChart ? 'full_chart' : 
-                          access.canViewBasicProfile ? 'basic_profile' : 'none';
-      logPatientProfileView(access.user, selectedPatient.id, accessLevel);
-    }
-  }, [selectedPatient, access.user]);
 
   const { data: patients = [], isLoading } = useQuery({
     queryKey: ['patients'],
@@ -59,41 +50,12 @@ export default function EMR() {
     return fullName.includes(search) || p.mrn?.toLowerCase().includes(search);
   });
 
-  if (access.noPatientAccess) {
-    return (
-      <div className="text-center py-12">
-        <Lock className="w-12 h-12 mx-auto text-rose-500 mb-4" />
-        <h3 className="text-lg font-medium text-slate-900">Access Restricted</h3>
-        <p className="text-slate-600 mt-2">Your role does not permit patient-level access</p>
-        <Button variant="outline" className="mt-4" onClick={() => navigate(createPageUrl('Reports'))}>
-          Go to Reports
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Electronic Medical Records</h1>
         <p className="text-slate-500 mt-1">Comprehensive patient chart management</p>
       </div>
-
-      {!access.canViewFullChart && (
-        <Card className="bg-blue-50 border-blue-200">
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-3">
-              <Activity className="w-5 h-5 text-blue-600 mt-0.5" />
-              <div>
-                <p className="font-semibold text-blue-900">Limited Access Mode</p>
-                <p className="text-sm text-blue-700 mt-1">
-                  You are viewing basic patient profiles only. Full clinical access requires PHYSICIAN role.
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
       <Card className="bg-white border-0 shadow-sm">
         <CardHeader>
@@ -209,21 +171,21 @@ export default function EMR() {
 
           <Tabs defaultValue="cpp" className="space-y-6">
             <TabsList className="grid grid-cols-2 lg:grid-cols-8 w-full">
-              {access.canViewClinicalNotes && <TabsTrigger value="cpp">CPP</TabsTrigger>}
-              {access.canViewPrescriptions && <TabsTrigger value="medications">Medications</TabsTrigger>}
-              {access.canViewClinicalNotes && <TabsTrigger value="history">History</TabsTrigger>}
-              {access.canViewClinicalNotes && <TabsTrigger value="soap">SOAP Notes</TabsTrigger>}
-              {access.canViewLabResults && <TabsTrigger value="diagnostics">Diagnostics</TabsTrigger>}
-              {access.canViewLabResults && <TabsTrigger value="labs">Labs (LIS)</TabsTrigger>}
-              {access.canViewReferrals && <TabsTrigger value="referrals">Specialists</TabsTrigger>}
-              {access.canViewClinicalNotes && <TabsTrigger value="records">Records</TabsTrigger>}
+              <TabsTrigger value="cpp">CPP</TabsTrigger>
+              <TabsTrigger value="medications">Medications</TabsTrigger>
+              <TabsTrigger value="history">History</TabsTrigger>
+              <TabsTrigger value="soap">SOAP Notes</TabsTrigger>
+              <TabsTrigger value="diagnostics">Diagnostics</TabsTrigger>
+              <TabsTrigger value="labs">Labs (LIS)</TabsTrigger>
+              <TabsTrigger value="referrals">Specialists</TabsTrigger>
+              <TabsTrigger value="records">Records</TabsTrigger>
             </TabsList>
 
-            {access.canViewClinicalNotes && <TabsContent value="cpp">
+            <TabsContent value="cpp">
               <CPPManager patientId={selectedPatient.id} />
-            </TabsContent>}
+            </TabsContent>
 
-            {access.canViewPrescriptions && <TabsContent value="medications">
+            <TabsContent value="medications">
               <Card className="bg-white border-0 shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle>Current Medications</CardTitle>
@@ -240,9 +202,9 @@ export default function EMR() {
                   <MedicationList patientId={selectedPatient.id} />
                 </CardContent>
               </Card>
-            </TabsContent>}
+            </TabsContent>
 
-            {access.canViewClinicalNotes && <TabsContent value="history">
+            <TabsContent value="history">
               <div className="space-y-6">
                 <Card className="bg-white border-0 shadow-sm">
                   <CardHeader>
@@ -277,33 +239,33 @@ export default function EMR() {
                   </CardContent>
                 </Card>
               </div>
-            </TabsContent>}
+            </TabsContent>
 
-            {access.canViewClinicalNotes && <TabsContent value="soap">
+            <TabsContent value="soap">
               <Card className="bg-white border-0 shadow-sm">
                 <CardContent className="pt-6">
                   <PatientSOAPTab patientId={selectedPatient.id} />
                 </CardContent>
               </Card>
-            </TabsContent>}
+            </TabsContent>
 
-            {access.canViewLabResults && <TabsContent value="diagnostics">
+            <TabsContent value="diagnostics">
               <Card className="bg-white border-0 shadow-sm">
                 <CardContent className="pt-6">
                   <DiagnosticsTab patientId={selectedPatient.id} />
                 </CardContent>
               </Card>
-            </TabsContent>}
+            </TabsContent>
 
-            {access.canViewLabResults && <TabsContent value="labs">
+            <TabsContent value="labs">
               <Card className="bg-white border-0 shadow-sm">
                 <CardContent className="pt-6">
                   <PatientLabsTab patientId={selectedPatient.id} />
                 </CardContent>
               </Card>
-            </TabsContent>}
+            </TabsContent>
 
-            {access.canViewReferrals && <TabsContent value="referrals">
+            <TabsContent value="referrals">
               <Card className="bg-white border-0 shadow-sm">
                 <CardHeader>
                   <CardTitle>Specialist Consultations</CardTitle>
@@ -312,9 +274,9 @@ export default function EMR() {
                   <SpecialistChart patientId={selectedPatient.id} />
                 </CardContent>
               </Card>
-            </TabsContent>}
+            </TabsContent>
 
-            {access.canViewClinicalNotes && <TabsContent value="records">
+            <TabsContent value="records">
               <Card className="bg-white border-0 shadow-sm">
                 <CardHeader>
                   <CardTitle>Medical Records History</CardTitle>
@@ -363,8 +325,8 @@ export default function EMR() {
                   )}
                 </CardContent>
               </Card>
-            </TabsContent>}
-            </Tabs>
+            </TabsContent>
+          </Tabs>
         </div>
       ) : (
         <Card className="p-12 text-center bg-white border-0 shadow-sm">
