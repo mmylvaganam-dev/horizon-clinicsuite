@@ -86,6 +86,7 @@ export default function PharmacyInventory() {
   const [showZeroStockOnly, setShowZeroStockOnly] = useState(false);
   const [showExpiredOnly, setShowExpiredOnly] = useState(false);
   const [showExpiringOnly, setShowExpiringOnly] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const { data: balances = [] } = useQuery({
     queryKey: ['inventoryBalances', selectedOrgId],
@@ -194,11 +195,22 @@ export default function PharmacyInventory() {
     }
   };
 
-  const displayedStock = showExpiredOnly ? sortStock(expiredItems, false) : 
-                         showExpiringOnly ? sortStock(expiringItems, true) :
-                         showZeroStockOnly ? sortStock(zeroStockItems, false) : 
-                         showLowStockOnly ? sortStock(lowStockPharmacyItems, false) : 
-                         sortStock(pharmacyStock, false);
+  const filteredByCategory = showExpiredOnly ? expiredItems : 
+                             showExpiringOnly ? expiringItems :
+                             showZeroStockOnly ? zeroStockItems : 
+                             showLowStockOnly ? lowStockPharmacyItems : 
+                             pharmacyStock;
+
+  const displayedStock = sortStock(
+    filteredByCategory.filter(item =>
+      !searchQuery.trim() ||
+      item.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.generic_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.barcode?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.batch_no?.toLowerCase().includes(searchQuery.toLowerCase())
+    ),
+    showExpiringOnly
+  );
 
   const receiveInventoryMutation = useMutation({
     mutationFn: (data) => {
