@@ -59,6 +59,9 @@ export default function PharmacyDashboard() {
     queryFn: () => base44.auth.me(),
   });
 
+  // Check if any query is loading
+  const isLoadingData = !selectedOrgId || stockLoading;
+
   const { data: sales = [] } = useQuery({
     queryKey: ['pharmacySaleHeaders', selectedOrgId],
     queryFn: async () => {
@@ -256,6 +259,20 @@ export default function PharmacyDashboard() {
       toast.error('Failed to generate invoice');
     }
   };
+
+  if (!selectedOrgId) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="p-8 max-w-md text-center">
+          <div className="animate-spin mb-4">
+            <RefreshCw className="w-8 h-8 mx-auto text-teal-600" />
+          </div>
+          <h2 className="text-lg font-bold text-slate-900 mb-2">Loading Pharmacy Dashboard</h2>
+          <p className="text-slate-600 text-sm">Please select an organization from the top right</p>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
