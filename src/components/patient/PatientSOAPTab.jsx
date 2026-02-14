@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { FileText, Upload, Sparkles, Loader2 } from 'lucide-react';
+import { FileText, Upload, Sparkles, Loader2, Mic } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 
@@ -15,6 +15,8 @@ export default function PatientSOAPTab({ patientId }) {
   const [transcript, setTranscript] = useState('');
   const [uploadedFile, setUploadedFile] = useState(null);
   const [generating, setGenerating] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
 
   const queryClient = useQueryClient();
 
@@ -22,6 +24,56 @@ export default function PatientSOAPTab({ patientId }) {
     queryKey: ['patientSOAP', patientId],
     queryFn: () => base44.entities.SOAPNote.filter({ patient_id: patientId }),
   });
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunks.push(e.data);
+        }
+      };
+
+      recorder.onstop = async () => {
+        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+        
+        toast.loading('Transcribing audio...');
+        try {
+          const uploadResponse = await base44.integrations.Core.UploadFile({ file: audioBlob });
+          
+          const transcriptResponse = await base44.integrations.Core.InvokeLLM({
+            prompt: 'Transcribe this medical audio recording. Return only the transcription text.',
+            file_urls: [uploadResponse.file_url]
+          });
+          
+          setTranscript(transcriptResponse);
+          toast.success('Audio transcribed');
+        } catch (error) {
+          toast.error('Transcription failed');
+        }
+        
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+      toast.success('Recording...');
+    } catch (error) {
+      toast.error('Microphone access denied');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+      setIsRecording(false);
+      toast.success('Recording stopped');
+    }
+  };
 
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
@@ -160,10 +212,21 @@ export default function PatientSOAPTab({ patientId }) {
 
             {uploadMode === 'text' ? (
               <>
+                <div className="flex gap-2 mb-2">
+                  <Button
+                    type="button"
+                    variant={isRecording ? "destructive" : "outline"}
+                    onClick={isRecording ? stopRecording : startRecording}
+                    className="flex-1"
+                  >
+                    <Mic className={`w-4 h-4 mr-2 ${isRecording ? 'animate-pulse' : ''}`} />
+                    {isRecording ? 'Stop Recording' : 'Record Audio'}
+                  </Button>
+                </div>
                 <Textarea
                   value={transcript}
                   onChange={(e) => setTranscript(e.target.value)}
-                  placeholder="Enter clinical notes, patient complaints, findings..."
+                  placeholder="Click 'Record Audio' to record, or type clinical notes..."
                   rows={10}
                 />
                 <Button
