@@ -899,52 +899,6 @@ export default function PharmacyDashboard() {
         </Tabs>
       </Card>
 
-      {/* Quick Actions - Standard Workflow */}
-      <div>
-        <h2 className="text-lg font-semibold text-slate-700 mb-3">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card 
-            className="p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-blue-200 bg-blue-50"
-            onClick={() => navigate(createPageUrl('PharmacyBilling'))}
-            title="Start a new sale at the Point of Sale system"
-          >
-            <ShoppingCart className="w-8 h-8 text-blue-600 mb-3" />
-            <h3 className="font-bold text-slate-900 mb-1">1. New Sale</h3>
-            <p className="text-sm text-slate-600">Point of Sale</p>
-          </Card>
-
-          <Card 
-            className="p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-emerald-200 bg-emerald-50"
-            onClick={() => navigate(createPageUrl('PharmacyInventory'))}
-            title="View and manage pharmacy stock inventory"
-          >
-            <Package className="w-8 h-8 text-emerald-600 mb-3" />
-            <h3 className="font-bold text-slate-900 mb-1">2. Check Stock</h3>
-            <p className="text-sm text-slate-600">View inventory</p>
-          </Card>
-
-          <Card 
-            className="p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-purple-200 bg-purple-50"
-            onClick={() => navigate(createPageUrl('PharmacyStockImport'))}
-            title="Import stock data from Excel file"
-          >
-            <FileText className="w-8 h-8 text-purple-600 mb-3" />
-            <h3 className="font-bold text-slate-900 mb-1">3. Import Stock</h3>
-            <p className="text-sm text-slate-600">Bulk stock entry</p>
-          </Card>
-
-          <Card 
-            className="p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-amber-200 bg-amber-50"
-            onClick={() => navigate(createPageUrl('PharmacyOperations'))}
-            title="Manage daily pharmacy operations and tasks"
-          >
-            <TrendingUp className="w-8 h-8 text-amber-600 mb-3" />
-            <h3 className="font-bold text-slate-900 mb-1">4. Operations</h3>
-            <p className="text-sm text-slate-600">Daily tasks</p>
-          </Card>
-        </div>
-      </div>
-
       {/* Medicine Return Dialog */}
       {showReturnDialog && (
         <MedicineReturnDialog
