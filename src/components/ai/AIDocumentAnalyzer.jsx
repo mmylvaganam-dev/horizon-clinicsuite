@@ -27,8 +27,11 @@ export default function AIDocumentAnalyzer({ onAnalysisComplete }) {
     setResult(null);
 
     try {
-      // Upload file first
-      const { data: uploadResult } = await base44.functions.invoke('uploadFile', { file });
+      // Upload file first using FormData
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const { data: uploadResult } = await base44.functions.invoke('uploadFile', formData);
       const fileUrl = uploadResult.file_url;
 
       // Analyze with AI
