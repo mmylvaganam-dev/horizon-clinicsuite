@@ -255,7 +255,9 @@ export default function TodaySalesDetails() {
                 const itemCount = itemsForSale.length;
                 
                 return (
-                  <div key={sale.id} className="p-6 hover:bg-slate-50 transition-colors">
+                  <div key={sale.id} className={`p-6 hover:bg-slate-50 transition-colors ${
+                    sale.status === 'refund' ? 'bg-rose-50 border-l-4 border-rose-500' : ''
+                  }`}>
                     <div className="flex items-start justify-between">
                       <div className="flex-1 space-y-3">
                         <div className="flex items-center gap-3">
@@ -265,8 +267,12 @@ export default function TodaySalesDetails() {
                           <Badge variant="outline" className="font-mono">
                             {getReceiptNumber(sale)}
                           </Badge>
-                          <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">
-                            {sale.status}
+                          <Badge className={`${
+                            sale.status === 'refund' 
+                              ? 'bg-rose-100 text-rose-700 border-rose-200' 
+                              : 'bg-emerald-100 text-emerald-700 border-emerald-200'
+                          }`}>
+                            {sale.status === 'refund' ? '🔄 Refunded' : sale.status}
                           </Badge>
                         </div>
 

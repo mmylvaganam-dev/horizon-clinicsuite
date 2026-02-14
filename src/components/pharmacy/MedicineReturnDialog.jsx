@@ -94,13 +94,22 @@ export default function MedicineReturnDialog({ open, onOpenChange, sale, saleIte
         }
       }
 
+      // Mark the original sale as refunded
+      if (returnType === 'customer' && sale?.id) {
+        await base44.entities.PharmacySaleHeader.update(sale.id, {
+          status: 'refund',
+          notes: (sale.notes || '') + ` [REFUNDED on ${new Date().toISOString()}]`
+        });
+      }
+
       return returnRecord;
     },
     onSuccess: (returnRecord) => {
       queryClient.invalidateQueries(['medicineReturns']);
       queryClient.invalidateQueries(['pharmacySales']);
+      queryClient.invalidateQueries(['pharmacySaleHeaders']);
       queryClient.invalidateQueries(['pharmacyStock']);
-      toast.success('Medicine return created successfully');
+      toast.success('Medicine return created and sale marked as refunded');
       
       // Print the return slip
       handlePrintReturn(returnRecord);
