@@ -25,53 +25,56 @@ export default function PatientSOAPTab({ patientId }) {
     queryFn: () => base44.entities.SOAPNote.filter({ patient_id: patientId }),
   });
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const recorder = new MediaRecorder(stream);
-      const chunks = [];
-
-      recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) {
-          chunks.push(e.data);
-        }
-      };
-
-      recorder.onstop = async () => {
-        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
-        
-        toast.loading('Transcribing audio...');
-        try {
-          const uploadResponse = await base44.integrations.Core.UploadFile({ file: audioBlob });
-          
-          const transcriptResponse = await base44.integrations.Core.InvokeLLM({
-            prompt: 'Transcribe this medical audio recording. Return only the transcription text.',
-            file_urls: [uploadResponse.file_url]
-          });
-          
-          setTranscript(transcriptResponse);
-          toast.success('Audio transcribed');
-        } catch (error) {
-          toast.error('Transcription failed');
-        }
-        
-        stream.getTracks().forEach(track => track.stop());
-      };
-
-      recorder.start();
-      setMediaRecorder(recorder);
-      setIsRecording(true);
-      toast.success('Recording...');
-    } catch (error) {
-      toast.error('Microphone access denied');
+  const startRecording = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      toast.error('Speech recognition not supported');
+      return;
     }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => {
+      setIsRecording(true);
+      toast.success('Listening...');
+    };
+
+    recognition.onresult = (event) => {
+      let finalTranscript = '';
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        if (event.results[i].isFinal) {
+          finalTranscript += event.results[i][0].transcript + ' ';
+        }
+      }
+
+      if (finalTranscript) {
+        setTranscript(prev => prev + finalTranscript);
+      }
+    };
+
+    recognition.onerror = () => {
+      toast.error('Recognition error');
+      setIsRecording(false);
+    };
+
+    recognition.onend = () => {
+      setIsRecording(false);
+    };
+
+    recognition.start();
+    setMediaRecorder(recognition);
   };
 
   const stopRecording = () => {
-    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    if (mediaRecorder) {
       mediaRecorder.stop();
       setIsRecording(false);
-      toast.success('Recording stopped');
+      toast.success('Stopped');
     }
   };
 
