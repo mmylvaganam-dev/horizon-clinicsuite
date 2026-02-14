@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Activity, ArrowLeft } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
@@ -31,8 +31,7 @@ export default function VitalsTrend() {
 
   const vitalOptions = [
     { value: 'HR', label: 'Heart Rate (bpm)', color: '#ef4444' },
-    { value: 'BP_sys', label: 'Systolic BP (mmHg)', color: '#3b82f6' },
-    { value: 'BP_dia', label: 'Diastolic BP (mmHg)', color: '#8b5cf6' },
+    { value: 'BP', label: 'Blood Pressure (mmHg)', color: '#3b82f6', isDual: true },
     { value: 'RR', label: 'Respiratory Rate (/min)', color: '#10b981' },
     { value: 'Temp', label: 'Temperature (°C)', color: '#f59e0b' },
     { value: 'Weight', label: 'Weight (kg)', color: '#ec4899' },
@@ -42,13 +41,22 @@ export default function VitalsTrend() {
 
   const selectedOption = vitalOptions.find(v => v.value === selectedVital);
 
-  const chartData = vitals
-    .filter(v => v[selectedVital] != null)
-    .sort((a, b) => new Date(a.recorded_at) - new Date(b.recorded_at))
-    .map(v => ({
-      date: format(new Date(v.recorded_at), 'MMM d'),
-      value: v[selectedVital]
-    }));
+  const chartData = selectedVital === 'BP'
+    ? vitals
+        .filter(v => v.BP_sys != null && v.BP_dia != null)
+        .sort((a, b) => new Date(a.recorded_at) - new Date(b.recorded_at))
+        .map(v => ({
+          date: format(new Date(v.recorded_at), 'MMM d'),
+          systolic: v.BP_sys,
+          diastolic: v.BP_dia
+        }))
+    : vitals
+        .filter(v => v[selectedVital] != null)
+        .sort((a, b) => new Date(a.recorded_at) - new Date(b.recorded_at))
+        .map(v => ({
+          date: format(new Date(v.recorded_at), 'MMM d'),
+          value: v[selectedVital]
+        }));
 
   return (
     <div className="space-y-6">
@@ -95,32 +103,70 @@ export default function VitalsTrend() {
                   <XAxis dataKey="date" />
                   <YAxis />
                   <Tooltip />
-                  <Line 
-                    type="monotone" 
-                    dataKey="value" 
-                    stroke={selectedOption?.color} 
-                    strokeWidth={2}
-                    dot={{ fill: selectedOption?.color, r: 5 }}
-                  />
+                  {selectedVital === 'BP' ? (
+                    <>
+                      <Legend />
+                      <Line 
+                        type="monotone" 
+                        dataKey="systolic" 
+                        name="Systolic"
+                        stroke="#ef4444" 
+                        strokeWidth={2}
+                        dot={{ fill: '#ef4444', r: 5 }}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="diastolic" 
+                        name="Diastolic"
+                        stroke="#3b82f6" 
+                        strokeWidth={2}
+                        dot={{ fill: '#3b82f6', r: 5 }}
+                      />
+                    </>
+                  ) : (
+                    <Line 
+                      type="monotone" 
+                      dataKey="value" 
+                      stroke={selectedOption?.color} 
+                      strokeWidth={2}
+                      dot={{ fill: selectedOption?.color, r: 5 }}
+                    />
+                  )}
                 </LineChart>
               </ResponsiveContainer>
 
               <div className="mt-6">
                 <h3 className="font-semibold mb-3">Data Table</h3>
                 <div className="space-y-2">
-                  {vitals
-                    .filter(v => v[selectedVital] != null)
-                    .sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at))
-                    .map((v, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                        <span className="text-sm text-slate-500">
-                          {format(new Date(v.recorded_at), 'MMM d, yyyy h:mm a')}
-                        </span>
-                        <span className="font-semibold text-slate-900">
-                          {v[selectedVital]} {selectedOption?.label.match(/\(([^)]+)\)/)?.[1] || ''}
-                        </span>
-                      </div>
-                    ))}
+                  {selectedVital === 'BP' ? (
+                    vitals
+                      .filter(v => v.BP_sys != null && v.BP_dia != null)
+                      .sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at))
+                      .map((v, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                          <span className="text-sm text-slate-500">
+                            {format(new Date(v.recorded_at), 'MMM d, yyyy h:mm a')}
+                          </span>
+                          <span className="font-semibold text-slate-900">
+                            <span className="text-red-600">{v.BP_sys}</span>/<span className="text-blue-600">{v.BP_dia}</span> mmHg
+                          </span>
+                        </div>
+                      ))
+                  ) : (
+                    vitals
+                      .filter(v => v[selectedVital] != null)
+                      .sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at))
+                      .map((v, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                          <span className="text-sm text-slate-500">
+                            {format(new Date(v.recorded_at), 'MMM d, yyyy h:mm a')}
+                          </span>
+                          <span className="font-semibold text-slate-900">
+                            {v[selectedVital]} {selectedOption?.label.match(/\(([^)]+)\)/)?.[1] || ''}
+                          </span>
+                        </div>
+                      ))
+                  )}
                 </div>
               </div>
             </>
