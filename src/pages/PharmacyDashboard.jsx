@@ -22,7 +22,8 @@ import {
   ChevronLeft,
   ChevronRight,
   RotateCw,
-  Trash2
+  Trash2,
+  Printer
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -159,7 +160,7 @@ export default function PharmacyDashboard() {
   const todaySales = sales.filter(s => {
     const saleDate = new Date(s.sale_date);
     const today = new Date();
-    return saleDate.toDateString() === today.toDateString() && (s.status === 'paid' || s.status === 'completed');
+    return saleDate.toDateString() === today.toDateString();
   });
 
   const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total || 0), 0);
@@ -622,7 +623,7 @@ export default function PharmacyDashboard() {
                               {sale.status}
                             </Badge>
                           </div>
-                          <div className="col-span-2 flex justify-end gap-2">
+                          <div className="col-span-2 flex justify-end gap-1">
                            <Button 
                              size="sm" 
                              variant="outline"
@@ -631,6 +632,15 @@ export default function PharmacyDashboard() {
                            >
                              <Eye className="w-3 h-3 mr-1" />
                              View
+                           </Button>
+                           <Button 
+                             size="sm" 
+                             variant="outline"
+                             onClick={() => handleReprintInvoice(sale)}
+                             title="Print invoice"
+                           >
+                             <Printer className="w-3 h-3 mr-1" />
+                             Print
                            </Button>
                            {(sale.status === 'paid' || sale.status === 'completed') && (
                              <>
