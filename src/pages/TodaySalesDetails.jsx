@@ -20,6 +20,7 @@ import {
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
+import MedicineReturnDialog from '../components/pharmacy/MedicineReturnDialog';
 
 // Format currency with commas
 const formatCurrency = (amount, currency = 'LKR') => {
@@ -30,6 +31,8 @@ const formatCurrency = (amount, currency = 'LKR') => {
 export default function TodaySalesDetails() {
   const navigate = useNavigate();
   const [reprintingId, setReprintingId] = useState(null);
+  const [showReturnDialog, setShowReturnDialog] = useState(false);
+  const [selectedSaleForReturn, setSelectedSaleForReturn] = useState(null);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -156,6 +159,12 @@ export default function TodaySalesDetails() {
 
   const toggleDetails = (saleId) => {
     setExpandedSaleId(expandedSaleId === saleId ? null : saleId);
+  };
+
+  const handleReturnClick = (sale) => {
+    const itemsForSale = saleItems.filter(item => item.sale_header_id === sale.id);
+    setSelectedSaleForReturn({ ...sale, items: itemsForSale });
+    setShowReturnDialog(true);
   };
 
   return (
@@ -346,6 +355,7 @@ export default function TodaySalesDetails() {
                                size="sm"
                                variant="outline"
                                className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                               onClick={() => handleReturnClick(sale)}
                                title="Return items from this sale"
                              >
                                <RotateCw className="w-4 h-4 mr-1" />
@@ -388,6 +398,18 @@ export default function TodaySalesDetails() {
           )}
         </CardContent>
       </Card>
+
+      {/* Return Dialog */}
+      {showReturnDialog && selectedSaleForReturn && (
+        <MedicineReturnDialog
+          open={showReturnDialog}
+          onOpenChange={setShowReturnDialog}
+          sale={selectedSaleForReturn}
+          saleItems={selectedSaleForReturn.items || []}
+          currency={currency}
+          user={user}
+        />
+      )}
     </div>
   );
 }
