@@ -414,7 +414,7 @@ export default function PharmacyDashboard() {
           <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 px-6 py-3">
             <TabsList className="bg-transparent border-b border-white/20 w-full justify-start rounded-none">
               <TabsTrigger value="salesforce" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">
-                Salesforce
+                Recent Sales
               </TabsTrigger>
               <TabsTrigger value="order" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">
                 Order
