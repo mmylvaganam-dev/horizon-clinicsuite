@@ -577,8 +577,8 @@ export default function PharmacyBilling() {
       };
     },
     onSuccess: (completedSaleData) => {
-      queryClient.invalidateQueries(['pharmacyStock']);
-      queryClient.invalidateQueries(['pharmacySaleHeaders']);
+      queryClient.invalidateQueries({ queryKey: ['pharmacyStock'] });
+      queryClient.invalidateQueries({ queryKey: ['pharmacySaleHeaders', selectedOrgId] });
       toast.success(`Sale ${completedSaleData.receipt_number} completed!`);
       console.log('✅ Sale completed with items:', completedSaleData.items);
       setCompletedSale(completedSaleData);
