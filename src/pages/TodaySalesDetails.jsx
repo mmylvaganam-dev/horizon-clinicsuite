@@ -222,7 +222,7 @@ export default function TodaySalesDetails() {
             <div className="divide-y max-h-[600px] overflow-y-auto">
               {todaySales.map((sale, index) => {
                 const receipt = receipts.find(r => r.sale_header_id === sale.id);
-                const itemsForSale = saleItems.filter(item => item.sale_ref === sale.id);
+                const itemsForSale = saleItems.filter(item => item.sale_header_id === sale.id);
                 const itemCount = itemsForSale.length;
                 
                 return (
