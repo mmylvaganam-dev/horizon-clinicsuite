@@ -53,6 +53,7 @@ export default function PharmacyDashboard() {
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [saleToDelete, setSaleToDelete] = useState(null);
+  const [liveSales, setLiveSales] = useState([]);
   const { orgFilter, selectedOrgId } = useOrgFiltered();
 
   const { data: user } = useQuery({
@@ -64,11 +65,26 @@ export default function PharmacyDashboard() {
     queryKey: ['pharmacySaleHeaders', selectedOrgId],
     queryFn: async () => {
       if (!selectedOrgId) return [];
-      const allSales = await base44.entities.PharmacySaleHeader.list('-sale_date');
-      return allSales.filter(s => s.organization_id === selectedOrgId);
+      const allSales = await base44.entities.PharmacySaleHeader.filter(orgFilter, '-sale_date');
+      return allSales;
     },
     enabled: !!selectedOrgId,
   });
+
+  // Real-time subscription to catch new sales immediately
+  React.useEffect(() => {
+    if (!selectedOrgId) return;
+    
+    const unsubscribe = base44.entities.PharmacySaleHeader.subscribe((event) => {
+      if (event.data?.organization_id === selectedOrgId) {
+        console.log('📊 Real-time sale update:', event.type, event.data.sale_number);
+        queryClient.invalidateQueries({ queryKey: ['pharmacySaleHeaders', selectedOrgId] });
+        queryClient.invalidateQueries({ queryKey: ['pharmacySaleLines', selectedOrgId] });
+      }
+    });
+    
+    return unsubscribe;
+  }, [selectedOrgId, queryClient]);
 
   const { data: patients = [] } = useQuery({
     queryKey: ['patients', selectedOrgId],
