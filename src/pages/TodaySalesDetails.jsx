@@ -67,7 +67,7 @@ export default function TodaySalesDetails() {
     queryKey: ['pharmacySaleLines', organizationId],
     queryFn: async () => {
       if (!organizationId) return [];
-      return base44.entities.PharmacySaleLine.filter({ organization_id: organizationId });
+      return base44.entities.PharmacySaleLine.list();
     },
     enabled: !!organizationId,
   });
@@ -222,7 +222,7 @@ export default function TodaySalesDetails() {
             <div className="divide-y max-h-[600px] overflow-y-auto">
               {todaySales.map((sale, index) => {
                 const receipt = receipts.find(r => r.sale_header_id === sale.id);
-                const itemsForSale = saleItems.filter(item => item.sale_header_id === sale.id);
+                const itemsForSale = saleItems.filter(item => item.sale_ref === sale.id);
                 const itemCount = itemsForSale.length;
                 
                 return (
@@ -321,11 +321,11 @@ export default function TodaySalesDetails() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                           {itemsForSale.map((item, idx) => (
                            <div key={idx} className="text-sm bg-slate-50 rounded p-2 flex justify-between items-center">
-                             <span className="text-slate-700">{item.product_name}</span>
+                             <span className="text-slate-700">{item.product_name_cache}</span>
                              <div className="flex items-center gap-2">
-                               <Badge variant="outline" className="text-xs">x{item.quantity}</Badge>
+                               <Badge variant="outline" className="text-xs">x{item.qty}</Badge>
                                <span className="font-semibold text-slate-900">
-                                 {formatCurrency(item.total_price, currency)}
+                                 {formatCurrency(item.line_total, currency)}
                                </span>
                              </div>
                            </div>

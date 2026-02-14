@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Sale not found' }, { status: 404 });
     }
 
-    const saleItems = await base44.asServiceRole.entities.PharmacySaleLine.filter({ sale_header_id: saleId });
+    const saleItems = await base44.asServiceRole.entities.PharmacySaleLine.filter({ sale_ref: saleId });
     
     // Fetch organization data
     const organizations = await base44.entities.Organization.list();
@@ -229,8 +229,8 @@ Deno.serve(async (req) => {
                 const formatAmount = (amt) => parseFloat(amt).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
                 return `
                 <tr>
-                  <td class="item-name">${item.item_name}</td>
-                  <td style="text-align: center;">${item.quantity}</td>
+                  <td class="item-name">${item.product_name_cache}</td>
+                  <td style="text-align: center;">${item.qty}</td>
                   <td class="amount">${formatAmount(item.unit_price)}</td>
                   <td class="amount">${formatAmount(item.line_total)}</td>
                 </tr>
