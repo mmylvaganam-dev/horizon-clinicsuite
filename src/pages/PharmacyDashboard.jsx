@@ -178,6 +178,12 @@ export default function PharmacyDashboard() {
     setShowDetailsDialog(true);
   };
 
+  const handleMedicineReturn = (sale) => {
+    const items = saleLines.filter(line => line.sale_header_id === sale.id);
+    setSelectedSale({ ...sale, items });
+    setShowReturnDialog(true);
+  };
+
   const handleReprintInvoice = async (sale) => {
     try {
       const response = await base44.functions.invoke('generatePharmacyInvoice', { saleId: sale.id });
@@ -222,7 +228,9 @@ export default function PharmacyDashboard() {
                       navigate(createPageUrl('TodaySalesDetails'));
                     }}
                     className="bg-white/20 hover:bg-white/30 text-white border-0"
+                    title="View all today's sales"
                   >
+                    <Eye className="w-3 h-3 mr-1" />
                     View All
                   </Button>
                   <Button 
@@ -233,7 +241,9 @@ export default function PharmacyDashboard() {
                       navigate(createPageUrl('PharmacyBilling'));
                     }}
                     className="bg-white/20 hover:bg-white/30 text-white border-0"
+                    title="Create a new sale"
                   >
+                    <ShoppingCart className="w-3 h-3 mr-1" />
                     New Sale
                   </Button>
                 </div>
@@ -411,6 +421,7 @@ export default function PharmacyDashboard() {
                   variant="outline"
                   onClick={() => setShowAdvancedFilter(!showAdvancedFilter)}
                   className={showAdvancedFilter ? 'bg-indigo-50 border-indigo-300' : ''}
+                  title="Filter by status, amount range"
                 >
                   <Filter className="w-4 h-4 mr-2" />
                   Advanced Filter
@@ -419,11 +430,12 @@ export default function PharmacyDashboard() {
                   variant="outline"
                   onClick={() => setEasyView(!easyView)}
                   className={easyView ? 'bg-indigo-50 border-indigo-300' : ''}
+                  title="Toggle simplified view"
                 >
                   <Eye className="w-4 h-4 mr-2" />
                   Easy View
                 </Button>
-                <Button variant="outline">
+                <Button variant="outline" title="Export sales data to Excel">
                   <Download className="w-4 h-4 mr-2" />
                   Export
                 </Button>
@@ -540,6 +552,7 @@ export default function PharmacyDashboard() {
                              size="sm" 
                              variant="outline"
                              onClick={() => handleViewDetails(sale)}
+                             title="View sale details and items"
                            >
                              <Eye className="w-3 h-3 mr-1" />
                              View
@@ -549,10 +562,8 @@ export default function PharmacyDashboard() {
                                size="sm" 
                                variant="outline" 
                                className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                               onClick={() => {
-                                 setSelectedSale(sale);
-                                 setShowReturnDialog(true);
-                               }}
+                               onClick={() => handleMedicineReturn(sale)}
+                               title="Return items from this sale"
                              >
                                <RotateCw className="w-3 h-3 mr-1" />
                                Return
@@ -695,6 +706,7 @@ export default function PharmacyDashboard() {
                       setShowReturnDialog(true);
                     }}
                     className="bg-amber-600 hover:bg-amber-700"
+                    title="Process medicine return - customer refund or vendor credit"
                   >
                     <RotateCw className="w-4 h-4 mr-2" />
                     New Return
@@ -719,6 +731,7 @@ export default function PharmacyDashboard() {
           <Card 
             className="p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-blue-200 bg-blue-50"
             onClick={() => navigate(createPageUrl('PharmacyBilling'))}
+            title="Start a new sale at the Point of Sale system"
           >
             <ShoppingCart className="w-8 h-8 text-blue-600 mb-3" />
             <h3 className="font-bold text-slate-900 mb-1">1. New Sale</h3>
@@ -728,6 +741,7 @@ export default function PharmacyDashboard() {
           <Card 
             className="p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-emerald-200 bg-emerald-50"
             onClick={() => navigate(createPageUrl('PharmacyInventory'))}
+            title="View and manage pharmacy stock inventory"
           >
             <Package className="w-8 h-8 text-emerald-600 mb-3" />
             <h3 className="font-bold text-slate-900 mb-1">2. Check Stock</h3>
@@ -737,6 +751,7 @@ export default function PharmacyDashboard() {
           <Card 
             className="p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-purple-200 bg-purple-50"
             onClick={() => navigate(createPageUrl('PharmacyStockImport'))}
+            title="Import stock data from Excel file"
           >
             <FileText className="w-8 h-8 text-purple-600 mb-3" />
             <h3 className="font-bold text-slate-900 mb-1">3. Import Stock</h3>
@@ -746,6 +761,7 @@ export default function PharmacyDashboard() {
           <Card 
             className="p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-amber-200 bg-amber-50"
             onClick={() => navigate(createPageUrl('PharmacyOperations'))}
+            title="Manage daily pharmacy operations and tasks"
           >
             <TrendingUp className="w-8 h-8 text-amber-600 mb-3" />
             <h3 className="font-bold text-slate-900 mb-1">4. Operations</h3>
@@ -832,7 +848,7 @@ export default function PharmacyDashboard() {
                 <Button variant="outline" onClick={() => setShowDetailsDialog(false)}>
                   Close
                 </Button>
-                <Button onClick={() => handleReprintInvoice(selectedSale)}>
+                <Button onClick={() => handleReprintInvoice(selectedSale)} title="Print invoice again">
                   <FileText className="w-4 h-4 mr-2" />
                   Reprint Invoice
                 </Button>
