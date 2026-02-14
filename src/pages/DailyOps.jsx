@@ -56,61 +56,32 @@ export default function DailyOps() {
     ? locations 
     : locations.filter(loc => loc.organization_id === selectedOrgId);
 
-  // Today's appointments by status
+  // Today's sales
   const today = new Date().toISOString().split('T')[0];
-  const todayAppointments = appointments.filter(apt => {
-    const aptDate = apt.start_time ? apt.start_time.split('T')[0] : apt.created_date?.split('T')[0];
-    return aptDate === today && filterByOrgAndLocation(apt);
+  const todaySales = pharmacySales.filter(sale => {
+    const saleDate = sale.sale_date ? sale.sale_date.split('T')[0] : sale.created_date?.split('T')[0];
+    return saleDate === today && filterByOrgAndLocation(sale);
   });
 
-  const appointmentsByStatus = {
-    scheduled: todayAppointments.filter(a => a.status === 'scheduled').length,
-    confirmed: todayAppointments.filter(a => a.status === 'confirmed').length,
-    'checked-in': todayAppointments.filter(a => a.status === 'checked-in').length,
-    'in-progress': todayAppointments.filter(a => a.status === 'in-progress').length,
-    completed: todayAppointments.filter(a => a.status === 'completed').length,
-    cancelled: todayAppointments.filter(a => a.status === 'cancelled').length,
-    'no-show': todayAppointments.filter(a => a.status === 'no-show').length,
+  const totalSalesAmount = todaySales.reduce((sum, sale) => sum + (sale.total || 0), 0);
+
+  // Low stock items (below 10 units)
+  const lowStockItems = pharmacyStock.filter(stock => 
+    (stock.quantity || 0) < 10 && filterByOrgAndLocation(stock)
+  );
+
+  // Sales by status
+  const salesByStatus = {
+    paid: todaySales.filter(s => s.status === 'paid').length,
+    void: todaySales.filter(s => s.status === 'void').length,
+    refund: todaySales.filter(s => s.status === 'refund').length,
   };
 
-  // Unpaid invoices
-  const unpaidInvoices = invoices.filter(inv => 
-    inv.status === 'unpaid' && filterByOrgAndLocation(inv)
-  );
-  const unpaidAmount = unpaidInvoices.reduce((sum, inv) => sum + (inv.total || 0), 0);
+  // Quick metrics
+  const totalPatients = patients.filter(filterByOrgAndLocation).length;
+  const uniqueCustomersToday = new Set(todaySales.map(s => s.patient_ref)).size;
 
-  // Low stock items (below 10)
-  const lowStockItems = inventoryBalances.filter(bal => 
-    bal.on_hand_qty < 10 && filterByOrgAndLocation(bal)
-  );
-
-  // Pending results
-  const filteredResults = results.filter(filterByOrgAndLocation);
-  const enteredResults = filteredResults.filter(r => r.status === 'Entered').length;
-  const reviewedResults = filteredResults.filter(r => r.status === 'Reviewed').length;
-  const signedUnreleasedResults = filteredResults.filter(r => {
-    if (r.status !== 'Signed') return false;
-    const released = releases.find(rel => rel.result_id === r.id);
-    return !released || !released.released;
-  }).length;
-
-  // Critical queue
-  const criticalFlags = resultFlags.filter(flag => 
-    flag.flag_type === 'critical' && 
-    !criticalAcks.some(ack => ack.result_id === flag.result_id)
-  );
-  const criticalResults = filteredResults.filter(r => 
-    criticalFlags.some(flag => flag.result_id === r.id)
-  );
-
-  // Refunds/voids today
-  const todayRefunds = [...invoiceRefunds, ...saleRefunds].filter(refund => {
-    const refundDate = refund.created_at ? refund.created_at.split('T')[0] : refund.created_date?.split('T')[0];
-    return refundDate === today;
-  });
-
-  const isLoading = loadingAppointments || loadingInvoices || loadingInventory || 
-                     loadingResults || loadingFlags || loadingRefunds || loadingSaleRefunds;
+  const isLoading = loadingSales || loadingStock;
 
   return (
     <div className="space-y-6">
