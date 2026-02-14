@@ -95,11 +95,11 @@ export default function TodaySalesDetails() {
     return sale?.sale_number || 'N/A';
   };
 
-  // Filter only today's paid sales
+  // Filter only today's sales
   const todaySales = sales.filter(s => {
     const saleDate = new Date(s.sale_date);
     const today = new Date();
-    return saleDate.toDateString() === today.toDateString() && (s.status === 'paid' || s.status === 'completed');
+    return saleDate.toDateString() === today.toDateString();
   });
 
   const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total || 0), 0);
@@ -330,19 +330,27 @@ export default function TodaySalesDetails() {
                              <Eye className="w-4 h-4 mr-1" />
                              {expandedSaleId === sale.id ? 'Hide' : 'View'}
                            </Button>
+                           <Button
+                             size="sm"
+                             variant="outline"
+                             onClick={() => handleCancelSale(sale)}
+                             disabled={cancelingSaleId === sale.id}
+                             className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                             title="Cancel/void this sale"
+                           >
+                             <X className="w-4 h-4 mr-1" />
+                             Cancel
+                           </Button>
                            {(sale.status === 'paid' || sale.status === 'completed') && (
-                             <>
-                               <Button
-                                 size="sm"
-                                 variant="outline"
-                                 onClick={() => handleCancelSale(sale)}
-                                 disabled={cancelingSaleId === sale.id}
-                                 className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                               >
-                                 <X className="w-4 h-4 mr-1" />
-                                 Cancel
-                               </Button>
-                             </>
+                             <Button
+                               size="sm"
+                               variant="outline"
+                               className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                               title="Return items from this sale"
+                             >
+                               <RotateCw className="w-4 h-4 mr-1" />
+                               Return
+                             </Button>
                            )}
                          </div>
                       </div>
