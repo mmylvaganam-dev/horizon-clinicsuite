@@ -639,7 +639,17 @@ export default function PharmacyInventory() {
         </TabsList>
 
         <TabsContent value="stock" className="space-y-3">
-          {showExpiredOnly && expiredItems.length > 0 && (
+          <div className="mb-4">
+            <label className="text-sm font-medium text-slate-700 mb-2 block">Search Products</label>
+            <Input
+              placeholder="Search by product name, generic name, barcode, or batch number..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="max-w-md"
+            />
+          </div>
+
+           {showExpiredOnly && expiredItems.length > 0 && (
             <Card className="bg-red-50 border-red-200">
               <CardContent className="p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
