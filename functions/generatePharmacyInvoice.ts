@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Sale not found' }, { status: 404 });
     }
 
-    const saleItems = await base44.asServiceRole.entities.PharmacySaleLine.filter({ sale_ref: saleId });
+    const saleItems = await base44.asServiceRole.entities.PharmacySaleLine.filter({ sale_header_id: saleId });
     
     // Fetch organization data
     const organizations = await base44.entities.Organization.list();
@@ -38,9 +38,9 @@ Deno.serve(async (req) => {
     const logoUrl = branding?.receipt_logo_file_ref || branding?.primary_logo_file_ref || null;
 
     let patientInfo = { name: 'Walk-in Customer', phone: '', mobile: '' };
-    if (currentSale.patient_id) {
+    if (currentSale.patient_ref) {
       const patients = await base44.entities.Patient.list();
-      const patient = patients.find(p => p.id === currentSale.patient_id);
+      const patient = patients.find(p => p.id === currentSale.patient_ref);
       if (patient) {
         patientInfo = {
           name: `${patient.first_name} ${patient.last_name}`,
