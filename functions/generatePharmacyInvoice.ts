@@ -17,8 +17,15 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Sale not found' }, { status: 404 });
     }
 
-    // Fetch sale line items
-    const saleLines = await base44.entities.PharmacySaleLine.filter({ sale_header_id: saleId });
+    // Fetch sale line items with explicit error handling
+    let saleLines = [];
+    try {
+      saleLines = await base44.entities.PharmacySaleLine.filter({ sale_header_id: saleId });
+      console.log(`✅ Fetched ${saleLines.length} items for sale ${saleId}`);
+    } catch (error) {
+      console.error(`❌ Failed to fetch sale lines: ${error.message}`);
+      // Continue without items if fetch fails
+    }
     
     // Fetch organization branding
     const brandings = await base44.entities.OrganizationBranding.filter({ 
