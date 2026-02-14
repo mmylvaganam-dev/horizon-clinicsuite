@@ -21,7 +21,8 @@ import {
   Download,
   ChevronLeft,
   ChevronRight,
-  RotateCw
+  RotateCw,
+  Trash2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -30,9 +31,12 @@ import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import MedicineReturnDialog from '../components/pharmacy/MedicineReturnDialog';
 import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
+import { useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
 
 export default function PharmacyDashboard() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [dateFrom, setDateFrom] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [dateTo, setDateTo] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [searchQuery, setSearchQuery] = useState('');
@@ -46,6 +50,8 @@ export default function PharmacyDashboard() {
   const [showReturnDialog, setShowReturnDialog] = useState(false);
   const [selectedSale, setSelectedSale] = useState(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [saleToDelete, setSaleToDelete] = useState(null);
   const { orgFilter, selectedOrgId } = useOrgFiltered();
 
   const { data: user } = useQuery({
@@ -182,6 +188,44 @@ export default function PharmacyDashboard() {
     const items = saleLines.filter(line => line.sale_header_id === sale.id);
     setSelectedSale({ ...sale, items });
     setShowReturnDialog(true);
+  };
+
+  const handleDeleteSale = async () => {
+    if (!saleToDelete) return;
+
+    try {
+      // Get all items from this sale
+      const items = saleLines.filter(line => line.sale_header_id === saleToDelete.id);
+      
+      // Restore stock for each item
+      for (const item of items) {
+        if (item.stock_id) {
+          const stockItem = pharmacyStock.find(s => s.id === item.stock_id);
+          if (stockItem) {
+            await base44.entities.PharmacyStock.update(item.stock_id, {
+              quantity: (stockItem.quantity || 0) + item.qty
+            });
+          }
+        }
+      }
+
+      // Mark sale as void
+      await base44.entities.PharmacySaleHeader.update(saleToDelete.id, {
+        status: 'void',
+        notes: (saleToDelete.notes || '') + ` [DELETED on ${new Date().toISOString()} - Stock restored]`
+      });
+
+      // Refresh data
+      queryClient.invalidateQueries(['pharmacySaleHeaders']);
+      queryClient.invalidateQueries(['pharmacyStock']);
+      
+      toast.success('Sale deleted and stock restored');
+      setShowDeleteDialog(false);
+      setSaleToDelete(null);
+    } catch (error) {
+      console.error('Delete failed:', error);
+      toast.error('Failed to delete sale');
+    }
   };
 
   const handleReprintInvoice = async (sale) => {
@@ -558,16 +602,31 @@ export default function PharmacyDashboard() {
                              View
                            </Button>
                            {(sale.status === 'paid' || sale.status === 'completed') && (
-                             <Button 
-                               size="sm" 
-                               variant="outline" 
-                               className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                               onClick={() => handleMedicineReturn(sale)}
-                               title="Return items from this sale"
-                             >
-                               <RotateCw className="w-3 h-3 mr-1" />
-                               Return
-                             </Button>
+                             <>
+                               <Button 
+                                 size="sm" 
+                                 variant="outline" 
+                                 className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                                 onClick={() => handleMedicineReturn(sale)}
+                                 title="Return items from this sale"
+                               >
+                                 <RotateCw className="w-3 h-3 mr-1" />
+                                 Return
+                               </Button>
+                               <Button 
+                                 size="sm" 
+                                 variant="outline" 
+                                 className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                 onClick={() => {
+                                   setSaleToDelete(sale);
+                                   setShowDeleteDialog(true);
+                                 }}
+                                 title="Delete sale and restore stock"
+                               >
+                                 <Trash2 className="w-3 h-3 mr-1" />
+                                 Delete
+                               </Button>
+                             </>
                            )}
                           </div>
                         </div>
@@ -779,6 +838,57 @@ export default function PharmacyDashboard() {
         currency={currency}
         user={user}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="w-5 h-5" />
+              Delete Sale
+            </DialogTitle>
+          </DialogHeader>
+          
+          {saleToDelete && (
+            <div className="space-y-4">
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                <p className="text-sm text-red-800 mb-2">
+                  You are about to delete this sale:
+                </p>
+                <div className="space-y-1 text-sm">
+                  <p><strong>Receipt:</strong> {getReceiptNumber(saleToDelete)}</p>
+                  <p><strong>Customer:</strong> {getPatientName(saleToDelete.patient_ref)}</p>
+                  <p><strong>Amount:</strong> {currency} {saleToDelete.total?.toFixed(2)}</p>
+                  <p><strong>Date:</strong> {format(new Date(saleToDelete.sale_date), 'PPP')}</p>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <p className="text-sm text-blue-800">
+                  ✓ Stock quantities will be automatically restored
+                </p>
+              </div>
+
+              <p className="text-sm text-slate-600">
+                This action will mark the sale as void and restore all sold items back to inventory.
+              </p>
+
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setShowDeleteDialog(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  className="bg-red-600 hover:bg-red-700"
+                  onClick={handleDeleteSale}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete Sale
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Sale Details Dialog */}
       <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
