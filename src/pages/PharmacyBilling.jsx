@@ -498,14 +498,13 @@ export default function PharmacyBilling() {
       // Create sale line items
       for (const item of cart) {
         await base44.entities.PharmacySaleLine.create({
-          organization_id: user?.organization_id || 'default_org',
-          location_id: user?.location_id || 'default_location',
-          sale_header_id: sale.id,
-          stock_id: item.stock_id,
-          product_name: item.display_name,
-          quantity: item.quantity,
+          sale_ref: sale.id,
+          product_code: item.barcode || item.stock_id,
+          barcode_value: item.barcode || '',
+          product_name_cache: item.display_name,
+          qty: item.quantity,
           unit_price: item.unit_price,
-          total_price: item.total
+          line_total: item.total
         });
       }
       
