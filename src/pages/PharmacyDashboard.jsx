@@ -173,7 +173,7 @@ export default function PharmacyDashboard() {
   };
 
   const handleViewDetails = (sale) => {
-    const items = saleLines.filter(line => line.sale_header_id === sale.id);
+    const items = saleLines.filter(line => line.sale_ref === sale.id);
     setSelectedSale({ ...sale, items });
     setShowDetailsDialog(true);
   };
@@ -801,10 +801,10 @@ export default function PharmacyDashboard() {
                     selectedSale.items.map((item, idx) => (
                       <div key={idx} className="flex justify-between items-center py-2 border-b">
                         <div className="flex-1">
-                          <p className="font-medium">{item.product_name}</p>
-                          <p className="text-sm text-slate-500">Qty: {item.quantity} × {currency} {item.unit_price?.toFixed(2)}</p>
+                          <p className="font-medium">{item.product_name_cache}</p>
+                          <p className="text-sm text-slate-500">Qty: {item.qty} × {currency} {item.unit_price?.toFixed(2)}</p>
                         </div>
-                        <p className="font-bold">{currency} {item.total_price?.toFixed(2)}</p>
+                        <p className="font-bold">{currency} {item.line_total?.toFixed(2)}</p>
                       </div>
                     ))
                   ) : (
