@@ -14,6 +14,10 @@ export default function SaleDeletionRequests() {
   const [reviewNotes, setReviewNotes] = useState({});
   const queryClient = useQueryClient();
 
+  // Platform owner has unrestricted access to all organizations
+  const isPlatformOwner = user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
+                         user?.email === 'mylvaganam@premierhealthcanada.ca';
+
   const { data: requests = [] } = useQuery({
     queryKey: ['deletionRequests', selectedOrgId],
     queryFn: async () => {

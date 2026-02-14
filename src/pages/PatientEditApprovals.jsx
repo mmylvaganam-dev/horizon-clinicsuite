@@ -23,6 +23,10 @@ export default function PatientEditApprovals() {
     queryFn: () => base44.auth.me(),
   });
 
+  // Platform owner has unrestricted access
+  const isPlatformOwner = user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
+                         user?.email === 'mylvaganam@premierhealthcanada.ca';
+
   const { data: requests = [], isLoading } = useQuery({
     queryKey: ['patientEditRequests'],
     queryFn: () => base44.entities.PatientEditRequest.list('-requested_date'),

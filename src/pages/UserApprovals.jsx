@@ -29,7 +29,9 @@ export default function UserApprovals() {
   const isPlatformOwner = currentUser?.email === 'mmylvaganam@premierhealthcanada.ca' || 
                          currentUser?.email === 'mylvaganam@premierhealthcanada.ca' || 
                          currentUser?.is_platform_owner;
-  const isOrgAdmin = currentUser?.is_organization_admin;
+  
+  // Platform owner has unrestricted access to everything
+  const isOrgAdmin = isPlatformOwner || currentUser?.role === 'admin';
 
   const { data: approvals, isLoading } = useQuery({
     queryKey: ['userApprovals'],
@@ -304,7 +306,7 @@ export default function UserApprovals() {
     </div>
   );
 
-  // Restrict access to platform owner or org admin only
+  // Platform owner has unrestricted access, no restrictions
   if (!isPlatformOwner && !isOrgAdmin) {
     return (
       <div className="space-y-8">
