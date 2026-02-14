@@ -101,6 +101,18 @@ Deno.serve(async (req) => {
             }
         }
 
+        // Post to GL immediately after sale creation
+        try {
+            await base44.functions.invoke('postSaleToGL', {
+                saleId: saleHeader.id,
+                saleAmount: total,
+                tax: tax,
+                discount: saleData.discount || 0
+            });
+        } catch (glError) {
+            console.warn('GL posting failed (sale still created):', glError);
+        }
+
         // Receipt number is already part of the header, no separate entity needed
 
         // Prescription linking removed for simplified pharmacy flow
