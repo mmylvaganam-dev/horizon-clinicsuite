@@ -234,14 +234,23 @@ export default function PharmacyDashboard() {
   const handleReprintInvoice = async (sale) => {
     try {
       const response = await base44.functions.invoke('generatePharmacyInvoice', { saleId: sale.id });
-      const printWindow = window.open('', '_blank');
-      printWindow.document.write(response.data);
+      const htmlContent = typeof response.data === 'string' ? response.data : JSON.stringify(response.data);
+      
+      const printWindow = window.open('', '_blank', 'width=800,height=600');
+      if (!printWindow) {
+        toast.error('Please allow pop-ups to print');
+        return;
+      }
+      
+      printWindow.document.open();
+      printWindow.document.write(htmlContent);
       printWindow.document.close();
+      
       setTimeout(() => {
         printWindow.focus();
         printWindow.print();
-      }, 250);
-      toast.success('Invoice opened for printing');
+        toast.success('Invoice ready to print');
+      }, 500);
     } catch (error) {
       console.error('Reprint failed:', error);
       toast.error('Failed to generate invoice');
