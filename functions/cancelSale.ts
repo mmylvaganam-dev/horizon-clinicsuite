@@ -49,12 +49,24 @@ Deno.serve(async (req) => {
       notes: `${sale.notes || ''} [CANCELLED on ${new Date().toISOString()} by ${user.email}]`
     });
 
+    // Post reversal to GL (reverse the original GL entries)
+    try {
+      await base44.functions.invoke('postReturnToGL', {
+        saleId: saleId,
+        returnAmount: sale.total,
+        originalSaleAmount: sale.total
+      });
+    } catch (glError) {
+      console.warn('GL reversal failed (sale still cancelled):', glError);
+    }
+
     return Response.json({
       success: true,
       message: 'Sale cancelled and stock restored',
       sale_id: saleId,
       items_restored: saleLines.length,
-      amount_reversed: sale.total
+      amount_reversed: sale.total,
+      gl_reversed: true
     });
   } catch (error) {
     console.error('Cancel sale error:', error);

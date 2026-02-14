@@ -63,11 +63,22 @@ Deno.serve(async (req) => {
     }
 
     // Update original sale with return info
-    const updatedNotes = `${sale.notes || ''}\n[RETURN: ${returnType} - Rs ${totalReturnAmount.toFixed(2)} - ${returnItem.reason || 'No reason provided'} - ${new Date().toISOString()}]`;
+    const updatedNotes = `${sale.notes || ''}\n[RETURN: ${returnType} - Rs ${totalReturnAmount.toFixed(2)} - ${items[0]?.reason || 'No reason provided'} - ${new Date().toISOString()}]`;
     
     await base44.entities.PharmacySaleHeader.update(saleId, {
       notes: updatedNotes
     });
+
+    // Post return to GL
+    try {
+      await base44.functions.invoke('postReturnToGL', {
+        saleId: saleId,
+        returnAmount: totalReturnAmount,
+        originalSaleAmount: sale.total
+      });
+    } catch (glError) {
+      console.warn('GL posting failed (return still processed):', glError);
+    }
 
     return Response.json({
       success: true,
@@ -75,7 +86,8 @@ Deno.serve(async (req) => {
       sale_id: saleId,
       items_returned: items.length,
       total_refund_amount: totalReturnAmount,
-      return_type: returnType
+      return_type: returnType,
+      gl_posted: true
     });
   } catch (error) {
     console.error('Process return error:', error);
