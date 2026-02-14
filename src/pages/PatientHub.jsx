@@ -40,8 +40,13 @@ export default function PatientHub() {
   const { data: patients = [], isLoading } = useQuery({
     queryKey: ['patients', user?.organization_id],
     queryFn: async () => {
+      // Platform owners see all patients
+      if (user?.is_platform_owner || user?.email === 'mmylvaganam@premierhealthcanada.ca' || user?.email === 'mylvaganam@premierhealthcanada.ca') {
+        return base44.entities.Patient.list('-created_date');
+      }
+      // Regular users ONLY see their organization's patients
       if (!user?.organization_id) {
-        return base44.entities.Patient.list('-created_date'); // Platform owner sees all
+        return []; // No org assigned, show nothing
       }
       return base44.entities.Patient.filter({ organization_id: user.organization_id }, '-created_date');
     },
