@@ -189,7 +189,12 @@ export default function MedicineReturnDialog({ open, onOpenChange, sale, saleIte
   };
 
   const addItem = (saleItem) => {
-    const productId = saleItem.product_id || saleItem.stock_id;
+    const productId = saleItem.stock_id || saleItem.product_id;
+    if (!productId) {
+      toast.error('Invalid item - no product ID');
+      return;
+    }
+    
     if (selectedItems.some(item => item.product_id === productId)) {
       toast.error('Item already added');
       return;
@@ -207,6 +212,7 @@ export default function MedicineReturnDialog({ open, onOpenChange, sale, saleIte
     
     console.log('🟢 Adding item to return:', newItem);
     setSelectedItems([...selectedItems, newItem]);
+    toast.success('Item added to return');
   };
 
   const removeItem = (productId) => {
@@ -278,29 +284,32 @@ export default function MedicineReturnDialog({ open, onOpenChange, sale, saleIte
                 <h4 className="font-semibold mb-3">Available Items to Return</h4>
                 <div className="space-y-2">
                   {saleItems.map((item, idx) => {
-                    const productId = item.product_id || item.stock_id;
-                    const productName = item.product_name_cache || item.product_name || 'Unknown Product';
-                    const qty = item.qty || item.quantity || 0;
-                    const price = item.unit_price || 0;
-                    
-                    return (
-                      <div key={productId || idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                        <div className="flex-1">
-                          <p className="font-medium text-sm">{productName}</p>
-                          <p className="text-xs text-slate-600">Qty: {qty} • {currency} {price.toFixed(2)}</p>
-                        </div>
-                        {!selectedItems.some(si => si.product_id === productId) && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => addItem(item)}
-                          >
-                            <Plus className="w-3 h-3 mr-1" />
-                            Add
-                          </Button>
-                        )}
-                      </div>
-                    );
+                   const productId = item.stock_id || item.product_id;
+                   const productName = item.product_name_cache || item.product_name || 'Unknown Product';
+                   const qty = item.qty || item.quantity || 0;
+                   const price = item.unit_price || 0;
+                   const isAlreadyAdded = selectedItems.some(si => si.product_id === productId);
+
+                   return (
+                     <div key={productId || idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                       <div className="flex-1">
+                         <p className="font-medium text-sm">{productName}</p>
+                         <p className="text-xs text-slate-600">Qty: {qty} • {currency} {price.toFixed(2)}</p>
+                       </div>
+                       {isAlreadyAdded ? (
+                         <Badge className="bg-emerald-600 text-white">Added</Badge>
+                       ) : (
+                         <Button
+                           size="sm"
+                           variant="outline"
+                           onClick={() => addItem(item)}
+                         >
+                           <Plus className="w-3 h-3 mr-1" />
+                           Add
+                         </Button>
+                       )}
+                     </div>
+                   );
                   })}
                 </div>
               </CardContent>

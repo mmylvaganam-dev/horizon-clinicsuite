@@ -240,8 +240,10 @@ export default function PharmacyDashboard() {
         printWindow.focus();
         printWindow.print();
       }, 250);
+      toast.success('Invoice opened for printing');
     } catch (error) {
       console.error('Reprint failed:', error);
+      toast.error('Failed to generate invoice');
     }
   };
 
