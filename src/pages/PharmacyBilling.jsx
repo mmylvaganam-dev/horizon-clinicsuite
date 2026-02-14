@@ -581,8 +581,198 @@ export default function PharmacyBilling() {
     onSuccess: (completedSaleData) => {
       queryClient.invalidateQueries(['pharmacyStock']);
       toast.success(`Sale ${completedSaleData.receipt_number} completed!`);
-      setCompletedSale(completedSaleData);
-      setShowInvoiceDialog(true);
+      
+      // Auto-print invoice immediately
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Invoice ${completedSaleData.receipt_number}</title>
+            <style>
+              @page {
+                size: 80mm auto;
+                margin: 0;
+              }
+              * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+              }
+              body { 
+                font-family: 'Courier New', monospace; 
+                width: 72mm;
+                margin: 0 auto;
+                padding: 5mm;
+                font-size: 11px;
+                line-height: 1.3;
+              }
+              .header { 
+                text-align: center; 
+                border-bottom: 1px dashed #333; 
+                padding-bottom: 5px; 
+                margin-bottom: 8px; 
+              }
+              .header h1 { 
+                font-size: 14px; 
+                font-weight: bold;
+                margin-bottom: 3px;
+              }
+              .header p { 
+                font-size: 9px;
+                margin: 1px 0;
+              }
+              .info { 
+                margin-bottom: 8px; 
+                font-size: 10px;
+              }
+              .info-row {
+                display: flex;
+                justify-content: space-between;
+                margin: 2px 0;
+              }
+              .divider {
+                border-top: 1px dashed #333;
+                margin: 5px 0;
+              }
+              .items {
+                margin: 5px 0;
+              }
+              .item {
+                margin: 3px 0;
+                font-size: 10px;
+              }
+              .item-name {
+                font-weight: bold;
+                margin-bottom: 1px;
+              }
+              .item-details {
+                display: flex;
+                justify-content: space-between;
+                font-size: 9px;
+              }
+              .totals { 
+                margin-top: 8px;
+                border-top: 1px solid #333;
+                padding-top: 5px;
+              }
+              .total-row {
+                display: flex;
+                justify-content: space-between;
+                margin: 2px 0;
+                font-size: 10px;
+              }
+              .grand-total { 
+                font-weight: bold; 
+                font-size: 12px;
+                border-top: 1px solid #333;
+                margin-top: 3px;
+                padding-top: 3px;
+              }
+              .savings {
+                text-align: center;
+                margin: 8px 0;
+                padding: 5px;
+                border: 1px solid #333;
+                font-size: 10px;
+                font-weight: bold;
+              }
+              .footer { 
+                text-align: center; 
+                margin-top: 10px;
+                padding-top: 5px;
+                border-top: 1px dashed #333;
+                font-size: 9px;
+              }
+              @media print {
+                body { 
+                  width: 72mm;
+                }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1>${completedSaleData.organization_name}</h1>
+              ${completedSaleData.location_address ? `<p>${completedSaleData.location_address}</p>` : ''}
+              ${completedSaleData.location_phone ? `<p>Tel: ${completedSaleData.location_phone}</p>` : ''}
+            </div>
+            
+            <div class="info">
+              <div class="info-row">
+                <span>Receipt:</span>
+                <span><strong>${completedSaleData.receipt_number}</strong></span>
+              </div>
+              <div class="info-row">
+                <span>Customer:</span>
+                <span>${completedSaleData.customer_name}</span>
+              </div>
+              <div class="info-row">
+                <span>Date/Time:</span>
+                <span>${completedSaleData.sale_datetime}</span>
+              </div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <div class="items">
+              ${completedSaleData.items.map(item => `
+                <div class="item">
+                  <div class="item-name">${item.display_name}</div>
+                  <div class="item-details">
+                    <span>${item.quantity} x ${completedSaleData.currency} ${item.unit_price.toFixed(2)}</span>
+                    <span><strong>${completedSaleData.currency} ${item.total.toFixed(2)}</strong></span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            
+            <div class="totals">
+              <div class="total-row">
+                <span>Subtotal:</span>
+                <span>${completedSaleData.currency} ${completedSaleData.subtotal.toFixed(2)}</span>
+              </div>
+              ${completedSaleData.discount_amount > 0 ? `
+              <div class="total-row">
+                <span>Discount:</span>
+                <span>-${completedSaleData.currency} ${completedSaleData.discount_amount.toFixed(2)}</span>
+              </div>
+              ` : ''}
+              <div class="total-row">
+                <span>Tax:</span>
+                <span>${completedSaleData.currency} ${completedSaleData.tax.toFixed(2)}</span>
+              </div>
+              <div class="total-row grand-total">
+                <span>TOTAL:</span>
+                <span>${completedSaleData.currency} ${completedSaleData.total.toFixed(2)}</span>
+              </div>
+            </div>
+            
+            ${completedSaleData.total_savings > 0 ? `
+            <div class="savings">
+              You Saved ${completedSaleData.currency} ${completedSaleData.total_savings.toFixed(2)}!
+            </div>
+            ` : ''}
+            
+            <div class="footer">
+              <p>Thank you for your purchase!</p>
+              <p>Please keep this receipt</p>
+            </div>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+      }, 250);
+      
+      // Reset cart and selections
+      setCart([]);
+      setSelectedPatient(null);
+      setSelectedWalkIn(null);
+      setPatientSearch('');
+      setPrescriptionFile(null);
+      setPrescriptionUrl(null);
     },
     onError: (error) => {
       toast.error('Sale failed: ' + error.message);
