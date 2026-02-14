@@ -16,6 +16,7 @@ import {
   Edit,
   Trash2
 } from 'lucide-react';
+import { createPageUrl } from '../utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format, addDays, startOfWeek, isSameDay, parseISO } from 'date-fns';
@@ -222,9 +223,14 @@ export default function Appointments() {
                       return (
                         <div
                           key={apt.id}
-                          onClick={() => { setEditingAppointment(apt); setFormOpen(true); }}
+                          onClick={() => { 
+                            const patient = patients.find(p => p.id === apt.patient_id);
+                            if (patient) {
+                              window.location.href = createPageUrl(`PatientDetails?id=${patient.id}`);
+                            }
+                          }}
                           className={`
-                            p-2 rounded-lg cursor-pointer transition-all hover:opacity-80
+                            p-2 rounded-lg cursor-pointer transition-all hover:shadow-lg hover:scale-105
                             ${typeColors[apt.type] || 'bg-slate-500'} text-white text-xs
                           `}
                         >

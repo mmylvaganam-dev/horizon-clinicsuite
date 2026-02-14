@@ -15,22 +15,41 @@ import {
   Stethoscope,
   Activity,
   Users,
-  TrendingUp
+  TrendingUp,
+  FileText
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, isSameDay, parseISO } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '../utils';
 
 export default function ProviderDashboard() {
   const [dateFrom, setDateFrom] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [searchQuery, setSearchQuery] = useState('');
+
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
 
   const { data: users = [] } = useQuery({
     queryKey: ['users'],
     queryFn: () => base44.entities.User.list(),
   });
 
+  const { data: patients = [] } = useQuery({
+    queryKey: ['patients'],
+    queryFn: () => base44.entities.Patient.list(),
+  });
+
+  // Get appointments for current provider only
   const { data: appointments = [] } = useQuery({
-    queryKey: ['appointments'],
-    queryFn: () => base44.entities.Appointment.list('-start_time'),
+    queryKey: ['appointments', currentUser?.id],
+    queryFn: async () => {
+      const allAppointments = await base44.entities.Appointment.list('-start_time');
+      // Filter to show only this provider's appointments
+      return allAppointments.filter(apt => apt.provider_id === currentUser?.id);
+    },
+    enabled: !!currentUser,
   });
 
   // Service categories
@@ -43,22 +62,22 @@ export default function ProviderDashboard() {
     { name: 'Pharmacy Service', icon: Activity, color: 'from-indigo-500 to-indigo-600' },
   ];
 
-  // Mock provider data
-  const provider = {
-    name: 'Dr. Nirmalini Kathiralingam',
-    specialty: 'General',
-    stats: {
-      totalSessions: 1,
-      sessionsCompleted: 0,
-      appointmentsCancelled: 0,
-      seen: 0,
-      paid: 0,
-      home: 0,
-      cancel: 0,
-      noshow: 0,
-      unscheduled: 0,
-      notScheduled: 0
-    }
+  const navigate = useNavigate();
+  
+  // Calculate stats from actual appointments
+  const todayAppointments = appointments.filter(apt => {
+    if (!apt.start_time) return false;
+    return isSameDay(new Date(apt.start_time), new Date(dateFrom));
+  });
+
+  const stats = {
+    totalAppointments: appointments.length,
+    todayTotal: todayAppointments.length,
+    completed: todayAppointments.filter(a => a.status === 'completed').length,
+    inProgress: todayAppointments.filter(a => a.status === 'in-progress').length,
+    scheduled: todayAppointments.filter(a => a.status === 'scheduled' || a.status === 'confirmed').length,
+    cancelled: todayAppointments.filter(a => a.status === 'cancelled').length,
+    noShow: todayAppointments.filter(a => a.status === 'no-show').length,
   };
 
   return (
@@ -66,8 +85,14 @@ export default function ProviderDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Provider Dashboard</h1>
-          <p className="text-slate-500 mt-1">Track provider performance and appointments</p>
+          <p className="text-slate-500 mt-1">
+            {currentUser?.full_name || 'Provider'} - {stats.todayTotal} appointments today
+          </p>
         </div>
+        <Button onClick={() => navigate(createPageUrl('Appointments'))}>
+          <Calendar className="w-4 h-4 mr-2" />
+          All Appointments
+        </Button>
       </div>
 
       {/* Date Filter */}
@@ -113,78 +138,99 @@ export default function ProviderDashboard() {
         ))}
       </div>
 
-      {/* Provider Stats Card */}
-      <Card className="border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-blue-50">
-        <CardContent className="p-6">
-          <div className="flex items-start gap-6">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center">
-              <User className="w-10 h-10 text-white" />
+      {/* My Appointments for Today */}
+      <Card className="border-2 border-indigo-200">
+        <div className="p-4 border-b bg-gradient-to-r from-indigo-600 to-indigo-700 text-white">
+          <h2 className="text-xl font-bold">My Appointments - {format(new Date(dateFrom), 'MMMM d, yyyy')}</h2>
+          <p className="text-sm opacity-90">{stats.todayTotal} appointments scheduled</p>
+        </div>
+        <CardContent className="p-0">
+          {todayAppointments.length === 0 ? (
+            <div className="p-12 text-center">
+              <Calendar className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+              <p className="text-slate-500">No appointments for selected date</p>
             </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-slate-900 mb-1">{provider.name}</h2>
-              <Badge className="bg-indigo-600 mb-4">{provider.specialty}</Badge>
-              
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <div className="bg-white rounded-lg p-4 text-center">
-                  <p className="text-3xl font-bold text-indigo-600">{provider.stats.totalSessions}</p>
-                  <p className="text-xs text-slate-600 mt-1">Total Sessions</p>
-                </div>
-                <div className="bg-white rounded-lg p-4 text-center">
-                  <p className="text-3xl font-bold text-emerald-600">{provider.stats.seen}</p>
-                  <p className="text-xs text-slate-600 mt-1">Seen</p>
-                </div>
-                <div className="bg-white rounded-lg p-4 text-center">
-                  <p className="text-3xl font-bold text-blue-600">{provider.stats.paid}</p>
-                  <p className="text-xs text-slate-600 mt-1">Paid</p>
-                </div>
-                <div className="bg-white rounded-lg p-4 text-center">
-                  <p className="text-3xl font-bold text-purple-600">{provider.stats.home}</p>
-                  <p className="text-xs text-slate-600 mt-1">Home</p>
-                </div>
-                <div className="bg-white rounded-lg p-4 text-center">
-                  <p className="text-3xl font-bold text-rose-600">{provider.stats.cancel}</p>
-                  <p className="text-xs text-slate-600 mt-1">Cancel</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-                <div className="bg-white rounded-lg p-4 text-center">
-                  <p className="text-3xl font-bold text-amber-600">{provider.stats.appointmentsCancelled}</p>
-                  <p className="text-xs text-slate-600 mt-1">Appointments Cancelled</p>
-                </div>
-                <div className="bg-white rounded-lg p-4 text-center">
-                  <p className="text-3xl font-bold text-slate-600">{provider.stats.unscheduled}</p>
-                  <p className="text-xs text-slate-600 mt-1">Unscheduled</p>
-                </div>
-                <div className="bg-white rounded-lg p-4 text-center">
-                  <p className="text-3xl font-bold text-slate-600">{provider.stats.notScheduled}</p>
-                  <p className="text-xs text-slate-600 mt-1">Not Scheduled</p>
-                </div>
-                <div className="bg-white rounded-lg p-4 text-center">
-                  <p className="text-3xl font-bold text-slate-600">{provider.stats.sessionsCompleted}</p>
-                  <p className="text-xs text-slate-600 mt-1">Sessions Cancelled</p>
-                </div>
-              </div>
+          ) : (
+            <div className="divide-y">
+              {todayAppointments.map(apt => {
+                const patient = patients.find(p => p.id === apt.patient_id);
+                const patientName = patient ? `${patient.first_name} ${patient.last_name}` : 'Unknown';
+                
+                return (
+                  <div 
+                    key={apt.id} 
+                    className="p-4 hover:bg-slate-50 transition-colors cursor-pointer"
+                    onClick={() => {
+                      if (patient) {
+                        navigate(createPageUrl(`PatientDetails?id=${patient.id}`));
+                      }
+                    }}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-indigo-600">{format(new Date(apt.start_time), 'HH:mm')}</p>
+                        <p className="text-xs text-slate-500">{apt.duration || 30} min</p>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-lg text-slate-900">{patientName}</p>
+                        <p className="text-sm text-slate-600">{apt.type?.replace(/[_-]/g, ' ')} • {apt.reason || 'No reason'}</p>
+                        {patient?.phn && (
+                          <p className="text-xs text-slate-500 mt-1">PHN: {patient.phn}</p>
+                        )}
+                      </div>
+                      <Badge className={
+                        apt.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
+                        apt.status === 'in-progress' ? 'bg-amber-100 text-amber-700' :
+                        apt.status === 'cancelled' ? 'bg-rose-100 text-rose-700' :
+                        'bg-blue-100 text-blue-700'
+                      }>
+                        {apt.status?.replace('-', ' ') || 'scheduled'}
+                      </Badge>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (patient) {
+                            navigate(createPageUrl(`EMR?patientId=${patient.id}`));
+                          }
+                        }}
+                      >
+                        <FileText className="w-4 h-4 mr-1" />
+                        EMR
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
-          </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white">
+        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
           <CardContent className="p-6">
-            <CheckCircle className="w-8 h-8 mb-2 opacity-80" />
-            <p className="text-sm opacity-90">Total Sessions</p>
-            <p className="text-3xl font-bold mt-1">{provider.stats.totalSessions}</p>
+            <Calendar className="w-8 h-8 mb-2 opacity-80" />
+            <p className="text-sm opacity-90">Today's Appointments</p>
+            <p className="text-3xl font-bold mt-1">{stats.todayTotal}</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
+        <Card className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white">
           <CardContent className="p-6">
-            <Users className="w-8 h-8 mb-2 opacity-80" />
-            <p className="text-sm opacity-90">Patients Seen</p>
-            <p className="text-3xl font-bold mt-1">{provider.stats.seen}</p>
+            <CheckCircle className="w-8 h-8 mb-2 opacity-80" />
+            <p className="text-sm opacity-90">Completed</p>
+            <p className="text-3xl font-bold mt-1">{stats.completed}</p>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-amber-500 to-amber-600 text-white">
+          <CardContent className="p-6">
+            <Activity className="w-8 h-8 mb-2 opacity-80" />
+            <p className="text-sm opacity-90">In Progress</p>
+            <p className="text-3xl font-bold mt-1">{stats.inProgress}</p>
           </CardContent>
         </Card>
 
@@ -192,15 +238,7 @@ export default function ProviderDashboard() {
           <CardContent className="p-6">
             <XCircle className="w-8 h-8 mb-2 opacity-80" />
             <p className="text-sm opacity-90">Cancelled</p>
-            <p className="text-3xl font-bold mt-1">{provider.stats.appointmentsCancelled}</p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-amber-500 to-amber-600 text-white">
-          <CardContent className="p-6">
-            <Clock className="w-8 h-8 mb-2 opacity-80" />
-            <p className="text-sm opacity-90">No Show</p>
-            <p className="text-3xl font-bold mt-1">{provider.stats.noshow}</p>
+            <p className="text-3xl font-bold mt-1">{stats.cancelled}</p>
           </CardContent>
         </Card>
       </div>
