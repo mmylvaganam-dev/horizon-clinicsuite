@@ -584,6 +584,19 @@ export default function PharmacyBilling() {
       
       // Auto-print invoice immediately
       const printWindow = window.open('', '_blank');
+      
+      console.log('🖨️ Printing invoice with items:', completedSaleData.items);
+      
+      const itemsHTML = (completedSaleData.items || []).map(item => `
+        <div class="item">
+          <div class="item-name">${item.display_name || 'Unknown Item'}</div>
+          <div class="item-details">
+            <span>${item.quantity || 0} x ${completedSaleData.currency} ${(item.unit_price || 0).toFixed(2)}</span>
+            <span><strong>${completedSaleData.currency} ${(item.total || 0).toFixed(2)}</strong></span>
+          </div>
+        </div>
+      `).join('');
+      
       printWindow.document.write(`
         <html>
           <head>
@@ -715,15 +728,7 @@ export default function PharmacyBilling() {
             <div class="divider"></div>
             
             <div class="items">
-              ${completedSaleData.items.map(item => `
-                <div class="item">
-                  <div class="item-name">${item.display_name}</div>
-                  <div class="item-details">
-                    <span>${item.quantity} x ${completedSaleData.currency} ${item.unit_price.toFixed(2)}</span>
-                    <span><strong>${completedSaleData.currency} ${item.total.toFixed(2)}</strong></span>
-                  </div>
-                </div>
-              `).join('')}
+              ${itemsHTML}
             </div>
             
             <div class="totals">
