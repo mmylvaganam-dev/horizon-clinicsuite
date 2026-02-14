@@ -50,14 +50,30 @@ export default function MedicineReturnDialog({ open, onOpenChange, sale, saleIte
         processed_by: user?.id
       });
 
-      // Update inventory - add back the returned items
+      // Update inventory - add back the returned items to stock
       for (const item of returnItems) {
-        const stock = await base44.entities.PharmacyStock.filter({ id: item.product_id });
-        if (stock.length > 0) {
-          const currentStock = stock[0];
-          await base44.entities.PharmacyStock.update(item.product_id, {
-            quantity: (currentStock.quantity || 0) + item.quantity
+        try {
+          // Fetch current stock by product_id
+          const currentStock = await base44.entities.PharmacyStock.filter({ 
+            id: item.product_id,
+            organization_id: user?.organization_id 
           });
+          
+          if (currentStock && currentStock.length > 0) {
+            const stock = currentStock[0];
+            const newQuantity = (stock.quantity || 0) + item.quantity;
+            
+            // Update stock quantity
+            await base44.entities.PharmacyStock.update(stock.id, {
+              quantity: newQuantity
+            });
+            
+            console.log(`✅ Stock updated for ${item.product_name}: +${item.quantity} (New total: ${newQuantity})`);
+          } else {
+            console.warn(`⚠️ Stock not found for product ${item.product_id}`);
+          }
+        } catch (error) {
+          console.error(`❌ Failed to update stock for ${item.product_name}:`, error);
         }
       }
 
@@ -167,11 +183,12 @@ export default function MedicineReturnDialog({ open, onOpenChange, sale, saleIte
       return;
     }
     setSelectedItems([...selectedItems, {
-      product_id: saleItem.product_id,
-      product_name: saleItem.product_name,
+      product_id: saleItem.product_id || saleItem.stock_id,
+      product_name: saleItem.product_name_cache || saleItem.product_name,
       unit_price: saleItem.unit_price,
       batch_no: saleItem.batch_no || '',
       return_qty: 1,
+      max_qty: saleItem.qty || saleItem.quantity || 1,
       reason: returnReason
     }]);
   };
@@ -181,9 +198,13 @@ export default function MedicineReturnDialog({ open, onOpenChange, sale, saleIte
   };
 
   const updateItemQty = (productId, qty) => {
-    setSelectedItems(selectedItems.map(item =>
-      item.product_id === productId ? { ...item, return_qty: Math.max(1, parseInt(qty) || 1) } : item
-    ));
+    setSelectedItems(selectedItems.map(item => {
+      if (item.product_id === productId) {
+        const newQty = Math.max(1, Math.min(parseInt(qty) || 1, item.max_qty));
+        return { ...item, return_qty: newQty };
+      }
+      return item;
+    }));
   };
 
   const totalAmount = selectedItems.reduce((sum, item) => sum + (item.return_qty * item.unit_price), 0);
@@ -240,24 +261,31 @@ export default function MedicineReturnDialog({ open, onOpenChange, sale, saleIte
               <CardContent className="p-4">
                 <h4 className="font-semibold mb-3">Available Items to Return</h4>
                 <div className="space-y-2">
-                  {saleItems.map(item => (
-                    <div key={item.product_id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">{item.product_name}</p>
-                        <p className="text-xs text-slate-600">Qty: {item.quantity} • {currency} {item.unit_price.toFixed(2)}</p>
+                  {saleItems.map((item, idx) => {
+                    const productId = item.product_id || item.stock_id;
+                    const productName = item.product_name_cache || item.product_name || 'Unknown Product';
+                    const qty = item.qty || item.quantity || 0;
+                    const price = item.unit_price || 0;
+                    
+                    return (
+                      <div key={productId || idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                        <div className="flex-1">
+                          <p className="font-medium text-sm">{productName}</p>
+                          <p className="text-xs text-slate-600">Qty: {qty} • {currency} {price.toFixed(2)}</p>
+                        </div>
+                        {!selectedItems.some(si => si.product_id === productId) && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => addItem(item)}
+                          >
+                            <Plus className="w-3 h-3 mr-1" />
+                            Add
+                          </Button>
+                        )}
                       </div>
-                      {!selectedItems.some(si => si.product_id === item.product_id) && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => addItem(item)}
-                        >
-                          <Plus className="w-3 h-3 mr-1" />
-                          Add
-                        </Button>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
@@ -286,10 +314,11 @@ export default function MedicineReturnDialog({ open, onOpenChange, sale, saleIte
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <Label className="text-xs">Quantity</Label>
+                          <Label className="text-xs">Quantity (Max: {item.max_qty})</Label>
                           <Input
                             type="number"
                             min="1"
+                            max={item.max_qty}
                             value={item.return_qty}
                             onChange={(e) => updateItemQty(item.product_id, e.target.value)}
                           />
