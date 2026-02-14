@@ -211,11 +211,26 @@ export default function PharmacyBilling() {
     days: 15
   };
 
-  // Filter stock by category and search
+  // Filter stock by category and search with tab-specific logic
   const filteredStock = pharmacyStock.filter(item => {
-    const matchesSearch = searchQuery === '' || 
-      item.display_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.barcode?.toLowerCase().includes(searchQuery.toLowerCase());
+    let matchesSearch = false;
+    
+    if (searchQuery === '') {
+      matchesSearch = false;
+    } else if (activeTab === 'name') {
+      // Search by brand/display name
+      matchesSearch = item.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                     item.brand_name?.toLowerCase().includes(searchQuery.toLowerCase());
+    } else if (activeTab === 'generics') {
+      // Search by generic name
+      matchesSearch = item.generic_name?.toLowerCase().includes(searchQuery.toLowerCase());
+    } else if (activeTab === 'substitutes') {
+      // Search by generic name (substitutes are products with same generic)
+      matchesSearch = item.generic_name?.toLowerCase().includes(searchQuery.toLowerCase());
+    } else if (activeTab === 'barcods') {
+      // Search by barcode
+      matchesSearch = item.barcode?.toLowerCase().includes(searchQuery.toLowerCase());
+    }
     
     const matchesCategory = selectedCategory === 'All' || selectedCategory === 'all' ||
       item.service_category?.toLowerCase().includes(selectedCategory.toLowerCase()) ||
@@ -498,7 +513,8 @@ export default function PharmacyBilling() {
       // Create sale line items
       for (const item of cart) {
         await base44.entities.PharmacySaleLine.create({
-          sale_ref: sale.id,
+          sale_header_id: sale.id,
+          stock_id: item.stock_id,
           product_code: item.barcode || item.stock_id,
           barcode_value: item.barcode || '',
           product_name_cache: item.display_name,
