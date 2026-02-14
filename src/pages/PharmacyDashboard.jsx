@@ -220,8 +220,8 @@ export default function PharmacyDashboard() {
       });
 
       // Refresh data
-      queryClient.invalidateQueries(['pharmacySaleHeaders']);
-      queryClient.invalidateQueries(['pharmacyStock']);
+      queryClient.invalidateQueries({ queryKey: ['pharmacySaleHeaders', selectedOrgId] });
+      queryClient.invalidateQueries({ queryKey: ['pharmacyStock', selectedOrgId] });
       
       toast.success('Sale deleted and stock restored');
       setShowDeleteDialog(false);
