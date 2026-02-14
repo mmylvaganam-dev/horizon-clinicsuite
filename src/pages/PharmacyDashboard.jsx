@@ -59,9 +59,6 @@ export default function PharmacyDashboard() {
     queryFn: () => base44.auth.me(),
   });
 
-  // Check if any query is loading
-  const isLoadingData = !selectedOrgId || stockLoading;
-
   const { data: sales = [] } = useQuery({
     queryKey: ['pharmacySaleHeaders', selectedOrgId],
     queryFn: async () => {
