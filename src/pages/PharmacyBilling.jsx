@@ -153,14 +153,8 @@ export default function PharmacyBilling() {
     enabled: !!selectedOrgId,
   });
 
-  const { data: walkInPatients = [] } = useQuery({
-    queryKey: ['walkInPatients', selectedOrgId],
-    queryFn: async () => {
-      if (!selectedOrgId) return [];
-      return base44.entities.PharmacyWalkInPatient.filter(orgFilter, '-last_visit_date');
-    },
-    enabled: !!selectedOrgId,
-  });
+  // Walk-in patients are now part of Patient entity with patient_type='walk_in'
+  // No separate PharmacyWalkInPatient entity needed
 
   const { data: branding } = useQuery({
     queryKey: ['organizationBranding', selectedOrgId],
@@ -411,15 +405,15 @@ export default function PharmacyBilling() {
       phn.includes(search);
   }).slice(0, 10);
 
-  // Filter walk-in patients
-  const filteredWalkIns = walkInPatients.filter(w => {
+  // Filter walk-in patients from Patient entity
+  const filteredWalkIns = patients.filter(w => {
     const search = patientSearch.toLowerCase().trim();
-    if (search === '') return false;
+    if (search === '' || w.patient_type !== 'walk_in') return false;
     
-    const name = (w.name || '').toLowerCase();
-    const phone = (w.phone || '').toLowerCase();
+    const fullName = `${w.first_name} ${w.last_name}`.toLowerCase();
+    const phone = (w.mobile || w.phone || '').toLowerCase();
     
-    return name.includes(search) || phone.includes(search);
+    return fullName.includes(search) || phone.includes(search);
   }).slice(0, 10);
 
   const handleSelectPatient = (patient) => {
@@ -430,9 +424,9 @@ export default function PharmacyBilling() {
   };
 
   const handleSelectWalkIn = (walkIn) => {
-    setSelectedWalkIn(walkIn);
-    setSelectedPatient(null);
-    setPatientSearch(walkIn.name);
+    setSelectedWalkIn(null);
+    setSelectedPatient(walkIn); // Treat walk-in as regular patient
+    setPatientSearch(`${walkIn.first_name} ${walkIn.last_name}`);
     setShowPatientDialog(false);
   };
 
@@ -1438,7 +1432,7 @@ export default function PharmacyBilling() {
                 {/* Walk-In Patients */}
                 {filteredWalkIns.length > 0 && (
                   <div>
-                    <h3 className="font-semibold text-sm text-slate-700 mb-3 px-1">Walk-In Customers ({filteredWalkIns.length})</h3>
+                    <h3 className="font-semibold text-sm text-slate-700 mb-3 px-1">Walk-In Patients ({filteredWalkIns.length})</h3>
                     <div className="space-y-2">
                       {filteredWalkIns.map(walkIn => (
                         <Card
@@ -1448,21 +1442,18 @@ export default function PharmacyBilling() {
                         >
                           <div className="flex justify-between items-start">
                             <div className="flex-1">
-                              <p className="font-semibold text-lg text-slate-900">{walkIn.name}</p>
+                              <p className="font-semibold text-lg text-slate-900">{walkIn.first_name} {walkIn.last_name}</p>
                               <div className="flex flex-wrap gap-2 mt-2">
-                                {walkIn.phone && (
+                                {walkIn.mobile && (
                                   <Badge variant="outline" className="text-xs">
-                                    📱 {walkIn.phone}
+                                    📱 {walkIn.mobile}
                                   </Badge>
                                 )}
-                                {walkIn.discount_percentage > 0 && (
-                                  <Badge className="bg-emerald-600 text-xs">
-                                    {walkIn.discount_percentage}% Discount
+                                {walkIn.phn && (
+                                  <Badge variant="outline" className="text-xs bg-purple-50">
+                                    PHN: {walkIn.phn}
                                   </Badge>
                                 )}
-                                <Badge variant="outline" className="text-xs">
-                                  {walkIn.total_visits || 0} visits
-                                </Badge>
                               </div>
                             </div>
                             <Badge className="bg-purple-600">Select</Badge>

@@ -38,8 +38,14 @@ export default function PatientHub() {
   });
 
   const { data: patients = [], isLoading } = useQuery({
-    queryKey: ['patients'],
-    queryFn: () => base44.entities.Patient.list('-created_date'),
+    queryKey: ['patients', user?.organization_id],
+    queryFn: async () => {
+      if (!user?.organization_id) {
+        return base44.entities.Patient.list('-created_date'); // Platform owner sees all
+      }
+      return base44.entities.Patient.filter({ organization_id: user.organization_id }, '-created_date');
+    },
+    enabled: !!user,
   });
 
   const filteredPatients = patients.filter(p => {
