@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,9 @@ import {
   User,
   Clock,
   Package,
-  ArrowLeft
+  ArrowLeft,
+  X,
+  RotateCw
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -103,6 +105,9 @@ export default function TodaySalesDetails() {
   const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total || 0), 0);
   const averageSale = todaySales.length > 0 ? (todayRevenue / todaySales.length) : 0;
 
+  const [cancelingSaleId, setCancelingId] = useState(null);
+  const queryClient = useQueryClient();
+
   const handleReprintInvoice = async (sale) => {
     setReprintingId(sale.id);
     try {
@@ -129,6 +134,21 @@ export default function TodaySalesDetails() {
       alert('Failed to reprint invoice: ' + error.message);
     } finally {
       setReprintingId(null);
+    }
+  };
+
+  const handleCancelSale = async (sale) => {
+    if (!window.confirm(`Cancel sale ${sale.sale_number}? Stock will be restored.`)) return;
+    
+    setCancelingId(sale.id);
+    try {
+      await base44.functions.invoke('cancelSale', { saleId: sale.id });
+      queryClient.invalidateQueries(['pharmacySaleHeaders']);
+      alert('Sale cancelled and stock restored');
+    } catch (error) {
+      alert('Failed to cancel: ' + error.message);
+    } finally {
+      setCancelingId(null);
     }
   };
 
@@ -291,26 +311,40 @@ export default function TodaySalesDetails() {
                         </div>
 
                         <div className="flex gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleReprintInvoice(sale)}
-                            disabled={reprintingId === sale.id}
-                            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                          >
-                            <Printer className="w-4 h-4 mr-1" />
-                            {reprintingId === sale.id ? 'Printing...' : 'Reprint'}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => toggleDetails(sale.id)}
-                            className="text-slate-600 hover:text-slate-700"
-                          >
-                            <Eye className="w-4 h-4 mr-1" />
-                            {expandedSaleId === sale.id ? 'Hide' : 'Details'}
-                          </Button>
-                        </div>
+                           <Button
+                             size="sm"
+                             variant="outline"
+                             onClick={() => handleReprintInvoice(sale)}
+                             disabled={reprintingId === sale.id}
+                             className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                           >
+                             <Printer className="w-4 h-4 mr-1" />
+                             {reprintingId === sale.id ? 'Printing...' : 'Print'}
+                           </Button>
+                           <Button
+                             size="sm"
+                             variant="outline"
+                             onClick={() => toggleDetails(sale.id)}
+                             className="text-slate-600 hover:text-slate-700"
+                           >
+                             <Eye className="w-4 h-4 mr-1" />
+                             {expandedSaleId === sale.id ? 'Hide' : 'View'}
+                           </Button>
+                           {(sale.status === 'paid' || sale.status === 'completed') && (
+                             <>
+                               <Button
+                                 size="sm"
+                                 variant="outline"
+                                 onClick={() => handleCancelSale(sale)}
+                                 disabled={cancelingSaleId === sale.id}
+                                 className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                               >
+                                 <X className="w-4 h-4 mr-1" />
+                                 Cancel
+                               </Button>
+                             </>
+                           )}
+                         </div>
                       </div>
                     </div>
 
