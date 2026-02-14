@@ -260,13 +260,19 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Appointments', page: 'Appointments', icon: Calendar, description: 'Appointment booking - Schedule, reschedule, and manage patient appointments' },
         { name: 'Patients', page: 'Patients', icon: Users, description: 'Patient registry - Register new patients, search and view patient records' },
         { name: 'EMR', page: 'EMR', icon: FileText, description: 'Electronic Medical Records - Clinical documentation, diagnoses, prescriptions, vitals' },
-        { name: 'Dental', page: 'DentalModule', icon: Activity, description: 'Dental module - Complete dental practice management and charting' },
+        { name: 'Medical Records', page: 'MedicalRecords', icon: FileText, description: 'Records archive - View historical medical records and documents' },
+        { name: 'Task Management', page: 'TaskManagement', icon: CheckSquare, description: 'Clinical tasks - Patient follow-ups, referrals, and action items' },
+      ]
+    },
+    {
+      category: 'Dental Clinic',
+      icon: Activity,
+      items: [
+        { name: 'Dental Dashboard', page: 'DentalModule', icon: Activity, description: 'Dental overview - Encounters, treatment plans, and active problems' },
         { name: 'Dental Schedule', page: 'DentalSchedule', icon: Calendar, description: 'Dental appointments - Book patients to specific chairs and dentists' },
         { name: 'Dental Billing', page: 'DentalBilling', icon: DollarSign, description: 'Dental invoicing - Bill dental procedures and treatments' },
         { name: 'Sterilization', page: 'DentalSterilization', icon: Activity, description: 'Sterilization log - Track autoclave batches and instrument sterilization' },
         { name: 'Recalls', page: 'DentalRecalls', icon: Calendar, description: 'Dental recalls - Manage 6-month checkups and follow-up reminders' },
-        { name: 'Medical Records', page: 'MedicalRecords', icon: FileText, description: 'Records archive - View historical medical records and documents' },
-        { name: 'Task Management', page: 'TaskManagement', icon: CheckSquare, description: 'Clinical tasks - Patient follow-ups, referrals, and action items' },
       ]
     },
     {
