@@ -19,6 +19,10 @@ export default function SOAPNotes() {
   const [voiceTranscript, setVoiceTranscript] = useState('');
   const [generatedNote, setGeneratedNote] = useState(null);
   const [generating, setGenerating] = useState(false);
+  const [noteType, setNoteType] = useState('general');
+  const [isRecording, setIsRecording] = useState(false);
+  const [mediaRecorder, setMediaRecorder] = useState(null);
+  const [audioChunks, setAudioChunks] = useState([]);
 
   const queryClient = useQueryClient();
 
@@ -66,6 +70,58 @@ export default function SOAPNotes() {
     },
   });
 
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      const chunks = [];
+
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunks.push(e.data);
+        }
+      };
+
+      recorder.onstop = async () => {
+        const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+        
+        // Upload audio file
+        toast.loading('Uploading and transcribing audio...');
+        try {
+          const uploadResponse = await base44.integrations.Core.UploadFile({ file: audioBlob });
+          
+          // Transcribe audio using AI
+          const transcriptResponse = await base44.integrations.Core.InvokeLLM({
+            prompt: 'Transcribe this medical audio recording. Return only the transcription text without any additional formatting or labels.',
+            file_urls: [uploadResponse.file_url]
+          });
+          
+          setVoiceTranscript(transcriptResponse);
+          toast.success('Audio transcribed successfully');
+        } catch (error) {
+          toast.error('Failed to transcribe audio');
+        }
+        
+        stream.getTracks().forEach(track => track.stop());
+      };
+
+      recorder.start();
+      setMediaRecorder(recorder);
+      setIsRecording(true);
+      toast.success('Recording started');
+    } catch (error) {
+      toast.error('Microphone access denied');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      mediaRecorder.stop();
+      setIsRecording(false);
+      toast.success('Recording stopped');
+    }
+  };
+
   const handleGenerateNote = () => {
     if (!selectedPatient || !voiceTranscript) {
       toast.error('Please select patient and enter clinical information');
@@ -75,7 +131,8 @@ export default function SOAPNotes() {
     setGenerating(true);
     generateNoteMutation.mutate({
       patient_id: selectedPatient,
-      voice_transcript: voiceTranscript
+      voice_transcript: voiceTranscript,
+      note_type: noteType
     });
   };
 
@@ -194,14 +251,45 @@ export default function SOAPNotes() {
               </div>
 
               <div>
+                <Label>Note Type *</Label>
+                <Select value={noteType} onValueChange={setNoteType}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="general">General Consultation</SelectItem>
+                    <SelectItem value="follow_up">Follow-up Visit</SelectItem>
+                    <SelectItem value="emergency">Emergency/Urgent Care</SelectItem>
+                    <SelectItem value="specialist">Specialist Consultation</SelectItem>
+                    <SelectItem value="preventive">Preventive Care/Checkup</SelectItem>
+                    <SelectItem value="mental_health">Mental Health</SelectItem>
+                    <SelectItem value="chronic_disease">Chronic Disease Management</SelectItem>
+                    <SelectItem value="procedure">Procedure Note</SelectItem>
+                    <SelectItem value="telehealth">Telehealth Consultation</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
                 <Label className="flex items-center gap-2">
                   <Mic className="w-4 h-4" />
                   Clinical Transcript / Voice Notes *
                 </Label>
+                <div className="flex gap-2 mt-2 mb-2">
+                  <Button
+                    type="button"
+                    variant={isRecording ? "destructive" : "outline"}
+                    onClick={isRecording ? stopRecording : startRecording}
+                    className="flex-1"
+                  >
+                    <Mic className={`w-4 h-4 mr-2 ${isRecording ? 'animate-pulse' : ''}`} />
+                    {isRecording ? 'Stop Recording' : 'Start Recording'}
+                  </Button>
+                </div>
                 <Textarea
                   value={voiceTranscript}
                   onChange={(e) => setVoiceTranscript(e.target.value)}
-                  placeholder="Enter or paste clinical encounter notes, patient complaints, findings, etc..."
+                  placeholder="Click 'Start Recording' to record audio, or type/paste clinical encounter notes..."
                   rows={10}
                   className="mt-2"
                 />
