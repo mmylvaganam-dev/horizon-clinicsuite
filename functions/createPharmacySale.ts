@@ -52,221 +52,58 @@ Deno.serve(async (req) => {
             receiptNumber = `RX-${Date.now()}`;
         }
 
-        // Create the sale
-        const sale = await base44.asServiceRole.entities.PharmacySale.create({
-            ...saleData,
+        // Create the sale HEADER
+        const saleHeader = await base44.asServiceRole.entities.PharmacySaleHeader.create({
+            organization_id: saleData.organization_id,
+            location_id: saleData.location_id,
+            patient_ref: saleData.patient_id || null,
+            sale_number: receiptNumber,
             sale_date: new Date().toISOString(),
+            status: 'paid',
             subtotal,
-            tax,
+            tax_total: tax,
             total,
-            status: 'completed',
-            created_by: user.id,
-            created_by_email: user.email,
-
+            payment_method: saleData.payment_method || 'cash',
+            notes: saleData.notes || ''
         });
 
-        // Create sale items and update inventory
+        // Create sale LINE ITEMS and update PharmacyStock
         const createdItems = [];
         for (const item of items) {
-            const saleItem = await base44.asServiceRole.entities.PharmacySaleItem.create({
-                sale_id: sale.id,
-                item_name: item.item_name,
-                drug_id: item.drug_id || null,
-                quantity: item.quantity,
+            // Create sale line
+            const saleLine = await base44.asServiceRole.entities.PharmacySaleLine.create({
+                sale_header_id: saleHeader.id,
+                stock_id: item.stock_id,
+                product_code: item.product_code || '',
+                barcode_value: item.barcode || '',
+                product_name_cache: item.item_name,
+                qty: item.quantity,
                 unit_price: item.unit_price,
-                line_total: item.line_total,
-                notes: item.notes || ''
+                line_total: item.line_total
             });
-            createdItems.push(saleItem);
+            createdItems.push(saleLine);
 
-            // Update inventory if drug_id exists
-            if (item.drug_id && saleData.location_id) {
-                // Get drug to find sku_code
-                const drugs = await base44.asServiceRole.entities.DrugCatalog.filter({ id: item.drug_id });
-                const drug = drugs[0];
+            // Update PharmacyStock quantity
+            if (item.stock_id) {
+                const stockItems = await base44.asServiceRole.entities.PharmacyStock.filter({ id: item.stock_id });
+                if (stockItems.length > 0) {
+                    const stock = stockItems[0];
+                    const previousQty = stock.quantity || 0;
+                    const newQty = previousQty - item.quantity;
 
-                if (drug && drug.drug_code) {
-                    // Find inventory balance by sku_code
-                    const balances = await base44.asServiceRole.entities.InventoryBalance.filter({
-                        location_id: saleData.location_id,
-                        sku_code: drug.drug_code
+                    // Update stock quantity
+                    await base44.asServiceRole.entities.PharmacyStock.update(stock.id, {
+                        quantity: newQty
                     });
 
-                    if (balances.length > 0) {
-                        const balance = balances[0];
-                        const previousQty = balance.on_hand_qty;
-                        const newQty = previousQty - item.quantity;
-
-                        // Update inventory balance
-                        await base44.asServiceRole.entities.InventoryBalance.update(balance.id, {
-                            on_hand_qty: newQty,
-                            updated_at: new Date().toISOString()
-                        });
-
-                        // Create inventory transaction
-                        await base44.asServiceRole.entities.InventoryTxn.create({
-                            organization_id: saleData.organization_id || '',
-                            location_id: saleData.location_id,
-                            sku_code: drug.drug_code,
-                            item_name: drug.drug_name,
-                            txn_type: 'sale',
-                            qty: -item.quantity,
-                            ref_type: 'PharmacySale',
-                            ref_id: sale.id,
-                            reason: `POS Sale: ${receiptNumber}`,
-                            created_by: user.id,
-                            created_by_email: user.email,
-                            created_at: new Date().toISOString(),
-                            previous_qty: previousQty,
-                            new_qty: newQty,
-                            metadata_json: {
-                                receipt_number: receiptNumber,
-                                item_name: item.item_name
-                            }
-                        });
-
-                        // Audit log
-                        await base44.asServiceRole.entities.AuditLog.create({
-                            timestamp: new Date().toISOString(),
-                            user_id: user.id,
-                            user_email: user.email,
-                            organization_id: saleData.organization_id || '',
-                            location_id: saleData.location_id,
-                            patient_id: saleData.patient_id || '',
-                            module: 'INVENTORY',
-                            action: 'sale_deduction',
-                            record_type: 'InventoryTxn',
-                            record_id: balance.id,
-                            metadata: {
-                                sku_code: drug.drug_code,
-                                qty_change: -item.quantity,
-                                previous_qty: previousQty,
-                                new_qty: newQty,
-                                sale_id: sale.id
-                            }
-                        });
-                    }
+                    console.log(`Stock updated: ${stock.display_name} from ${previousQty} to ${newQty}`);
                 }
             }
         }
 
-        // Create receipt
-        const receipt = await base44.asServiceRole.entities.PharmacyReceipt.create({
-            sale_id: sale.id,
-            receipt_number: receiptNumber,
-            issued_at: new Date().toISOString(),
-            issued_by: user.id,
-            issued_by_email: user.email
-        });
+        // Receipt number is already part of the header, no separate entity needed
 
-        // Create dispense event and links if prescription is involved
-        let dispenseEvent = null;
-        if (prescriptionId) {
-            const prescriptions = await base44.asServiceRole.entities.Prescription.filter({ 
-                id: prescriptionId 
-            });
-            const prescription = prescriptions[0];
-
-            if (prescription) {
-                // Create dispense event
-                dispenseEvent = await base44.asServiceRole.entities.DispenseEvent.create({
-                    prescription_id: prescriptionId,
-                    patient_id: prescription.patient_id,
-                    quantity_dispensed: prescription.quantity,
-                    dispensed_by: user.id,
-                    dispensed_by_email: user.email,
-                    dispensed_at: new Date().toISOString(),
-                    status: 'dispensed',
-                    notes: `Dispensed via POS sale ${receiptNumber}`
-                });
-
-                // Create RecordLink: Prescription <-> PharmacySale
-                await base44.asServiceRole.entities.RecordLink.create({
-                    organization_id: saleData.organization_id || '',
-                    location_id: saleData.location_id || '',
-                    left_type: 'Prescription',
-                    left_id: prescriptionId,
-                    right_type: 'PharmacySale',
-                    right_id: sale.id,
-                    link_purpose: 'sale_for_prescription',
-                    created_by: user.id,
-                    created_by_email: user.email,
-                    created_at: new Date().toISOString(),
-                    metadata_json: {
-                        receipt_number: receiptNumber,
-                        drug_name: prescription.drug_name
-                    }
-                });
-
-                // Create RecordLink: DispenseEvent <-> PharmacySale
-                await base44.asServiceRole.entities.RecordLink.create({
-                    organization_id: saleData.organization_id || '',
-                    location_id: saleData.location_id || '',
-                    left_type: 'DispenseEvent',
-                    left_id: dispenseEvent.id,
-                    right_type: 'PharmacySale',
-                    right_id: sale.id,
-                    link_purpose: 'dispense_for_sale',
-                    created_by: user.id,
-                    created_by_email: user.email,
-                    created_at: new Date().toISOString(),
-                    metadata_json: {
-                        receipt_number: receiptNumber
-                    }
-                });
-
-                // Update prescription status
-                await base44.asServiceRole.entities.Prescription.update(prescriptionId, {
-                    status: 'Dispensed'
-                });
-
-                // Audit log for prescription link
-                await base44.asServiceRole.entities.AuditLog.create({
-                    timestamp: new Date().toISOString(),
-                    user_id: user.id,
-                    user_email: user.email,
-                    organization_id: saleData.organization_id || '',
-                    location_id: saleData.location_id || '',
-                    patient_id: prescription.patient_id,
-                    module: 'PHARMACY',
-                    action: 'link_prescription_to_sale',
-                    record_type: 'RecordLink',
-                    record_id: sale.id,
-                    metadata: {
-                        prescription_id: prescriptionId,
-                        dispense_event_id: dispenseEvent.id,
-                        receipt_number: receiptNumber
-                    }
-                });
-            }
-        }
-
-        // Auto-post journal entry if posting rules exist
-        try {
-            await base44.asServiceRole.functions.invoke('postJournalEntry', {
-                sourceType: 'PharmacySale',
-                sourceId: sale.id,
-                organizationId: saleData.organization_id,
-                locationId: saleData.location_id
-            });
-        } catch (journalError) {
-            console.error('Journal posting error:', journalError);
-            // Continue even if journal posting fails
-        }
-
-        // Create document artifact for receipt
-        const artifact = await base44.asServiceRole.entities.DocumentArtifact.create({
-            organization_id: saleData.organization_id || '',
-            location_id: saleData.location_id || '',
-            patient_ref: saleData.patient_id || '',
-            artifact_type: 'receipt_pdf',
-            source_type: 'PharmacySale',
-            source_id: sale.id,
-            file_ref: `receipt_${receiptNumber}_${new Date().toISOString()}`,
-            created_by: user.id,
-            created_by_email: user.email,
-            created_at: new Date().toISOString()
-        });
+        // Prescription linking removed for simplified pharmacy flow
 
         // Audit log
         await base44.asServiceRole.entities.AuditLog.create({
@@ -278,22 +115,20 @@ Deno.serve(async (req) => {
             patient_id: saleData.patient_id || '',
             module: 'PHARMACY_POS',
             action: 'create_sale',
-            record_type: 'PharmacySale',
-            record_id: sale.id,
+            record_type: 'PharmacySaleHeader',
+            record_id: saleHeader.id,
             metadata: {
                 receipt_number: receiptNumber,
                 total,
                 item_count: items.length,
-                has_patient: !!saleData.patient_id,
-                artifact_id: artifact.id
+                has_patient: !!saleData.patient_id
             }
         });
 
         return Response.json({ 
-            sale, 
-            items: createdItems,
-            receipt,
-            dispenseEvent
+            saleHeader, 
+            saleLines: createdItems,
+            receiptNumber
         });
     } catch (error) {
         return Response.json({ error: error.message }, { status: 500 });
