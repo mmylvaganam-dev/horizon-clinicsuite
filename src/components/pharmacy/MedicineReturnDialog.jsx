@@ -20,6 +20,17 @@ export default function MedicineReturnDialog({ open, onOpenChange, sale, saleIte
   const [notes, setNotes] = useState('');
   const [supplierId, setSupplierId] = useState('');
 
+  // Debug log to see what we're receiving
+  React.useEffect(() => {
+    if (open) {
+      console.log('🔵 MedicineReturnDialog opened with:', {
+        sale,
+        saleItemsCount: saleItems?.length,
+        saleItems: saleItems
+      });
+    }
+  }, [open, sale, saleItems]);
+
   const returnMutation = useMutation({
     mutationFn: async (data) => {
       const returnItems = selectedItems.map(item => ({

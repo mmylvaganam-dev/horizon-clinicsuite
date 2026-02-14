@@ -830,14 +830,16 @@ export default function PharmacyDashboard() {
       </div>
 
       {/* Medicine Return Dialog */}
-      <MedicineReturnDialog
-        open={showReturnDialog}
-        onOpenChange={setShowReturnDialog}
-        sale={selectedSale}
-        saleItems={selectedSale ? (selectedSale.items || []) : []}
-        currency={currency}
-        user={user}
-      />
+      {showReturnDialog && (
+        <MedicineReturnDialog
+          open={showReturnDialog}
+          onOpenChange={setShowReturnDialog}
+          sale={selectedSale}
+          saleItems={selectedSale ? (selectedSale.items || []) : []}
+          currency={currency}
+          user={user}
+        />
+      )}
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

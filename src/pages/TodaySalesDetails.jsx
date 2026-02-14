@@ -319,17 +319,23 @@ export default function TodaySalesDetails() {
                       <div className="mt-4 pt-4 border-t border-slate-200">
                         <p className="text-xs font-semibold text-slate-500 mb-2">ITEMS SOLD:</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                          {itemsForSale.map((item, idx) => (
-                           <div key={idx} className="text-sm bg-slate-50 rounded p-2 flex justify-between items-center">
-                             <span className="text-slate-700">{item.product_name_cache}</span>
-                             <div className="flex items-center gap-2">
-                               <Badge variant="outline" className="text-xs">x{item.qty}</Badge>
-                               <span className="font-semibold text-slate-900">
-                                 {formatCurrency(item.line_total, currency)}
-                               </span>
-                             </div>
-                           </div>
-                          ))}
+                          {itemsForSale.map((item, idx) => {
+                            const productName = item.product_name_cache || item.product_name || 'Unknown Product';
+                            const quantity = item.qty || item.quantity || 0;
+                            const lineTotal = item.line_total || (item.unit_price * quantity) || 0;
+
+                            return (
+                              <div key={idx} className="text-sm bg-slate-50 rounded p-2 flex justify-between items-center">
+                                <span className="text-slate-700">{productName}</span>
+                                <div className="flex items-center gap-2">
+                                  <Badge variant="outline" className="text-xs">x{quantity}</Badge>
+                                  <span className="font-semibold text-slate-900">
+                                    {formatCurrency(lineTotal, currency)}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     )}
