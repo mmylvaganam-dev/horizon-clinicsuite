@@ -17,14 +17,29 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Sale not found' }, { status: 404 });
     }
 
-    // Fetch sale line items with explicit error handling
+    // Fetch sale line items with retry logic
     let saleLines = [];
-    try {
-      saleLines = await base44.entities.PharmacySaleLine.filter({ sale_header_id: saleId });
-      console.log(`✅ Fetched ${saleLines.length} items for sale ${saleId}`);
-    } catch (error) {
-      console.error(`❌ Failed to fetch sale lines: ${error.message}`);
-      // Continue without items if fetch fails
+    let retries = 3;
+    while (retries > 0 && saleLines.length === 0) {
+      try {
+        saleLines = await base44.entities.PharmacySaleLine.filter({ sale_header_id: saleId });
+        if (saleLines.length > 0) {
+          console.log(`✅ Fetched ${saleLines.length} items for sale ${saleId}`);
+          break;
+        }
+        // If no items found, wait and retry
+        if (retries > 1) {
+          console.log(`⏳ No items found yet, retrying... (${retries - 1} retries left)`);
+          await new Promise(r => setTimeout(r, 500)); // Wait 500ms
+        }
+      } catch (error) {
+        console.error(`❌ Fetch attempt failed: ${error.message}`);
+      }
+      retries--;
+    }
+    
+    if (saleLines.length === 0) {
+      console.warn(`⚠️ No line items found for sale ${saleId} after retries`);
     }
     
     // Fetch organization branding
