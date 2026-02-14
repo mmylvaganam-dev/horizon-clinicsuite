@@ -63,7 +63,8 @@ export default function PharmacyDashboard() {
     queryKey: ['pharmacySaleHeaders', selectedOrgId],
     queryFn: async () => {
       if (!selectedOrgId) return [];
-      return base44.entities.PharmacySaleHeader.filter(orgFilter, '-sale_date');
+      const allSales = await base44.entities.PharmacySaleHeader.list('-sale_date');
+      return allSales.filter(s => s.organization_id === selectedOrgId);
     },
     enabled: !!selectedOrgId,
   });
