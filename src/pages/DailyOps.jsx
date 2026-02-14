@@ -31,49 +31,19 @@ export default function DailyOps() {
     queryFn: () => base44.entities.Location.list(),
   });
 
-  const { data: appointments = [], isLoading: loadingAppointments } = useQuery({
-    queryKey: ['appointments'],
-    queryFn: () => base44.entities.Appointment.list(),
+  const { data: pharmacySales = [], isLoading: loadingSales } = useQuery({
+    queryKey: ['pharmacySales'],
+    queryFn: () => base44.entities.PharmacySaleHeader.list(),
   });
 
-  const { data: invoices = [], isLoading: loadingInvoices } = useQuery({
-    queryKey: ['invoices'],
-    queryFn: () => base44.entities.Invoice.list(),
+  const { data: pharmacyStock = [], isLoading: loadingStock } = useQuery({
+    queryKey: ['pharmacyStock'],
+    queryFn: () => base44.entities.PharmacyStock.list(),
   });
 
-  const { data: inventoryBalances = [], isLoading: loadingInventory } = useQuery({
-    queryKey: ['inventoryBalances'],
-    queryFn: () => base44.entities.InventoryBalance.list(),
-  });
-
-  const { data: results = [], isLoading: loadingResults } = useQuery({
-    queryKey: ['results'],
-    queryFn: () => base44.entities.Result.list(),
-  });
-
-  const { data: resultFlags = [], isLoading: loadingFlags } = useQuery({
-    queryKey: ['resultFlags'],
-    queryFn: () => base44.entities.ResultFlag.list(),
-  });
-
-  const { data: releases = [] } = useQuery({
-    queryKey: ['releases'],
-    queryFn: () => base44.entities.ReleaseToPatient.list(),
-  });
-
-  const { data: invoiceRefunds = [], isLoading: loadingRefunds } = useQuery({
-    queryKey: ['invoiceRefunds'],
-    queryFn: () => base44.entities.RefundVoid.list(),
-  });
-
-  const { data: saleRefunds = [], isLoading: loadingSaleRefunds } = useQuery({
-    queryKey: ['saleRefunds'],
-    queryFn: () => base44.entities.PharmacyRefundVoid.list(),
-  });
-
-  const { data: criticalAcks = [] } = useQuery({
-    queryKey: ['criticalAcks'],
-    queryFn: () => base44.entities.CriticalAck.list(),
+  const { data: patients = [] } = useQuery({
+    queryKey: ['patients'],
+    queryFn: () => base44.entities.Patient.list(),
   });
 
   const filterByOrgAndLocation = (item) => {
