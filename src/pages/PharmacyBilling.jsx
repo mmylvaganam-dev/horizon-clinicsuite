@@ -510,7 +510,7 @@ export default function PharmacyBilling() {
 
       const sale = await base44.entities.PharmacySaleHeader.create(saleData);
       
-      // Create sale line items
+      // Create sale line items with proper patient linking
       for (const item of cart) {
         await base44.entities.PharmacySaleLine.create({
           sale_header_id: sale.id,
@@ -522,15 +522,19 @@ export default function PharmacyBilling() {
           unit_price: item.unit_price,
           line_total: item.total
         });
+        
+        console.log(`✅ Sale line created - Patient: ${customerName}, Item: ${item.display_name}`);
       }
       
-      // Update stock quantities
+      // Update stock quantities - CRITICAL for inventory tracking
       for (const item of cart) {
         const product = pharmacyStock.find(p => p.id === item.stock_id);
         if (product) {
+          const newQty = Math.max(0, product.quantity - item.quantity);
           await base44.entities.PharmacyStock.update(item.stock_id, {
-            quantity: Math.max(0, product.quantity - item.quantity)
+            quantity: newQty
           });
+          console.log(`✅ Stock updated - ${item.display_name}: ${product.quantity} → ${newQty}`);
         }
       }
 

@@ -49,7 +49,7 @@ export default function MedicineReturnDialog({ open, onOpenChange, sale, saleIte
         return_type: returnType,
         return_date: new Date().toISOString(),
         sale_id: returnType === 'customer' ? sale?.id : null,
-        patient_id: returnType === 'customer' ? sale?.patient_id : null,
+        patient_id: returnType === 'customer' ? sale?.patient_ref : null,
         supplier_id: returnType === 'vendor' ? supplierId : null,
         items: returnItems,
         subtotal: totalAmount,
@@ -61,30 +61,37 @@ export default function MedicineReturnDialog({ open, onOpenChange, sale, saleIte
         processed_by: user?.id
       });
 
-      // Update inventory - add back the returned items to stock
+      // Update inventory - add back the returned items to stock - CRITICAL for stock restoration
       for (const item of returnItems) {
+        if (!item.product_id) {
+          console.error('❌ Missing product_id for return item:', item);
+          continue;
+        }
+
         try {
-          // Fetch current stock by product_id
-          const currentStock = await base44.entities.PharmacyStock.filter({ 
-            id: item.product_id,
+          // Fetch current stock by ID
+          const allStock = await base44.entities.PharmacyStock.filter({ 
             organization_id: user?.organization_id 
           });
+          const stock = allStock.find(s => s.id === item.product_id);
           
-          if (currentStock && currentStock.length > 0) {
-            const stock = currentStock[0];
-            const newQuantity = (stock.quantity || 0) + item.quantity;
+          if (stock) {
+            const oldQty = stock.quantity || 0;
+            const newQuantity = oldQty + item.quantity;
             
             // Update stock quantity
             await base44.entities.PharmacyStock.update(stock.id, {
               quantity: newQuantity
             });
             
-            console.log(`✅ Stock updated for ${item.product_name}: +${item.quantity} (New total: ${newQuantity})`);
+            console.log(`✅ RETURN - Stock restored for ${item.product_name}: ${oldQty} + ${item.quantity} = ${newQuantity}`);
           } else {
-            console.warn(`⚠️ Stock not found for product ${item.product_id}`);
+            console.error(`❌ Stock not found for product ${item.product_id}`);
+            toast.error(`Stock not found for ${item.product_name}`);
           }
         } catch (error) {
           console.error(`❌ Failed to update stock for ${item.product_name}:`, error);
+          toast.error(`Failed to restore stock for ${item.product_name}`);
         }
       }
 
