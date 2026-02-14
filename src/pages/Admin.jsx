@@ -125,11 +125,15 @@ export default function Admin() {
     ? allUsersUnfiltered.filter(u => u.organization_id === selectedOrgId)
     : allUsersUnfiltered;
 
+  // Get unassigned users (no organization_id set) - for platform owner
+  const unassignedUsers = allUsersUnfiltered.filter(u => !u.organization_id);
+
   console.log('🔴 Admin Page Filter:', {
     selectedOrgId,
     selectedCompanyId,
     totalUsers: allUsersUnfiltered.length,
-    filteredUsers: allUsers.length
+    filteredUsers: allUsers.length,
+    unassignedUsers: unassignedUsers.length
   });
 
   const isAppAdmin = userRoles.some(ur => {
@@ -291,23 +295,25 @@ export default function Admin() {
   });
 
   const assignExistingUserMutation = useMutation({
-    mutationFn: async ({ userId, userEmail }) => {
-      if (!selectedOrgId) {
+    mutationFn: async ({ userId, userEmail, organizationId }) => {
+      const targetOrgId = organizationId || selectedOrgId;
+      if (!targetOrgId) {
         throw new Error('Please select an organization from the dropdown first');
       }
       
       const assignResponse = await base44.functions.invoke('assignUserToOrganization', {
         userId,
         userEmail,
-        organizationId: selectedOrgId
+        organizationId: targetOrgId
       });
       
-      return { userId, userEmail, orgId: selectedOrgId, data: assignResponse.data };
+      return { userId, userEmail, orgId: targetOrgId, data: assignResponse.data };
     },
     onSuccess: async (data) => {
       await queryClient.invalidateQueries(['allUsers']);
       await queryClient.invalidateQueries(['userRoles']);
-      toast.success(`✅ User assigned to ${organizations.find(o => o.id === selectedOrgId)?.name}!`);
+      const orgName = organizations.find(o => o.id === data.orgId)?.name || 'Organization';
+      toast.success(`✅ User assigned to ${orgName}!`);
     },
     onError: (error) => {
       toast.error(`❌ Error: ${error.message || 'Failed to assign user'}`);
@@ -610,6 +616,73 @@ export default function Admin() {
               </div>
             </div>
           </div>
+
+          {/* Platform Owner: Unassigned Users - Assign to Organizations */}
+          {isPlatformOwner && unassignedUsers.length > 0 && (
+            <Card className="border-l-4 border-red-600 bg-red-50">
+              <CardHeader className="bg-red-100 border-b">
+                <CardTitle className="flex items-center gap-3 text-lg text-red-900">
+                  <Users className="w-5 h-5 text-red-600" />
+                  Unassigned Users ({unassignedUsers.length})
+                </CardTitle>
+                <p className="text-sm text-red-700 mt-1">These users haven't been assigned to any organization yet</p>
+              </CardHeader>
+              <CardContent className="pt-6 space-y-4">
+                {unassignedUsers.map((user) => (
+                  <div 
+                    key={user.id}
+                    className="flex items-center justify-between p-4 bg-white rounded-lg border border-red-200 hover:shadow-md transition-all"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center bg-red-600 text-white font-semibold">
+                        {user.full_name?.charAt(0) || user.email?.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-medium text-slate-900">{user.full_name || user.email}</p>
+                        <p className="text-xs text-slate-500">{user.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Select value={""} onValueChange={(orgId) => {
+                        assignExistingUserMutation.mutate({ 
+                          userId: user.id, 
+                          userEmail: user.email,
+                          organizationId: orgId 
+                        });
+                      }}>
+                        <SelectTrigger className="w-48 h-9">
+                          <SelectValue placeholder="Assign to organization..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {organizations.map((org) => (
+                            <SelectItem key={org.id} value={org.id}>
+                              {org.name} ({org.type})
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button
+                        onClick={() => {
+                          // Delete unassigned user if needed
+                          if (window.confirm(`Remove user ${user.email}?`)) {
+                            base44.entities.User.delete(user.id).then(() => {
+                              queryClient.invalidateQueries(['allUsers']);
+                              toast.success('User removed');
+                            });
+                          }
+                        }}
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-600 hover:bg-red-100"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Pending Invitations - Platform Owner Only */}
           {isPlatformOwner && pendingInvitations.length > 0 && (
