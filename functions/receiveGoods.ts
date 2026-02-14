@@ -152,6 +152,18 @@ Deno.serve(async (req) => {
             status: 'received'
         });
 
+        // Post to GL
+        try {
+            const totalAmount = receivedLines.reduce((sum, line) => sum + ((line.qty_received || 0) * (line.unit_cost || 0)), 0);
+            await base44.functions.invoke('postGoodsReceiptToGL', {
+                grId: gr.id,
+                grAmount: totalAmount,
+                poId: purchaseOrderId
+            });
+        } catch (glError) {
+            console.warn('GL posting failed (GR still created):', glError);
+        }
+
         // Audit log
         await base44.asServiceRole.entities.AuditLog.create({
             timestamp: new Date().toISOString(),
