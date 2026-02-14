@@ -173,7 +173,7 @@ export default function PharmacyDashboard() {
   };
 
   const handleViewDetails = (sale) => {
-    const items = saleLines.filter(line => line.sale_ref === sale.id);
+    const items = saleLines.filter(line => line.sale_header_id === sale.id);
     setSelectedSale({ ...sale, items });
     setShowDetailsDialog(true);
   };
