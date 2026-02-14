@@ -774,50 +774,125 @@ export default function PharmacyDashboard() {
             </TabsContent>
 
             <TabsContent value="refund">
-              <div className="text-center py-12">
-                <RefreshCw className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-                <p className="text-slate-500 mb-4">Refund processing</p>
-                <div className="space-y-3 max-w-lg mx-auto">
-                 {sales.filter(s => s.status === 'refund').slice(0, 5).map(sale => (
-                    <Card key={sale.id} className="p-4 text-left">
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <p className="font-medium">{getReceiptNumber(sale)}</p>
-                          <p className="text-sm text-slate-500">{getPatientName(sale.patient_ref)}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-rose-600">{currency} {sale.total?.toFixed(2)}</p>
-                          <Badge className="bg-rose-100 text-rose-700 mt-1">Refunded</Badge>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Pending Refunds</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <Card className="bg-rose-50 border-rose-200">
+                    <CardContent className="p-4">
+                      <p className="text-sm text-rose-600 mb-1">Awaiting Refund</p>
+                      <p className="text-2xl font-bold text-rose-700">
+                        {sales.filter(s => s.status === 'refund').length}
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-amber-50 border-amber-200">
+                    <CardContent className="p-4">
+                      <p className="text-sm text-amber-600 mb-1">Refund Amount</p>
+                      <p className="text-2xl font-bold text-amber-700">
+                        {currency} {sales.filter(s => s.status === 'refund').reduce((sum, s) => sum + (s.total || 0), 0).toFixed(2)}
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-slate-50 border-slate-200">
+                    <CardContent className="p-4">
+                      <p className="text-sm text-slate-600 mb-1">Avg. Refund</p>
+                      <p className="text-2xl font-bold text-slate-700">
+                        {currency} {sales.filter(s => s.status === 'refund').length > 0 ? (sales.filter(s => s.status === 'refund').reduce((sum, s) => sum + (s.total || 0), 0) / sales.filter(s => s.status === 'refund').length).toFixed(2) : '0.00'}
+                      </p>
+                    </CardContent>
+                  </Card>
                 </div>
+
+                {sales.filter(s => s.status === 'refund').length === 0 ? (
+                  <Card className="p-12 text-center">
+                    <RefreshCw className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+                    <p className="text-slate-500">No pending refunds</p>
+                  </Card>
+                ) : (
+                  <div className="space-y-2 max-h-96 overflow-y-auto">
+                    {sales.filter(s => s.status === 'refund').map(sale => (
+                      <Card key={sale.id} className="p-4">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium">{getReceiptNumber(sale)}</p>
+                            <p className="text-sm text-slate-500">{getPatientName(sale.patient_ref)} • {format(new Date(sale.sale_date), 'dd MMM, yyyy')}</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold text-rose-600">{currency} {sale.total?.toFixed(2)}</p>
+                          </div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </div>
             </TabsContent>
 
             <TabsContent value="med-return">
               <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold">Medicine Returns</h3>
-                  <Button 
-                    onClick={() => {
-                      setSelectedSale(null);
-                      setShowReturnDialog(true);
-                    }}
-                    className="bg-amber-600 hover:bg-amber-700"
-                    title="Process medicine return - customer refund or vendor credit"
-                  >
-                    <RotateCw className="w-4 h-4 mr-2" />
-                    New Return
-                  </Button>
+                <h3 className="text-lg font-semibold">Return Summary</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                  <Card className="bg-blue-50 border-blue-200">
+                    <CardContent className="p-4">
+                      <p className="text-sm text-blue-600 mb-1">Total Transactions</p>
+                      <p className="text-2xl font-bold text-blue-700">{sales.length}</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-emerald-50 border-emerald-200">
+                    <CardContent className="p-4">
+                      <p className="text-sm text-emerald-600 mb-1">Completed Sales</p>
+                      <p className="text-2xl font-bold text-emerald-700">
+                        {sales.filter(s => s.status === 'paid' || s.status === 'completed').length}
+                      </p>
+                    </CardContent>
+                  </Card>
+                  <Card className="bg-rose-50 border-rose-200">
+                    <CardContent className="p-4">
+                      <p className="text-sm text-rose-600 mb-1">Void/Return Rate</p>
+                      <p className="text-2xl font-bold text-rose-700">
+                        {sales.length > 0 ? ((sales.filter(s => s.status === 'void' || s.status === 'refund').length / sales.length) * 100).toFixed(1) : '0'}%
+                      </p>
+                    </CardContent>
+                  </Card>
                 </div>
-                
-                <Card className="text-center py-12">
-                  <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-                  <p className="text-slate-500 mb-4">Click "New Return" to process medicine returns</p>
-                  <p className="text-sm text-slate-400">Supports customer refunds and vendor credits</p>
-                </Card>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card className="p-4">
+                    <h4 className="font-semibold mb-3 text-sm">Voided Sales</h4>
+                    <div className="space-y-2 max-h-48 overflow-y-auto">
+                      {sales.filter(s => s.status === 'void').length === 0 ? (
+                        <p className="text-sm text-slate-500 text-center py-4">No void sales</p>
+                      ) : (
+                        sales.filter(s => s.status === 'void').slice(0, 5).map(sale => (
+                          <div key={sale.id} className="flex justify-between text-sm pb-2 border-b">
+                            <span className="text-slate-700">{getReceiptNumber(sale)}</span>
+                            <span className="font-semibold">{currency} {sale.total?.toFixed(2)}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </Card>
+
+                  <Card className="p-4">
+                    <h4 className="font-semibold mb-3 text-sm">Today's Summary</h4>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Total Sales:</span>
+                        <span className="font-bold">{todaySales.length}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Revenue:</span>
+                        <span className="font-bold text-emerald-600">{currency} {todayRevenue.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-600">Void/Return:</span>
+                        <span className="font-bold text-rose-600">
+                          {todaySales.filter(s => s.status === 'void' || s.status === 'refund').length}
+                        </span>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
               </div>
             </TabsContent>
           </CardContent>
