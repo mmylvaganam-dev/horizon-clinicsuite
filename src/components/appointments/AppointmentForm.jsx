@@ -6,6 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 
 const appointmentTypes = [
   { value: 'consultation', label: 'Consultation' },
@@ -40,6 +42,39 @@ export default function AppointmentForm({ open, onOpenChange, appointment, patie
     reason: '',
     notes: '',
   });
+
+  // Load all providers from the system
+  const { data: staffProfiles = [] } = useQuery({
+    queryKey: ['staffProfiles'],
+    queryFn: () => base44.entities.StaffProfile.list(),
+    enabled: open,
+  });
+
+  const { data: gpProfiles = [] } = useQuery({
+    queryKey: ['gpProfiles'],
+    queryFn: () => base44.entities.GPProfile.list(),
+    enabled: open,
+  });
+
+  const { data: specialistProfiles = [] } = useQuery({
+    queryKey: ['specialistProfiles'],
+    queryFn: () => base44.entities.SpecialistProfile.list(),
+    enabled: open,
+  });
+
+  const { data: thirdPartyProviders = [] } = useQuery({
+    queryKey: ['thirdPartyProviders'],
+    queryFn: () => base44.entities.ThirdPartyProviderProfile.list(),
+    enabled: open,
+  });
+
+  // Combine all providers into one list
+  const allProviders = [
+    ...staffProfiles.map(s => ({ id: s.id, name: `${s.first_name} ${s.last_name}`, type: 'Staff' })),
+    ...gpProfiles.map(g => ({ id: g.id, name: g.doctor_name, type: 'GP' })),
+    ...specialistProfiles.map(sp => ({ id: sp.id, name: sp.specialist_name, type: sp.specialty })),
+    ...thirdPartyProviders.map(tp => ({ id: tp.id, name: tp.provider_name, type: tp.specialty })),
+  ];
 
   useEffect(() => {
     if (appointment) {
@@ -210,13 +245,26 @@ export default function AppointmentForm({ open, onOpenChange, appointment, patie
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="provider">Provider</Label>
-              <Input
-                id="provider"
-                value={formData.provider}
-                onChange={(e) => setFormData(prev => ({ ...prev, provider: e.target.value }))}
-                placeholder="Dr. Smith"
-              />
+              <Label htmlFor="provider">Provider / Doctor</Label>
+              <Select 
+                value={formData.provider} 
+                onValueChange={(v) => setFormData(prev => ({ ...prev, provider: v }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select provider" />
+                </SelectTrigger>
+                <SelectContent>
+                  {allProviders.length === 0 ? (
+                    <SelectItem value="none" disabled>No providers found</SelectItem>
+                  ) : (
+                    allProviders.map(provider => (
+                      <SelectItem key={provider.id} value={provider.id}>
+                        {provider.name} ({provider.type})
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
