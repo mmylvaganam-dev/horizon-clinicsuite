@@ -43,13 +43,29 @@ export default function AppointmentForm({ open, onOpenChange, appointment, patie
 
   useEffect(() => {
     if (appointment) {
-      setFormData(appointment);
+      // Convert start_time to date and time for the form
+      const startDate = appointment.start_time ? new Date(appointment.start_time) : null;
+      const endDate = appointment.end_time ? new Date(appointment.end_time) : null;
+      
+      setFormData({
+        patient_id: appointment.patient_id || '',
+        patient_name: appointment.patient_name || '',
+        date: startDate ? startDate.toISOString().split('T')[0] : '',
+        time: startDate ? startDate.toTimeString().substring(0, 5) : '',
+        duration: endDate && startDate ? Math.round((endDate - startDate) / 60000) : 30,
+        type: appointment.type || 'consultation',
+        status: appointment.status || 'scheduled',
+        provider: appointment.provider_id || '',
+        reason: appointment.reason || '',
+        notes: appointment.notes || '',
+      });
     } else {
+      const today = new Date().toISOString().split('T')[0];
       setFormData({
         patient_id: '',
         patient_name: '',
-        date: '',
-        time: '',
+        date: today,
+        time: '09:00',
         duration: 30,
         type: 'consultation',
         status: 'scheduled',
@@ -62,7 +78,23 @@ export default function AppointmentForm({ open, onOpenChange, appointment, patie
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    
+    // Convert date + time to start_time and end_time (datetime format)
+    const startDateTime = new Date(`${formData.date}T${formData.time}`);
+    const endDateTime = new Date(startDateTime.getTime() + (formData.duration || 30) * 60000);
+    
+    const appointmentData = {
+      patient_id: formData.patient_id,
+      provider_id: formData.provider,
+      start_time: startDateTime.toISOString(),
+      end_time: endDateTime.toISOString(),
+      status: formData.status,
+      type: formData.type,
+      reason: formData.reason,
+      notes: formData.notes,
+    };
+    
+    onSubmit(appointmentData);
   };
 
   const handlePatientChange = (patientId) => {

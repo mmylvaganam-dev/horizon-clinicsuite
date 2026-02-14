@@ -64,7 +64,7 @@ export default function Appointments() {
 
   const { data: appointments = [], isLoading: loadingAppointments } = useQuery({
     queryKey: ['appointments'],
-    queryFn: () => base44.entities.Appointment.list('-date'),
+    queryFn: () => base44.entities.Appointment.list('-start_time'),
   });
 
   const { data: patients = [] } = useQuery({
@@ -115,7 +115,20 @@ export default function Appointments() {
 
   const getAppointmentsForDay = (date) => {
     const dateStr = format(date, 'yyyy-MM-dd');
-    return filteredAppointments.filter(apt => apt.date === dateStr);
+    return filteredAppointments.filter(apt => {
+      if (!apt.start_time) return false;
+      const aptDate = format(new Date(apt.start_time), 'yyyy-MM-dd');
+      return aptDate === dateStr;
+    }).map(apt => {
+      // Add computed fields for display
+      const startTime = new Date(apt.start_time);
+      return {
+        ...apt,
+        time: format(startTime, 'HH:mm'),
+        date: format(startTime, 'yyyy-MM-dd'),
+        duration: apt.end_time ? Math.round((new Date(apt.end_time) - startTime) / 60000) : 30,
+      };
+    });
   };
 
   const todayAppointments = getAppointmentsForDay(new Date());
@@ -202,19 +215,24 @@ export default function Appointments() {
                   {loadingAppointments ? (
                     <Skeleton className="h-12 rounded-lg" />
                   ) : (
-                    dayAppointments.slice(0, 4).map((apt) => (
-                      <div
-                        key={apt.id}
-                        onClick={() => { setEditingAppointment(apt); setFormOpen(true); }}
-                        className={`
-                          p-2 rounded-lg cursor-pointer transition-all hover:opacity-80
-                          ${typeColors[apt.type] || 'bg-slate-500'} text-white text-xs
-                        `}
-                      >
-                        <p className="font-medium truncate">{apt.time}</p>
-                        <p className="truncate opacity-90">{apt.patient_name || 'Patient'}</p>
-                      </div>
-                    ))
+                    dayAppointments.slice(0, 4).map((apt) => {
+                      const patient = patients.find(p => p.id === apt.patient_id);
+                      const patientName = patient ? `${patient.first_name} ${patient.last_name}` : 'Unknown';
+                      
+                      return (
+                        <div
+                          key={apt.id}
+                          onClick={() => { setEditingAppointment(apt); setFormOpen(true); }}
+                          className={`
+                            p-2 rounded-lg cursor-pointer transition-all hover:opacity-80
+                            ${typeColors[apt.type] || 'bg-slate-500'} text-white text-xs
+                          `}
+                        >
+                          <p className="font-medium truncate">{apt.time}</p>
+                          <p className="truncate opacity-90">{patientName}</p>
+                        </div>
+                      );
+                    })
                   )}
                   {dayAppointments.length > 4 && (
                     <p className="text-xs text-slate-500 text-center">
@@ -248,64 +266,69 @@ export default function Appointments() {
               <p className="text-slate-500">No appointments scheduled for this day</p>
             </div>
           ) : (
-            getAppointmentsForDay(selectedDate).map((apt) => (
-              <div key={apt.id}>
-                <div 
-                  className="p-4 hover:bg-slate-50 transition-colors cursor-pointer"
-                  onClick={() => setExpandedAppointment(expandedAppointment === apt.id ? null : apt.id)}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-1 h-16 rounded-full ${typeColors[apt.type] || 'bg-slate-500'}`} />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Clock className="w-4 h-4 text-slate-400" />
-                        <span className="font-medium text-slate-900">{apt.time}</span>
-                        <span className="text-slate-400">•</span>
-                        <span className="text-slate-500">{apt.duration || 30} min</span>
+            getAppointmentsForDay(selectedDate).map((apt) => {
+              const patient = patients.find(p => p.id === apt.patient_id);
+              const patientName = patient ? `${patient.first_name} ${patient.last_name}` : 'Unknown Patient';
+              
+              return (
+                <div key={apt.id}>
+                  <div 
+                    className="p-4 hover:bg-slate-50 transition-colors cursor-pointer"
+                    onClick={() => setExpandedAppointment(expandedAppointment === apt.id ? null : apt.id)}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`w-1 h-16 rounded-full ${typeColors[apt.type] || 'bg-slate-500'}`} />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Clock className="w-4 h-4 text-slate-400" />
+                          <span className="font-medium text-slate-900">{apt.time}</span>
+                          <span className="text-slate-400">•</span>
+                          <span className="text-slate-500">{apt.duration || 30} min</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-slate-400" />
+                          <span className="font-medium">{patientName}</span>
+                        </div>
+                        <p className="text-sm text-slate-500 mt-1">
+                          {apt.type?.replace(/[_-]/g, ' ')} • {apt.reason || 'No reason specified'}
+                        </p>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4 text-slate-400" />
-                        <span className="font-medium">{apt.patient_name || 'Unknown Patient'}</span>
+                      <Badge variant="outline" className={`${statusColors[apt.status] || statusColors.scheduled} border`}>
+                        {apt.status?.replace('-', ' ') || 'scheduled'}
+                      </Badge>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => { 
+                            e.stopPropagation();
+                            setEditingAppointment(apt); 
+                            setFormOpen(true); 
+                          }}
+                        >
+                          <Edit className="w-4 h-4 text-slate-400" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteId(apt.id);
+                          }}
+                        >
+                          <Trash2 className="w-4 h-4 text-slate-400" />
+                        </Button>
                       </div>
-                      <p className="text-sm text-slate-500 mt-1">
-                        {apt.type?.replace(/[_-]/g, ' ')} • {apt.reason || 'No reason specified'}
-                      </p>
-                    </div>
-                    <Badge variant="outline" className={`${statusColors[apt.status] || statusColors.scheduled} border`}>
-                      {apt.status?.replace('-', ' ') || 'scheduled'}
-                    </Badge>
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => { 
-                          e.stopPropagation();
-                          setEditingAppointment(apt); 
-                          setFormOpen(true); 
-                        }}
-                      >
-                        <Edit className="w-4 h-4 text-slate-400" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDeleteId(apt.id);
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4 text-slate-400" />
-                      </Button>
                     </div>
                   </div>
+                  {expandedAppointment === apt.id && (
+                    <div className="ml-8 mb-2 px-4">
+                      <LinkedRecords recordType="Appointment" recordId={apt.id} />
+                    </div>
+                  )}
                 </div>
-                {expandedAppointment === apt.id && (
-                  <div className="ml-8 mb-2 px-4">
-                    <LinkedRecords recordType="Appointment" recordId={apt.id} />
-                  </div>
-                )}
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </Card>
