@@ -300,18 +300,21 @@ export default function PharmacyDashboard() {
               
               {todaySales.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-white/20 space-y-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-white/30 scrollbar-track-white/10">
-                  {todaySales.slice(0, 5).map((sale) => (
-                    <div key={sale.id} className="text-xs bg-white/10 rounded p-2 hover:bg-white/20 transition-colors">
-                      <div className="flex justify-between items-start mb-1">
-                        <span className="font-semibold">{getPatientName(sale.patient_ref)}</span>
-                        <span className="font-bold">{currency} {sale.total?.toFixed(2)}</span>
+                  {todaySales.slice(0, 5).map((sale) => {
+                    const items = saleLines.filter(line => line.sale_header_id === sale.id);
+                    return (
+                      <div key={sale.id} className="text-xs bg-white/10 rounded p-2 hover:bg-white/20 transition-colors">
+                        <div className="flex justify-between items-start mb-1">
+                          <span className="font-semibold">{getPatientName(sale.patient_ref)}</span>
+                          <span className="font-bold">{currency} {sale.total?.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-white/80">
+                          <span>{items.length} items • {format(new Date(sale.sale_date), 'hh:mm a')}</span>
+                          <span>{sale.created_by?.split('@')[0] || 'Staff'}</span>
+                        </div>
                       </div>
-                      <div className="flex justify-between items-center text-white/80">
-                        <span>{format(new Date(sale.sale_date), 'hh:mm a')}</span>
-                        <span>{sale.created_by?.split('@')[0] || 'Staff'}</span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                   {todaySales.length > 5 && (
                     <div className="text-center pt-2">
                       <span className="text-xs text-white/60">+{todaySales.length - 5} more sales</span>
@@ -925,22 +928,28 @@ export default function PharmacyDashboard() {
               </div>
 
               <div>
-                <h3 className="font-semibold mb-3">Items</h3>
-                <div className="space-y-2">
-                  {selectedSale.items && selectedSale.items.length > 0 ? (
-                    selectedSale.items.map((item, idx) => (
+              <h3 className="font-semibold mb-3">Items Sold</h3>
+              <div className="space-y-2">
+                {selectedSale.items && selectedSale.items.length > 0 ? (
+                  selectedSale.items.map((item, idx) => {
+                    // Get the stock item details
+                    const stockItem = pharmacyStock.find(s => s.id === item.stock_id);
+                    const displayName = stockItem?.display_name || item.product_name_cache || 'Unknown Item';
+
+                    return (
                       <div key={idx} className="flex justify-between items-center py-2 border-b">
                         <div className="flex-1">
-                          <p className="font-medium">{item.product_name_cache}</p>
+                          <p className="font-medium">{displayName}</p>
                           <p className="text-sm text-slate-500">Qty: {item.qty} × {currency} {item.unit_price?.toFixed(2)}</p>
                         </div>
                         <p className="font-bold">{currency} {item.line_total?.toFixed(2)}</p>
                       </div>
-                    ))
-                  ) : (
-                    <p className="text-slate-500 text-center py-4">No items found</p>
-                  )}
-                </div>
+                    );
+                  })
+                ) : (
+                  <p className="text-slate-500 text-center py-4">No items found</p>
+                )}
+              </div>
               </div>
 
               <div className="border-t pt-4 space-y-2">
