@@ -43,9 +43,10 @@ export default function MedicineReturnDialog({ open, onOpenChange, sale, saleIte
       }));
 
       const totalAmount = returnItems.reduce((sum, item) => sum + (item.quantity * item.unit_price), 0);
+      const orgId = sale?.organization_id;
 
       const returnRecord = await base44.entities.MedicineReturn.create({
-        organization_id: user?.organization_id || '',
+        organization_id: orgId,
         return_type: returnType,
         return_date: new Date().toISOString(),
         sale_id: returnType === 'customer' ? sale?.id : null,
@@ -61,7 +62,7 @@ export default function MedicineReturnDialog({ open, onOpenChange, sale, saleIte
         processed_by: user?.id
       });
 
-      // Update inventory - add back the returned items to stock - CRITICAL for stock restoration
+      // Update inventory - add back the returned items to stock
       for (const item of returnItems) {
         if (!item.product_id) {
           console.error('❌ Missing product_id for return item:', item);
@@ -69,10 +70,8 @@ export default function MedicineReturnDialog({ open, onOpenChange, sale, saleIte
         }
 
         try {
-          // Fetch current stock by ID
-          const allStock = await base44.entities.PharmacyStock.filter({ 
-            organization_id: user?.organization_id 
-          });
+          // Fetch stock by ID directly
+          const allStock = await base44.entities.PharmacyStock.list();
           const stock = allStock.find(s => s.id === item.product_id);
           
           if (stock) {
