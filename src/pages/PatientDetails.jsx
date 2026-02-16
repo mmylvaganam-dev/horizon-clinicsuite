@@ -201,14 +201,14 @@ export default function PatientDetails() {
           </Button>
           <Button 
             variant="outline"
-            onClick={() => navigate(`${createPageUrl('PharmacyBilling')}`)}
+            onClick={() => navigate(`${createPageUrl('PharmacyBilling')}?patient=${patientId}`)}
           >
             <ShoppingBag className="w-4 h-4 mr-2" />
             Pharmacy
           </Button>
           <Button 
             variant="outline"
-            onClick={() => navigate(`${createPageUrl('HomeCarePatients')}`)}
+            onClick={() => navigate(`${createPageUrl('HomeCarePatients')}?patient=${patientId}`)}
           >
             <Home className="w-4 h-4 mr-2" />
             Home Care
