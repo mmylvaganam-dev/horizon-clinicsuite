@@ -27,6 +27,10 @@ export default function EMR() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPatient, setSelectedPatient] = useState(null);
 
+  // Read patient ID from URL parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const patientIdFromUrl = urlParams.get('patient');
+
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
@@ -42,6 +46,17 @@ export default function EMR() {
     },
     enabled: !!user,
   });
+
+  // Auto-select patient from URL
+  useEffect(() => {
+    if (patientIdFromUrl && patients.length > 0 && !selectedPatient) {
+      const patient = patients.find(p => p.id === patientIdFromUrl);
+      if (patient) {
+        setSelectedPatient(patient);
+        setSearchTerm(`${patient.first_name} ${patient.last_name}`);
+      }
+    }
+  }, [patientIdFromUrl, patients, selectedPatient]);
 
   const { data: records = [] } = useQuery({
     queryKey: ['patientMedicalRecords', selectedPatient?.id],
