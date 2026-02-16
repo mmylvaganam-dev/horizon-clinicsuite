@@ -7,6 +7,37 @@ export function usePatientAccess() {
     queryFn: () => base44.auth.me(),
   });
 
+  // CRITICAL: Platform owner check FIRST - independent of roles
+  const isPlatformOwnerByEmail = user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
+                                  user?.email === 'mylvaganam@premierhealthcanada.ca' ||
+                                  user?.is_platform_owner === true;
+
+  // If platform owner, grant ALL permissions immediately without checking roles
+  if (isPlatformOwnerByEmail) {
+    return {
+      user,
+      roleNames: ['PLATFORM_OWNER'],
+      canViewFullChart: true,
+      canViewBasicProfile: true,
+      canViewAppointments: true,
+      canViewClinicalNotes: true,
+      canViewLabResults: true,
+      canViewPrescriptions: true,
+      canViewDiagnostics: true,
+      canViewBilling: true,
+      canViewTasks: true,
+      canViewReferrals: true,
+      noPatientAccess: false,
+      isPhysician: true,
+      isClinicAdmin: true,
+      isLabTech: true,
+      isPharmacist: true,
+      isDiagnosticsTech: true,
+      isDirector: false,
+      isPlatformOwner: true,
+    };
+  }
+
   const { data: userRoles = [] } = useQuery({
     queryKey: ['userRoles', user?.id],
     queryFn: async () => {
