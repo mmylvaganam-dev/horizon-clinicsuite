@@ -94,18 +94,6 @@ export default function PharmacyBilling() {
   const urlParams = new URLSearchParams(window.location.search);
   const patientIdFromUrl = urlParams.get('patient');
 
-  // Auto-select patient from URL
-  useEffect(() => {
-    if (patientIdFromUrl && patients.length > 0 && !selectedPatient) {
-      const patient = patients.find(p => p.id === patientIdFromUrl);
-      if (patient) {
-        setSelectedPatient(patient);
-        setPatientSearch(`${patient.first_name} ${patient.last_name}`);
-        toast.success(`Patient selected: ${patient.first_name} ${patient.last_name}`);
-      }
-    }
-  }, [patientIdFromUrl, patients, selectedPatient]);
-
   // Handle prescription from work queue
   useEffect(() => {
     if (location.state?.prescription && location.state?.patient && pharmacyStock.length > 0) {
