@@ -100,8 +100,8 @@ export default function QueueDisplay() {
           <p className="text-teal-300 text-sm mt-0.5">Queue Status Board</p>
         </div>
         <div className="text-right">
-          <p className="text-4xl font-mono font-bold tabular-nums">{format(time, 'HH:mm')}</p>
-          <p className="text-teal-300 text-sm">{format(time, 'EEEE, MMMM d yyyy')}</p>
+           <p className="text-4xl font-mono font-bold tabular-nums">{formatSLTime(time)}</p>
+           <p className="text-teal-300 text-sm">{formatSLDateLong(time)}</p>
         </div>
       </div>
 
