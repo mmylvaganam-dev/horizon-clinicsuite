@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import CounterSetupForm from '../components/queue/CounterSetupForm';
 import AddTokenDialog from '../components/queue/AddTokenDialog';
 import TokenCard from '../components/queue/TokenCard';
+import QueueHowToGuide from '../components/queue/QueueHowToGuide';
 import { createPageUrl } from '../utils';
 
 const counterTypeIcon = {
