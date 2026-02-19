@@ -254,6 +254,14 @@ function LayoutContent({ children, currentPageName }) {
       ]
     },
     {
+      category: 'Queue Management',
+      icon: Users,
+      items: [
+        { name: 'Queue Dashboard', page: 'QueueManagement', icon: Users, description: 'Real-time queue control — manage tokens, call patients, view waiting lists for all counters' },
+        { name: 'Display Board', page: 'QueueDisplay', icon: Monitor, description: 'TV display board — shows currently called tokens and waiting count for each counter' },
+      ]
+    },
+    {
       category: 'Clinical',
       icon: FileText,
       items: [
