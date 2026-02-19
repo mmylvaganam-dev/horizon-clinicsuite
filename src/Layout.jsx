@@ -519,6 +519,7 @@ function LayoutContent({ children, currentPageName }) {
             <div className="flex-1 lg:flex-none" />
             
             <div className="flex items-center gap-4">
+              <AppGuide />
               {isDefinitelyPlatformOwner && pendingApprovals.length > 0 && (
                 <Button
                   variant="outline"
