@@ -191,6 +191,8 @@ import UserApprovals from './pages/UserApprovals';
 import UserManagement from './pages/UserManagement';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
+import QueueDisplay from './pages/QueueDisplay';
+import QueueManagement from './pages/QueueManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -339,6 +341,8 @@ export const PAGES = {
     "UserManagement": UserManagement,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
+    "QueueDisplay": QueueDisplay,
+    "QueueManagement": QueueManagement,
 }
 
 export const pagesConfig = {
