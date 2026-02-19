@@ -40,6 +40,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import OrganizationSwitcher from '@/components/shared/OrganizationSwitcher';
 import { useOrganization, OrganizationProvider } from '@/components/OrganizationProvider';
+import AppGuide from '@/components/shared/AppGuide';
 
 
 
