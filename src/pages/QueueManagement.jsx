@@ -102,6 +102,9 @@ export default function QueueManagement() {
         </div>
       </div>
 
+      {/* How-to guide */}
+      <QueueHowToGuide />
+
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
         <Card className="p-4 bg-white border-0 shadow-sm">
