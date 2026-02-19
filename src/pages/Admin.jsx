@@ -511,6 +511,7 @@ export default function Admin() {
         <p className="text-slate-500 mt-1">Manage users, permissions, and system configuration</p>
       </div>
       <div className="flex items-center gap-3">
+        <AppGuide />
         {(isPlatformOwner || isAppAdmin || isOrgAdmin) && (
           <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
             <DialogTrigger asChild>
