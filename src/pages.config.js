@@ -173,6 +173,8 @@ import Prescriptions from './pages/Prescriptions';
 import PricingCatalogs from './pages/PricingCatalogs';
 import Procurement from './pages/Procurement';
 import ProviderDashboard from './pages/ProviderDashboard';
+import QueueDisplay from './pages/QueueDisplay';
+import QueueManagement from './pages/QueueManagement';
 import ReleaseQueue from './pages/ReleaseQueue';
 import Reports from './pages/Reports';
 import SOAPNotes from './pages/SOAPNotes';
@@ -191,8 +193,6 @@ import UserApprovals from './pages/UserApprovals';
 import UserManagement from './pages/UserManagement';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import QueueDisplay from './pages/QueueDisplay';
-import QueueManagement from './pages/QueueManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -323,6 +323,8 @@ export const PAGES = {
     "PricingCatalogs": PricingCatalogs,
     "Procurement": Procurement,
     "ProviderDashboard": ProviderDashboard,
+    "QueueDisplay": QueueDisplay,
+    "QueueManagement": QueueManagement,
     "ReleaseQueue": ReleaseQueue,
     "Reports": Reports,
     "SOAPNotes": SOAPNotes,
@@ -341,8 +343,6 @@ export const PAGES = {
     "UserManagement": UserManagement,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "QueueDisplay": QueueDisplay,
-    "QueueManagement": QueueManagement,
 }
 
 export const pagesConfig = {
