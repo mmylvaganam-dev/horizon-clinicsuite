@@ -18,7 +18,7 @@ export default function QueueDisplay() {
   const [time, setTime] = useState(new Date());
   const [announcedToken, setAnnouncedToken] = useState(null);
 
-  const today = format(new Date(), 'yyyy-MM-dd');
+  const today = getSLTodayISO();
 
   useEffect(() => {
     const interval = setInterval(() => setTime(new Date()), 1000);
