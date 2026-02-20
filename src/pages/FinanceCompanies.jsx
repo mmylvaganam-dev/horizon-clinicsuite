@@ -219,10 +219,8 @@ export default function FinanceCompanies() {
     return access?.is_enabled || false;
   };
 
-  // Only show the key optional modules (home care, clinical, lab, diagnostics, AI, pharmacy)
-  const optionalModules = modules.filter(m => 
-    ['PHARMACY', 'HOME_CARE', 'CLINICAL', 'LABORATORY', 'DIAGNOSTICS', 'AI_ASSISTANT'].includes(m.module_code)
-  );
+  // Show ALL non-core active modules — new modules automatically appear here
+  const optionalModules = modules.filter(m => m.status === 'active' && !m.is_core);
 
   const saveOrgMutation = useMutation({
     mutationFn: async (data) => {
