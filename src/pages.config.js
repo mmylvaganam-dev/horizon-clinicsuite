@@ -196,6 +196,7 @@ import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
 import WholesalePortal from './pages/WholesalePortal';
 import TelemedicineServices from './pages/TelemedicineServices';
+import TelemedicineDoctors from './pages/TelemedicineDoctors';
 import __Layout from './Layout.jsx';
 
 
@@ -349,6 +350,7 @@ export const PAGES = {
     "VitalsTrend": VitalsTrend,
     "WholesalePortal": WholesalePortal,
     "TelemedicineServices": TelemedicineServices,
+    "TelemedicineDoctors": TelemedicineDoctors,
 }
 
 export const pagesConfig = {
