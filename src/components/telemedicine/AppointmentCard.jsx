@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Calendar, Clock, Video, Mic, MessageSquare, User, Paperclip } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Calendar, Clock, Video, Mic, MessageSquare, User, Paperclip, ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 
 const STATUS_COLORS = {
   BOOKED: 'bg-blue-100 text-blue-700',
