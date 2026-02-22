@@ -353,6 +353,19 @@ function LayoutContent({ children, currentPageName }) {
       ]
     },
     {
+      category: 'Telemedicine',
+      icon: Video,
+      items: [
+        { name: 'Services', page: 'TelemedicineServices', icon: Video, description: 'Manage virtual care service types and offerings' },
+        { name: 'Doctors', page: 'TelemedicineDoctors', icon: Users, description: 'Manage doctors available for virtual consultations' },
+        { name: 'Subscriptions', page: 'TelemedicineSubscriptions', icon: DollarSign, description: 'Individual, family and corporate subscription plans' },
+        { name: 'Corporates', page: 'TelemedicineCorporates', icon: Building2, description: 'Corporate client accounts and employee coverage' },
+        { name: 'Patient Portal', page: 'TelemedicinePatientPortal', icon: Users, description: 'Patient-facing virtual hospital portal' },
+        { name: 'Provider Portal', page: 'TelemedicineProviderPortal', icon: Activity, description: 'Doctor-facing virtual consultation portal' },
+        { name: 'Admin', page: 'TelemedicineAdmin', icon: Settings, description: 'Virtual hospital administration and configuration' },
+      ]
+    },
+    {
       category: 'Premier Wholesale',
       icon: Package,
       items: [
