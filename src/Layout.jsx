@@ -357,7 +357,7 @@ function LayoutContent({ children, currentPageName }) {
       icon: Package,
       items: [
         { name: 'Wholesale Admin', page: 'PremierWholesale', icon: Package, description: 'Premier Wholesale Pharma — manage products, orders, credit accounts and payments (Platform Owner Only)' },
-        { name: 'Wholesale Portal', page: 'WholesalePortal', icon: ShoppingCart, description: 'Order medicines and equipment from Premier Wholesale Pharma' },
+        { name: 'Wholesale Portal', page: 'WholesalePortal', icon: Package, description: 'Order medicines and equipment from Premier Wholesale Pharma' },
       ],
       platformOwnerOnly: false
     },
