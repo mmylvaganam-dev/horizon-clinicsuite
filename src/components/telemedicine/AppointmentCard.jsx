@@ -25,6 +25,37 @@ const VISIT_ICONS = {
 export default function AppointmentCard({ appt, role = 'patient' }) {
   const VisitIcon = VISIT_ICONS[appt.visit_type] || Video;
   const scheduledTime = appt.scheduled_time ? new Date(appt.scheduled_time) : null;
+  const isInProgress = appt.status === 'IN_PROGRESS';
+  const [joining, setJoining] = useState(false);
+
+  const { data: rooms = [] } = useQuery({
+    queryKey: ['virtualRoom', appt.id],
+    queryFn: () => base44.entities.VirtualRoom.filter({ appointment_id: appt.id }),
+    enabled: isInProgress,
+  });
+
+  const room = rooms[0];
+
+  const createRoomMutation = useMutation({
+    mutationFn: async () => {
+      setJoining(true);
+      const res = await base44.functions.invoke('createWherebyRoom', { appointment_id: appt.id });
+      return res.data.room;
+    },
+    onSuccess: (newRoom) => {
+      window.open(newRoom.join_url, '_blank');
+      setJoining(false);
+    },
+    onError: () => setJoining(false),
+  });
+
+  const handleJoin = () => {
+    if (room?.join_url) {
+      window.open(room.join_url, '_blank');
+    } else {
+      createRoomMutation.mutate();
+    }
+  };
 
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -66,6 +97,17 @@ export default function AppointmentCard({ appt, role = 'patient' }) {
 
         <div className="flex items-center justify-between pt-1 border-t">
           <Badge className="bg-slate-100 text-slate-600 border-0 text-xs">{appt.billing_mode || 'FREE'}</Badge>
+          {isInProgress && (
+            <Button
+              size="sm"
+              className="bg-teal-600 hover:bg-teal-700 gap-1.5"
+              onClick={handleJoin}
+              disabled={joining || createRoomMutation.isPending}
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              {joining || createRoomMutation.isPending ? 'Connecting...' : 'Join Visit'}
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
