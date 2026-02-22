@@ -8,6 +8,7 @@ import WSOrders from '@/components/wholesale/WSOrders';
 import WSCreditAccounts from '@/components/wholesale/WSCreditAccounts';
 import WSPayments from '@/components/wholesale/WSPayments';
 import WSDashboard from '@/components/wholesale/WSDashboard';
+import WSCompanyInfoBar from '@/components/wholesale/WSCompanyInfoBar';
 
 // PLATFORM OWNER ONLY — these emails can access Premier Wholesale
 const WHOLESALE_ADMINS = [
