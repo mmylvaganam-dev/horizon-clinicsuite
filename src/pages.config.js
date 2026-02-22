@@ -193,6 +193,8 @@ import UserApprovals from './pages/UserApprovals';
 import UserManagement from './pages/UserManagement';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
+import PremierWholesale from './pages/PremierWholesale';
+import WholesalePortal from './pages/WholesalePortal';
 import __Layout from './Layout.jsx';
 
 
@@ -343,6 +345,8 @@ export const PAGES = {
     "UserManagement": UserManagement,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
+    "PremierWholesale": PremierWholesale,
+    "WholesalePortal": WholesalePortal,
 }
 
 export const pagesConfig = {
