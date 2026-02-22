@@ -169,6 +169,7 @@ import PlatformSettings from './pages/PlatformSettings';
 import PlatformSetup from './pages/PlatformSetup';
 import PlatformSmsSettings from './pages/PlatformSmsSettings';
 import PlatformUserManagement from './pages/PlatformUserManagement';
+import PremierWholesale from './pages/PremierWholesale';
 import Prescriptions from './pages/Prescriptions';
 import PricingCatalogs from './pages/PricingCatalogs';
 import Procurement from './pages/Procurement';
@@ -193,8 +194,8 @@ import UserApprovals from './pages/UserApprovals';
 import UserManagement from './pages/UserManagement';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import PremierWholesale from './pages/PremierWholesale';
 import WholesalePortal from './pages/WholesalePortal';
+import TelemedicineServices from './pages/TelemedicineServices';
 import __Layout from './Layout.jsx';
 
 
@@ -321,6 +322,7 @@ export const PAGES = {
     "PlatformSetup": PlatformSetup,
     "PlatformSmsSettings": PlatformSmsSettings,
     "PlatformUserManagement": PlatformUserManagement,
+    "PremierWholesale": PremierWholesale,
     "Prescriptions": Prescriptions,
     "PricingCatalogs": PricingCatalogs,
     "Procurement": Procurement,
@@ -345,8 +347,8 @@ export const PAGES = {
     "UserManagement": UserManagement,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "PremierWholesale": PremierWholesale,
     "WholesalePortal": WholesalePortal,
+    "TelemedicineServices": TelemedicineServices,
 }
 
 export const pagesConfig = {
