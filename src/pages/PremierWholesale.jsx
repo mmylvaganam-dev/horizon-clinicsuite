@@ -17,6 +17,7 @@ const WHOLESALE_ADMINS = [
 ];
 
 export default function PremierWholesale() {
+  const [activeTab, _setActiveTab] = React.useState('dashboard');
   const { data: user, isLoading } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
