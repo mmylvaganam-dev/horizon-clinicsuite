@@ -30,7 +30,8 @@ import {
   AlertTriangle,
   RefreshCw,
   Cloud,
-  Monitor
+  Monitor,
+  Video
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';

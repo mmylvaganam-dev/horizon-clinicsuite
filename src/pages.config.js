@@ -188,6 +188,13 @@ import ShiftHandover from './pages/ShiftHandover';
 import SmsLogs from './pages/SmsLogs';
 import StaffDirectory from './pages/StaffDirectory';
 import TaskManagement from './pages/TaskManagement';
+import TelemedicineAdmin from './pages/TelemedicineAdmin';
+import TelemedicineCorporates from './pages/TelemedicineCorporates';
+import TelemedicineDoctors from './pages/TelemedicineDoctors';
+import TelemedicinePatientPortal from './pages/TelemedicinePatientPortal';
+import TelemedicineProviderPortal from './pages/TelemedicineProviderPortal';
+import TelemedicineServices from './pages/TelemedicineServices';
+import TelemedicineSubscriptions from './pages/TelemedicineSubscriptions';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import TodaySalesDetails from './pages/TodaySalesDetails';
 import UserApprovals from './pages/UserApprovals';
@@ -195,13 +202,6 @@ import UserManagement from './pages/UserManagement';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
 import WholesalePortal from './pages/WholesalePortal';
-import TelemedicineServices from './pages/TelemedicineServices';
-import TelemedicineDoctors from './pages/TelemedicineDoctors';
-import TelemedicineSubscriptions from './pages/TelemedicineSubscriptions';
-import TelemedicineCorporates from './pages/TelemedicineCorporates';
-import TelemedicinePatientPortal from './pages/TelemedicinePatientPortal';
-import TelemedicineProviderPortal from './pages/TelemedicineProviderPortal';
-import TelemedicineAdmin from './pages/TelemedicineAdmin';
 import __Layout from './Layout.jsx';
 
 
@@ -347,6 +347,13 @@ export const PAGES = {
     "SmsLogs": SmsLogs,
     "StaffDirectory": StaffDirectory,
     "TaskManagement": TaskManagement,
+    "TelemedicineAdmin": TelemedicineAdmin,
+    "TelemedicineCorporates": TelemedicineCorporates,
+    "TelemedicineDoctors": TelemedicineDoctors,
+    "TelemedicinePatientPortal": TelemedicinePatientPortal,
+    "TelemedicineProviderPortal": TelemedicineProviderPortal,
+    "TelemedicineServices": TelemedicineServices,
+    "TelemedicineSubscriptions": TelemedicineSubscriptions,
     "ThirdPartyProviders": ThirdPartyProviders,
     "TodaySalesDetails": TodaySalesDetails,
     "UserApprovals": UserApprovals,
@@ -354,13 +361,6 @@ export const PAGES = {
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
     "WholesalePortal": WholesalePortal,
-    "TelemedicineServices": TelemedicineServices,
-    "TelemedicineDoctors": TelemedicineDoctors,
-    "TelemedicineSubscriptions": TelemedicineSubscriptions,
-    "TelemedicineCorporates": TelemedicineCorporates,
-    "TelemedicinePatientPortal": TelemedicinePatientPortal,
-    "TelemedicineProviderPortal": TelemedicineProviderPortal,
-    "TelemedicineAdmin": TelemedicineAdmin,
 }
 
 export const pagesConfig = {
