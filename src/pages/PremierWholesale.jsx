@@ -48,6 +48,8 @@ export default function PremierWholesale() {
     );
   }
 
+  const [activeTab, setActiveTab] = useState('dashboard');
+
   return (
     <div className="space-y-6">
       {/* Header */}
