@@ -200,6 +200,7 @@ import TelemedicineDoctors from './pages/TelemedicineDoctors';
 import TelemedicineSubscriptions from './pages/TelemedicineSubscriptions';
 import TelemedicineCorporates from './pages/TelemedicineCorporates';
 import TelemedicinePatientPortal from './pages/TelemedicinePatientPortal';
+import TelemedicineProviderPortal from './pages/TelemedicineProviderPortal';
 import __Layout from './Layout.jsx';
 
 
@@ -357,6 +358,7 @@ export const PAGES = {
     "TelemedicineSubscriptions": TelemedicineSubscriptions,
     "TelemedicineCorporates": TelemedicineCorporates,
     "TelemedicinePatientPortal": TelemedicinePatientPortal,
+    "TelemedicineProviderPortal": TelemedicineProviderPortal,
 }
 
 export const pagesConfig = {
