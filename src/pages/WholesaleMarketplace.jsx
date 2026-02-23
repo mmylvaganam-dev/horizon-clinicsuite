@@ -1,0 +1,71 @@
+import React, { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Package, ShoppingCart, Truck, Building2, Link } from 'lucide-react';
+import WSMarketplaceBrowse from '@/components/wholesale/WSMarketplaceBrowse';
+import WSMyOrders from '@/components/wholesale/WSMyOrders';
+import WSMyConnections from '@/components/wholesale/WSMyConnections';
+import { useOrganization } from '@/components/OrganizationProvider';
+
+export default function WholesaleMarketplace() {
+  const { selectedOrgId } = useOrganization();
+  const [activeTab, setActiveTab] = useState('browse');
+
+  const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
+
+  // Count pending connections
+  const { data: myConnections = [] } = useQuery({
+    queryKey: ['wsMyConnections', selectedOrgId],
+    queryFn: () => base44.entities.WholesaleConnection.filter({ buyer_organization_id: selectedOrgId }),
+    enabled: !!selectedOrgId,
+  });
+
+  const activeConnections = myConnections.filter(c => c.status === 'active');
+  const pendingConnections = myConnections.filter(c => c.status === 'pending');
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-700 rounded-2xl p-6 text-white shadow-xl">
+        <div className="flex items-center gap-3">
+          <Building2 className="w-10 h-10" />
+          <div>
+            <h1 className="text-2xl font-black">Wholesale Marketplace</h1>
+            <p className="text-indigo-200 text-sm">Browse wholesale providers, place orders, and manage your supplier connections</p>
+          </div>
+        </div>
+        <div className="mt-4 flex gap-4">
+          <div className="bg-white/10 rounded-xl px-4 py-2 text-center">
+            <p className="text-xs text-indigo-200">Active Suppliers</p>
+            <p className="font-black text-xl">{activeConnections.length}</p>
+          </div>
+          <div className="bg-white/10 rounded-xl px-4 py-2 text-center">
+            <p className="text-xs text-indigo-200">Pending Approvals</p>
+            <p className="font-black text-xl text-yellow-300">{pendingConnections.length}</p>
+          </div>
+        </div>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="bg-white border-2 border-slate-200 p-1 rounded-xl h-auto flex-wrap gap-1">
+          <TabsTrigger value="browse" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white rounded-lg px-4 py-2 font-semibold flex items-center gap-2">
+            <Package className="w-4 h-4" /> Browse & Order
+          </TabsTrigger>
+          <TabsTrigger value="orders" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white rounded-lg px-4 py-2 font-semibold flex items-center gap-2">
+            <Truck className="w-4 h-4" /> My Orders
+          </TabsTrigger>
+          <TabsTrigger value="connections" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white rounded-lg px-4 py-2 font-semibold flex items-center gap-2">
+            <Link className="w-4 h-4" /> My Suppliers
+            {pendingConnections.length > 0 && (
+              <span className="ml-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full px-1.5">{pendingConnections.length}</span>
+            )}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="browse"><WSMarketplaceBrowse orgId={selectedOrgId} user={user} connections={myConnections} /></TabsContent>
+        <TabsContent value="orders"><WSMyOrders orgId={selectedOrgId} /></TabsContent>
+        <TabsContent value="connections"><WSMyConnections orgId={selectedOrgId} connections={myConnections} /></TabsContent>
+      </Tabs>
+    </div>
+  );
+}

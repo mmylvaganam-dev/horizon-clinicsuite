@@ -188,6 +188,7 @@ import ShiftHandover from './pages/ShiftHandover';
 import SmsLogs from './pages/SmsLogs';
 import StaffDirectory from './pages/StaffDirectory';
 import TaskManagement from './pages/TaskManagement';
+import TeleLogin from './pages/TeleLogin';
 import TelemedicineAdmin from './pages/TelemedicineAdmin';
 import TelemedicineCorporates from './pages/TelemedicineCorporates';
 import TelemedicineDoctors from './pages/TelemedicineDoctors';
@@ -202,7 +203,9 @@ import UserManagement from './pages/UserManagement';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
 import WholesalePortal from './pages/WholesalePortal';
-import TeleLogin from './pages/TeleLogin';
+import WholesaleProviderAdmin from './pages/WholesaleProviderAdmin';
+import WholesaleMarketplace from './pages/WholesaleMarketplace';
+import WholesalePlatformAdmin from './pages/WholesalePlatformAdmin';
 import __Layout from './Layout.jsx';
 
 
@@ -348,6 +351,7 @@ export const PAGES = {
     "SmsLogs": SmsLogs,
     "StaffDirectory": StaffDirectory,
     "TaskManagement": TaskManagement,
+    "TeleLogin": TeleLogin,
     "TelemedicineAdmin": TelemedicineAdmin,
     "TelemedicineCorporates": TelemedicineCorporates,
     "TelemedicineDoctors": TelemedicineDoctors,
@@ -362,7 +366,9 @@ export const PAGES = {
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
     "WholesalePortal": WholesalePortal,
-    "TeleLogin": TeleLogin,
+    "WholesaleProviderAdmin": WholesaleProviderAdmin,
+    "WholesaleMarketplace": WholesaleMarketplace,
+    "WholesalePlatformAdmin": WholesalePlatformAdmin,
 }
 
 export const pagesConfig = {
