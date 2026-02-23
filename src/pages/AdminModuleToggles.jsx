@@ -12,14 +12,20 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 
 const MODULE_GROUPS = {
-  'Dashboards': ['DASHBOARD'],
-  'Clinical': ['EMR', 'PMS', 'ORDERS_RESULTS', 'PRESCRIPTIONS'],
-  'Lab': ['LIS'],
+  'Dashboards': ['DASHBOARD', 'SALES_WORKSPACE'],
+  'Clinical': ['EMR', 'PMS', 'CLINICAL', 'APPOINTMENTS', 'ORDERS_RESULTS', 'PRESCRIPTIONS'],
+  'Telemedicine': ['TELEMEDICINE'],
+  'Dental': ['DENTAL'],
+  'Lab': ['LIS', 'LABORATORY'],
   'Diagnostics': ['DIAGNOSTICS', 'CARDIO', 'PFT', 'RADIOLOGY'],
   'Pharmacy': ['PHARMACY', 'INVENTORY'],
-  'Finance': ['BILLING', 'ACCOUNTING', 'FINANCE_CONTROL_TOWER'],
+  'Home Care': ['HOME_CARE'],
+  'Queue': ['QUEUE_MGMT'],
+  'Finance': ['BILLING', 'ACCOUNTING', 'FINANCE', 'FINANCE_CONTROL_TOWER'],
+  'HR & Payroll': ['HR_PAYROLL'],
   'Engagement': ['ENGAGE_PORTAL', 'COMMUNICATIONS'],
-  'Reports': ['REPORTS', 'GOVERNMENT_REPORTING', 'PARTNER'],
+  'Reports': ['REPORTS', 'AI_ASSISTANT', 'GOVERNMENT_REPORTING', 'PARTNER'],
+  'Wholesale': ['WHOLESALE_PHARMA'],
   'Administration': ['ADMIN', 'USER_ADMIN', 'BRANDING']
 };
 
