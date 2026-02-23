@@ -362,6 +362,7 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Subscriptions', page: 'TelemedicineSubscriptions', icon: DollarSign, description: 'Individual, family and corporate subscription plans' },
         { name: 'Corporates', page: 'TelemedicineCorporates', icon: Building2, description: 'Corporate client accounts and employee coverage' },
         { name: 'Patient Portal', page: 'TelemedicinePatientPortal', icon: Users, description: 'Patient-facing virtual hospital portal' },
+        { name: 'Patient Login Page', page: 'TeleLogin', icon: Video, description: 'Patient OTP login page for the telemedicine portal' },
         { name: 'Provider Portal', page: 'TelemedicineProviderPortal', icon: Activity, description: 'Doctor-facing virtual consultation portal' },
         { name: 'Admin', page: 'TelemedicineAdmin', icon: Settings, description: 'Virtual hospital administration and configuration' },
       ]
