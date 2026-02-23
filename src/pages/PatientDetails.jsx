@@ -559,6 +559,13 @@ export default function PatientDetails() {
         </TabsContent>}
         </Tabs>
 
+      {/* Telemedicine Access Dialog */}
+      <EnableTeleAccessDialog
+        patient={patient}
+        open={showTeleAccess}
+        onOpenChange={setShowTeleAccess}
+      />
+
       {/* Edit Form */}
       <PatientForm
         open={formOpen}
