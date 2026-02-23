@@ -4,12 +4,12 @@ import { base44 } from '@/api/base44Client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart3, Package, ShoppingCart, CreditCard, TrendingUp, Users, Lock } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import WSProviderDashboard from '@/components/wholesale/WSProviderDashboard';
-import WSProviderProducts from '@/components/wholesale/WSProviderProducts';
-import WSProviderOrders from '@/components/wholesale/WSProviderOrders';
-import WSProviderConnections from '@/components/wholesale/WSProviderConnections';
-import WSProviderCreditAccounts from '@/components/wholesale/WSProviderCreditAccounts';
-import WSProviderPayments from '@/components/wholesale/WSProviderPayments';
+import WSProviderDashboard from '@/components/wholesale/WSProviderDashboard.jsx';
+import WSProviderProducts from '@/components/wholesale/WSProviderProducts.jsx';
+import WSProviderOrders from '@/components/wholesale/WSProviderOrders.jsx';
+import WSProviderConnections from '@/components/wholesale/WSProviderConnections.jsx';
+import WSProviderCreditAccounts from '@/components/wholesale/WSProviderCreditAccounts.jsx';
+import WSProviderPayments from '@/components/wholesale/WSProviderPayments.jsx';
 
 export default function WholesaleProviderAdmin() {
   const [activeTab, setActiveTab] = useState('dashboard');

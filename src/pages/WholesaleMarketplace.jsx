@@ -3,9 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Package, ShoppingCart, Truck, Building2, Link } from 'lucide-react';
-import WSMarketplaceBrowse from '@/components/wholesale/WSMarketplaceBrowse';
-import WSMyOrders from '@/components/wholesale/WSMyOrders';
-import WSMyConnections from '@/components/wholesale/WSMyConnections';
+import WSMarketplaceBrowse from '@/components/wholesale/WSMarketplaceBrowse.jsx';
+import WSMyOrders from '@/components/wholesale/WSMyOrders.jsx';
+import WSMyConnections from '@/components/wholesale/WSMyConnections.jsx';
 import { useOrganization } from '@/components/OrganizationProvider';
 
 export default function WholesaleMarketplace() {
