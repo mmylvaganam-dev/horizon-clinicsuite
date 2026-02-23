@@ -371,8 +371,9 @@ function LayoutContent({ children, currentPageName }) {
       category: 'Premier Wholesale',
       icon: Package,
       items: [
-        { name: 'Wholesale Admin', page: 'PremierWholesale', icon: Package, description: 'Premier Wholesale Pharma — manage products, orders, credit accounts and payments (Platform Owner Only)' },
-        { name: 'Wholesale Portal', page: 'WholesalePortal', icon: Package, description: 'Order medicines and equipment from Premier Wholesale Pharma' },
+        { name: 'Platform Admin', page: 'WholesalePlatformAdmin', icon: Shield, description: 'Manage wholesale providers, approve connections, link buyers to suppliers (Platform Owner Only)' },
+        { name: 'My Provider Portal', page: 'WholesaleProviderAdmin', icon: Package, description: 'Wholesale provider admin — manage your products, orders, buyers, credit & payments' },
+        { name: 'Marketplace', page: 'WholesaleMarketplace', icon: Package, description: 'Browse all wholesale providers, place orders, and manage your supplier connections' },
       ],
       platformOwnerOnly: false
     },
