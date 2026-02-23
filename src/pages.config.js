@@ -202,6 +202,7 @@ import UserManagement from './pages/UserManagement';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
 import WholesalePortal from './pages/WholesalePortal';
+import TeleLogin from './pages/TeleLogin';
 import __Layout from './Layout.jsx';
 
 
@@ -361,6 +362,7 @@ export const PAGES = {
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
     "WholesalePortal": WholesalePortal,
+    "TeleLogin": TeleLogin,
 }
 
 export const pagesConfig = {

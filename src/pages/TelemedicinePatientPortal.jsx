@@ -1,129 +1,139 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Plus, Calendar } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Plus, Calendar, LogOut, User, Video } from 'lucide-react';
+import { createPageUrl } from '@/utils';
 import BookingWizard from '@/components/telemedicine/BookingWizard';
 import AppointmentCard from '@/components/telemedicine/AppointmentCard';
 
 export default function TelemedicinePatientPortal() {
-  const [tab, setTab] = useState('appointments');
+  const [session, setSession] = useState(null);
+  const [tab, setTab] = useState('upcoming');
   const [showBooking, setShowBooking] = useState(false);
+  const qc = useQueryClient();
 
-  // Simple patient form (no login required — demo uses entered info)
-  const [patientInfo, setPatientInfo] = useState({
-    id: 'demo-patient',
-    name: '',
-    email: '',
-    phone: '',
-  });
-  const [patientReady, setPatientReady] = useState(false);
+  // Load session from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('tele_patient_session');
+    if (!stored) {
+      window.location.href = createPageUrl('TeleLogin');
+      return;
+    }
+    setSession(JSON.parse(stored));
+  }, []);
 
   const { data: appointments = [], refetch } = useQuery({
-    queryKey: ['teleAppointments', patientInfo.id],
-    queryFn: () => base44.entities.TeleAppointment.filter({ patient_id: patientInfo.id }),
-    enabled: patientReady,
+    queryKey: ['teleAppointments', session?.id],
+    queryFn: () => base44.entities.TeleAppointment.filter({ patient_id: session.id }),
+    enabled: !!session?.id,
   });
 
   const upcoming = appointments.filter(a => ['BOOKED', 'CONFIRMED', 'IN_PROGRESS'].includes(a.status));
   const past = appointments.filter(a => ['COMPLETED', 'CANCELLED', 'NO_SHOW'].includes(a.status));
 
-  if (!patientReady) {
+  const handleLogout = () => {
+    localStorage.removeItem('tele_patient_session');
+    window.location.href = createPageUrl('TeleLogin');
+  };
+
+  if (!session) {
     return (
-      <div className="max-w-md mx-auto mt-12 space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Patient Portal</h1>
-          <p className="text-slate-500 mt-1 text-sm">Enter your details to continue</p>
-        </div>
-        <Card>
-          <CardContent className="pt-6 space-y-4">
-            <div>
-              <Label>Full Name</Label>
-              <Input className="mt-1" placeholder="Your name" value={patientInfo.name} onChange={e => setPatientInfo(p => ({ ...p, name: e.target.value }))} />
-            </div>
-            <div>
-              <Label>Email</Label>
-              <Input className="mt-1" type="email" placeholder="your@email.com" value={patientInfo.email} onChange={e => setPatientInfo(p => ({ ...p, email: e.target.value }))} />
-            </div>
-            <div>
-              <Label>Phone</Label>
-              <Input className="mt-1" placeholder="+1 555 0000" value={patientInfo.phone} onChange={e => setPatientInfo(p => ({ ...p, phone: e.target.value }))} />
-            </div>
-            <Button
-              className="w-full"
-              disabled={!patientInfo.name || !patientInfo.email}
-              onClick={() => {
-                setPatientInfo(p => ({ ...p, id: `patient-${p.email}` }));
-                setPatientReady(true);
-              }}
-            >
-              Continue
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <p className="text-slate-400">Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 max-w-3xl mx-auto">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Patient Portal</h1>
-          <p className="text-slate-500 text-sm">Welcome, {patientInfo.name}</p>
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-cyan-50">
+      {/* Top bar */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-10">
+        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-teal-600 rounded-lg flex items-center justify-center">
+              <Video className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-semibold text-slate-900">Virtual Clinic</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 text-sm text-slate-600">
+              <User className="w-4 h-4" />
+              <span className="hidden sm:inline">{session.name}</span>
+            </div>
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
+              <LogOut className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
-        {!showBooking && (
-          <Button onClick={() => setShowBooking(true)}>
-            <Plus className="w-4 h-4 mr-2" /> Book Consultation
+      </header>
+
+      <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+        {/* Welcome card */}
+        <div className="bg-teal-600 rounded-2xl p-5 text-white">
+          <p className="text-teal-100 text-sm">Welcome back,</p>
+          <h2 className="text-xl font-bold">{session.name}</h2>
+          <p className="text-teal-100 text-sm mt-1">{session.email}</p>
+          <Button
+            className="mt-4 bg-white text-teal-700 hover:bg-teal-50"
+            onClick={() => setShowBooking(true)}
+          >
+            <Plus className="w-4 h-4 mr-2" /> Book a Consultation
           </Button>
+        </div>
+
+        {showBooking ? (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between text-base">
+                Book a Consultation
+                <Button variant="ghost" size="sm" onClick={() => setShowBooking(false)}>Cancel</Button>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <BookingWizard
+                patient={session}
+                onBookingComplete={() => { setShowBooking(false); refetch(); }}
+              />
+            </CardContent>
+          </Card>
+        ) : (
+          <Tabs value={tab} onValueChange={setTab}>
+            <TabsList className="w-full">
+              <TabsTrigger value="upcoming" className="flex-1">
+                Upcoming {upcoming.length > 0 && <Badge className="ml-2 bg-teal-600 text-white border-0">{upcoming.length}</Badge>}
+              </TabsTrigger>
+              <TabsTrigger value="past" className="flex-1">Past</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="upcoming" className="space-y-3 mt-4">
+              {upcoming.length === 0 ? (
+                <div className="text-center py-16 text-slate-400">
+                  <Calendar className="w-12 h-12 mx-auto mb-3 text-slate-200" />
+                  <p className="font-medium">No upcoming appointments</p>
+                  <p className="text-sm mt-1">Book your first virtual consultation</p>
+                  <Button className="mt-4" onClick={() => setShowBooking(true)}>
+                    <Plus className="w-4 h-4 mr-2" /> Book Now
+                  </Button>
+                </div>
+              ) : (
+                upcoming.map(a => <AppointmentCard key={a.id} appt={a} role="patient" />)
+              )}
+            </TabsContent>
+
+            <TabsContent value="past" className="space-y-3 mt-4">
+              {past.length === 0 ? (
+                <p className="text-center py-12 text-slate-400 text-sm">No past appointments.</p>
+              ) : (
+                past.map(a => <AppointmentCard key={a.id} appt={a} role="patient" />)
+              )}
+            </TabsContent>
+          </Tabs>
         )}
       </div>
-
-      {showBooking ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              Book a Consultation
-              <Button variant="ghost" size="sm" onClick={() => setShowBooking(false)}>Cancel</Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <BookingWizard
-              patient={patientInfo}
-              onBookingComplete={() => { setShowBooking(false); refetch(); }}
-            />
-          </CardContent>
-        </Card>
-      ) : (
-        <Tabs value={tab} onValueChange={setTab}>
-          <TabsList>
-            <TabsTrigger value="appointments">Upcoming ({upcoming.length})</TabsTrigger>
-            <TabsTrigger value="past">Past ({past.length})</TabsTrigger>
-          </TabsList>
-          <TabsContent value="appointments" className="space-y-3 mt-4">
-            {upcoming.length === 0 ? (
-              <div className="text-center py-16 text-slate-400">
-                <Calendar className="w-12 h-12 mx-auto mb-3 text-slate-200" />
-                <p>No upcoming appointments.</p>
-                <Button className="mt-4" onClick={() => setShowBooking(true)}>Book Now</Button>
-              </div>
-            ) : (
-              upcoming.map(a => <AppointmentCard key={a.id} appt={a} role="patient" />)
-            )}
-          </TabsContent>
-          <TabsContent value="past" className="space-y-3 mt-4">
-            {past.length === 0 ? (
-              <p className="text-center py-12 text-slate-400">No past appointments.</p>
-            ) : (
-              past.map(a => <AppointmentCard key={a.id} appt={a} role="patient" />)
-            )}
-          </TabsContent>
-        </Tabs>
-      )}
     </div>
   );
 }
