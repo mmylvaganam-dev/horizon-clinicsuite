@@ -64,6 +64,7 @@ export default function PatientDetails() {
   const [formOpen, setFormOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [showPHNCard, setShowPHNCard] = useState(false);
+  const [showTeleAccess, setShowTeleAccess] = useState(false);
 
   const { data: branding } = useQuery({
     queryKey: ['organizationBranding'],
@@ -213,6 +214,14 @@ export default function PatientDetails() {
           >
             <Home className="w-4 h-4 mr-2" />
             Home Care
+          </Button>
+          <Button
+            variant="outline"
+            className="border-teal-300 text-teal-700 hover:bg-teal-50"
+            onClick={() => setShowTeleAccess(true)}
+          >
+            <Video className="w-4 h-4 mr-2" />
+            Tele Access
           </Button>
           <Button onClick={() => setFormOpen(true)} className="bg-teal-600 hover:bg-teal-700">
             <Edit className="w-4 h-4 mr-2" />
@@ -557,6 +566,13 @@ export default function PatientDetails() {
         patient={patient}
         onSubmit={(data) => updateMutation.mutate(data)}
         isLoading={updateMutation.isPending}
+      />
+
+      {/* Telemedicine Access Dialog */}
+      <EnableTeleAccessDialog
+        patient={patient}
+        open={showTeleAccess}
+        onOpenChange={setShowTeleAccess}
       />
 
       {/* PHN Card Dialog */}
