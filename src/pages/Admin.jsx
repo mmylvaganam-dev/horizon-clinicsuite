@@ -966,42 +966,50 @@ export default function Admin() {
             </Card>
           )}
 
-          {adminCategories
-            .filter(cat => cat.modules.some(m => !m.ownerOnly))
-            .map((category, idx) => (
-              <Card key={idx} className="border-l-4" style={{ borderLeftColor: category.color.split(' ')[0].replace('from-', '#') }}>
-                <CardHeader className="bg-slate-50 border-b">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center`}>
+          {/* Admin Categories Grid */}
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-2">
+              <Settings className="w-5 h-5 text-slate-500" />
+              Administration Sections
+            </h2>
+            {adminCategories
+              .filter(cat => {
+                const visibleModules = cat.modules.filter(m => !m.ownerOnly || isPlatformOwner);
+                return visibleModules.length > 0;
+              })
+              .map((category, idx) => (
+                <div key={idx} className={`rounded-xl border ${category.border} ${category.bgLight} overflow-hidden`}>
+                  {/* Category Header */}
+                  <div className={`px-5 py-4 flex items-center gap-3 border-b ${category.border}`}>
+                    <div className={`w-9 h-9 rounded-lg ${category.iconBg} flex items-center justify-center shadow-sm`}>
                       <category.icon className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <CardTitle className="text-slate-900 text-base">{category.category}</CardTitle>
-                      <p className="text-xs text-slate-600">{category.description}</p>
+                      <h3 className="font-semibold text-slate-900 text-sm">{category.category}</h3>
+                      <p className="text-xs text-slate-500">{category.description}</p>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {/* Module Buttons */}
+                  <div className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                     {category.modules
-                      .filter(m => !m.ownerOnly)
+                      .filter(m => !m.ownerOnly || isPlatformOwner)
                       .map((module) => (
                         <button
                           key={module.page}
                           onClick={() => navigate(createPageUrl(module.page))}
-                          className="p-3 rounded-lg border border-slate-200 bg-white hover:border-teal-300 hover:bg-slate-50 transition-all text-left"
+                          className={`group flex flex-col items-center text-center p-4 rounded-xl bg-white border-2 ${category.border} hover:shadow-md hover:scale-105 transition-all duration-200 cursor-pointer`}
                         >
-                          <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${category.color} flex items-center justify-center mb-2`}>
-                            <module.icon className="w-4 h-4 text-white" />
+                          <div className={`w-11 h-11 rounded-xl ${category.iconBg} flex items-center justify-center mb-2 shadow group-hover:shadow-lg transition-shadow`}>
+                            <module.icon className="w-5 h-5 text-white" />
                           </div>
-                          <p className="font-medium text-slate-900 text-xs">{module.title}</p>
-                          <p className="text-xs text-slate-500 mt-1">{module.description}</p>
+                          <p className={`font-semibold text-xs text-slate-800 leading-tight`}>{module.title}</p>
+                          <p className="text-xs text-slate-400 mt-1 leading-tight hidden sm:block">{module.description}</p>
                         </button>
                       ))}
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                </div>
+              ))}
+          </div>
         </TabsContent>
 
         {/* User Access Control Tab (Old - keeping for role assignment UI) */}
