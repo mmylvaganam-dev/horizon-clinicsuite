@@ -428,6 +428,10 @@ export default function Admin() {
       description: 'Add staff and grant roles',
       icon: Users,
       color: 'from-teal-500 to-teal-600',
+      bgLight: 'bg-teal-50',
+      border: 'border-teal-200',
+      iconBg: 'bg-teal-600',
+      textColor: 'text-teal-700',
       modules: [
         { title: 'Organization Users', description: 'Manage organization users', icon: Users, page: 'OrganizationUserManagement' },
         { title: 'Users & Roles', description: 'Manage user roles and permissions', icon: Users, page: 'AdminUsers' },
@@ -438,12 +442,16 @@ export default function Admin() {
       ]
     },
     {
-      category: 'Organization Branding & Pricing',
+      category: 'Branding & Pricing',
       description: 'Configure branding and service prices',
-      icon: Settings,
-      color: 'from-blue-500 to-blue-600',
+      icon: Palette,
+      color: 'from-purple-500 to-purple-600',
+      bgLight: 'bg-purple-50',
+      border: 'border-purple-200',
+      iconBg: 'bg-purple-600',
+      textColor: 'text-purple-700',
       modules: [
-        { title: 'Branding', description: 'Organization branding', icon: Settings, page: 'AdminOrganizationBranding' },
+        { title: 'Branding', description: 'Organization branding', icon: Palette, page: 'AdminOrganizationBranding' },
         { title: 'Service Catalog', description: 'Manage services and pricing', icon: Grid3X3, page: 'AdminServiceCatalog' },
         { title: 'Pricing & Catalogs', description: 'Configure service fees', icon: DollarSign, page: 'PricingCatalogs' },
       ]
@@ -451,35 +459,47 @@ export default function Admin() {
     {
       category: 'Modules & Configuration',
       description: 'Enable modules and configure settings',
-      icon: Grid3X3,
+      icon: Layers,
       color: 'from-indigo-500 to-indigo-600',
+      bgLight: 'bg-indigo-50',
+      border: 'border-indigo-200',
+      iconBg: 'bg-indigo-600',
+      textColor: 'text-indigo-700',
       modules: [
         { title: 'Module Toggles', description: 'Enable/disable modules', icon: Grid3X3, page: 'AdminModuleToggles' },
         { title: 'Configuration', description: 'System configuration', icon: Settings, page: 'AdminConfig' },
-        { title: 'Modules', description: 'Manage module access', icon: Grid3X3, page: 'AdminModules' },
+        { title: 'Modules', description: 'Manage module access', icon: Layers, page: 'AdminModules' },
       ]
     },
     {
       category: 'Financial Configuration',
       description: 'Billing, accounting, and tax rules',
-      icon: DollarSign,
-      color: 'from-green-500 to-green-600',
+      icon: Calculator,
+      color: 'from-emerald-500 to-emerald-600',
+      bgLight: 'bg-emerald-50',
+      border: 'border-emerald-200',
+      iconBg: 'bg-emerald-600',
+      textColor: 'text-emerald-700',
       modules: [
         { title: 'Billing', description: 'Invoice and payment management', icon: DollarSign, page: 'Billing' },
-        { title: 'Tax Rules', description: 'Configure tax rates', icon: Settings, page: 'AdminTaxRules' },
+        { title: 'Tax Rules', description: 'Configure tax rates', icon: FileText, page: 'AdminTaxRules' },
         { title: 'Numbering Rules', description: 'Document numbering formats', icon: Key, page: 'AdminNumberingRules' },
-        { title: 'Chart of Accounts', description: 'Accounting accounts', icon: Grid3X3, page: 'AdminChartOfAccounts' },
+        { title: 'Chart of Accounts', description: 'Accounting accounts', icon: BarChart3, page: 'AdminChartOfAccounts' },
         { title: 'Posting Rules', description: 'Accounting automation', icon: Settings, page: 'AdminPostingRules' },
       ]
     },
     {
       category: 'System Operations',
-      description: 'Monitoring, backups, and maintenance (Platform Owner Only)',
+      description: 'Monitoring, backups, and maintenance',
       icon: Activity,
-      color: 'from-emerald-500 to-emerald-600',
+      color: 'from-orange-500 to-orange-600',
+      bgLight: 'bg-orange-50',
+      border: 'border-orange-200',
+      iconBg: 'bg-orange-600',
+      textColor: 'text-orange-700',
       modules: [
         { title: 'System Health', description: 'Data integrity monitoring', icon: Activity, page: 'AdminSystemHealth', ownerOnly: true },
-        { title: 'Organization Activity', description: 'Aggregate activity metrics', icon: Activity, page: 'AdminOrganizationActivity', ownerOnly: true },
+        { title: 'Organization Activity', description: 'Aggregate activity metrics', icon: BarChart3, page: 'AdminOrganizationActivity', ownerOnly: true },
         { title: 'System Version', description: 'Version control & schema lock', icon: Shield, page: 'AdminSystemVersion', ownerOnly: true },
         { title: 'Backup Status', description: 'Backup operations', icon: Activity, page: 'AdminBackups', ownerOnly: true },
       ]
