@@ -29,7 +29,11 @@ import {
   Building,
   Trash2,
   TestTube,
-  Package
+  Package,
+  Palette,
+  Calculator,
+  BarChart3,
+  Layers
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';

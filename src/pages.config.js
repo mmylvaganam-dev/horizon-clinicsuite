@@ -202,10 +202,10 @@ import UserApprovals from './pages/UserApprovals';
 import UserManagement from './pages/UserManagement';
 import VendorManagement from './pages/VendorManagement';
 import VitalsTrend from './pages/VitalsTrend';
-import WholesalePortal from './pages/WholesalePortal';
-import WholesaleProviderAdmin from './pages/WholesaleProviderAdmin';
 import WholesaleMarketplace from './pages/WholesaleMarketplace';
 import WholesalePlatformAdmin from './pages/WholesalePlatformAdmin';
+import WholesalePortal from './pages/WholesalePortal';
+import WholesaleProviderAdmin from './pages/WholesaleProviderAdmin';
 import __Layout from './Layout.jsx';
 
 
@@ -365,10 +365,10 @@ export const PAGES = {
     "UserManagement": UserManagement,
     "VendorManagement": VendorManagement,
     "VitalsTrend": VitalsTrend,
-    "WholesalePortal": WholesalePortal,
-    "WholesaleProviderAdmin": WholesaleProviderAdmin,
     "WholesaleMarketplace": WholesaleMarketplace,
     "WholesalePlatformAdmin": WholesalePlatformAdmin,
+    "WholesalePortal": WholesalePortal,
+    "WholesaleProviderAdmin": WholesaleProviderAdmin,
 }
 
 export const pagesConfig = {
