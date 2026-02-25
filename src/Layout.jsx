@@ -190,7 +190,7 @@ function LayoutContent({ children, currentPageName }) {
       console.log('Fetching branding for org:', selectedOrgId);
       const brandings = await base44.entities.OrganizationBranding.filter({ organization_id: selectedOrgId });
       console.log('Branding loaded:', brandings[0]);
-      return brandings[0];
+      return brandings[0] || null;
     },
     enabled: userApproved !== false && !!selectedOrgId,
   });
