@@ -62,7 +62,7 @@ function LayoutContent({ children, currentPageName }) {
   useEffect(() => {
     const interval = setInterval(() => {
       queryClient.refetchQueries();
-    }, 60000); // 60 seconds
+    }, 300000); // 5 minutes
 
     return () => clearInterval(interval);
   }, [queryClient]);
