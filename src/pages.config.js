@@ -207,6 +207,11 @@ import WholesalePlatformAdmin from './pages/WholesalePlatformAdmin';
 import WholesalePortal from './pages/WholesalePortal';
 import WholesaleProviderAdmin from './pages/WholesaleProviderAdmin';
 import TelephonyAdmin from './pages/TelephonyAdmin';
+import TelephonyExtensions from './pages/TelephonyExtensions';
+import TelephonyQueues from './pages/TelephonyQueues';
+import TelephonyIVR from './pages/TelephonyIVR';
+import TelephonyCallLogs from './pages/TelephonyCallLogs';
+import FaxInbox from './pages/FaxInbox';
 import __Layout from './Layout.jsx';
 
 
@@ -371,6 +376,11 @@ export const PAGES = {
     "WholesalePortal": WholesalePortal,
     "WholesaleProviderAdmin": WholesaleProviderAdmin,
     "TelephonyAdmin": TelephonyAdmin,
+    "TelephonyExtensions": TelephonyExtensions,
+    "TelephonyQueues": TelephonyQueues,
+    "TelephonyIVR": TelephonyIVR,
+    "TelephonyCallLogs": TelephonyCallLogs,
+    "FaxInbox": FaxInbox,
 }
 
 export const pagesConfig = {
