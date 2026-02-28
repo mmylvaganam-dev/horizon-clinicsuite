@@ -371,6 +371,19 @@ export default function TelephonyAdmin() {
             </CardContent>
           </Card>
 
+          {/* Sri Lanka SIP Onboarding Requirements */}
+          <SipRequirementsPanel
+            value={formSettings.sip_requirements || {}}
+            onChange={(v) => setFormSettings(prev => ({ ...prev, sip_requirements: v }))}
+          />
+
+          {/* PBX Provisioning Panel */}
+          <ProvisioningPanel
+            orgId={selectedOrgId}
+            settings={formSettings}
+            onRefresh={() => queryClient.invalidateQueries(['telephonyAdmin', selectedOrgId])}
+          />
+
           {/* Save */}
           <div className="flex justify-end">
             <Button
