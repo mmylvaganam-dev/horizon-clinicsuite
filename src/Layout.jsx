@@ -381,7 +381,12 @@ function LayoutContent({ children, currentPageName }) {
       category: 'Telephony',
       icon: Phone,
       items: [
-        { name: 'Telephony Settings', page: 'TelephonyAdmin', icon: Phone, description: 'Configure PBX, SIP trunks, DID numbers and inbound call routing per organization' },
+        { name: 'Settings', page: 'TelephonyAdmin', icon: Settings, description: 'Configure PBX, SIP trunks, DID numbers and inbound call routing per organization' },
+        { name: 'Extensions', page: 'TelephonyExtensions', icon: Phone, description: 'Manage softphone extensions for this organization' },
+        { name: 'Call Queues', page: 'TelephonyQueues', icon: Users, description: 'Manage inbound call queues and ring strategies' },
+        { name: 'IVR Menus', page: 'TelephonyIVR', icon: CheckSquare, description: 'Configure automated attendant digit menus' },
+        { name: 'Call Logs', page: 'TelephonyCallLogs', icon: FileText, description: 'View recent call history' },
+        { name: 'Fax Inbox', page: 'FaxInbox', icon: FileText, description: 'Incoming fax documents — view, triage, assign, archive' },
       ],
       platformOwnerOnly: true
     },
