@@ -245,11 +245,12 @@ export default function TelephonyAdmin() {
           </Card>
 
           {/* PBX / Provider Settings */}
+          {formSettings.use_master_account === false ? (
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
                 <Settings className="w-4 h-4 text-slate-500" />
-                PBX & SIP Provider
+                Your PBX Configuration
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
