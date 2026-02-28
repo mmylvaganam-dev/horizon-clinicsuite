@@ -378,6 +378,14 @@ function LayoutContent({ children, currentPageName }) {
       platformOwnerOnly: false
     },
     {
+      category: 'Telephony',
+      icon: Phone,
+      items: [
+        { name: 'Telephony Settings', page: 'TelephonyAdmin', icon: Phone, description: 'Configure PBX, SIP trunks, DID numbers and inbound call routing per organization' },
+      ],
+      platformOwnerOnly: true
+    },
+    {
       category: 'Platform Administration',
       icon: Globe,
       items: [
