@@ -105,6 +105,7 @@ import DentalSchedule from './pages/DentalSchedule';
 import DentalSterilization from './pages/DentalSterilization';
 import DiagnosticsWorkspace from './pages/DiagnosticsWorkspace';
 import EMR from './pages/EMR';
+import FaxInbox from './pages/FaxInbox';
 import FinanceCompanies from './pages/FinanceCompanies';
 import FinanceDashboard from './pages/FinanceDashboard';
 import FinanceLedger from './pages/FinanceLedger';
@@ -196,6 +197,11 @@ import TelemedicinePatientPortal from './pages/TelemedicinePatientPortal';
 import TelemedicineProviderPortal from './pages/TelemedicineProviderPortal';
 import TelemedicineServices from './pages/TelemedicineServices';
 import TelemedicineSubscriptions from './pages/TelemedicineSubscriptions';
+import TelephonyAdmin from './pages/TelephonyAdmin';
+import TelephonyCallLogs from './pages/TelephonyCallLogs';
+import TelephonyExtensions from './pages/TelephonyExtensions';
+import TelephonyIVR from './pages/TelephonyIVR';
+import TelephonyQueues from './pages/TelephonyQueues';
 import ThirdPartyProviders from './pages/ThirdPartyProviders';
 import TodaySalesDetails from './pages/TodaySalesDetails';
 import UserApprovals from './pages/UserApprovals';
@@ -206,12 +212,7 @@ import WholesaleMarketplace from './pages/WholesaleMarketplace';
 import WholesalePlatformAdmin from './pages/WholesalePlatformAdmin';
 import WholesalePortal from './pages/WholesalePortal';
 import WholesaleProviderAdmin from './pages/WholesaleProviderAdmin';
-import TelephonyAdmin from './pages/TelephonyAdmin';
-import TelephonyExtensions from './pages/TelephonyExtensions';
-import TelephonyQueues from './pages/TelephonyQueues';
-import TelephonyIVR from './pages/TelephonyIVR';
-import TelephonyCallLogs from './pages/TelephonyCallLogs';
-import FaxInbox from './pages/FaxInbox';
+import PlatformTelephonyConfig from './pages/PlatformTelephonyConfig';
 import __Layout from './Layout.jsx';
 
 
@@ -274,6 +275,7 @@ export const PAGES = {
     "DentalSterilization": DentalSterilization,
     "DiagnosticsWorkspace": DiagnosticsWorkspace,
     "EMR": EMR,
+    "FaxInbox": FaxInbox,
     "FinanceCompanies": FinanceCompanies,
     "FinanceDashboard": FinanceDashboard,
     "FinanceLedger": FinanceLedger,
@@ -365,6 +367,11 @@ export const PAGES = {
     "TelemedicineProviderPortal": TelemedicineProviderPortal,
     "TelemedicineServices": TelemedicineServices,
     "TelemedicineSubscriptions": TelemedicineSubscriptions,
+    "TelephonyAdmin": TelephonyAdmin,
+    "TelephonyCallLogs": TelephonyCallLogs,
+    "TelephonyExtensions": TelephonyExtensions,
+    "TelephonyIVR": TelephonyIVR,
+    "TelephonyQueues": TelephonyQueues,
     "ThirdPartyProviders": ThirdPartyProviders,
     "TodaySalesDetails": TodaySalesDetails,
     "UserApprovals": UserApprovals,
@@ -375,12 +382,7 @@ export const PAGES = {
     "WholesalePlatformAdmin": WholesalePlatformAdmin,
     "WholesalePortal": WholesalePortal,
     "WholesaleProviderAdmin": WholesaleProviderAdmin,
-    "TelephonyAdmin": TelephonyAdmin,
-    "TelephonyExtensions": TelephonyExtensions,
-    "TelephonyQueues": TelephonyQueues,
-    "TelephonyIVR": TelephonyIVR,
-    "TelephonyCallLogs": TelephonyCallLogs,
-    "FaxInbox": FaxInbox,
+    "PlatformTelephonyConfig": PlatformTelephonyConfig,
 }
 
 export const pagesConfig = {
