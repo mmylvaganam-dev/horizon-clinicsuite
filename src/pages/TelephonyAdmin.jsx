@@ -358,10 +358,25 @@ export default function TelephonyAdmin() {
                   </Select>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+              </Card>
+              ) : (
+              <Card className="border-2 border-green-100 bg-green-50">
+              <CardHeader>
+              <CardTitle className="text-base text-green-900 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                Master Account Active
+              </CardTitle>
+              </CardHeader>
+              <CardContent>
+              <p className="text-sm text-green-800">
+                You're using the platform's managed 3CX master account. Configure DIDs and extensions below.
+              </p>
+              </CardContent>
+              </Card>
+              )}
 
-          {/* DID Numbers */}
+              {/* DID Numbers */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
