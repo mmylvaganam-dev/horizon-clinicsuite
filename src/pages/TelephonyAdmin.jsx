@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Phone, Plus, Trash2, Settings, Shield, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import ProvisioningPanel from '@/components/telephony/ProvisioningPanel';
+import SipRequirementsPanel from '@/components/telephony/SipRequirementsPanel';
 
 export default function TelephonyAdmin() {
   const { selectedOrgId, isPlatformOwner } = useOrganization();
