@@ -233,7 +233,40 @@ const modules = [
       { step: 'Platform Billing', detail: 'Manage subscription billing and usage logs for all organizations on the platform.' },
     ],
   },
-];
+  {
+    id: 'platform_telephony_config',
+    title: 'Platform Telephony Config',
+    emoji: '☎️',
+    category: 'Platform (Owner Only)',
+    summary: 'Platform-level telephony — configure the master 3CX account that all organizations can use or manage DIDs and SIP trunks.',
+    steps: [
+      { step: 'Set up master 3CX', detail: 'Enter your 3CX tenant ID, base URL, and API credentials (Client ID and Secret). These are used by all organizations that choose the master account.' },
+      { step: 'Configure SIP provider', detail: 'Select your SIP provider (Dialog, Telnyx, Twilio, etc.) and enter trunk credentials. This handles inbound/outbound calling for all orgs.' },
+      { step: 'Provision tenant', detail: 'Click "Provision Master Tenant" to initialize the 3CX master account with the platform. This happens once during setup.' },
+      { step: 'Sync extensions', detail: 'After provisioning, click "Sync Extensions" to pull all extensions from the master 3CX into the platform database.' },
+      { step: 'Manage master DIDs', detail: 'Add DIDs at the platform level that can be allocated to organizations. Each DID is tied to this master account.' },
+      { step: 'Monitor sync', detail: 'Use "Sync Queues & IVRs" and "Pull Call Logs" to keep platform data in sync with the 3CX master.' },
+    ],
+  },
+  {
+    id: 'org_telephony_settings',
+    title: 'Organization Telephony Settings',
+    emoji: '📞',
+    category: 'Telephony',
+    summary: 'Organization-level telephony — choose to use the platform master account or bring your own PBX, then configure DIDs, extensions, queues, and IVR.',
+    steps: [
+      { step: 'Choose account mode', detail: 'Toggle "Use Master Account" ON if you want to use the platform\'s shared 3CX. Toggle OFF if you bring your own PBX system.' },
+      { step: 'If using master account', detail: 'No PBX credentials needed. The platform handles all backend 3CX management. You just configure what happens with calls.' },
+      { step: 'If using own PBX', detail: 'Enter your PBX credentials (3CX tenant ID, base URL, API client ID, and secret) for your isolated system.' },
+      { step: 'Add DIDs', detail: 'Add phone numbers this organization uses. Set a label (e.g., "Reception"), and choose the default inbound route (queue/IVR/extension).' },
+      { step: 'Create extensions', detail: 'Go to "Telephony > Extensions" → add softphone extensions for staff. Each gets a number (e.g., 101, 102) and is assigned to a staff member.' },
+      { step: 'Set up call queues', detail: 'In "Telephony > Call Queues", create inbound queues (e.g., Reception, Support). Assign extensions to each queue and choose the ring strategy (ring all / hunt / round robin).' },
+      { step: 'Build IVR menu', detail: 'In "Telephony > IVR Menus", create automated attendants with digit options (e.g., press 1 for Reception, 2 for Support). Map each digit to a queue or extension.' },
+      { step: 'View call logs', detail: 'In "Telephony > Call Logs", see all inbound/outbound call history. Filter by date, caller, or extension. Track call duration and disposition.' },
+      { step: 'Manage fax', detail: 'In "Telephony > Fax Inbox", receive and manage incoming faxes. Triage, assign, and archive fax documents.' },
+    ],
+  },
+  ];
 
 const categories = [...new Set(modules.map(m => m.category))];
 
