@@ -173,9 +173,51 @@ export default function TelephonyAdmin() {
       </Card>
 
       {moduleEnabled && formSettings && (
-        <>
-          {/* Status */}
-          <Card>
+      <>
+      {/* Account Mode Toggle */}
+      <Card className="border-2 border-blue-100">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Settings className="w-4 h-4 text-blue-600" />
+            Account Mode
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-3 flex-1 p-3 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-50">
+                <input
+                  type="radio"
+                  name="account_mode"
+                  checked={formSettings.use_master_account !== false}
+                  onChange={() => setFormSettings(prev => ({ ...prev, use_master_account: true }))}
+                  className="w-4 h-4"
+                />
+                <div>
+                  <p className="font-medium text-slate-900">Use Master Account</p>
+                  <p className="text-xs text-slate-500">Platform-managed 3CX (DIDs and extensions allocated from master)</p>
+                </div>
+              </label>
+              <label className="flex items-center gap-3 flex-1 p-3 rounded-lg border border-slate-200 cursor-pointer hover:bg-slate-50">
+                <input
+                  type="radio"
+                  name="account_mode"
+                  checked={formSettings.use_master_account === false}
+                  onChange={() => setFormSettings(prev => ({ ...prev, use_master_account: false }))}
+                  className="w-4 h-4"
+                />
+                <div>
+                  <p className="font-medium text-slate-900">Use Your Own PBX</p>
+                  <p className="text-xs text-slate-500">Configure your own 3CX or other PBX system</p>
+                </div>
+              </label>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Status */}
+      <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-base flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-slate-500" />
