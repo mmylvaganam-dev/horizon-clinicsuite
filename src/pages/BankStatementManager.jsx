@@ -176,6 +176,7 @@ export default function BankStatementManager() {
           }
         }
       });
+      const extractResult = extractResponse.data || extractResponse;
 
       // Auto-detect statement month from the data
       const detectedMonth = extractResult.output.statement_period_start 
