@@ -33,7 +33,8 @@ import {
   Palette,
   Calculator,
   BarChart3,
-  Layers
+  Layers,
+  Phone
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
