@@ -26,6 +26,7 @@ const MODULE_GROUPS = {
   'Engagement': ['ENGAGE_PORTAL', 'COMMUNICATIONS'],
   'Reports': ['REPORTS', 'AI_ASSISTANT', 'GOVERNMENT_REPORTING', 'PARTNER'],
   'Wholesale': ['WHOLESALE_PHARMA'],
+  'Telephony': ['TELEPHONY'],
   'Administration': ['ADMIN', 'USER_ADMIN', 'BRANDING']
 };
 

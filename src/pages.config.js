@@ -169,6 +169,7 @@ import PlatformSecurity from './pages/PlatformSecurity';
 import PlatformSettings from './pages/PlatformSettings';
 import PlatformSetup from './pages/PlatformSetup';
 import PlatformSmsSettings from './pages/PlatformSmsSettings';
+import PlatformTelephonyConfig from './pages/PlatformTelephonyConfig';
 import PlatformUserManagement from './pages/PlatformUserManagement';
 import PremierWholesale from './pages/PremierWholesale';
 import Prescriptions from './pages/Prescriptions';
@@ -212,7 +213,6 @@ import WholesaleMarketplace from './pages/WholesaleMarketplace';
 import WholesalePlatformAdmin from './pages/WholesalePlatformAdmin';
 import WholesalePortal from './pages/WholesalePortal';
 import WholesaleProviderAdmin from './pages/WholesaleProviderAdmin';
-import PlatformTelephonyConfig from './pages/PlatformTelephonyConfig';
 import __Layout from './Layout.jsx';
 
 
@@ -339,6 +339,7 @@ export const PAGES = {
     "PlatformSettings": PlatformSettings,
     "PlatformSetup": PlatformSetup,
     "PlatformSmsSettings": PlatformSmsSettings,
+    "PlatformTelephonyConfig": PlatformTelephonyConfig,
     "PlatformUserManagement": PlatformUserManagement,
     "PremierWholesale": PremierWholesale,
     "Prescriptions": Prescriptions,
@@ -382,7 +383,6 @@ export const PAGES = {
     "WholesalePlatformAdmin": WholesalePlatformAdmin,
     "WholesalePortal": WholesalePortal,
     "WholesaleProviderAdmin": WholesaleProviderAdmin,
-    "PlatformTelephonyConfig": PlatformTelephonyConfig,
 }
 
 export const pagesConfig = {
