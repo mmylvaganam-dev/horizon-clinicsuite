@@ -3,10 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useOrganization } from '@/components/OrganizationProvider';
 import TelephonyModuleGate from '@/components/telephony/TelephonyModuleGate';
+import CallSummaryPanel from '@/components/telephony/CallSummaryPanel';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { PhoneIncoming, PhoneOutgoing, PhoneMissed, PhoneOff, Clock, PhoneCall } from 'lucide-react';
+import { PhoneIncoming, PhoneOutgoing, PhoneMissed, PhoneOff, Clock, PhoneCall, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 
 const DISPOSITION_CONFIG = {
