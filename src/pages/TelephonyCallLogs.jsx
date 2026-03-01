@@ -125,15 +125,40 @@ export default function TelephonyCallLogs() {
                       </p>
                     </div>
                   </div>
-                  <Badge className={`text-xs flex items-center gap-1 ${disp.color}`}>
-                    <DispIcon className="w-3 h-3" /> {disp.label}
-                  </Badge>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <Badge className={`text-xs flex items-center gap-1 ${disp.color}`}>
+                      <DispIcon className="w-3 h-3" /> {disp.label}
+                    </Badge>
+                    {log.ai_summary && (
+                      <Badge className="text-xs bg-teal-100 text-teal-700">
+                        <Sparkles className="w-3 h-3 mr-1" /> AI
+                      </Badge>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 px-2 text-teal-600 hover:bg-teal-50"
+                      onClick={() => setSelectedLog(log)}
+                    >
+                      <Sparkles className="w-3.5 h-3.5 mr-1" />
+                      <span className="text-xs">Summarize</span>
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             );
           })}
         </div>
       </div>
+
+      {selectedLog && (
+        <CallSummaryPanel
+          log={selectedLog}
+          open={!!selectedLog}
+          onClose={() => setSelectedLog(null)}
+          onUpdated={(updated) => setSelectedLog(updated)}
+        />
+      )}
     </TelephonyModuleGate>
   );
 }
