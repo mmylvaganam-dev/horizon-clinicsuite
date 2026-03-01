@@ -40,13 +40,42 @@ export default function PlatformTelephonyConfig() {
       const configs = await base44.entities.ConfigKey.filter({ key: 'PLATFORM_TELEPHONY_CONFIG' });
       if (configs.length > 0) {
         const config = JSON.parse(configs[0].value || '{}');
-        setFormData(prev => ({
-          ...prev,
-          ...config
-        }));
+        setFormData(prev => ({ ...prev, ...config }));
         return config;
       }
       return null;
+    },
+  });
+
+  useQuery({
+    queryKey: ['platformSIPConfig'],
+    queryFn: async () => {
+      const configs = await base44.entities.ConfigKey.filter({ key: 'PLATFORM_SIP_TRUNK_CONFIG' });
+      if (configs.length > 0) {
+        const config = JSON.parse(configs[0].value || '{}');
+        setSipData(prev => ({ ...prev, ...config }));
+        return config;
+      }
+      return null;
+    },
+  });
+
+  const saveSIPMutation = useMutation({
+    mutationFn: async (data) => {
+      const existing = await base44.entities.ConfigKey.filter({ key: 'PLATFORM_SIP_TRUNK_CONFIG' });
+      if (existing.length > 0) {
+        return base44.entities.ConfigKey.update(existing[0].id, { value: JSON.stringify(data) });
+      }
+      return base44.entities.ConfigKey.create({ key: 'PLATFORM_SIP_TRUNK_CONFIG', value: JSON.stringify(data) });
+    },
+    onSuccess: () => {
+      setSipSaveStatus({ type: 'success', message: 'SIP trunk configuration saved!' });
+      toast.success('SIP trunk config saved!');
+      setTimeout(() => setSipSaveStatus(null), 3000);
+    },
+    onError: (error) => {
+      setSipSaveStatus({ type: 'error', message: error.message });
+      toast.error('Failed: ' + error.message);
     },
   });
 
