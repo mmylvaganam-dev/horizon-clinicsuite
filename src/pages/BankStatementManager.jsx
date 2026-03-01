@@ -96,9 +96,10 @@ export default function BankStatementManager() {
   });
 
   // Fetch bank statement uploads
-  const { data: statements = [] } = useQuery({
+  const { data: statements = [], isLoading: statementsLoading } = useQuery({
     queryKey: ['bankStatements', selectedOrgId, selectedAccountId],
     queryFn: async () => {
+      if (!selectedOrgId) return [];
       const filter = { organization_id: selectedOrgId };
       if (selectedAccountId) filter.bank_account_id = selectedAccountId;
       const allStatements = await base44.entities.BankStatementUpload.filter(filter);
