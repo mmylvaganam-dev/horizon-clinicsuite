@@ -402,28 +402,47 @@ export default function FinanceCompanies() {
               </div>
 
               {/* Module Access Section */}
-              <div className="mt-4 pt-4 border-t-2 border-blue-200">
-                <h4 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
-                  <Package className="w-4 h-4 text-blue-600" />
-                  Module Access
-                </h4>
-                <div className="grid grid-cols-2 gap-2">
-                  {optionalModules.map(module => (
-                    <div key={module.module_code} className="flex items-center justify-between p-2 rounded-lg border-2 border-slate-200 bg-white">
-                      <span className="text-sm font-medium text-slate-700">{module.module_name}</span>
-                      <Switch
-                        checked={isModuleEnabledForCompany(company.id, module.module_code)}
-                        onCheckedChange={(checked) => {
-                          toggleCompanyModuleMutation.mutate({
-                            companyId: company.id,
-                            moduleCode: module.module_code,
-                            isEnabled: checked
-                          });
-                        }}
-                        disabled={company.status !== 'active'}
-                      />
-                    </div>
-                  ))}
+              <div className="mt-4 pt-4 border-t-4 border-indigo-300">
+                <div className="flex items-center gap-2 mb-3">
+                  <Package className="w-5 h-5 text-indigo-600" />
+                  <h4 className="font-bold text-slate-900 text-base">Billable Modules</h4>
+                  <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-semibold">Platform Owner</span>
+                </div>
+                {company.status !== 'active' && (
+                  <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg p-2 mb-3">
+                    ⚠️ Activate company first to enable modules
+                  </p>
+                )}
+                <div className="grid grid-cols-1 gap-2">
+                  {optionalModules.map(module => {
+                    const enabled = isModuleEnabledForCompany(company.id, module.module_code);
+                    return (
+                      <div key={module.module_code} className={`flex items-center justify-between p-3 rounded-xl border-2 transition-all ${
+                        enabled ? 'border-emerald-400 bg-emerald-50' : 'border-slate-200 bg-white'
+                      }`}>
+                        <div>
+                          <p className={`text-sm font-semibold ${enabled ? 'text-emerald-800' : 'text-slate-700'}`}>{module.module_name}</p>
+                          {module.description && (
+                            <p className="text-xs text-slate-400 mt-0.5">{module.description}</p>
+                          )}
+                        </div>
+                        <Switch
+                          checked={enabled}
+                          onCheckedChange={(checked) => {
+                            toggleCompanyModuleMutation.mutate({
+                              companyId: company.id,
+                              moduleCode: module.module_code,
+                              isEnabled: checked
+                            });
+                          }}
+                          disabled={company.status !== 'active' || toggleCompanyModuleMutation.isPending}
+                        />
+                      </div>
+                    );
+                  })}
+                  {optionalModules.length === 0 && (
+                    <p className="text-sm text-slate-400 text-center py-4">No modules available. Seed modules first.</p>
+                  )}
                 </div>
               </div>
             </Card>
