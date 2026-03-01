@@ -146,10 +146,11 @@ export default function BankStatementManager() {
     setUploading(true);
     try {
       // Upload file
-      const { data: uploadResult } = await base44.integrations.Core.UploadFile({ file });
+      const uploadResponse = await base44.integrations.Core.UploadFile({ file });
+      const uploadResult = uploadResponse.data || uploadResponse;
       
       // Extract data from file
-      const { data: extractResult } = await base44.integrations.Core.ExtractDataFromUploadedFile({
+      const extractResponse = await base44.integrations.Core.ExtractDataFromUploadedFile({
         file_url: uploadResult.file_url,
         json_schema: {
           type: "object",
