@@ -430,6 +430,9 @@ export default function TelephonyAdmin() {
             </CardContent>
           </Card>
 
+          {/* IVR Flow Builder */}
+          <IVRFlowBuilder orgId={selectedOrgId} />
+
           {/* Sri Lanka SIP Onboarding Requirements */}
           <SipRequirementsPanel
             value={formSettings.sip_requirements || {}}
