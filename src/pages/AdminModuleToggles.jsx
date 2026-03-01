@@ -160,12 +160,13 @@ export default function AdminModuleToggles() {
 
       let result;
       if (existing) {
-        result = await base44.entities.OrganizationModuleAccess.update(existing.id, data);
+        result = await base44.entities.OrganizationModuleAccess.update(existing.id, { ...data, id: existing.id });
       } else {
         result = await base44.entities.OrganizationModuleAccess.create(data);
       }
 
-      await base44.entities.AuditLog.create({
+      // Fire-and-forget audit log — don't block the mutation
+      base44.entities.AuditLog.create({
         timestamp: new Date().toISOString(),
         user_id: currentUser.id,
         user_email: currentUser.email,
@@ -177,12 +178,32 @@ export default function AdminModuleToggles() {
         record_type: 'OrganizationModuleAccess',
         record_id: result.id,
         metadata: { module_code }
-      });
+      }).catch(() => {});
       return result;
+    },
+    onMutate: async ({ module_code, enabled }) => {
+      // Optimistic update: immediately reflect the change in the UI
+      await queryClient.cancelQueries({ queryKey: ['orgModuleAccess', selectedOrg] });
+      const previous = queryClient.getQueryData(['orgModuleAccess', selectedOrg]);
+      queryClient.setQueryData(['orgModuleAccess', selectedOrg], (old = []) => {
+        const existing = old.find(a => a.module_code === module_code);
+        if (existing) {
+          return old.map(a => a.module_code === module_code ? { ...a, is_enabled: enabled } : a);
+        }
+        return [...old, { module_code, organization_id: selectedOrg, is_enabled: enabled, id: `optimistic-${module_code}` }];
+      });
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      // Rollback on error
+      if (context?.previous) {
+        queryClient.setQueryData(['orgModuleAccess', selectedOrg], context.previous);
+      }
+      toast.error('Failed to update module');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orgModuleAccess', selectedOrg] });
-      toast.success('Organization module updated');
+      toast.success('Module updated');
     },
   });
 
