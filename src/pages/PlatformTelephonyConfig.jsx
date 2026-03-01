@@ -19,7 +19,20 @@ export default function PlatformTelephonyConfig() {
     pbx_api_client_id: '',
     pbx_api_secret_ref: 'THREE_CX_API_SECRET'
   });
+  const [sipData, setSipData] = useState({
+    sip_provider: 'telnyx',
+    sip_host: '',
+    sip_username: '',
+    sip_port: '5060',
+    sip_transport: 'UDP',
+    sip_codecs: 'G.711, G.722',
+    sip_max_channels: '10',
+    sip_caller_id: '',
+    sip_registrar: '',
+    sip_outbound_proxy: '',
+  });
   const [saveStatus, setSaveStatus] = useState(null);
+  const [sipSaveStatus, setSipSaveStatus] = useState(null);
 
   const { data: platformConfig } = useQuery({
     queryKey: ['platformTelephonyConfig'],
