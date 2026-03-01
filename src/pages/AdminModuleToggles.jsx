@@ -141,9 +141,25 @@ export default function AdminModuleToggles() {
       });
       return result;
     },
+    onMutate: async ({ module_code, enabled }) => {
+      await queryClient.cancelQueries({ queryKey: ['globalAvailability'] });
+      const previous = queryClient.getQueryData(['globalAvailability']);
+      queryClient.setQueryData(['globalAvailability'], (old = []) => {
+        const existing = old.find(g => g.module_code === module_code);
+        if (existing) {
+          return old.map(g => g.module_code === module_code ? { ...g, is_globally_enabled: enabled } : g);
+        }
+        return [...old, { module_code, is_globally_enabled: enabled, id: `optimistic-${module_code}` }];
+      });
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(['globalAvailability'], context.previous);
+      toast.error('Failed to update global module');
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['globalAvailability'] });
-      toast.success('Global module availability updated');
+      toast.success('Global module updated');
     },
   });
 
