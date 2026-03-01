@@ -30,6 +30,7 @@ export default function TelephonyCallLogs() {
   const { selectedOrgId } = useOrganization();
   const [dirFilter, setDirFilter] = useState('all');
   const [dispFilter, setDispFilter] = useState('all');
+  const [selectedLog, setSelectedLog] = useState(null);
 
   const { data: logs, isLoading } = useQuery({
     queryKey: ['callLogs', selectedOrgId, dirFilter, dispFilter],
