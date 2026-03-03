@@ -588,6 +588,36 @@ export default function PharmacyDashboard() {
                 </Card>
               )}
 
+              {/* Filtered Summary Bar */}
+              <div className="bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-3 flex flex-wrap gap-6 items-center">
+                <div className="flex items-center gap-2">
+                  <ShoppingCart className="w-4 h-4 text-indigo-600" />
+                  <span className="text-sm text-indigo-700 font-medium">Filtered Sales:</span>
+                  <span className="text-sm font-bold text-indigo-900">{filteredSales.length}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-emerald-600" />
+                  <span className="text-sm text-emerald-700 font-medium">Total Amount:</span>
+                  <span className="text-sm font-bold text-emerald-900">
+                    {currency} {filteredSales.reduce((sum, s) => sum + (s.total || 0), 0).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-slate-500 font-medium">Paid:</span>
+                  <span className="text-sm font-bold text-slate-700">
+                    {currency} {filteredSales.filter(s => s.status === 'paid' || s.status === 'completed').reduce((sum, s) => sum + (s.total || 0), 0).toFixed(2)}
+                  </span>
+                </div>
+                {filteredSales.filter(s => s.status === 'refund' || s.status === 'void').length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-rose-500 font-medium">Void/Refund:</span>
+                    <span className="text-sm font-bold text-rose-700">
+                      {currency} {filteredSales.filter(s => s.status === 'refund' || s.status === 'void').reduce((sum, s) => sum + (s.total || 0), 0).toFixed(2)}
+                    </span>
+                  </div>
+                )}
+              </div>
+
               {/* Sales List */}
               <div className="border rounded-lg overflow-hidden">
                 <div className="bg-slate-50 border-b px-4 py-3">
