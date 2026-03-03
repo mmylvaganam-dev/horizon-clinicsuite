@@ -649,13 +649,30 @@ export default function Admin() {
         {/* Organization Admin Tab */}
         <TabsContent value="organization" className="space-y-6">
           <div className="bg-white border-l-4 border-teal-600 rounded-lg p-6 shadow-sm">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-teal-600 rounded-lg flex items-center justify-center">
-                <Building className="w-6 h-6 text-white" />
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-teal-600 rounded-lg flex items-center justify-center">
+                  <Building className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-900">Organization Administration</h2>
+                  <p className="text-slate-600 text-sm mt-1">Manage staff access, roles, and financial controls</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-xl font-semibold text-slate-900">Organization Administration</h2>
-                <p className="text-slate-600 text-sm mt-1">Manage staff access, roles, and financial controls</p>
+              <div className="flex gap-2 flex-wrap">
+                <Button
+                  onClick={() => navigate(createPageUrl('HelpDesk'))}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2"
+                >
+                  <Ticket className="w-4 h-4" />Help Desk
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => window.open(createPageUrl('ClientPortal'), '_blank')}
+                  className="border-indigo-300 text-indigo-700 hover:bg-indigo-50 gap-2"
+                >
+                  <ExternalLink className="w-4 h-4" />Client Portal
+                </Button>
               </div>
             </div>
           </div>
