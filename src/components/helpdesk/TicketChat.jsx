@@ -16,6 +16,7 @@ export default function TicketChat({ ticket, currentUser }) {
   const [isInternal, setIsInternal] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [attachments, setAttachments] = useState([]);
+  const [showKB, setShowKB] = useState(false);
   const bottomRef = useRef(null);
   const queryClient = useQueryClient();
 
