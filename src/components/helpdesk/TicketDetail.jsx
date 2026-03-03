@@ -8,9 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Monitor, AlertCircle, Image, ChevronLeft, Check, ExternalLink } from 'lucide-react';
+import { Monitor, AlertCircle, Image, ChevronLeft, Check, ExternalLink, BookOpen } from 'lucide-react';
 import { format } from 'date-fns';
 import TicketChat from './TicketChat';
+import CreateKBArticleDialog from './CreateKBArticleDialog';
 import toast from 'react-hot-toast';
 
 const PRIORITY_COLORS = {
