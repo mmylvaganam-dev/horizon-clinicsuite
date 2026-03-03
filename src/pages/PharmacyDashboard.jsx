@@ -445,6 +445,7 @@ export default function PharmacyDashboard() {
               <div className="w-8 h-8 mb-2 opacity-80 flex items-center justify-center font-bold text-lg">{currency}</div>
               <p className="text-sm opacity-90">Potential Profit</p>
               <p className="text-3xl font-bold mt-1">{currency} {fmt(pharmacyStock.reduce((sum, item) => sum + ((item.mrp || 0) * (item.quantity || 0)), 0) - pharmacyStock.reduce((sum, item) => sum + ((item.unit_cost || 0) * (item.quantity || 0)), 0))}</p>
+
               <p className="text-xs opacity-80 mt-1">Expected profit margin</p>
             </CardContent>
           </Card>
