@@ -30,7 +30,7 @@ export default function TicketChat({ ticket, currentUser }) {
 
   const sendMutation = useMutation({
     mutationFn: async () => {
-      await base44.entities.HelpDeskMessage.create({
+      const msg = await base44.entities.HelpDeskMessage.create({
         ticket_id: ticket.id,
         sender_email: currentUser?.email || 'anonymous',
         sender_name: currentUser?.full_name || currentUser?.email || 'User',
@@ -39,6 +39,15 @@ export default function TicketChat({ ticket, currentUser }) {
         attachment_urls: attachments,
         is_internal: isInternal
       });
+      if (!isInternal) {
+        base44.functions.invoke('helpdeskNotify', {
+          event: 'new_message',
+          ticket,
+          message: msg,
+          senderName: currentUser?.full_name || currentUser?.email
+        }).catch(() => {});
+      }
+      return msg;
     },
     onSuccess: () => {
       setMessage('');

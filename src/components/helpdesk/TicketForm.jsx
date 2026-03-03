@@ -66,6 +66,7 @@ export default function TicketForm({ organizationId, currentUser, onSuccess, onC
         message: `Ticket ${num} created by ${form.submitter_name || form.submitter_email}.`,
         is_internal: true
       });
+      base44.functions.invoke('helpdeskNotify', { event: 'ticket_created', ticket }).catch(() => {});
       toast.success(`Ticket ${num} created!`);
       onSuccess(ticket);
     } catch (err) {

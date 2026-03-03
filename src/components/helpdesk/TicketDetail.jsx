@@ -36,10 +36,17 @@ export default function TicketDetail({ ticket, currentUser, onBack, onUpdate }) 
 
   const updateMutation = useMutation({
     mutationFn: (data) => base44.entities.HelpDeskTicket.update(ticket.id, data),
-    onSuccess: (updated) => {
+    onSuccess: (updated, variables) => {
       queryClient.invalidateQueries(['helpdesk_tickets']);
       onUpdate && onUpdate(updated);
       toast.success('Ticket updated');
+      if (variables.status && variables.status !== ticket.status) {
+        base44.functions.invoke('helpdeskNotify', {
+          event: 'status_changed',
+          ticket: { ...ticket, ...variables },
+          newStatus: variables.status
+        }).catch(() => {});
+      }
     }
   });
 
