@@ -146,6 +146,8 @@ export default function HelpDesk() {
 
       {activeTab === 'kb' && <KnowledgeBase />}
 
+      {activeTab === 'agent' && <AgentQueue tickets={tickets} onSelect={setSelectedTicket} currentUser={user} />}
+
       {activeTab === 'tickets' && <>
       {/* HopToDesk Banner */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-4 text-white flex items-center justify-between">
