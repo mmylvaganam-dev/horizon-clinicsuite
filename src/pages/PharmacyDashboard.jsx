@@ -342,7 +342,7 @@ export default function PharmacyDashboard() {
               </div>
               <p className="text-sm opacity-90">Today's Sales</p>
               <p className="text-3xl font-bold mt-1">{todaySales.length} Sales</p>
-              <p className="text-lg font-semibold mt-1">{currency} {todayRevenue.toFixed(2)}</p>
+              <p className="text-lg font-semibold mt-1">{currency} {fmt(todayRevenue)}</p>
               
               {todaySales.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-white/20 space-y-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-white/30 scrollbar-track-white/10">
