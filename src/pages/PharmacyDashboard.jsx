@@ -793,7 +793,7 @@ export default function PharmacyDashboard() {
                           <span className="font-bold text-lg">{item.quantity || 0}</span>
                         </div>
                         <p className="text-xs text-slate-500 mt-1">
-                          {currency} {fmt(item.mrp)} • {item.quality_status || 'N/A'}
+                          {currency} {(item.mrp || 0).toFixed(2)} • {item.quality_status || 'N/A'}
                         </p>
                       </Card>
                     ))}
@@ -1055,8 +1055,8 @@ export default function PharmacyDashboard() {
                         <div className="flex-1">
                           <p className="font-medium">{displayName}</p>
                           <p className="text-sm text-slate-500">Qty: {item.qty} × {currency} {fmt(item.unit_price)}</p>
-                          </div>
-                          <p className="font-bold">{currency} {fmt(item.line_total)}</p>
+                        </div>
+                        <p className="font-bold">{currency} {fmt(item.line_total)}</p>
                       </div>
                     );
                   })
