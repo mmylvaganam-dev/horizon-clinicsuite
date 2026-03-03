@@ -1055,8 +1055,8 @@ export default function PharmacyDashboard() {
                         <div className="flex-1">
                           <p className="font-medium">{displayName}</p>
                           <p className="text-sm text-slate-500">Qty: {item.qty} × {currency} {fmt(item.unit_price)}</p>
-                        </div>
-                        <p className="font-bold">{currency} {fmt(item.line_total)}</p>
+                          </div>
+                          <p className="font-bold">{currency} {fmt(item.line_total)}</p>
                       </div>
                     );
                   })
