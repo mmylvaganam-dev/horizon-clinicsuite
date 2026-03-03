@@ -7,17 +7,22 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Search, BookOpen, Eye, Ticket, Plus, Archive, Pencil } from 'lucide-react';
+import { Search, BookOpen, Eye, Ticket, Plus, Archive, Pencil, Share2, Zap, Sparkles, Copy, CheckCircle2 } from 'lucide-react';
 import { format } from 'date-fns';
 import CreateKBArticleDialog from './CreateKBArticleDialog';
 import toast from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
+import { RefreshCw } from 'lucide-react';
 
 export default function KnowledgeBase() {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [viewArticle, setViewArticle] = useState(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [shareLink, setShareLink] = useState(null);
+  const [showAiQA, setShowAiQA] = useState(false);
+  const [showAutoGen, setShowAutoGen] = useState(false);
+  const [autogenLoading, setAutogenLoading] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: articles = [], isLoading } = useQuery({
@@ -38,6 +43,25 @@ export default function KnowledgeBase() {
     setViewArticle(article);
   };
 
+  const handleShareLink = (article) => {
+    const url = `${window.location.origin}/kb/${article.id}`;
+    setShareLink(url);
+    navigator.clipboard.writeText(url).then(() => toast.success('Link copied!'));
+  };
+
+  const handleAutoGen = async () => {
+    setAutogenLoading(true);
+    try {
+      const result = await base44.functions.invoke('autoGenerateKBFromModules');
+      toast.success(`Generated ${result.data.count} KB articles from modules`);
+      queryClient.invalidateQueries(['kb_articles']);
+      setShowAutoGen(false);
+    } catch (error) {
+      toast.error('Failed to auto-generate KB articles');
+    }
+    setAutogenLoading(false);
+  };
+
   const filtered = articles.filter(a => {
     const matchSearch = !search ||
       a.title?.toLowerCase().includes(search.toLowerCase()) ||
@@ -52,15 +76,33 @@ export default function KnowledgeBase() {
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-2">
           <BookOpen className="w-5 h-5 text-teal-600" />
           <h2 className="text-lg font-bold text-slate-900">Knowledge Base</h2>
           <Badge className="bg-teal-100 text-teal-700">{published.length} articles</Badge>
         </div>
-        <Button className="bg-teal-600 hover:bg-teal-700" onClick={() => setShowCreate(true)}>
-          <Plus className="w-4 h-4 mr-2" />New Article
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="border-indigo-300 text-indigo-700 hover:bg-indigo-50 gap-1"
+            onClick={() => setShowAutoGen(true)}
+          >
+            <Sparkles className="w-4 h-4" />Auto-Gen from Modules
+          </Button>
+          <Button 
+            variant="outline"
+            size="sm"
+            className="border-purple-300 text-purple-700 hover:bg-purple-50 gap-1"
+            onClick={() => setShowAiQA(true)}
+          >
+            <Zap className="w-4 h-4" />Ask AI
+          </Button>
+          <Button className="bg-teal-600 hover:bg-teal-700" onClick={() => setShowCreate(true)}>
+            <Plus className="w-4 h-4 mr-2" />New Article
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
@@ -124,6 +166,9 @@ export default function KnowledgeBase() {
                     <Button size="sm" variant="outline" onClick={() => incrementView(article)}>
                       <Eye className="w-3 h-3 mr-1" />View
                     </Button>
+                    <Button size="sm" variant="ghost" className="text-slate-400 hover:text-teal-600" onClick={() => handleShareLink(article)}>
+                      <Share2 className="w-3 h-3" />
+                    </Button>
                     <Button size="sm" variant="ghost" className="text-slate-400 hover:text-red-500" onClick={() => archiveMutation.mutate(article.id)}>
                       <Archive className="w-3 h-3" />
                     </Button>
@@ -168,6 +213,165 @@ export default function KnowledgeBase() {
         onClose={() => setShowCreate(false)}
         ticket={null}
       />
+
+      {/* Share Link Dialog */}
+      <Dialog open={!!shareLink} onOpenChange={() => setShareLink(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Share2 className="w-5 h-5 text-teal-600" />
+              Shareable Link
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <p className="text-sm text-slate-600">Share this link with your team:</p>
+            <div className="flex gap-2 bg-slate-50 p-3 rounded-lg border">
+              <input type="text" value={shareLink} readOnly className="flex-1 bg-transparent text-xs font-mono text-slate-700 outline-none" />
+              <Button size="sm" variant="ghost" onClick={() => {
+                navigator.clipboard.writeText(shareLink);
+                toast.success('Copied!');
+              }}>
+                <Copy className="w-4 h-4" />
+              </Button>
+            </div>
+            <Button className="w-full bg-teal-600 hover:bg-teal-700" onClick={() => setShareLink(null)}>
+              Done
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Auto-Generate Dialog */}
+      <Dialog open={showAutoGen} onOpenChange={setShowAutoGen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-indigo-600" />
+              Auto-Generate KB from Modules
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-4">
+            <p className="text-sm text-slate-600">
+              This will create Knowledge Base articles from all active system modules and their descriptions.
+            </p>
+            <p className="text-xs text-slate-500 bg-slate-50 p-2 rounded">
+              Existing articles will not be duplicated. Only new modules without KB articles will be added.
+            </p>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setShowAutoGen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                className="flex-1 bg-indigo-600 hover:bg-indigo-700" 
+                onClick={handleAutoGen}
+                disabled={autogenLoading}
+              >
+                {autogenLoading ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate Now
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* AI Q&A Dialog */}
+      <Dialog open={showAiQA} onOpenChange={setShowAiQA}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-purple-600" />
+              Ask the Support AI
+            </DialogTitle>
+          </DialogHeader>
+          <AIQAPanel articles={articles} onClose={() => setShowAiQA(false)} />
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function AIQAPanel({ articles, onClose }) {
+  const [query, setQuery] = useState('');
+  const [answer, setAnswer] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleAsk = async () => {
+    if (!query.trim()) return;
+    setLoading(true);
+    try {
+      const kbContext = articles
+        .filter(a => a.status === 'published')
+        .map(a => `[${a.title}] ${a.content}`)
+        .join('\n\n');
+      
+      const result = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are a helpful support AI assistant. Use the following Knowledge Base articles to answer the question. If the KB doesn't have the answer, provide general helpful guidance.\n\nKB Articles:\n${kbContext}\n\nQuestion: ${query}`,
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            answer: { type: 'string' },
+            sources: { type: 'array', items: { type: 'string' } }
+          }
+        }
+      });
+      setAnswer(result);
+    } catch (error) {
+      toast.error('Failed to get answer');
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-slate-700">Ask a question:</label>
+        <textarea 
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          placeholder="e.g., How do I reset a user password? What are the new modules?"
+          className="w-full h-24 p-3 border border-slate-200 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
+        />
+      </div>
+      <Button 
+        className="w-full bg-purple-600 hover:bg-purple-700"
+        onClick={handleAsk}
+        disabled={loading || !query.trim()}
+      >
+        {loading ? (
+          <>
+            <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+            Searching KB...
+          </>
+        ) : (
+          <>
+            <Zap className="w-4 h-4 mr-2" />
+            Get Answer
+          </>
+        )}
+      </Button>
+
+      {answer && (
+        <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-2">
+          <p className="text-sm text-slate-700 whitespace-pre-wrap">{answer.answer}</p>
+          {answer.sources?.length > 0 && (
+            <div className="text-xs text-slate-500 pt-2 border-t">
+              <p className="font-medium mb-1">Related KB articles:</p>
+              <ul className="space-y-0.5">
+                {answer.sources.map((src, i) => <li key={i}>• {src}</li>)}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
