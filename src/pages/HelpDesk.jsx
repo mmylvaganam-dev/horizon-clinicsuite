@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   Ticket, Plus, Search, Monitor, AlertCircle, CheckCircle2,
-  Clock, Users, ExternalLink, Download, RefreshCw, BookOpen
+  Clock, Users, ExternalLink, RefreshCw, BookOpen, UserCheck,
+  Filter, LayoutList, Kanban
 } from 'lucide-react';
 import { format } from 'date-fns';
 import TicketForm from '../components/helpdesk/TicketForm';
