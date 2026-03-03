@@ -35,7 +35,6 @@ import {
   Phone,
   Ticket
 } from 'lucide-react';
-} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
