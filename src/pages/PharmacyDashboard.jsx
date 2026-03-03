@@ -602,20 +602,20 @@ export default function PharmacyDashboard() {
                   <TrendingUp className="w-4 h-4 text-emerald-600" />
                   <span className="text-sm text-emerald-700 font-medium">Total Amount:</span>
                   <span className="text-sm font-bold text-emerald-900">
-                    {currency} {filteredSales.reduce((sum, s) => sum + (s.total || 0), 0).toFixed(2)}
+                    {currency} {fmt(filteredSales.reduce((sum, s) => sum + (s.total || 0), 0))}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-slate-500 font-medium">Paid:</span>
                   <span className="text-sm font-bold text-slate-700">
-                    {currency} {filteredSales.filter(s => s.status === 'paid' || s.status === 'completed').reduce((sum, s) => sum + (s.total || 0), 0).toFixed(2)}
+                    {currency} {fmt(filteredSales.filter(s => s.status === 'paid' || s.status === 'completed').reduce((sum, s) => sum + (s.total || 0), 0))}
                   </span>
                 </div>
                 {filteredSales.filter(s => s.status === 'refund' || s.status === 'void').length > 0 && (
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-rose-500 font-medium">Void/Refund:</span>
                     <span className="text-sm font-bold text-rose-700">
-                      {currency} {filteredSales.filter(s => s.status === 'refund' || s.status === 'void').reduce((sum, s) => sum + (s.total || 0), 0).toFixed(2)}
+                      {currency} {fmt(filteredSales.filter(s => s.status === 'refund' || s.status === 'void').reduce((sum, s) => sum + (s.total || 0), 0))}
                     </span>
                   </div>
                 )}
