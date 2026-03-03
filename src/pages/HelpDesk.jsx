@@ -115,6 +115,24 @@ export default function HelpDesk() {
         </div>
       </div>
 
+      {/* Tabs */}
+      <div className="flex border-b gap-4">
+        <button
+          onClick={() => setActiveTab('tickets')}
+          className={`pb-2 px-1 text-sm font-medium flex items-center gap-1.5 border-b-2 transition-colors ${activeTab === 'tickets' ? 'border-teal-600 text-teal-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+        >
+          <Ticket className="w-4 h-4" />Tickets
+        </button>
+        <button
+          onClick={() => setActiveTab('kb')}
+          className={`pb-2 px-1 text-sm font-medium flex items-center gap-1.5 border-b-2 transition-colors ${activeTab === 'kb' ? 'border-teal-600 text-teal-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+        >
+          <BookOpen className="w-4 h-4" />Knowledge Base
+        </button>
+      </div>
+
+      {activeTab === 'kb' && <KnowledgeBase />}
+
       {/* HopToDesk Banner */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-4 text-white flex items-center justify-between">
         <div className="flex items-center gap-4">
