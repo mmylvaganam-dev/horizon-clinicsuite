@@ -1055,8 +1055,8 @@ export default function PharmacyDashboard() {
                         <div className="flex-1">
                           <p className="font-medium">{displayName}</p>
                           <p className="text-sm text-slate-500">Qty: {item.qty} × {currency} {fmt(item.unit_price)}</p>
-                          </div>
-                          <p className="font-bold">{currency} {fmt(item.line_total)}</p>
+                        </div>
+                        <p className="font-bold">{currency} {fmt(item.line_total)}</p>
                       </div>
                     );
                   })
@@ -1069,15 +1069,15 @@ export default function PharmacyDashboard() {
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Subtotal:</span>
-                  <span className="font-semibold">{currency} {selectedSale.subtotal?.toFixed(2)}</span>
+                  <span className="font-semibold">{currency} {fmt(selectedSale.subtotal)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Tax:</span>
-                  <span className="font-semibold">{currency} {selectedSale.tax_total?.toFixed(2)}</span>
+                  <span className="font-semibold">{currency} {fmt(selectedSale.tax_total)}</span>
                 </div>
                 <div className="flex justify-between text-lg font-bold pt-2 border-t">
                   <span>Total:</span>
-                  <span className="text-indigo-600">{currency} {selectedSale.total?.toFixed(2)}</span>
+                  <span className="text-indigo-600">{currency} {fmt(selectedSale.total)}</span>
                 </div>
               </div>
 
