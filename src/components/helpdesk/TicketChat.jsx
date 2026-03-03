@@ -121,6 +121,19 @@ export default function TicketChat({ ticket, currentUser }) {
         <div ref={bottomRef} />
       </div>
 
+      {/* KB Search Panel */}
+      {showKB && (
+        <div className="border-t px-3 pt-3 bg-slate-50">
+          <KBArticleSearch
+            onInsertLink={(article) => {
+              setMessage(m => m + (m ? '\n' : '') + `📖 KB Article: ${article.title}\n${window.location.origin}/#kb-${article.id}`);
+              setShowKB(false);
+            }}
+            onClose={() => setShowKB(false)}
+          />
+        </div>
+      )}
+
       {/* Composer */}
       <div className="border-t p-3 bg-slate-50 space-y-2">
         {attachments.length > 0 && (
