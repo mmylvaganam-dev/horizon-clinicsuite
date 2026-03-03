@@ -11,11 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   Ticket, Plus, Search, Monitor, AlertCircle, CheckCircle2,
-  Clock, Users, ExternalLink, Download, RefreshCw
+  Clock, Users, ExternalLink, Download, RefreshCw, BookOpen
 } from 'lucide-react';
 import { format } from 'date-fns';
 import TicketForm from '../components/helpdesk/TicketForm';
 import TicketDetail from '../components/helpdesk/TicketDetail';
+import KnowledgeBase from '../components/helpdesk/KnowledgeBase';
 
 const PRIORITY_COLORS = {
   low: 'bg-green-100 text-green-700',
