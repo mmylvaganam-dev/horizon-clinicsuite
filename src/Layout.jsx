@@ -355,6 +355,13 @@ function LayoutContent({ children, currentPageName }) {
       ]
     },
     {
+      category: 'Help Desk',
+      icon: Ticket,
+      items: [
+        { name: 'Help Desk', page: 'HelpDesk', icon: Ticket, description: 'Support tickets, remote sessions via HopToDesk, live chat, and screenshot uploads for IT support' },
+      ]
+    },
+    {
       category: 'Telemedicine',
       icon: Video,
       items: [
