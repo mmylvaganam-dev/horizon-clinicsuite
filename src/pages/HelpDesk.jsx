@@ -123,7 +123,18 @@ export default function HelpDesk() {
           onClick={() => setActiveTab('tickets')}
           className={`pb-2 px-1 text-sm font-medium flex items-center gap-1.5 border-b-2 transition-colors ${activeTab === 'tickets' ? 'border-teal-600 text-teal-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
         >
-          <Ticket className="w-4 h-4" />Tickets
+          <LayoutList className="w-4 h-4" />All Tickets
+        </button>
+        <button
+          onClick={() => setActiveTab('agent')}
+          className={`pb-2 px-1 text-sm font-medium flex items-center gap-1.5 border-b-2 transition-colors ${activeTab === 'agent' ? 'border-teal-600 text-teal-700' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+        >
+          <UserCheck className="w-4 h-4" />Agent Queue
+          {tickets.filter(t => t.status !== 'closed' && t.status !== 'resolved').length > 0 && (
+            <span className="ml-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 leading-none">
+              {tickets.filter(t => t.status !== 'closed' && t.status !== 'resolved').length}
+            </span>
+          )}
         </button>
         <button
           onClick={() => setActiveTab('kb')}
