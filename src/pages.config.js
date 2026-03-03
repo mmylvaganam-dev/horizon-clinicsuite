@@ -91,6 +91,7 @@ import BankStatementManager from './pages/BankStatementManager';
 import BarcodeSetup from './pages/BarcodeSetup';
 import Billing from './pages/Billing';
 import BlockedUsers from './pages/BlockedUsers';
+import ClientPortal from './pages/ClientPortal';
 import Communications from './pages/Communications';
 import CompanyHierarchy from './pages/CompanyHierarchy';
 import CompanyModuleManagement from './pages/CompanyModuleManagement';
@@ -215,7 +216,6 @@ import WholesaleMarketplace from './pages/WholesaleMarketplace';
 import WholesalePlatformAdmin from './pages/WholesalePlatformAdmin';
 import WholesalePortal from './pages/WholesalePortal';
 import WholesaleProviderAdmin from './pages/WholesaleProviderAdmin';
-import ClientPortal from './pages/ClientPortal';
 import __Layout from './Layout.jsx';
 
 
@@ -264,6 +264,7 @@ export const PAGES = {
     "BarcodeSetup": BarcodeSetup,
     "Billing": Billing,
     "BlockedUsers": BlockedUsers,
+    "ClientPortal": ClientPortal,
     "Communications": Communications,
     "CompanyHierarchy": CompanyHierarchy,
     "CompanyModuleManagement": CompanyModuleManagement,
@@ -388,7 +389,6 @@ export const PAGES = {
     "WholesalePlatformAdmin": WholesalePlatformAdmin,
     "WholesalePortal": WholesalePortal,
     "WholesaleProviderAdmin": WholesaleProviderAdmin,
-    "ClientPortal": ClientPortal,
 }
 
 export const pagesConfig = {

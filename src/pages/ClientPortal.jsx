@@ -332,12 +332,25 @@ function TicketList({ identity, onNewTicket }) {
 }
 
 export default function ClientPortal() {
-  const [identity, setIdentity] = useState(null);
+  const [identity, setIdentity] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('client_portal_identity')); } catch { return null; }
+  });
   const [view, setView] = useState('list'); // 'list' | 'new' | 'success'
   const [lastTicket, setLastTicket] = useState(null);
 
+  const handleConfirmIdentity = (id) => {
+    localStorage.setItem('client_portal_identity', JSON.stringify(id));
+    setIdentity(id);
+  };
+
+  const handleSwitchAccount = () => {
+    localStorage.removeItem('client_portal_identity');
+    setIdentity(null);
+    setView('list');
+  };
+
   if (!identity) {
-    return <IdentityStep onConfirm={setIdentity} />;
+    return <IdentityStep onConfirm={handleConfirmIdentity} />;
   }
 
   return (
