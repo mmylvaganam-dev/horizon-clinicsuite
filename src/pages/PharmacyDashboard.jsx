@@ -931,7 +931,7 @@ export default function PharmacyDashboard() {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-600">Revenue:</span>
-                        <span className="font-bold text-emerald-600">{currency} {todayRevenue.toFixed(2)}</span>
+                        <span className="font-bold text-emerald-600">{currency} {fmt(todayRevenue)}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-slate-600">Void/Return:</span>
