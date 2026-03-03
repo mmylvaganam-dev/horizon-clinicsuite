@@ -838,7 +838,7 @@ export default function PharmacyDashboard() {
                     <CardContent className="p-4">
                       <p className="text-sm text-amber-600 mb-1">Refund Amount</p>
                       <p className="text-2xl font-bold text-amber-700">
-                        {currency} {sales.filter(s => s.status === 'refund').reduce((sum, s) => sum + (s.total || 0), 0).toFixed(2)}
+                        {currency} {fmt(sales.filter(s => s.status === 'refund').reduce((sum, s) => sum + (s.total || 0), 0))}
                       </p>
                     </CardContent>
                   </Card>
