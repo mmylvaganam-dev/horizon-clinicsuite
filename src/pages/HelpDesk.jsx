@@ -18,6 +18,7 @@ import { format } from 'date-fns';
 import TicketForm from '../components/helpdesk/TicketForm';
 import TicketDetail from '../components/helpdesk/TicketDetail';
 import KnowledgeBase from '../components/helpdesk/KnowledgeBase';
+import AgentQueue from '../components/helpdesk/AgentQueue';
 
 const PRIORITY_COLORS = {
   low: 'bg-green-100 text-green-700',
