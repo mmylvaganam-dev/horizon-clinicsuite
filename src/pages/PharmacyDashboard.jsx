@@ -979,7 +979,7 @@ export default function PharmacyDashboard() {
                 <div className="space-y-1 text-sm">
                   <p><strong>Receipt:</strong> {getReceiptNumber(saleToDelete)}</p>
                   <p><strong>Customer:</strong> {getPatientName(saleToDelete.patient_ref)}</p>
-                  <p><strong>Amount:</strong> {currency} {saleToDelete.total?.toFixed(2)}</p>
+                  <p><strong>Amount:</strong> {currency} {fmt(saleToDelete.total)}</p>
                   <p><strong>Date:</strong> {format(new Date(saleToDelete.sale_date), 'PPP')}</p>
                 </div>
               </div>
