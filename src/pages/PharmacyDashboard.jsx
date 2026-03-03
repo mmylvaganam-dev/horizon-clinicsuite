@@ -1054,9 +1054,9 @@ export default function PharmacyDashboard() {
                       <div key={idx} className="flex justify-between items-center py-2 border-b">
                         <div className="flex-1">
                           <p className="font-medium">{displayName}</p>
-                          <p className="text-sm text-slate-500">Qty: {item.qty} × {currency} {item.unit_price?.toFixed(2)}</p>
+                          <p className="text-sm text-slate-500">Qty: {item.qty} × {currency} {fmt(item.unit_price)}</p>
                         </div>
-                        <p className="font-bold">{currency} {item.line_total?.toFixed(2)}</p>
+                        <p className="font-bold">{currency} {fmt(item.line_total)}</p>
                       </div>
                     );
                   })
