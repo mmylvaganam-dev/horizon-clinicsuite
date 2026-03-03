@@ -34,7 +34,9 @@ import {
   Calculator,
   BarChart3,
   Layers,
-  Phone
+  Phone,
+  Ticket,
+  ExternalLink
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
