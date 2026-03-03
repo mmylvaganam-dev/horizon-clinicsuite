@@ -915,7 +915,7 @@ export default function PharmacyDashboard() {
                         sales.filter(s => s.status === 'void').slice(0, 5).map(sale => (
                           <div key={sale.id} className="flex justify-between text-sm pb-2 border-b">
                             <span className="text-slate-700">{getReceiptNumber(sale)}</span>
-                            <span className="font-semibold">{currency} {sale.total?.toFixed(2)}</span>
+                            <span className="font-semibold">{currency} {fmt(sale.total)}</span>
                           </div>
                         ))
                       )}
