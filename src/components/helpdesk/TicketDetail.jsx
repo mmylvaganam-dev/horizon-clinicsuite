@@ -33,6 +33,7 @@ export default function TicketDetail({ ticket, currentUser, onBack, onUpdate }) 
   const [status, setStatus] = useState(ticket.status);
   const [assignedTo, setAssignedTo] = useState(ticket.assigned_to || '');
   const [resolutionNotes, setResolutionNotes] = useState(ticket.resolution_notes || '');
+  const [showKBDialog, setShowKBDialog] = useState(false);
   const queryClient = useQueryClient();
 
   const updateMutation = useMutation({
