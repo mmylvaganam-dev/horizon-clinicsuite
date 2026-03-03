@@ -182,6 +182,7 @@ export default function PharmacyDashboard() {
   });
 
   const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total || 0), 0);
+
   
   const lowStockCount = pharmacyStock.filter(item => 
     item.quantity <= 10 && item.quality_status === 'usable'
