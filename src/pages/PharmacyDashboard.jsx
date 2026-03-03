@@ -446,7 +446,6 @@ export default function PharmacyDashboard() {
               <p className="text-sm opacity-90">Potential Profit</p>
               <p className="text-3xl font-bold mt-1">{currency} {fmt(pharmacyStock.reduce((sum, item) => sum + ((item.mrp || 0) * (item.quantity || 0)), 0) - pharmacyStock.reduce((sum, item) => sum + ((item.unit_cost || 0) * (item.quantity || 0)), 0))}</p>
               <p className="text-xs opacity-80 mt-1">Expected profit margin</p>
-
             </CardContent>
           </Card>
         </div>
@@ -794,7 +793,7 @@ export default function PharmacyDashboard() {
                           <span className="font-bold text-lg">{item.quantity || 0}</span>
                         </div>
                         <p className="text-xs text-slate-500 mt-1">
-                          {currency} {(item.mrp || 0).toFixed(2)} • {item.quality_status || 'N/A'}
+                          {currency} {fmt(item.mrp)} • {item.quality_status || 'N/A'}
                         </p>
                       </Card>
                     ))}
@@ -1056,8 +1055,8 @@ export default function PharmacyDashboard() {
                         <div className="flex-1">
                           <p className="font-medium">{displayName}</p>
                           <p className="text-sm text-slate-500">Qty: {item.qty} × {currency} {fmt(item.unit_price)}</p>
-                        </div>
-                        <p className="font-bold">{currency} {fmt(item.line_total)}</p>
+                          </div>
+                          <p className="font-bold">{currency} {fmt(item.line_total)}</p>
                       </div>
                     );
                   })
