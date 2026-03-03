@@ -664,7 +664,7 @@ export default function PharmacyDashboard() {
                           </div>
                           <div className="col-span-2">
                             <p className="text-lg font-bold text-slate-900">
-                              {currency} {sale.total?.toFixed(2)}
+                              {currency} {fmt(sale.total)}
                             </p>
                           </div>
                           <div className="col-span-1">
