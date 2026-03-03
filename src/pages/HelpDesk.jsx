@@ -133,6 +133,7 @@ export default function HelpDesk() {
 
       {activeTab === 'kb' && <KnowledgeBase />}
 
+      {activeTab === 'kb' ? null : <>
       {/* HopToDesk Banner */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-xl p-4 text-white flex items-center justify-between">
         <div className="flex items-center gap-4">
