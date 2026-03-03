@@ -149,6 +149,16 @@ export default function TicketChat({ ticket, currentUser }) {
                 <span className="cursor-pointer"><Upload className="w-4 h-4" /></span>
               </Button>
             </label>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowKB(v => !v)}
+              title="Search Knowledge Base"
+              className={showKB ? 'text-teal-600 bg-teal-50' : ''}
+            >
+              <BookOpen className="w-4 h-4" />
+            </Button>
             <div className="flex items-center gap-1.5">
               <Switch id="internal" checked={isInternal} onCheckedChange={setIsInternal} />
               <Label htmlFor="internal" className="text-xs text-amber-600 cursor-pointer">Internal note</Label>
