@@ -491,6 +491,19 @@ export default function Admin() {
       ]
     },
     {
+      category: 'Reports',
+      description: 'Generate and export business reports',
+      icon: BarChart3,
+      color: 'from-violet-500 to-violet-600',
+      bgLight: 'bg-violet-50',
+      border: 'border-violet-200',
+      iconBg: 'bg-violet-600',
+      textColor: 'text-violet-700',
+      modules: [
+        { title: 'Reports Dashboard', description: 'Sales, inventory, user activity & financial reports with CSV/PDF export', icon: BarChart3, page: 'AdminReports' },
+      ]
+    },
+    {
       category: 'System Operations',
       description: 'Monitoring, backups, and maintenance',
       icon: Activity,
