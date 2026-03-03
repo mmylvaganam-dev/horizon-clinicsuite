@@ -201,6 +201,15 @@ export default function TicketDetail({ ticket, currentUser, onBack, onUpdate }) 
                   Mark as Resolved
                 </Button>
               )}
+              {(status === 'resolved' || status === 'closed') && (
+                <Button
+                  variant="outline"
+                  className="w-full border-teal-500 text-teal-700 hover:bg-teal-50"
+                  onClick={() => setShowKBDialog(true)}
+                >
+                  <BookOpen className="w-4 h-4 mr-2" />Create KB Article
+                </Button>
+              )}
             </CardContent>
           </Card>
 
