@@ -32,8 +32,9 @@ import {
   Cloud,
   Monitor,
   Video,
-  Phone,
-  Ticket
+  Phone
+} from 'lucide-react';
+import { Ticket } from 'lucide-react';
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
