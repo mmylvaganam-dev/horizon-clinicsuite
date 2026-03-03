@@ -136,6 +136,8 @@ export default function PharmacyDashboard() {
 
   const currency = companies && companies.length > 0 ? (companies[0]?.base_currency || 'LKR') : 'LKR';
 
+  const fmt = (amount) => (amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
   const getPatientName = (patientRef) => {
     if (!patientRef) return 'Walk-in Customer';
     const patient = patients.find(p => p.id === patientRef);
