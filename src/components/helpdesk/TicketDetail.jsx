@@ -228,6 +228,11 @@ export default function TicketDetail({ ticket, currentUser, onBack, onUpdate }) 
           </Card>
         </div>
       </div>
+      <CreateKBArticleDialog
+        open={showKBDialog}
+        onClose={() => setShowKBDialog(false)}
+        ticket={{ ...ticket, resolution_notes: resolutionNotes, status }}
+      />
     </div>
   );
 }
