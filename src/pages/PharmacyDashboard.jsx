@@ -352,7 +352,7 @@ export default function PharmacyDashboard() {
                       <div key={sale.id} className="text-xs bg-white/10 rounded p-2 hover:bg-white/20 transition-colors">
                         <div className="flex justify-between items-start mb-1">
                           <span className="font-semibold">{getPatientName(sale.patient_ref)}</span>
-                          <span className="font-bold">{currency} {sale.total?.toFixed(2)}</span>
+                          <span className="font-bold">{currency} {fmt(sale.total)}</span>
                         </div>
                         <div className="flex justify-between items-center text-white/80">
                           <span>{items.length} items • {format(new Date(sale.sale_date), 'hh:mm a')}</span>
