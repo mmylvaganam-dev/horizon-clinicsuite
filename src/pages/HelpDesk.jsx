@@ -266,7 +266,7 @@ export default function HelpDesk() {
         </div>
       </Card>
 
-      </> }
+      </>}
 
       {/* New Ticket Dialog */}
       <Dialog open={showNewTicket} onOpenChange={setShowNewTicket}>
