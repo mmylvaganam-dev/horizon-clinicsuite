@@ -40,6 +40,7 @@ export default function HelpDesk() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [priorityFilter, setPriorityFilter] = useState('all');
+  const [activeTab, setActiveTab] = useState('tickets');
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
