@@ -867,7 +867,7 @@ export default function PharmacyDashboard() {
                             <p className="text-sm text-slate-500">{getPatientName(sale.patient_ref)} • {format(new Date(sale.sale_date), 'dd MMM, yyyy')}</p>
                           </div>
                           <div className="text-right">
-                            <p className="font-bold text-rose-600">{currency} {sale.total?.toFixed(2)}</p>
+                            <p className="font-bold text-rose-600">{currency} {fmt(sale.total)}</p>
                           </div>
                         </div>
                       </Card>
