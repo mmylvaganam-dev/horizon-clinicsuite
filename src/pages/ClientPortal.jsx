@@ -372,7 +372,7 @@ export default function ClientPortal() {
               variant="ghost"
               size="sm"
               className="text-xs text-slate-500"
-              onClick={() => { setIdentity(null); setView('list'); }}
+              onClick={handleSwitchAccount}
             >
               Switch Account
             </Button>
