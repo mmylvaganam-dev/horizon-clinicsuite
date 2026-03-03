@@ -72,6 +72,7 @@ import AdminPatientPortal from './pages/AdminPatientPortal';
 import AdminPermissionMatrix from './pages/AdminPermissionMatrix';
 import AdminPermissions from './pages/AdminPermissions';
 import AdminPostingRules from './pages/AdminPostingRules';
+import AdminReports from './pages/AdminReports';
 import AdminRetentionPolicies from './pages/AdminRetentionPolicies';
 import AdminRolePermissions from './pages/AdminRolePermissions';
 import AdminRoleStandards from './pages/AdminRoleStandards';
@@ -159,6 +160,7 @@ import PharmacyStockTaking from './pages/PharmacyStockTaking';
 import PharmacyWorkQueue from './pages/PharmacyWorkQueue';
 import PharmacyWorkspace from './pages/PharmacyWorkspace';
 import PhysicianWorkspace from './pages/PhysicianWorkspace';
+import Reports from './pages/Reports';
 import PlatformBackupSettings from './pages/PlatformBackupSettings';
 import PlatformBilling from './pages/PlatformBilling';
 import PlatformConfiguration from './pages/PlatformConfiguration';
@@ -179,7 +181,6 @@ import ProviderDashboard from './pages/ProviderDashboard';
 import QueueDisplay from './pages/QueueDisplay';
 import QueueManagement from './pages/QueueManagement';
 import ReleaseQueue from './pages/ReleaseQueue';
-import Reports from './pages/Reports';
 import SOAPNotes from './pages/SOAPNotes';
 import SaleDeletionRequests from './pages/SaleDeletionRequests';
 import SalesAnalytics from './pages/SalesAnalytics';
@@ -213,7 +214,7 @@ import WholesaleMarketplace from './pages/WholesaleMarketplace';
 import WholesalePlatformAdmin from './pages/WholesalePlatformAdmin';
 import WholesalePortal from './pages/WholesalePortal';
 import WholesaleProviderAdmin from './pages/WholesaleProviderAdmin';
-import AdminReports from './pages/AdminReports';
+import HelpDesk from './pages/HelpDesk';
 import __Layout from './Layout.jsx';
 
 
@@ -243,6 +244,7 @@ export const PAGES = {
     "AdminPermissionMatrix": AdminPermissionMatrix,
     "AdminPermissions": AdminPermissions,
     "AdminPostingRules": AdminPostingRules,
+    "AdminReports": AdminReports,
     "AdminRetentionPolicies": AdminRetentionPolicies,
     "AdminRolePermissions": AdminRolePermissions,
     "AdminRoleStandards": AdminRoleStandards,
@@ -330,6 +332,7 @@ export const PAGES = {
     "PharmacyWorkQueue": PharmacyWorkQueue,
     "PharmacyWorkspace": PharmacyWorkspace,
     "PhysicianWorkspace": PhysicianWorkspace,
+    "Reports": Reports,
     "PlatformBackupSettings": PlatformBackupSettings,
     "PlatformBilling": PlatformBilling,
     "PlatformConfiguration": PlatformConfiguration,
@@ -350,7 +353,6 @@ export const PAGES = {
     "QueueDisplay": QueueDisplay,
     "QueueManagement": QueueManagement,
     "ReleaseQueue": ReleaseQueue,
-    "Reports": Reports,
     "SOAPNotes": SOAPNotes,
     "SaleDeletionRequests": SaleDeletionRequests,
     "SalesAnalytics": SalesAnalytics,
@@ -384,7 +386,7 @@ export const PAGES = {
     "WholesalePlatformAdmin": WholesalePlatformAdmin,
     "WholesalePortal": WholesalePortal,
     "WholesaleProviderAdmin": WholesaleProviderAdmin,
-    "AdminReports": AdminReports,
+    "HelpDesk": HelpDesk,
 }
 
 export const pagesConfig = {
