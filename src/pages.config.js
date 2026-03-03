@@ -113,6 +113,7 @@ import FinanceLedger from './pages/FinanceLedger';
 import FrontDeskWorkspace from './pages/FrontDeskWorkspace';
 import GovernmentReporting from './pages/GovernmentReporting';
 import HRDashboard from './pages/HRDashboard';
+import HelpDesk from './pages/HelpDesk';
 import Home from './pages/Home';
 import HomeCareBatchManagement from './pages/HomeCareBatchManagement';
 import HomeCareDashboard from './pages/HomeCareDashboard';
@@ -160,7 +161,6 @@ import PharmacyStockTaking from './pages/PharmacyStockTaking';
 import PharmacyWorkQueue from './pages/PharmacyWorkQueue';
 import PharmacyWorkspace from './pages/PharmacyWorkspace';
 import PhysicianWorkspace from './pages/PhysicianWorkspace';
-import Reports from './pages/Reports';
 import PlatformBackupSettings from './pages/PlatformBackupSettings';
 import PlatformBilling from './pages/PlatformBilling';
 import PlatformConfiguration from './pages/PlatformConfiguration';
@@ -181,6 +181,7 @@ import ProviderDashboard from './pages/ProviderDashboard';
 import QueueDisplay from './pages/QueueDisplay';
 import QueueManagement from './pages/QueueManagement';
 import ReleaseQueue from './pages/ReleaseQueue';
+import Reports from './pages/Reports';
 import SOAPNotes from './pages/SOAPNotes';
 import SaleDeletionRequests from './pages/SaleDeletionRequests';
 import SalesAnalytics from './pages/SalesAnalytics';
@@ -214,7 +215,7 @@ import WholesaleMarketplace from './pages/WholesaleMarketplace';
 import WholesalePlatformAdmin from './pages/WholesalePlatformAdmin';
 import WholesalePortal from './pages/WholesalePortal';
 import WholesaleProviderAdmin from './pages/WholesaleProviderAdmin';
-import HelpDesk from './pages/HelpDesk';
+import ClientPortal from './pages/ClientPortal';
 import __Layout from './Layout.jsx';
 
 
@@ -285,6 +286,7 @@ export const PAGES = {
     "FrontDeskWorkspace": FrontDeskWorkspace,
     "GovernmentReporting": GovernmentReporting,
     "HRDashboard": HRDashboard,
+    "HelpDesk": HelpDesk,
     "Home": Home,
     "HomeCareBatchManagement": HomeCareBatchManagement,
     "HomeCareDashboard": HomeCareDashboard,
@@ -332,7 +334,6 @@ export const PAGES = {
     "PharmacyWorkQueue": PharmacyWorkQueue,
     "PharmacyWorkspace": PharmacyWorkspace,
     "PhysicianWorkspace": PhysicianWorkspace,
-    "Reports": Reports,
     "PlatformBackupSettings": PlatformBackupSettings,
     "PlatformBilling": PlatformBilling,
     "PlatformConfiguration": PlatformConfiguration,
@@ -353,6 +354,7 @@ export const PAGES = {
     "QueueDisplay": QueueDisplay,
     "QueueManagement": QueueManagement,
     "ReleaseQueue": ReleaseQueue,
+    "Reports": Reports,
     "SOAPNotes": SOAPNotes,
     "SaleDeletionRequests": SaleDeletionRequests,
     "SalesAnalytics": SalesAnalytics,
@@ -386,7 +388,7 @@ export const PAGES = {
     "WholesalePlatformAdmin": WholesalePlatformAdmin,
     "WholesalePortal": WholesalePortal,
     "WholesaleProviderAdmin": WholesaleProviderAdmin,
-    "HelpDesk": HelpDesk,
+    "ClientPortal": ClientPortal,
 }
 
 export const pagesConfig = {
