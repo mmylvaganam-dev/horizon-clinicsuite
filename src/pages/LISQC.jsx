@@ -6,21 +6,27 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CheckCircle, AlertTriangle, Wrench } from 'lucide-react';
 import { format } from 'date-fns';
+import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 
 export default function LISQC() {
+  const { orgFilter, selectedOrgId } = useOrgFiltered();
+
   const { data: qcLogs = [] } = useQuery({
-    queryKey: ['qcLogs'],
-    queryFn: () => base44.entities.QCLog.list(),
+    queryKey: ['qcLogs', selectedOrgId],
+    queryFn: () => base44.entities.QCLog.filter(orgFilter),
+    enabled: !!selectedOrgId,
   });
 
   const { data: maintenanceLogs = [] } = useQuery({
-    queryKey: ['maintenanceLogs'],
-    queryFn: () => base44.entities.MaintenanceLog.list(),
+    queryKey: ['maintenanceLogs', selectedOrgId],
+    queryFn: () => base44.entities.MaintenanceLog.filter(orgFilter),
+    enabled: !!selectedOrgId,
   });
 
   const { data: analyzers = [] } = useQuery({
-    queryKey: ['analyzers'],
-    queryFn: () => base44.entities.AnalyzerRegistry.list(),
+    queryKey: ['analyzers', selectedOrgId],
+    queryFn: () => base44.entities.AnalyzerRegistry.filter(orgFilter),
+    enabled: !!selectedOrgId,
   });
 
   const passedQC = qcLogs.filter(q => q.result === 'pass');

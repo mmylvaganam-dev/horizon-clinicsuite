@@ -4,11 +4,15 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Beaker, Settings } from 'lucide-react';
+import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 
 export default function LISAdmin() {
+  const { orgFilter, selectedOrgId } = useOrgFiltered();
+
   const { data: analyzers = [] } = useQuery({
-    queryKey: ['analyzers'],
-    queryFn: () => base44.entities.AnalyzerRegistry.list(),
+    queryKey: ['analyzers', selectedOrgId],
+    queryFn: () => base44.entities.AnalyzerRegistry.filter(orgFilter),
+    enabled: !!selectedOrgId,
   });
 
   return (

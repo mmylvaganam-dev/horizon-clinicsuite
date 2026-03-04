@@ -11,9 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TestTube, Barcode, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
+import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 
 export default function LISOrders() {
   const queryClient = useQueryClient();
+  const { orgFilter, selectedOrgId } = useOrgFiltered();
   const [accessionDialogOpen, setAccessionDialogOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,13 +26,15 @@ export default function LISOrders() {
   });
 
   const { data: orders = [] } = useQuery({
-    queryKey: ['labOrders'],
-    queryFn: () => base44.entities.Order.filter({ order_type: 'lab' }),
+    queryKey: ['labOrders', selectedOrgId],
+    queryFn: () => base44.entities.Order.filter({ order_type: 'lab', ...orgFilter }),
+    enabled: !!selectedOrgId,
   });
 
   const { data: patients = [] } = useQuery({
-    queryKey: ['patients'],
-    queryFn: () => base44.entities.Patient.list(),
+    queryKey: ['patients', selectedOrgId],
+    queryFn: () => base44.entities.Patient.filter(orgFilter),
+    enabled: !!selectedOrgId,
   });
 
   const accessionMutation = useMutation({

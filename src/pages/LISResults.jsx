@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { FileText, Edit } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
+import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 
 const statusColors = {
   'Entered': 'bg-blue-100 text-blue-700',
@@ -21,6 +22,7 @@ const statusColors = {
 
 export default function LISResults() {
   const queryClient = useQueryClient();
+  const { orgFilter, selectedOrgId } = useOrgFiltered();
   const [correctionDialogOpen, setCorrectionDialogOpen] = useState(false);
   const [selectedResult, setSelectedResult] = useState(null);
 
@@ -30,13 +32,15 @@ export default function LISResults() {
   });
 
   const { data: results = [] } = useQuery({
-    queryKey: ['labResults'],
-    queryFn: () => base44.entities.Result.filter({ result_type: 'LAB' }),
+    queryKey: ['labResults', selectedOrgId],
+    queryFn: () => base44.entities.Result.filter({ result_type: 'LAB', ...orgFilter }),
+    enabled: !!selectedOrgId,
   });
 
   const { data: patients = [] } = useQuery({
-    queryKey: ['patients'],
-    queryFn: () => base44.entities.Patient.list(),
+    queryKey: ['patients', selectedOrgId],
+    queryFn: () => base44.entities.Patient.filter(orgFilter),
+    enabled: !!selectedOrgId,
   });
 
   const correctResultMutation = useMutation({

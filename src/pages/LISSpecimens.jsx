@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TestTube } from 'lucide-react';
 import { format } from 'date-fns';
+import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 
 const statusColors = {
   collected: 'bg-blue-100 text-blue-700',
@@ -15,14 +16,18 @@ const statusColors = {
 };
 
 export default function LISSpecimens() {
+  const { orgFilter, selectedOrgId } = useOrgFiltered();
+
   const { data: specimens = [] } = useQuery({
-    queryKey: ['specimens'],
-    queryFn: () => base44.entities.Specimen.list(),
+    queryKey: ['specimens', selectedOrgId],
+    queryFn: () => base44.entities.Specimen.filter(orgFilter),
+    enabled: !!selectedOrgId,
   });
 
   const { data: patients = [] } = useQuery({
-    queryKey: ['patients'],
-    queryFn: () => base44.entities.Patient.list(),
+    queryKey: ['patients', selectedOrgId],
+    queryFn: () => base44.entities.Patient.filter(orgFilter),
+    enabled: !!selectedOrgId,
   });
 
   return (

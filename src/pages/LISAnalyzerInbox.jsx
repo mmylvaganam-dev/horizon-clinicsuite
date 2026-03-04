@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Activity } from 'lucide-react';
 import { format } from 'date-fns';
+import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 
 const statusColors = {
   pending: 'bg-slate-100 text-slate-700',
@@ -15,14 +16,18 @@ const statusColors = {
 };
 
 export default function LISAnalyzerInbox() {
+  const { orgFilter, selectedOrgId } = useOrgFiltered();
+
   const { data: messages = [] } = useQuery({
-    queryKey: ['analyzerInbox'],
-    queryFn: () => base44.entities.AnalyzerInbox.list(),
+    queryKey: ['analyzerInbox', selectedOrgId],
+    queryFn: () => base44.entities.AnalyzerInbox.filter(orgFilter),
+    enabled: !!selectedOrgId,
   });
 
   const { data: analyzers = [] } = useQuery({
-    queryKey: ['analyzers'],
-    queryFn: () => base44.entities.AnalyzerRegistry.list(),
+    queryKey: ['analyzers', selectedOrgId],
+    queryFn: () => base44.entities.AnalyzerRegistry.filter(orgFilter),
+    enabled: !!selectedOrgId,
   });
 
   return (
