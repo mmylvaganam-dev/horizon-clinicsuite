@@ -15,7 +15,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Edit,
-  Trash2
+  Trash2,
+  Video
 } from 'lucide-react';
 import { createPageUrl } from '../utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -24,6 +25,7 @@ import { addDays, startOfWeek, isSameDay } from 'date-fns';
 import { formatSL } from '@/components/utils/dateUtils';
 import AppointmentForm from '../components/appointments/AppointmentForm';
 import LinkedRecords from '../components/shared/LinkedRecords';
+import TelehealthPatientPreview from '../components/appointments/TelehealthPatientPreview';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -305,6 +307,12 @@ export default function Appointments() {
                           <span className="font-medium text-slate-900">{apt.time}</span>
                           <span className="text-slate-400">•</span>
                           <span className="text-slate-500">{apt.duration || 30} min</span>
+                          {apt.is_telehealth && (
+                            <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 ml-2">
+                              <Video className="w-3 h-3 mr-1" />
+                              Telehealth
+                            </Badge>
+                          )}
                         </div>
                         <div className="flex items-center gap-2">
                           <User className="w-4 h-4 text-slate-400" />
@@ -343,8 +351,16 @@ export default function Appointments() {
                     </div>
                   </div>
                   {expandedAppointment === apt.id && (
-                    <div className="ml-8 mb-2 px-4">
-                      <LinkedRecords recordType="Appointment" recordId={apt.id} />
+                    <div className="ml-8 mb-4 px-4 pb-4 border-t pt-4">
+                      {apt.is_telehealth ? (
+                        <TelehealthPatientPreview 
+                          patientId={apt.patient_id} 
+                          appointmentId={apt.id}
+                          teleHealthLink={apt.telehealth_link}
+                        />
+                      ) : (
+                        <LinkedRecords recordType="Appointment" recordId={apt.id} />
+                      )}
                     </div>
                   )}
                 </div>
