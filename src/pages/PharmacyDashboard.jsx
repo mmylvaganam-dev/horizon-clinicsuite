@@ -25,7 +25,7 @@ import {
   Trash2,
   Printer
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { formatSL } from '@/components/utils/dateUtils';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
@@ -38,8 +38,8 @@ import toast from 'react-hot-toast';
 export default function PharmacyDashboard() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [dateFrom, setDateFrom] = useState(format(new Date(), 'yyyy-MM-dd'));
-  const [dateTo, setDateTo] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [dateFrom, setDateFrom] = useState(formatSL(new Date(), 'yyyy-MM-dd'));
+  const [dateTo, setDateTo] = useState(formatSL(new Date(), 'yyyy-MM-dd'));
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
@@ -176,9 +176,10 @@ export default function PharmacyDashboard() {
 
   // Stats
   const todaySales = sales.filter(s => {
-    const saleDate = new Date(s.sale_date);
-    const today = new Date();
-    return saleDate.toDateString() === today.toDateString();
+    if (!s.sale_date) return false;
+    const todayStr = formatSL(new Date(), 'yyyy-MM-dd');
+    const saleDateStr = formatSL(new Date(s.sale_date), 'yyyy-MM-dd');
+    return saleDateStr === todayStr;
   });
 
   const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total || 0), 0);
@@ -355,7 +356,7 @@ export default function PharmacyDashboard() {
                           <span className="font-bold">{currency} {fmt(sale.total)}</span>
                         </div>
                         <div className="flex justify-between items-center text-white/80">
-                          <span>{items.length} items • {format(new Date(sale.sale_date), 'hh:mm a')}</span>
+                          <span>{items.length} items • {formatSL(new Date(sale.sale_date), 'h:mm a')}</span>
                           <span>{sale.created_by?.split('@')[0] || 'Staff'}</span>
                         </div>
                       </div>
@@ -646,10 +647,10 @@ export default function PharmacyDashboard() {
                         <div className="grid grid-cols-12 gap-4 items-center">
                           <div className="col-span-2">
                             <p className="text-sm font-medium text-slate-900">
-                              {sale.sale_date ? format(new Date(sale.sale_date), 'dd MMM, yyyy') : 'N/A'}
+                              {sale.sale_date ? formatSL(new Date(sale.sale_date), 'dd/MM/yyyy') : 'N/A'}
                             </p>
                             <p className="text-xs text-slate-500">
-                              {sale.sale_date ? format(new Date(sale.sale_date), 'hh:mm a') : 'N/A'}
+                              {sale.sale_date ? formatSL(new Date(sale.sale_date), 'h:mm a') : 'N/A'}
                             </p>
                           </div>
                           <div className="col-span-2">
@@ -980,7 +981,7 @@ export default function PharmacyDashboard() {
                   <p><strong>Receipt:</strong> {getReceiptNumber(saleToDelete)}</p>
                   <p><strong>Customer:</strong> {getPatientName(saleToDelete.patient_ref)}</p>
                   <p><strong>Amount:</strong> {currency} {fmt(saleToDelete.total)}</p>
-                  <p><strong>Date:</strong> {format(new Date(saleToDelete.sale_date), 'PPP')}</p>
+                  <p><strong>Date:</strong> {formatSL(new Date(saleToDelete.sale_date), 'MMM d, yyyy')}</p>
                 </div>
               </div>
 
@@ -1028,7 +1029,7 @@ export default function PharmacyDashboard() {
                   </div>
                   <div>
                     <p className="text-slate-600">Date</p>
-                    <p className="font-semibold">{format(new Date(selectedSale.sale_date), 'PPP p')}</p>
+                    <p className="font-semibold">{formatSL(new Date(selectedSale.sale_date), 'MMM d, yyyy h:mm a')}</p>
                   </div>
                   <div>
                     <p className="text-slate-600">Customer</p>

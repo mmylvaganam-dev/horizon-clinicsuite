@@ -56,10 +56,12 @@ export default function DailyOps() {
     ? locations 
     : locations.filter(loc => loc.organization_id === selectedOrgId);
 
-  // Today's sales
-  const today = new Date().toISOString().split('T')[0];
+  // Today's sales - compare using Colombo date
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Colombo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
   const todaySales = pharmacySales.filter(sale => {
-    const saleDate = sale.sale_date ? sale.sale_date.split('T')[0] : sale.created_date?.split('T')[0];
+    const rawDate = sale.sale_date || sale.created_date;
+    if (!rawDate) return false;
+    const saleDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Colombo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date(rawDate));
     return saleDate === today && filterByOrgAndLocation(sale);
   });
 

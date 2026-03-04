@@ -19,7 +19,8 @@ import {
 import { createPageUrl } from '../utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
-import { format, addDays, startOfWeek, isSameDay, parseISO } from 'date-fns';
+import { addDays, startOfWeek, isSameDay } from 'date-fns';
+import { formatSL } from '@/components/utils/dateUtils';
 import AppointmentForm from '../components/appointments/AppointmentForm';
 import LinkedRecords from '../components/shared/LinkedRecords';
 import {
@@ -128,18 +129,17 @@ export default function Appointments() {
   });
 
   const getAppointmentsForDay = (date) => {
-    const dateStr = format(date, 'yyyy-MM-dd');
+    const dateStr = formatSL(date, 'yyyy-MM-dd');
     return filteredAppointments.filter(apt => {
       if (!apt.start_time) return false;
-      const aptDate = format(new Date(apt.start_time), 'yyyy-MM-dd');
+      const aptDate = formatSL(new Date(apt.start_time), 'yyyy-MM-dd');
       return aptDate === dateStr;
     }).map(apt => {
-      // Add computed fields for display
       const startTime = new Date(apt.start_time);
       return {
         ...apt,
-        time: format(startTime, 'HH:mm'),
-        date: format(startTime, 'yyyy-MM-dd'),
+        time: formatSL(startTime, 'HH:mm'),
+        date: formatSL(startTime, 'yyyy-MM-dd'),
         duration: apt.end_time ? Math.round((new Date(apt.end_time) - startTime) / 60000) : 30,
       };
     });
@@ -183,7 +183,7 @@ export default function Appointments() {
               <ChevronRight className="w-4 h-4" />
             </Button>
             <span className="font-medium text-slate-900 ml-2">
-              {format(weekStart, 'MMMM d')} - {format(addDays(weekStart, 6), 'd, yyyy')}
+              {formatSL(weekStart, 'MMM d')} - {formatSL(addDays(weekStart, 6), 'MMM d, yyyy')}
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -222,8 +222,8 @@ export default function Appointments() {
                   text-center p-2 rounded-lg mb-2
                   ${isToday ? 'bg-teal-500 text-white' : 'bg-slate-100'}
                 `}>
-                  <p className="text-xs font-medium">{format(day, 'EEE')}</p>
-                  <p className="text-lg font-bold">{format(day, 'd')}</p>
+                  <p className="text-xs font-medium">{new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Colombo', weekday: 'short' }).format(day)}</p>
+                  <p className="text-lg font-bold">{new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Colombo', day: 'numeric' }).format(day)}</p>
                 </div>
                 <div className="space-y-1">
                   {loadingAppointments ? (
@@ -269,7 +269,7 @@ export default function Appointments() {
       <Card className="bg-white border-0 shadow-sm">
         <div className="p-4 border-b">
           <h2 className="font-semibold text-slate-900">
-            {format(selectedDate, 'EEEE, MMMM d, yyyy')}
+            {new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Colombo', weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).format(selectedDate)}
           </h2>
         </div>
         <div className="divide-y">
