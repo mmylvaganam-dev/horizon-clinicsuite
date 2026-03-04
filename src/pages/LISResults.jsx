@@ -108,7 +108,7 @@ export default function LISResults() {
                           {result.test_name || 'Lab Result'}
                         </p>
                         <p className="text-xs text-slate-500">
-                          Result Date: {format(new Date(result.result_date), 'MMM d, yyyy h:mm a')}
+                          Result Date: {formatSL(new Date(result.result_date), 'MMM d, yyyy h:mm a')}
                         </p>
                         {result.correction_history && (
                           <div className="mt-2 p-2 bg-amber-50 rounded border border-amber-200">

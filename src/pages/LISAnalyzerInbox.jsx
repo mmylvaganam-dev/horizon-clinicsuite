@@ -65,7 +65,7 @@ export default function LISAnalyzerInbox() {
                           {message.specimen_id ? `Specimen: ${message.specimen_id}` : 'No specimen matched'}
                         </p>
                         <p className="text-xs text-slate-500">
-                          Received: {format(new Date(message.received_at), 'MMM d, yyyy h:mm a')}
+                          Received: {formatSL(new Date(message.received_at), 'MMM d, yyyy h:mm a')}
                         </p>
                         {message.rejection_reason && (
                           <div className="mt-2 p-2 bg-rose-50 rounded border border-rose-200">

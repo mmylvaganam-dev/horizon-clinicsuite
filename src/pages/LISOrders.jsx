@@ -129,7 +129,7 @@ export default function LISOrders() {
                           {order.test_name || 'Lab Tests'}
                         </p>
                         <p className="text-xs text-slate-500">
-                          Ordered: {format(new Date(order.order_date), 'MMM d, yyyy h:mm a')}
+                          Ordered: {formatSL(new Date(order.order_date), 'MMM d, yyyy h:mm a')}
                         </p>
                       </div>
                       <div className="flex items-center gap-3">
