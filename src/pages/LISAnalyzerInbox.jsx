@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Activity } from 'lucide-react';
-import { format } from 'date-fns';
+import { formatSL } from '@/components/utils/dateUtils';
 import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 
 const statusColors = {

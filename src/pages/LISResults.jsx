@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { FileText, Edit } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { format } from 'date-fns';
+import { formatSL } from '@/components/utils/dateUtils';
 import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 
 const statusColors = {

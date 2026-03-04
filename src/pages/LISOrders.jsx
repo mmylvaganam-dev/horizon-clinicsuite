@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TestTube, Barcode, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { format } from 'date-fns';
+import { formatSL } from '@/components/utils/dateUtils';
 import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 
 export default function LISOrders() {

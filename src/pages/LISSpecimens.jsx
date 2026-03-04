@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TestTube } from 'lucide-react';
-import { format } from 'date-fns';
+import { formatSL } from '@/components/utils/dateUtils';
 import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 
 const statusColors = {
@@ -76,14 +76,14 @@ export default function LISSpecimens() {
                           <div>
                             <p className="text-slate-500">Collected</p>
                             <p className="font-medium">
-                              {format(new Date(specimen.collection_date), 'MMM d, h:mm a')}
+                              {formatSL(new Date(specimen.collection_date), 'MMM d, h:mm a')}
                             </p>
                           </div>
                           {specimen.received_date && (
                             <div>
                               <p className="text-slate-500">Received</p>
                               <p className="font-medium">
-                                {format(new Date(specimen.received_date), 'MMM d, h:mm a')}
+                                {formatSL(new Date(specimen.received_date), 'MMM d, h:mm a')}
                               </p>
                             </div>
                           )}

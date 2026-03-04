@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CheckCircle, AlertTriangle, Wrench } from 'lucide-react';
-import { format } from 'date-fns';
+import { formatSL } from '@/components/utils/dateUtils';
 import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 
 export default function LISQC() {
@@ -110,7 +110,7 @@ export default function LISQC() {
                               Type: {log.qc_type} • Expected: {log.expected_value} • Measured: {log.measured_value}
                             </p>
                             <p className="text-xs text-slate-500">
-                              {format(new Date(log.qc_date), 'MMM d, yyyy h:mm a')} by {log.performed_by_email}
+                              {formatSL(new Date(log.qc_date), 'MMM d, yyyy h:mm a')} by {log.performed_by_email}
                             </p>
                           </div>
                           <Badge className={log.result === 'pass' ? 'bg-green-100 text-green-700' : 'bg-rose-100 text-rose-700'}>
@@ -150,8 +150,8 @@ export default function LISQC() {
                             </div>
                             <p className="text-sm text-slate-600 mb-1">{log.description}</p>
                             <p className="text-xs text-slate-500">
-                              Scheduled: {format(new Date(log.scheduled_date), 'MMM d, yyyy')}
-                              {log.performed_date && ` • Completed: ${format(new Date(log.performed_date), 'MMM d, yyyy')}`}
+                              Scheduled: {formatSL(new Date(log.scheduled_date), 'MMM d, yyyy')}
+                              {log.performed_date && ` • Completed: ${formatSL(new Date(log.performed_date), 'MMM d, yyyy')}`}
                             </p>
                           </div>
                           <Badge variant={log.status === 'completed' ? 'default' : log.status === 'overdue' ? 'destructive' : 'secondary'}>
