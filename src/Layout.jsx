@@ -48,6 +48,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import OrganizationSwitcher from '@/components/shared/OrganizationSwitcher';
 import { useOrganization, OrganizationProvider } from '@/components/OrganizationProvider';
 import AppGuide from '@/components/shared/AppGuide';
+import NotificationCenter from '@/components/notifications/NotificationCenter';
 
 
 
@@ -571,6 +572,7 @@ function LayoutContent({ children, currentPageName }) {
             <div className="flex-1 lg:flex-none" />
             
             <div className="flex items-center gap-4">
+              <NotificationCenter />
               <AppGuide />
               {isDefinitelyPlatformOwner && pendingApprovals.length > 0 && (
                 <Button
