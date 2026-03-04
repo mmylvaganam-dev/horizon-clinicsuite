@@ -31,19 +31,47 @@ export default function DailyOps() {
     queryFn: () => base44.entities.Location.list(),
   });
 
+  // CRITICAL: Include selectedOrgId in query key AND filter parameter to isolate data by org
   const { data: pharmacySales = [], isLoading: loadingSales } = useQuery({
-    queryKey: ['pharmacySales'],
-    queryFn: () => base44.entities.PharmacySaleHeader.list(),
+    queryKey: ['pharmacySales', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId || selectedOrgId === 'all') {
+        console.log('DailyOps - Fetching ALL orgs sales');
+        return base44.entities.PharmacySaleHeader.list();
+      }
+      console.log('DailyOps - Fetching sales for org:', selectedOrgId);
+      const result = await base44.entities.PharmacySaleHeader.filter({ organization_id: selectedOrgId });
+      return result;
+    },
+    staleTime: 30000,
   });
 
   const { data: pharmacyStock = [], isLoading: loadingStock } = useQuery({
-    queryKey: ['pharmacyStock'],
-    queryFn: () => base44.entities.PharmacyStock.list(),
+    queryKey: ['pharmacyStock', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId || selectedOrgId === 'all') {
+        console.log('DailyOps - Fetching ALL orgs stock');
+        return base44.entities.PharmacyStock.list();
+      }
+      console.log('DailyOps - Fetching stock for org:', selectedOrgId);
+      const result = await base44.entities.PharmacyStock.filter({ organization_id: selectedOrgId });
+      return result;
+    },
+    staleTime: 30000,
   });
 
   const { data: patients = [] } = useQuery({
-    queryKey: ['patients'],
-    queryFn: () => base44.entities.Patient.list(),
+    queryKey: ['patients', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId || selectedOrgId === 'all') {
+        console.log('DailyOps - Fetching ALL orgs patients');
+        return base44.entities.Patient.list();
+      }
+      console.log('DailyOps - Fetching patients for org:', selectedOrgId);
+      const result = await base44.entities.Patient.filter({ organization_id: selectedOrgId });
+      return result;
+    },
+    staleTime: 30000,
   });
 
   const filterByOrgAndLocation = (item) => {
