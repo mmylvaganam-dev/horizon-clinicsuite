@@ -21,7 +21,7 @@ import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import MedicineReturnDialog from '../components/pharmacy/MedicineReturnDialog';
-import { useOrganization } = from '@/components/OrganizationProvider';
+import { useOrganization } from '@/components/OrganizationProvider';
 
 // Format currency with commas
 const formatCurrency = (amount, currency = 'LKR') => {
