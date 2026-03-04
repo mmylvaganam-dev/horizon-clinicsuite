@@ -50,6 +50,11 @@ export default function MedicalRecords() {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
+
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
   const [formOpen, setFormOpen] = useState(false);
   const [formData, setFormData] = useState({
     patient_id: '',
@@ -66,13 +71,21 @@ export default function MedicalRecords() {
   });
 
   const { data: records = [], isLoading } = useQuery({
-    queryKey: ['records'],
-    queryFn: () => base44.entities.MedicalRecord.list('-record_date'),
+    queryKey: ['records', user?.organization_id],
+    queryFn: async () => {
+      if (!user?.organization_id) return [];
+      return base44.entities.MedicalRecord.filter({ organization_id: user.organization_id }, '-record_date');
+    },
+    enabled: !!user,
   });
 
   const { data: patients = [] } = useQuery({
-    queryKey: ['patients'],
-    queryFn: () => base44.entities.Patient.list(),
+    queryKey: ['patients', user?.organization_id],
+    queryFn: async () => {
+      if (!user?.organization_id) return [];
+      return base44.entities.Patient.filter({ organization_id: user.organization_id });
+    },
+    enabled: !!user,
   });
 
   const createMutation = useMutation({
@@ -83,6 +96,12 @@ export default function MedicalRecords() {
       resetForm();
     },
   });
+
+  // Inject organization_id when creating records
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    createMutation.mutate({ ...formData, organization_id: user?.organization_id });
+  };
 
   const resetForm = () => {
     setFormData({
@@ -100,10 +119,7 @@ export default function MedicalRecords() {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    createMutation.mutate(formData);
-  };
+  // handleSubmit defined above with org_id injection
 
   const filteredRecords = records.filter(record => {
     const patient = patients.find(p => p.id === record.patient_id);

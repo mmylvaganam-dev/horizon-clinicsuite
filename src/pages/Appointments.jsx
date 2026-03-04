@@ -63,18 +63,31 @@ export default function Appointments() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [expandedAppointment, setExpandedAppointment] = useState(null);
 
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: appointments = [], isLoading: loadingAppointments } = useQuery({
-    queryKey: ['appointments'],
-    queryFn: () => base44.entities.Appointment.list('-start_time'),
+    queryKey: ['appointments', user?.organization_id],
+    queryFn: async () => {
+      if (!user?.organization_id) return [];
+      return base44.entities.Appointment.filter({ organization_id: user.organization_id }, '-start_time');
+    },
+    enabled: !!user,
   });
 
   const { data: patients = [] } = useQuery({
-    queryKey: ['patients'],
-    queryFn: () => base44.entities.Patient.list(),
+    queryKey: ['patients', user?.organization_id],
+    queryFn: async () => {
+      if (!user?.organization_id) return [];
+      return base44.entities.Patient.filter({ organization_id: user.organization_id });
+    },
+    enabled: !!user,
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Appointment.create(data),
+    mutationFn: (data) => base44.entities.Appointment.create({ ...data, organization_id: user?.organization_id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appointments'] });
       setFormOpen(false);

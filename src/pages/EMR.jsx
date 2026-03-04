@@ -39,9 +39,7 @@ export default function EMR() {
   const { data: patients = [], isLoading } = useQuery({
     queryKey: ['patients', user?.organization_id],
     queryFn: async () => {
-      if (!user?.organization_id) {
-        return base44.entities.Patient.list('-created_date'); // Platform owner sees all
-      }
+      if (!user?.organization_id) return []; // No org assigned = no patients visible
       return base44.entities.Patient.filter({ organization_id: user.organization_id }, '-created_date');
     },
     enabled: !!user,
