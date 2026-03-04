@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useOrganization } from '@/components/OrganizationProvider';
 // Access control removed - all users have full EMR access
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -24,6 +26,7 @@ import CPPManager from '../components/emr/CPPManager';
 
 export default function EMR() {
   const navigate = useNavigate();
+  const { selectedOrgId } = useOrganization();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPatient, setSelectedPatient] = useState(null);
 
@@ -37,12 +40,12 @@ export default function EMR() {
   });
 
   const { data: patients = [], isLoading } = useQuery({
-    queryKey: ['patients', user?.organization_id],
+    queryKey: ['patients', selectedOrgId],
     queryFn: async () => {
-      if (!user?.organization_id) return []; // No org assigned = no patients visible
-      return base44.entities.Patient.filter({ organization_id: user.organization_id }, '-created_date');
+      if (!selectedOrgId) return []; // No org assigned = no patients visible
+      return base44.entities.Patient.filter({ organization_id: selectedOrgId }, '-created_date');
     },
-    enabled: !!user,
+    enabled: !!selectedOrgId,
   });
 
   // Auto-select patient from URL

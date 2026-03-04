@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useOrganization } from '@/components/OrganizationProvider';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -56,6 +58,7 @@ const typeColors = {
 
 export default function Appointments() {
   const queryClient = useQueryClient();
+  const { selectedOrgId } = useOrganization();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState('week');
   const [formOpen, setFormOpen] = useState(false);
@@ -70,25 +73,25 @@ export default function Appointments() {
   });
 
   const { data: appointments = [], isLoading: loadingAppointments } = useQuery({
-    queryKey: ['appointments', user?.organization_id],
+    queryKey: ['appointments', selectedOrgId],
     queryFn: async () => {
-      if (!user?.organization_id) return [];
-      return base44.entities.Appointment.filter({ organization_id: user.organization_id }, '-start_time');
+      if (!selectedOrgId) return [];
+      return base44.entities.Appointment.filter({ organization_id: selectedOrgId }, '-start_time');
     },
-    enabled: !!user,
+    enabled: !!selectedOrgId,
   });
 
   const { data: patients = [] } = useQuery({
-    queryKey: ['patients', user?.organization_id],
+    queryKey: ['patients', selectedOrgId],
     queryFn: async () => {
-      if (!user?.organization_id) return [];
-      return base44.entities.Patient.filter({ organization_id: user.organization_id });
+      if (!selectedOrgId) return [];
+      return base44.entities.Patient.filter({ organization_id: selectedOrgId });
     },
-    enabled: !!user,
+    enabled: !!selectedOrgId,
   });
 
   const createMutation = useMutation({
-    mutationFn: (data) => base44.entities.Appointment.create({ ...data, organization_id: user?.organization_id }),
+    mutationFn: (data) => base44.entities.Appointment.create({ ...data, organization_id: selectedOrgId }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appointments'] });
       setFormOpen(false);
