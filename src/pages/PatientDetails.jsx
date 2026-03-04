@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
+import { useOrganization } from '@/components/OrganizationProvider';
 import { createPageUrl } from '../utils';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -58,6 +60,7 @@ const statusColors = {
 export default function PatientDetails() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { selectedOrgId } = useOrganization();
   const urlParams = new URLSearchParams(window.location.search);
   const patientId = urlParams.get('id');
 
@@ -79,10 +82,10 @@ export default function PatientDetails() {
   const { data: patient, isLoading: loadingPatient } = useQuery({
     queryKey: ['patient', patientId],
     queryFn: async () => {
-      const patients = await base44.entities.Patient.filter({ id: patientId });
+      const patients = await base44.entities.Patient.filter({ id: patientId, organization_id: selectedOrgId });
       return patients[0];
     },
-    enabled: !!patientId,
+    enabled: !!patientId && !!selectedOrgId,
   });
 
   useEffect(() => {

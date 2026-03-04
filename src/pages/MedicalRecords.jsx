@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useOrganization } from '@/components/OrganizationProvider';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -48,13 +50,9 @@ const recordTypeColors = {
 
 export default function MedicalRecords() {
   const queryClient = useQueryClient();
+  const { selectedOrgId } = useOrganization();
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
-
-  const { data: user } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
-  });
   const [formOpen, setFormOpen] = useState(false);
   const [formData, setFormData] = useState({
     patient_id: '',
@@ -71,21 +69,21 @@ export default function MedicalRecords() {
   });
 
   const { data: records = [], isLoading } = useQuery({
-    queryKey: ['records', user?.organization_id],
+    queryKey: ['records', selectedOrgId],
     queryFn: async () => {
-      if (!user?.organization_id) return [];
-      return base44.entities.MedicalRecord.filter({ organization_id: user.organization_id }, '-record_date');
+      if (!selectedOrgId) return [];
+      return base44.entities.MedicalRecord.filter({ organization_id: selectedOrgId }, '-record_date');
     },
-    enabled: !!user,
+    enabled: !!selectedOrgId,
   });
 
   const { data: patients = [] } = useQuery({
-    queryKey: ['patients', user?.organization_id],
+    queryKey: ['patients', selectedOrgId],
     queryFn: async () => {
-      if (!user?.organization_id) return [];
-      return base44.entities.Patient.filter({ organization_id: user.organization_id });
+      if (!selectedOrgId) return [];
+      return base44.entities.Patient.filter({ organization_id: selectedOrgId });
     },
-    enabled: !!user,
+    enabled: !!selectedOrgId,
   });
 
   const createMutation = useMutation({
@@ -100,7 +98,7 @@ export default function MedicalRecords() {
   // Inject organization_id when creating records
   const handleSubmit = (e) => {
     e.preventDefault();
-    createMutation.mutate({ ...formData, organization_id: user?.organization_id });
+    createMutation.mutate({ ...formData, organization_id: selectedOrgId });
   };
 
   const resetForm = () => {

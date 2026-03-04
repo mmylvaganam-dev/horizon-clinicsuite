@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useOrganization } from '@/components/OrganizationProvider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +18,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import toast from 'react-hot-toast';
 
 export default function TaskManagement() {
+  const queryClient = useQueryClient();
+  const { selectedOrgId } = useOrganization();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [formData, setFormData] = useState({
     patient_id: '',
@@ -27,16 +31,18 @@ export default function TaskManagement() {
     assigned_to: ''
   });
 
-  const queryClient = useQueryClient();
-
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
 
   const { data: patients = [] } = useQuery({
-    queryKey: ['patients'],
-    queryFn: () => base44.entities.Patient.list(),
+    queryKey: ['patients', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      return base44.entities.Patient.filter({ organization_id: selectedOrgId });
+    },
+    enabled: !!selectedOrgId,
   });
 
   const { data: users = [] } = useQuery({
@@ -45,8 +51,12 @@ export default function TaskManagement() {
   });
 
   const { data: tasks = [], isLoading } = useQuery({
-    queryKey: ['tasks'],
-    queryFn: () => base44.entities.PatientTask.list('-created_date'),
+    queryKey: ['tasks', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      return base44.entities.PatientTask.filter({ organization_id: selectedOrgId }, '-created_date');
+    },
+    enabled: !!selectedOrgId,
   });
 
   const createTaskMutation = useMutation({
@@ -55,6 +65,7 @@ export default function TaskManagement() {
       
       const task = await base44.entities.PatientTask.create({
         ...data,
+        organization_id: selectedOrgId,
         assigned_to_email: assignedUser?.email || user.email
       });
 
@@ -62,7 +73,7 @@ export default function TaskManagement() {
         timestamp: new Date().toISOString(),
         user_id: user.id,
         user_email: user.email,
-        organization_id: '',
+        organization_id: selectedOrgId,
         location_id: '',
         patient_id: data.patient_id,
         module: 'TASKS',
@@ -102,7 +113,7 @@ export default function TaskManagement() {
         timestamp: new Date().toISOString(),
         user_id: user.id,
         user_email: user.email,
-        organization_id: '',
+        organization_id: selectedOrgId,
         location_id: '',
         patient_id: '',
         module: 'TASKS',
