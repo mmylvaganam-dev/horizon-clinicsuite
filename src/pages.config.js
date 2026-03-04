@@ -136,6 +136,7 @@ import LaunchChecklist from './pages/LaunchChecklist';
 import ManagementReports from './pages/ManagementReports';
 import MedicalRecords from './pages/MedicalRecords';
 import Messaging from './pages/Messaging';
+import Notifications from './pages/Notifications';
 import OperationsReports from './pages/OperationsReports';
 import OrdersResults from './pages/OrdersResults';
 import OrgAdminAuditReport from './pages/OrgAdminAuditReport';
@@ -216,7 +217,6 @@ import WholesaleMarketplace from './pages/WholesaleMarketplace';
 import WholesalePlatformAdmin from './pages/WholesalePlatformAdmin';
 import WholesalePortal from './pages/WholesalePortal';
 import WholesaleProviderAdmin from './pages/WholesaleProviderAdmin';
-import Notifications from './pages/Notifications';
 import __Layout from './Layout.jsx';
 
 
@@ -310,6 +310,7 @@ export const PAGES = {
     "ManagementReports": ManagementReports,
     "MedicalRecords": MedicalRecords,
     "Messaging": Messaging,
+    "Notifications": Notifications,
     "OperationsReports": OperationsReports,
     "OrdersResults": OrdersResults,
     "OrgAdminAuditReport": OrgAdminAuditReport,
@@ -390,7 +391,6 @@ export const PAGES = {
     "WholesalePlatformAdmin": WholesalePlatformAdmin,
     "WholesalePortal": WholesalePortal,
     "WholesaleProviderAdmin": WholesaleProviderAdmin,
-    "Notifications": Notifications,
 }
 
 export const pagesConfig = {

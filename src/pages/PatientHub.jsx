@@ -54,13 +54,17 @@ export default function PatientHub() {
   });
 
   const filteredPatients = patients.filter(p => {
+    if (!searchQuery) return true;
     const search = searchQuery.toLowerCase();
-    return search === '' ||
+    return (
       `${p.first_name} ${p.last_name}`.toLowerCase().includes(search) ||
       p.phn?.toLowerCase().includes(search) ||
-      p.nic?.toLowerCase().includes(search) ||
+      p.phone?.toLowerCase().includes(search) ||
       p.mobile?.toLowerCase().includes(search) ||
-      p.email?.toLowerCase().includes(search);
+      p.email?.toLowerCase().includes(search) ||
+      p.nic?.toLowerCase().includes(search) ||
+      p.mrn?.toLowerCase().includes(search)
+    );
   });
 
   const getPatientAge = (dob) => {
@@ -182,16 +186,23 @@ export default function PatientHub() {
       </div>
 
       {/* Search */}
-      <Card>
+      <Card className="bg-gradient-to-r from-teal-50 to-emerald-50 border-teal-200">
         <CardContent className="pt-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-            <Input
-              placeholder="Search by name, PHN, NIC, phone, or email..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-12 text-lg"
-            />
+          <div className="space-y-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-teal-600" />
+              <Input
+                placeholder="Search by name, PHN, phone, email, MRN, or NIC..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-12 text-lg border-teal-300 bg-white focus:border-teal-500"
+              />
+            </div>
+            {searchQuery && (
+              <p className="text-sm text-slate-600 px-1">
+                Found <span className="font-semibold text-teal-700">{filteredPatients.length}</span> patient{filteredPatients.length !== 1 ? 's' : ''}
+              </p>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -264,6 +275,12 @@ export default function PatientHub() {
                       <div className="flex items-center gap-2 text-slate-600">
                         <Mail className="w-4 h-4" />
                         <span className="truncate">{patient.email}</span>
+                      </div>
+                    )}
+                    {patient.mrn && (
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <IdCard className="w-4 h-4" />
+                        <span>MRN: {patient.mrn}</span>
                       </div>
                     )}
                     {patient.nic && (
