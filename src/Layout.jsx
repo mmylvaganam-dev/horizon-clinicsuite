@@ -1,4 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { initSLTimezone } from '@/components/utils/srilanka-date';
+
+// Initialize Sri Lanka timezone globally for the entire app (runs once)
+initSLTimezone();
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { 
