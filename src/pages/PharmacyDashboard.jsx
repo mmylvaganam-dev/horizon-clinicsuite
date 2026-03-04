@@ -64,11 +64,19 @@ export default function PharmacyDashboard() {
   const { data: sales = [] } = useQuery({
     queryKey: ['pharmacySaleHeaders', selectedOrgId],
     queryFn: async () => {
-      if (!selectedOrgId) return [];
+      if (!selectedOrgId) {
+        console.log('PharmacyDashboard - No org selected, returning empty sales');
+        return [];
+      }
+      console.log('PharmacyDashboard - Fetching sales for org:', selectedOrgId);
       const allSales = await base44.entities.PharmacySaleHeader.filter(orgFilter, '-sale_date');
+      console.log('PharmacyDashboard - Got sales:', allSales.length, 'for org:', selectedOrgId);
       return allSales;
     },
     enabled: !!selectedOrgId,
+    // CRITICAL: Refetch immediately when org changes, don't use stale cache
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000,
   });
 
   // Real-time subscription to catch new sales immediately
@@ -76,10 +84,13 @@ export default function PharmacyDashboard() {
     if (!selectedOrgId) return;
     
     const unsubscribe = base44.entities.PharmacySaleHeader.subscribe((event) => {
+      // CRITICAL: Only invalidate if event belongs to this org, ignore other orgs
       if (event.data?.organization_id === selectedOrgId) {
-        console.log('📊 Real-time sale update:', event.type, event.data.sale_number);
+        console.log('📊 Real-time sale update:', event.type, event.data.sale_number, 'org:', event.data.organization_id);
         queryClient.invalidateQueries({ queryKey: ['pharmacySaleHeaders', selectedOrgId] });
         queryClient.invalidateQueries({ queryKey: ['pharmacySaleLines', selectedOrgId] });
+      } else {
+        console.log('⚠️ Ignoring event for different org:', event.data?.organization_id, 'current:', selectedOrgId);
       }
     });
     
