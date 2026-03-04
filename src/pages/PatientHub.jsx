@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
+import { useOrganization } from '@/components/OrganizationProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -27,6 +28,7 @@ import RequestPatientEdit from '../components/patients/RequestPatientEdit';
 
 export default function PatientHub() {
   const navigate = useNavigate();
+  const { selectedOrgId } = useOrganization();
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddPatient, setShowAddPatient] = useState(false);
   const [showEditRequest, setShowEditRequest] = useState(false);
@@ -38,19 +40,15 @@ export default function PatientHub() {
   });
 
   const { data: patients = [], isLoading } = useQuery({
-    queryKey: ['patients', user?.organization_id],
+    queryKey: ['patients', selectedOrgId],
     queryFn: async () => {
-      // Platform owners see all patients
-      if (user?.is_platform_owner || user?.email === 'mmylvaganam@premierhealthcanada.ca' || user?.email === 'mylvaganam@premierhealthcanada.ca') {
-        return base44.entities.Patient.list('-created_date');
+      // Only show patients for the selected organization
+      if (!selectedOrgId) {
+        return [];
       }
-      // Regular users ONLY see their organization's patients
-      if (!user?.organization_id) {
-        return []; // No org assigned, show nothing
-      }
-      return base44.entities.Patient.filter({ organization_id: user.organization_id }, '-created_date');
+      return base44.entities.Patient.filter({ organization_id: selectedOrgId }, '-created_date');
     },
-    enabled: !!user,
+    enabled: !!selectedOrgId,
   });
 
   const filteredPatients = patients.filter(p => {
@@ -84,7 +82,7 @@ export default function PatientHub() {
         phn: phn,
         patient_type: 'registered',
         status: 'active',
-        organization_id: user?.organization_id || null
+        organization_id: selectedOrgId
       };
       
       await base44.entities.Patient.create(patientData);
