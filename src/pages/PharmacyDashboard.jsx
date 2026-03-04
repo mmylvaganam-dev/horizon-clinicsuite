@@ -865,7 +865,7 @@ export default function PharmacyDashboard() {
                         <div className="flex justify-between items-center">
                           <div>
                             <p className="font-medium">{getReceiptNumber(sale)}</p>
-                            <p className="text-sm text-slate-500">{getPatientName(sale.patient_ref)} • {format(new Date(sale.sale_date), 'dd MMM, yyyy')}</p>
+                            <p className="text-sm text-slate-500">{getPatientName(sale.patient_ref)} • {formatSL(new Date(sale.sale_date), 'MMM d, yyyy')}</p>
                           </div>
                           <div className="text-right">
                             <p className="font-bold text-rose-600">{currency} {fmt(sale.total)}</p>
