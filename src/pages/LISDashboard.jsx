@@ -19,34 +19,42 @@ import { createPageUrl } from '../utils';
 import { format } from 'date-fns';
 
 export default function LISDashboard() {
+  const { orgFilter, selectedOrgId } = useOrgFiltered();
+
   const { data: orders = [] } = useQuery({
-    queryKey: ['labOrders'],
-    queryFn: () => base44.entities.Order.filter({ order_type: 'lab' }),
+    queryKey: ['labOrders', selectedOrgId],
+    queryFn: () => base44.entities.Order.filter({ order_type: 'lab', ...orgFilter }),
+    enabled: !!selectedOrgId,
   });
 
   const { data: specimens = [] } = useQuery({
-    queryKey: ['specimens'],
-    queryFn: () => base44.entities.Specimen.list(),
+    queryKey: ['specimens', selectedOrgId],
+    queryFn: () => base44.entities.Specimen.filter(orgFilter),
+    enabled: !!selectedOrgId,
   });
 
   const { data: results = [] } = useQuery({
-    queryKey: ['labResults'],
-    queryFn: () => base44.entities.Result.filter({ result_type: 'LAB' }),
+    queryKey: ['labResults', selectedOrgId],
+    queryFn: () => base44.entities.Result.filter({ result_type: 'LAB', ...orgFilter }),
+    enabled: !!selectedOrgId,
   });
 
   const { data: analyzerInbox = [] } = useQuery({
-    queryKey: ['analyzerInbox'],
-    queryFn: () => base44.entities.AnalyzerInbox.list(),
+    queryKey: ['analyzerInbox', selectedOrgId],
+    queryFn: () => base44.entities.AnalyzerInbox.filter(orgFilter),
+    enabled: !!selectedOrgId,
   });
 
   const { data: qcLogs = [] } = useQuery({
-    queryKey: ['qcLogs'],
-    queryFn: () => base44.entities.QCLog.list(),
+    queryKey: ['qcLogs', selectedOrgId],
+    queryFn: () => base44.entities.QCLog.filter(orgFilter),
+    enabled: !!selectedOrgId,
   });
 
   const { data: analyzers = [] } = useQuery({
-    queryKey: ['analyzers'],
-    queryFn: () => base44.entities.AnalyzerRegistry.list(),
+    queryKey: ['analyzers', selectedOrgId],
+    queryFn: () => base44.entities.AnalyzerRegistry.filter(orgFilter),
+    enabled: !!selectedOrgId,
   });
 
   const pendingAccession = orders.filter(o => o.status === 'Pending').length;
