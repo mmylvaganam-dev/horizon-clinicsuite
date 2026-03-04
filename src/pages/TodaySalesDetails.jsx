@@ -21,6 +21,7 @@ import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import MedicineReturnDialog from '../components/pharmacy/MedicineReturnDialog';
+import { useOrganization } = from '@/components/OrganizationProvider';
 
 // Format currency with commas
 const formatCurrency = (amount, currency = 'LKR') => {
@@ -30,6 +31,7 @@ const formatCurrency = (amount, currency = 'LKR') => {
 
 export default function TodaySalesDetails() {
   const navigate = useNavigate();
+  const { selectedOrgId } = useOrganization();
   const [reprintingId, setReprintingId] = useState(null);
   const [showReturnDialog, setShowReturnDialog] = useState(false);
   const [selectedSaleForReturn, setSelectedSaleForReturn] = useState(null);
@@ -39,7 +41,8 @@ export default function TodaySalesDetails() {
     queryFn: () => base44.auth.me(),
   });
 
-  const organizationId = user?.organization_id;
+  // CRITICAL: Use selectedOrgId from org switcher, not static user.organization_id
+  const organizationId = selectedOrgId;
 
   const { data: sales = [] } = useQuery({
     queryKey: ['pharmacySaleHeaders', organizationId],
@@ -72,7 +75,8 @@ export default function TodaySalesDetails() {
     queryKey: ['pharmacySaleLines', organizationId],
     queryFn: async () => {
       if (!organizationId) return [];
-      return base44.entities.PharmacySaleLine.list();
+      // CRITICAL: Filter by organization_id, don't fetch ALL lines
+      return base44.entities.PharmacySaleLine.filter({ organization_id: organizationId });
     },
     enabled: !!organizationId,
   });
@@ -81,7 +85,8 @@ export default function TodaySalesDetails() {
     queryKey: ['companies', organizationId],
     queryFn: async () => {
       if (!organizationId) return [];
-      return base44.entities.CompanyProfile.list();
+      // CRITICAL: Filter by organization_id
+      return base44.entities.CompanyProfile.filter({ organization_id: organizationId });
     },
     enabled: !!organizationId,
   });
