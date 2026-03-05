@@ -56,6 +56,31 @@ export default function ProviderDashboard() {
     enabled: !!currentUser,
   });
 
+  // Get prescriptions for current provider
+  const { data: prescriptions = [] } = useQuery({
+    queryKey: ['prescriptions', currentUser?.id],
+    queryFn: async () => {
+      const allPrescriptions = await base44.entities.Prescription.list('-prescribed_date');
+      return allPrescriptions.filter(p => p.prescriber_id === currentUser?.id);
+    },
+    enabled: !!currentUser,
+  });
+
+  // Get patient alerts from medical records
+  const { data: alerts = [] } = useQuery({
+    queryKey: ['patientAlerts', appointments],
+    queryFn: async () => {
+      if (appointments.length === 0) return [];
+      const appointmentPatients = appointments.map(a => a.patient_id);
+      const records = await base44.entities.MedicalRecord.list();
+      return records
+        .filter(r => appointmentPatients.includes(r.patient_id))
+        .filter(r => r.diagnosis_code || r.chief_complaint)
+        .slice(0, 10);
+    },
+    enabled: appointments.length > 0,
+  });
+
   // Service categories
   const services = [
     { name: 'General Service', icon: Stethoscope, color: 'from-blue-500 to-blue-600' },
