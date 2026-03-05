@@ -16,7 +16,11 @@ import {
   Activity,
   Users,
   TrendingUp,
-  FileText
+  FileText,
+  AlertTriangle,
+  Pill,
+  Eye,
+  ExternalLink
 } from 'lucide-react';
 import { format, isSameDay, parseISO } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
