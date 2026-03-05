@@ -116,6 +116,12 @@ export default function TelemedicinePatientPortal() {
                 Upcoming {upcoming.length > 0 && <Badge className="ml-2 bg-teal-600 text-white border-0">{upcoming.length}</Badge>}
               </TabsTrigger>
               <TabsTrigger value="past" className="flex-1">Past</TabsTrigger>
+            <TabsTrigger value="prescriptions" className="flex-1">
+              Prescriptions
+              {renewablePrescriptions.length > 0 && (
+                <Badge className="ml-1 bg-teal-600 text-white border-0 text-xs">{renewablePrescriptions.length}</Badge>
+              )}
+            </TabsTrigger>
             </TabsList>
 
             <TabsContent value="upcoming" className="space-y-3 mt-4">
