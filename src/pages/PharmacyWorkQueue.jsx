@@ -486,7 +486,7 @@ export default function PharmacyWorkQueue() {
         </TabsContent>
 
         <TabsContent value="dispensed" className="space-y-4">
-          {dispensedPrescriptions.length === 0 ? (
+          {filteredDispensed.length === 0 ? (
             <Card>
               <CardContent className="p-12 text-center">
                 <Package className="w-12 h-12 mx-auto text-slate-300 mb-4" />
