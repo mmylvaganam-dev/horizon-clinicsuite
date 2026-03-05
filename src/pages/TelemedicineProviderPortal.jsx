@@ -106,7 +106,7 @@ export default function TelemedicineProviderPortal() {
                   .sort((a, b) => new Date(a.scheduled_time) - new Date(b.scheduled_time))
                   .map(appt => (
                     <div key={appt.id} className="space-y-2">
-                      <AppointmentCard appt={appt} role="provider" />
+                      <AppointmentCard appt={appt} role="staff" onRefresh={() => queryClient.invalidateQueries({ queryKey: ['teleAppointmentsProvider'] })} />
                       <div className="flex gap-2 px-1">
                         {NEXT_STATUS[appt.status] && (
                           <Button
