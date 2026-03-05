@@ -23,11 +23,26 @@ const VISIT_ICONS = {
   CHAT: MessageSquare,
 };
 
-export default function AppointmentCard({ appt, role = 'patient' }) {
+export default function AppointmentCard({ appt, role = 'patient', onRefresh }) {
   const VisitIcon = VISIT_ICONS[appt.visit_type] || Video;
   const scheduledTime = appt.scheduled_time ? new Date(appt.scheduled_time) : null;
   const isInProgress = appt.status === 'IN_PROGRESS';
+  const isUpcoming = ['BOOKED', 'CONFIRMED'].includes(appt.status);
   const [joining, setJoining] = useState(false);
+  const [showReschedule, setShowReschedule] = useState(false);
+  const qc = useQueryClient();
+
+  // Can cancel: upcoming appointment AND more than 24 hours away
+  const canCancel = role === 'patient' && isUpcoming && scheduledTime &&
+    differenceInHours(scheduledTime, new Date()) >= 24;
+
+  const cancelMutation = useMutation({
+    mutationFn: () => base44.entities.TeleAppointment.update(appt.id, { status: 'CANCELLED' }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['teleAppointments'] });
+      onRefresh?.();
+    },
+  });
 
   const { data: rooms = [] } = useQuery({
     queryKey: ['virtualRoom', appt.id],
