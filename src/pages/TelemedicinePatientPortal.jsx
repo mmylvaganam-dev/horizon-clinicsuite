@@ -9,6 +9,7 @@ import { Plus, Calendar, LogOut, User, Video } from 'lucide-react';
 import { createPageUrl } from '@/utils';
 import BookingWizard from '@/components/telemedicine/BookingWizard';
 import AppointmentCard from '@/components/telemedicine/AppointmentCard';
+import RequestRenewalButton from '@/components/pharmacy/RequestRenewalButton';
 
 export default function TelemedicinePatientPortal() {
   const [session, setSession] = useState(null);
