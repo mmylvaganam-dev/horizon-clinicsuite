@@ -71,6 +71,7 @@ export default function PatientDetails() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [showPHNCard, setShowPHNCard] = useState(false);
   const [showTeleAccess, setShowTeleAccess] = useState(false);
+  const [showSendPharmacy, setShowSendPharmacy] = useState(false);
 
   const { data: branding } = useQuery({
     queryKey: ['organizationBranding'],
