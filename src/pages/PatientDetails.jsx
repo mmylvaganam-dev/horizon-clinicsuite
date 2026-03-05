@@ -584,6 +584,15 @@ export default function PatientDetails() {
         onOpenChange={setShowTeleAccess}
       />
 
+      {/* Send to Pharmacy Dialog */}
+      {patient && (
+        <SendToPharmacyDialog
+          patient={patient}
+          open={showSendPharmacy}
+          onOpenChange={setShowSendPharmacy}
+        />
+      )}
+
       {/* Edit Form */}
       <PatientForm
         open={formOpen}
