@@ -31,9 +31,17 @@ export default function PharmacyWorkQueue() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { orgFilter, selectedOrgId } = useOrgFiltered();
-  const [searchQuery, setSearchQuery] = useState('');
   const [selectedPrescription, setSelectedPrescription] = useState(null);
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [filters, setFilters] = useState({
+    search: '',
+    status: 'all',
+    patientId: 'all',
+    dateFrom: '',
+    dateTo: '',
+    sortBy: 'prescribed_date',
+    sortDir: 'desc',
+  });
 
   const { data: prescriptions = [] } = useQuery({
     queryKey: ['prescriptions'],
