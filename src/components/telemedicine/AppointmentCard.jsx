@@ -113,19 +113,53 @@ export default function AppointmentCard({ appt, role = 'patient', onRefresh }) {
 
         <div className="flex items-center justify-between pt-1 border-t">
           <Badge className="bg-slate-100 text-slate-600 border-0 text-xs">{appt.billing_mode || 'FREE'}</Badge>
-          {isInProgress && (
-            <Button
-              size="sm"
-              className="bg-teal-600 hover:bg-teal-700 gap-1.5"
-              onClick={handleJoin}
-              disabled={joining || createRoomMutation.isPending}
-            >
-              <ExternalLink className="w-3.5 h-3.5" />
-              {joining || createRoomMutation.isPending ? 'Connecting...' : 'Join Visit'}
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {/* Staff reschedule */}
+            {role === 'staff' && isUpcoming && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1 text-xs"
+                onClick={() => setShowReschedule(true)}
+              >
+                <RefreshCw className="w-3 h-3" />
+                Reschedule
+              </Button>
+            )}
+            {/* Patient cancel (24h+ in advance) */}
+            {canCancel && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1 text-xs border-red-200 text-red-600 hover:bg-red-50"
+                disabled={cancelMutation.isPending}
+                onClick={() => cancelMutation.mutate()}
+              >
+                <X className="w-3 h-3" />
+                {cancelMutation.isPending ? 'Cancelling...' : 'Cancel'}
+              </Button>
+            )}
+            {isInProgress && (
+              <Button
+                size="sm"
+                className="bg-teal-600 hover:bg-teal-700 gap-1.5"
+                onClick={handleJoin}
+                disabled={joining || createRoomMutation.isPending}
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                {joining || createRoomMutation.isPending ? 'Connecting...' : 'Join Visit'}
+              </Button>
+            )}
+          </div>
         </div>
       </CardContent>
+
+      <RescheduleAppointmentDialog
+        appointment={appt}
+        open={showReschedule}
+        onOpenChange={setShowReschedule}
+        onDone={onRefresh}
+      />
     </Card>
   );
 }
