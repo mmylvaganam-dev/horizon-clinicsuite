@@ -219,6 +219,7 @@ import WholesaleMarketplace from './pages/WholesaleMarketplace';
 import WholesalePlatformAdmin from './pages/WholesalePlatformAdmin';
 import WholesalePortal from './pages/WholesalePortal';
 import WholesaleProviderAdmin from './pages/WholesaleProviderAdmin';
+import TeleReports from './pages/TeleReports';
 import __Layout from './Layout.jsx';
 
 
@@ -395,6 +396,7 @@ export const PAGES = {
     "WholesalePlatformAdmin": WholesalePlatformAdmin,
     "WholesalePortal": WholesalePortal,
     "WholesaleProviderAdmin": WholesaleProviderAdmin,
+    "TeleReports": TeleReports,
 }
 
 export const pagesConfig = {
