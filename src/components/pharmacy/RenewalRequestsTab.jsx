@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { CheckCircle2, XCircle, RefreshCw, User, FileText } from 'lucide-react';
+import { CheckCircle2, XCircle, RefreshCw, User, FileText, AlertTriangle, Package } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 
