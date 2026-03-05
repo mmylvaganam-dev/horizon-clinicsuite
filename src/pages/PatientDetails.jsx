@@ -39,6 +39,8 @@ import PatientLabsTab from '../components/patient/PatientLabsTab';
 import PHNCard from '@/components/patients/PHNCard';
 import { usePatientAccess, logPatientProfileView } from '../components/rbac/PatientAccessControl';
 import EnableTeleAccessDialog from '@/components/telemedicine/EnableTeleAccessDialog';
+import PreferredPharmacySelector from '@/components/patients/PreferredPharmacySelector';
+import SendToPharmacyDialog from '@/components/patients/SendToPharmacyDialog';
 import {
   AlertDialog,
   AlertDialogAction,
