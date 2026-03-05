@@ -25,6 +25,7 @@ import { createPageUrl } from '../utils';
 import { useNavigate } from 'react-router-dom';
 import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 import RenewalRequestsTab from '@/components/pharmacy/RenewalRequestsTab';
+import PrescriptionFilters from '@/components/pharmacy/PrescriptionFilters';
 
 export default function PharmacyWorkQueue() {
   const queryClient = useQueryClient();
