@@ -494,7 +494,7 @@ export default function PharmacyWorkQueue() {
               </CardContent>
             </Card>
           ) : (
-            dispensedPrescriptions.map((prescription) => {
+            filteredDispensed.map((prescription) => {
               const patient = getPatient(prescription.patient_id);
               return (
                 <Card key={prescription.id} className="opacity-75">
