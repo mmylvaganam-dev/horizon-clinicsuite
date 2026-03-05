@@ -230,6 +230,14 @@ export default function PatientDetails() {
             <Video className="w-4 h-4 mr-2" />
             Tele Access
           </Button>
+          <Button
+            variant="outline"
+            className="border-teal-300 text-teal-700 hover:bg-teal-50"
+            onClick={() => setShowSendPharmacy(true)}
+          >
+            <Send className="w-4 h-4 mr-2" />
+            Send to Pharmacy
+          </Button>
           <Button onClick={() => setFormOpen(true)} className="bg-teal-600 hover:bg-teal-700">
             <Edit className="w-4 h-4 mr-2" />
             Edit
