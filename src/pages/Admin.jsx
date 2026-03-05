@@ -506,6 +506,22 @@ export default function Admin() {
       ]
     },
     {
+      category: 'Virtual Hospital (Platform Owner)',
+      description: 'Global telemedicine, patient hub, billing & compliance',
+      icon: Globe,
+      color: 'from-teal-600 to-cyan-700',
+      bgLight: 'bg-teal-50',
+      border: 'border-teal-200',
+      iconBg: 'bg-teal-600',
+      textColor: 'text-teal-700',
+      ownerOnlyCategory: true,
+      modules: [
+        { title: 'Virtual Hospital Control', description: 'Turn features ON/OFF for the entire platform', icon: Globe, page: 'VirtualHospitalAdmin', ownerOnly: true },
+        { title: 'Patient Hub', description: 'Global patient registration & management', icon: Users, page: 'PatientHub', ownerOnly: true },
+        { title: 'Telemedicine Billing', description: '$50/consult billing dashboard', icon: DollarSign, page: 'TelemedicineBilling', ownerOnly: true },
+      ]
+    },
+    {
       category: 'System Operations',
       description: 'Monitoring, backups, and maintenance',
       icon: Activity,
