@@ -291,6 +291,12 @@ export default function PharmacyWorkQueue() {
             )}
           </TabsTrigger>
           <TabsTrigger value="dispensed">Dispensed</TabsTrigger>
+          <TabsTrigger value="renewals" className="relative">
+            Renewal Requests
+            {(() => {
+              // badge count is handled inside the tab component
+            })()}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="new" className="space-y-4">
@@ -490,6 +496,11 @@ export default function PharmacyWorkQueue() {
               );
             })
           )}
+        </TabsContent>
+      </Tabs>
+
+        <TabsContent value="renewals">
+          <RenewalRequestsTab selectedOrgId={selectedOrgId} />
         </TabsContent>
       </Tabs>
 
