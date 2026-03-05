@@ -146,6 +146,31 @@ export default function TelemedicinePatientPortal() {
                 past.map(a => <AppointmentCard key={a.id} appt={a} role="patient" />)
               )}
             </TabsContent>
+
+            <TabsContent value="prescriptions" className="space-y-3 mt-4">
+              {myPrescriptions.length === 0 ? (
+                <p className="text-center py-12 text-slate-400 text-sm">No prescriptions on file.</p>
+              ) : (
+                myPrescriptions.map(rx => (
+                  <Card key={rx.id}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="space-y-0.5">
+                          <p className="font-semibold text-slate-900 text-sm">{rx.drug_name} {rx.strength}</p>
+                          <p className="text-xs text-slate-500">{rx.directions}</p>
+                          <p className="text-xs text-slate-500">Qty: {rx.quantity} · Status: {rx.status}</p>
+                        </div>
+                        <RequestRenewalButton
+                          prescription={rx}
+                          patientName={session.name}
+                          via="portal"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </TabsContent>
           </Tabs>
         )}
       </div>
