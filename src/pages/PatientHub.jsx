@@ -1,369 +1,307 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from '../utils';
-import { useOrganization } from '@/components/OrganizationProvider';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Users, 
-  Search, 
-  UserPlus,
-  Stethoscope,
-  ShoppingBag,
-  Home,
-  CreditCard,
-  Phone,
-  Mail,
-  IdCard,
-  Calendar,
-  FileEdit
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Users, Globe, Upload, FileText, Video, Stethoscope,
+  Plus, Search, Eye, ArrowRight, MapPin, Phone, Mail
 } from 'lucide-react';
-import { format } from 'date-fns';
-import PatientForm from '../components/patients/PatientForm';
-import RequestPatientEdit from '../components/patients/RequestPatientEdit';
+import toast from 'react-hot-toast';
+import ConsentModal from '../components/telehealth/ConsentModal';
 
 export default function PatientHub() {
-  const navigate = useNavigate();
-  const { selectedOrgId } = useOrganization();
-  const [searchQuery, setSearchQuery] = useState('');
+  const queryClient = useQueryClient();
+  const [search, setSearch] = useState('');
   const [showAddPatient, setShowAddPatient] = useState(false);
-  const [showEditRequest, setShowEditRequest] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
-
-  const { data: user } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
+  const [showConsent, setShowConsent] = useState(false);
+  const [newPatient, setNewPatient] = useState({
+    name: '', email: '', phone: '', date_of_birth: '',
+    gender: 'male', nationality: '', country_of_residence: '',
+    region: 'OTHER', passport_number: '', medical_summary: '',
   });
 
   const { data: patients = [], isLoading } = useQuery({
-    queryKey: ['patients', selectedOrgId],
-    queryFn: async () => {
-      // Only show patients for the selected organization
-      if (!selectedOrgId) {
-        return [];
-      }
-      return base44.entities.Patient.filter({ organization_id: selectedOrgId }, '-created_date');
-    },
-    enabled: !!selectedOrgId,
+    queryKey: ['telePatients'],
+    queryFn: () => base44.entities.TelePatient.list('-created_date', 100),
   });
 
-  const filteredPatients = patients.filter(p => {
-    if (!searchQuery) return true;
-    const search = searchQuery.toLowerCase();
-    return (
-      `${p.first_name} ${p.last_name}`.toLowerCase().includes(search) ||
-      p.phn?.toLowerCase().includes(search) ||
-      p.phone?.toLowerCase().includes(search) ||
-      p.mobile?.toLowerCase().includes(search) ||
-      p.email?.toLowerCase().includes(search) ||
-      p.nic?.toLowerCase().includes(search) ||
-      p.mrn?.toLowerCase().includes(search)
-    );
+  const { data: appointments = [] } = useQuery({
+    queryKey: ['teleAppointments'],
+    queryFn: () => base44.entities.TeleAppointment.list('-created_date', 100),
   });
 
-  const getPatientAge = (dob) => {
-    if (!dob) return null;
-    return Math.floor((new Date() - new Date(dob)) / (365.25 * 24 * 60 * 60 * 1000));
-  };
+  const { data: secondOpinions = [] } = useQuery({
+    queryKey: ['secondOpinionRequests'],
+    queryFn: () => base44.entities.SecondOpinionRequest.list('-created_date', 100),
+  });
 
-  const handleCreatePatient = async (data) => {
-    try {
-      // Generate PHN
-      const phnResponse = await base44.functions.invoke('generatePHN', {});
-      const phn = phnResponse?.data?.phn || `PTN${Date.now()}`;
-      
-      // Create patient with PHN and organization
-      const patientData = {
-        ...data,
-        phn: phn,
-        patient_type: 'registered',
-        status: 'active',
-        organization_id: selectedOrgId
-      };
-      
-      await base44.entities.Patient.create(patientData);
+  const createPatientMutation = useMutation({
+    mutationFn: (data) => base44.entities.TelePatient.create({ ...data, tele_access_enabled: true }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['telePatients']);
       setShowAddPatient(false);
-    } catch (error) {
-      console.error('Patient creation error:', error);
-    }
+      setNewPatient({ name: '', email: '', phone: '', date_of_birth: '', gender: 'male', nationality: '', country_of_residence: '', region: 'OTHER', passport_number: '', medical_summary: '' });
+      toast.success('Global patient registered successfully');
+    },
+    onError: (e) => toast.error('Failed: ' + e.message),
+  });
+
+  const filtered = patients.filter(p =>
+    p.name?.toLowerCase().includes(search.toLowerCase()) ||
+    p.email?.toLowerCase().includes(search.toLowerCase()) ||
+    p.country_of_residence?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const getRegionBadge = (region) => {
+    const map = { EU: 'bg-blue-100 text-blue-800', USA: 'bg-red-100 text-red-800', CANADA: 'bg-red-50 text-red-700', SRI_LANKA: 'bg-yellow-100 text-yellow-800', OTHER: 'bg-slate-100 text-slate-700' };
+    return map[region] || map.OTHER;
   };
 
-  const handleEditPatient = async (data) => {
-    await base44.entities.Patient.update(selectedPatient.id, data);
-    setSelectedPatient(null);
-    setShowAddPatient(false);
-  };
-
-  const handleNameEditRequest = (data) => {
-    setSelectedPatient({ ...selectedPatient, ...data });
-    setShowEditRequest(true);
-  };
+  const patientAppointments = (pid) => appointments.filter(a => a.patient_id === pid);
+  const patientOpinions = (pid) => secondOpinions.filter(s => s.patient_id === pid);
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">Patient Hub</h1>
-          <p className="text-slate-600 mt-1">Central patient management - Search, view profiles, and access all services</p>
+      <div className="bg-gradient-to-r from-teal-600 to-cyan-700 rounded-2xl p-6 text-white shadow-xl">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center">
+              <Globe className="w-7 h-7 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold">Global Patient Hub</h1>
+              <p className="text-teal-100 mt-1">Sri Lankan diaspora & medical tourism patients worldwide</p>
+            </div>
+          </div>
+          <Button onClick={() => setShowAddPatient(true)} className="bg-white text-teal-700 hover:bg-teal-50 font-semibold">
+            <Plus className="w-4 h-4 mr-2" /> Register Patient
+          </Button>
         </div>
-        <Button onClick={() => setShowAddPatient(true)} className="bg-teal-600 hover:bg-teal-700">
-          <UserPlus className="w-4 h-4 mr-2" />
-          Add Patient
-        </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-600">Total Patients</p>
-                <p className="text-2xl font-bold text-slate-900">{patients.length}</p>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-teal-100 flex items-center justify-center">
-                <Users className="w-6 h-6 text-teal-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-600">Active Patients</p>
-                <p className="text-2xl font-bold text-emerald-600">
-                  {patients.filter(p => p.status === 'active').length}
-                </p>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center">
-                <Users className="w-6 h-6 text-emerald-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-600">Walk-in Patients</p>
-                <p className="text-2xl font-bold text-indigo-600">
-                  {patients.filter(p => p.patient_type === 'walk_in').length}
-                </p>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center">
-                <Users className="w-6 h-6 text-indigo-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-600">New This Month</p>
-                <p className="text-2xl font-bold text-blue-600">
-                  {patients.filter(p => {
-                    const created = new Date(p.created_date);
-                    const now = new Date();
-                    return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
-                  }).length}
-                </p>
-              </div>
-              <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-blue-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: 'Total Global Patients', value: patients.length, icon: Users, color: 'text-teal-600' },
+          { label: 'EU Patients', value: patients.filter(p => p.region === 'EU').length, icon: Globe, color: 'text-blue-600' },
+          { label: 'USA Patients', value: patients.filter(p => p.region === 'USA').length, icon: Globe, color: 'text-red-600' },
+          { label: 'Medical Tourism Interest', value: secondOpinions.filter(s => s.medical_tourism_interested).length, icon: Stethoscope, color: 'text-purple-600' },
+        ].map((s, i) => (
+          <Card key={i}>
+            <CardContent className="p-4">
+              <s.icon className={`w-8 h-8 ${s.color} mb-2`} />
+              <p className="text-2xl font-bold text-slate-900">{s.value}</p>
+              <p className="text-sm text-slate-500">{s.label}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Search */}
-      <Card className="bg-gradient-to-r from-teal-50 to-emerald-50 border-teal-200">
-        <CardContent className="pt-6">
-          <div className="space-y-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-teal-600" />
-              <Input
-                placeholder="Search by name, PHN, phone, email, MRN, or NIC..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12 text-lg border-teal-300 bg-white focus:border-teal-500"
-              />
-            </div>
-            {searchQuery && (
-              <p className="text-sm text-slate-600 px-1">
-                Found <span className="font-semibold text-teal-700">{filteredPatients.length}</span> patient{filteredPatients.length !== 1 ? 's' : ''}
-              </p>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="patients">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="patients">All Patients</TabsTrigger>
+          <TabsTrigger value="opinions">Second Opinions</TabsTrigger>
+          <TabsTrigger value="tourism">Medical Tourism</TabsTrigger>
+        </TabsList>
 
-      {/* Patient List */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {isLoading ? (
-          <div className="col-span-2 text-center py-12">
-            <p className="text-slate-500">Loading patients...</p>
+        {/* PATIENTS LIST */}
+        <TabsContent value="patients" className="space-y-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input placeholder="Search by name, email, country..." className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
           </div>
-        ) : filteredPatients.length === 0 ? (
-          <div className="col-span-2 text-center py-12">
-            <Users className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-            <p className="text-slate-500">No patients found</p>
-          </div>
-        ) : (
-          filteredPatients.map((patient) => {
-            const age = getPatientAge(patient.date_of_birth);
-            return (
-              <Card key={patient.id} className="hover:shadow-lg transition-shadow cursor-pointer group">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      {patient.photo_url ? (
-                        <img 
-                          src={patient.photo_url} 
-                          alt={`${patient.first_name} ${patient.last_name}`}
-                          className="w-12 h-12 rounded-xl object-cover"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center text-white font-bold">
-                          {patient.first_name?.[0]}{patient.last_name?.[0]}
+
+          {isLoading ? (
+            <div className="text-center py-12 text-slate-400">Loading patients...</div>
+          ) : filtered.length === 0 ? (
+            <div className="text-center py-12 text-slate-400">
+              <Users className="w-12 h-12 mx-auto mb-3 opacity-30" />
+              <p>No patients found. Register your first global patient.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filtered.map((patient) => (
+                <Card key={patient.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedPatient(patient)}>
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center text-teal-700 font-bold">
+                          {patient.name?.charAt(0) || '?'}
                         </div>
-                      )}
-                      <div>
-                        <CardTitle className="text-lg">
-                          {patient.first_name} {patient.last_name}
-                        </CardTitle>
-                        <div className="flex items-center gap-2 mt-1">
-                          {patient.phn && (
-                            <Badge variant="outline" className="text-xs">
-                              <IdCard className="w-3 h-3 mr-1" />
-                              {patient.phn}
-                            </Badge>
-                          )}
-                          {age && <span className="text-xs text-slate-500">{age} years</span>}
-                          {patient.gender && <span className="text-xs text-slate-500 capitalize">{patient.gender}</span>}
+                        <div>
+                          <p className="font-semibold text-slate-900">{patient.name}</p>
+                          <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
+                            <Mail className="w-3 h-3" />{patient.email}
+                            {patient.country_of_residence && <><MapPin className="w-3 h-3 ml-1" />{patient.country_of_residence}</>}
+                          </div>
                         </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className={getRegionBadge(patient.region)}>{patient.region || 'OTHER'}</Badge>
+                        <Badge variant="outline" className="text-xs">{patientAppointments(patient.id).length} consults</Badge>
+                        {patientOpinions(patient.id).length > 0 && <Badge className="bg-purple-100 text-purple-800 text-xs">2nd opinion</Badge>}
+                        <Eye className="w-4 h-4 text-slate-400" />
                       </div>
                     </div>
-                    <Badge variant="outline" className={
-                      patient.status === 'active' ? 'bg-emerald-50 text-emerald-700' :
-                      patient.status === 'inactive' ? 'bg-slate-50 text-slate-700' :
-                      'bg-rose-50 text-rose-700'
-                    }>
-                      {patient.status || 'active'}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {/* Contact Info */}
-                  <div className="space-y-1.5 text-sm">
-                    {patient.mobile && (
-                      <div className="flex items-center gap-2 text-slate-600">
-                        <Phone className="w-4 h-4" />
-                        <span>{patient.mobile}</span>
-                      </div>
-                    )}
-                    {patient.email && (
-                      <div className="flex items-center gap-2 text-slate-600">
-                        <Mail className="w-4 h-4" />
-                        <span className="truncate">{patient.email}</span>
-                      </div>
-                    )}
-                    {patient.mrn && (
-                      <div className="flex items-center gap-2 text-slate-600">
-                        <IdCard className="w-4 h-4" />
-                        <span>MRN: {patient.mrn}</span>
-                      </div>
-                    )}
-                    {patient.nic && (
-                      <div className="flex items-center gap-2 text-slate-600">
-                        <CreditCard className="w-4 h-4" />
-                        <span>NIC: {patient.nic}</span>
-                      </div>
-                    )}
-                  </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
 
-                  {/* Action Buttons */}
-                  <div className="grid grid-cols-5 gap-2 pt-2 border-t">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => navigate(`${createPageUrl('PatientDetails')}?id=${patient.id}`)}
-                      className="text-xs"
-                      title="View Details"
-                    >
-                      <Users className="w-3 h-3" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => navigate(`${createPageUrl('EMR')}?patient=${patient.id}`)}
-                      className="text-xs"
-                      title="EMR"
-                    >
-                      <Stethoscope className="w-3 h-3" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => navigate(createPageUrl('PharmacyBilling'))}
-                      className="text-xs"
-                      title="Pharmacy"
-                    >
-                      <ShoppingBag className="w-3 h-3" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => navigate(createPageUrl('HomeCarePatients'))}
-                      className="text-xs"
-                      title="Home Care"
-                    >
-                      <Home className="w-3 h-3" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedPatient(patient);
-                        setShowEditRequest(true);
-                      }}
-                      className="text-xs"
-                      title="Request Edit"
-                    >
-                      <FileEdit className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })
-        )}
-      </div>
+        {/* SECOND OPINIONS */}
+        <TabsContent value="opinions" className="space-y-4">
+          {secondOpinions.length === 0 ? (
+            <div className="text-center py-12 text-slate-400">
+              <Stethoscope className="w-12 h-12 mx-auto mb-3 opacity-30" />
+              <p>No second opinion requests yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {secondOpinions.map((op) => (
+                <Card key={op.id}>
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div>
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-semibold text-slate-900">{op.patient_name}</p>
+                          <Badge className={op.priority === 'urgent' ? 'bg-red-100 text-red-800' : 'bg-slate-100 text-slate-700'}>{op.priority}</Badge>
+                          <Badge className={
+                            op.status === 'completed' ? 'bg-green-100 text-green-800' :
+                            op.status === 'assigned' ? 'bg-blue-100 text-blue-800' :
+                            'bg-yellow-100 text-yellow-800'
+                          }>{op.status}</Badge>
+                        </div>
+                        <p className="text-sm text-slate-600"><strong>Original diagnosis:</strong> {op.original_diagnosis}</p>
+                        <p className="text-sm text-slate-500"><strong>Specialty needed:</strong> {op.specialty_required || 'General'}</p>
+                        {op.assigned_provider_name && <p className="text-xs text-teal-700 mt-1">Assigned to: Dr. {op.assigned_provider_name}</p>}
+                      </div>
+                      <div className="text-right text-xs text-slate-400">
+                        {op.uploaded_reports?.length > 0 && (
+                          <p className="flex items-center gap-1"><FileText className="w-3 h-3" />{op.uploaded_reports.length} files</p>
+                        )}
+                        {op.medical_tourism_interested && <Badge className="bg-purple-100 text-purple-800 mt-1">Medical Tourism</Badge>}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
 
-      {/* Add/Edit Patient Form */}
-      <PatientForm
-        open={showAddPatient}
-        onOpenChange={setShowAddPatient}
-        patient={selectedPatient}
-        onSubmit={selectedPatient ? handleEditPatient : handleCreatePatient}
-        onRequestNameEdit={handleNameEditRequest}
-      />
+        {/* MEDICAL TOURISM */}
+        <TabsContent value="tourism" className="space-y-4">
+          <div className="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
+            <p className="font-semibold text-indigo-900 mb-1">Medical Tourism Pipeline</p>
+            <p className="text-sm text-indigo-700">Patients who had a virtual consultation and are interested in visiting Sri Lanka for treatment.</p>
+          </div>
+          {secondOpinions.filter(s => s.medical_tourism_interested).length === 0 ? (
+            <div className="text-center py-12 text-slate-400">
+              <Globe className="w-12 h-12 mx-auto mb-3 opacity-30" />
+              <p>No medical tourism interest recorded yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {secondOpinions.filter(s => s.medical_tourism_interested).map((op) => (
+                <Card key={op.id} className="border-purple-200">
+                  <CardContent className="p-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-slate-900">{op.patient_name}</p>
+                        <p className="text-sm text-slate-500">{op.original_country} → Sri Lanka</p>
+                        <p className="text-sm text-slate-600 mt-1">{op.specialty_required}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-purple-100 text-purple-800">Interested</Badge>
+                        <ArrowRight className="w-4 h-4 text-slate-400" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
 
-      {/* Edit Request Dialog */}
-      <RequestPatientEdit
-        open={showEditRequest}
-        onOpenChange={setShowEditRequest}
-        patient={selectedPatient}
-        user={user}
-      />
+      {/* Add Patient Dialog */}
+      <Dialog open={showAddPatient} onOpenChange={setShowAddPatient}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Register Global Patient</DialogTitle>
+          </DialogHeader>
+          <div className="grid grid-cols-2 gap-4 mt-2">
+            {[
+              { label: 'Full Name *', key: 'name', type: 'text', colSpan: 2 },
+              { label: 'Email *', key: 'email', type: 'email' },
+              { label: 'Phone', key: 'phone', type: 'text' },
+              { label: 'Date of Birth', key: 'date_of_birth', type: 'date' },
+              { label: 'Passport Number', key: 'passport_number', type: 'text' },
+              { label: 'Nationality', key: 'nationality', type: 'text' },
+              { label: 'Country of Residence', key: 'country_of_residence', type: 'text' },
+            ].map((field) => (
+              <div key={field.key} className={field.colSpan === 2 ? 'col-span-2' : ''}>
+                <Label>{field.label}</Label>
+                <Input type={field.type} value={newPatient[field.key]} onChange={e => setNewPatient(p => ({ ...p, [field.key]: e.target.value }))} />
+              </div>
+            ))}
+            <div>
+              <Label>Gender</Label>
+              <Select value={newPatient.gender} onValueChange={v => setNewPatient(p => ({ ...p, gender: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Region (for compliance)</Label>
+              <Select value={newPatient.region} onValueChange={v => setNewPatient(p => ({ ...p, region: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="EU">🇪🇺 European Union (GDPR)</SelectItem>
+                  <SelectItem value="USA">🇺🇸 United States (HIPAA)</SelectItem>
+                  <SelectItem value="CANADA">🇨🇦 Canada (PIPEDA)</SelectItem>
+                  <SelectItem value="SRI_LANKA">🇱🇰 Sri Lanka</SelectItem>
+                  <SelectItem value="OTHER">🌍 Other</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="col-span-2">
+              <Label>Medical Summary / Reason for Consultation</Label>
+              <textarea
+                className="w-full border rounded-md p-2 text-sm min-h-[80px]"
+                value={newPatient.medical_summary}
+                onChange={e => setNewPatient(p => ({ ...p, medical_summary: e.target.value }))}
+                placeholder="Brief description of medical history or reason for seeking consultation..."
+              />
+            </div>
+          </div>
+          <div className="flex gap-3 mt-4">
+            <Button variant="outline" onClick={() => setShowAddPatient(false)} className="flex-1">Cancel</Button>
+            <Button
+              onClick={() => createPatientMutation.mutate(newPatient)}
+              disabled={!newPatient.name || !newPatient.email || createPatientMutation.isPending}
+              className="flex-1 bg-teal-600 hover:bg-teal-700"
+            >
+              {createPatientMutation.isPending ? 'Registering...' : 'Register Patient'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
