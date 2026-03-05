@@ -27,7 +27,9 @@ import {
   Home,
   Stethoscope,
   ShoppingBag,
-  IdCard
+  IdCard,
+  Video,
+  Send
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
