@@ -424,7 +424,7 @@ export default function PharmacyWorkQueue() {
         </TabsContent>
 
         <TabsContent value="verified" className="space-y-4">
-          {verifiedPrescriptions.length === 0 ? (
+          {filteredVerified.length === 0 ? (
             <Card>
               <CardContent className="p-12 text-center">
                 <Clock className="w-12 h-12 mx-auto text-slate-300 mb-4" />
