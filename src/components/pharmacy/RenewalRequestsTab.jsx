@@ -51,17 +51,35 @@ export default function RenewalRequestsTab({ selectedOrgId }) {
         status: 'New',
       });
       // Update the renewal request
-      return base44.entities.PrescriptionRenewalRequest.update(req.id, {
+      await base44.entities.PrescriptionRenewalRequest.update(req.id, {
         status: 'approved',
         reviewed_at: new Date().toISOString(),
         pharmacist_notes: pharmacistNotes,
         new_prescription_id: newRx.id,
       });
+
+      // --- Stock Check ---
+      const stockItems = await base44.entities.PharmacyStock.filter({
+        organization_id: req.organization_id,
+        drug_name: req.drug_name,
+      });
+      const totalQty = stockItems.reduce((sum, s) => sum + (s.quantity_on_hand ?? s.quantity ?? 0), 0);
+      const requestedQty = req.quantity_requested || 0;
+      let alertStatus = null;
+      if (totalQty === 0) alertStatus = 'out_of_stock';
+      else if (totalQty < requestedQty) alertStatus = 'insufficient';
+      else if (totalQty <= LOW_STOCK_THRESHOLD) alertStatus = 'low';
+
+      return { alertStatus, totalQty, requestedQty, drugName: req.drug_name };
     },
-    onSuccess: () => {
+    onSuccess: ({ alertStatus, totalQty, requestedQty, drugName }) => {
       qc.invalidateQueries({ queryKey: ['renewalRequests'] });
       qc.invalidateQueries({ queryKey: ['prescriptions'] });
-      toast.success('Renewal approved — new prescription created');
+      if (alertStatus) {
+        setStockAlert({ drugName, currentQty: totalQty, requestedQty, status: alertStatus });
+      } else {
+        toast.success('Renewal approved — new prescription created');
+      }
       setSelected(null);
     },
   });
