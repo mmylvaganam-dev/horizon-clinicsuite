@@ -14,7 +14,6 @@ import {
   User,
   FileText,
   Package,
-  Search,
   AlertCircle,
   ArrowRight,
   Send
