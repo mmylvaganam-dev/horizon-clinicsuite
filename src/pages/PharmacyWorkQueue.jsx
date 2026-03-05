@@ -497,7 +497,6 @@ export default function PharmacyWorkQueue() {
             })
           )}
         </TabsContent>
-      </Tabs>
 
         <TabsContent value="renewals">
           <RenewalRequestsTab selectedOrgId={selectedOrgId} />
