@@ -226,6 +226,53 @@ export default function PharmacyWorkQueue() {
         />
       </div>
 
+      {/* Incoming Delivery Queue Banner */}
+      {deliveryQueue.length > 0 && (
+        <Card className="border-teal-300 bg-teal-50">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <Send className="w-5 h-5 text-teal-600" />
+              <h3 className="font-semibold text-teal-900">Incoming Delivery Requests ({deliveryQueue.length})</h3>
+            </div>
+            <div className="space-y-2">
+              {deliveryQueue.map(rx => {
+                const patient = getPatient(rx.patient_id);
+                const statusColors2 = {
+                  pending: 'bg-amber-100 text-amber-700',
+                  received: 'bg-blue-100 text-blue-700',
+                  preparing: 'bg-purple-100 text-purple-700',
+                };
+                const next = { pending: 'received', received: 'preparing', preparing: 'ready' };
+                const nextLabel = { pending: 'Mark Received', received: 'Mark Preparing', preparing: 'Mark Ready' };
+                return (
+                  <div key={rx.id} className="bg-white rounded-lg border border-teal-200 p-3 flex items-center gap-3">
+                    <div className="flex-1">
+                      <p className="font-medium text-slate-900 text-sm">{rx.drug_name} {rx.strength} × {rx.quantity}</p>
+                      <p className="text-xs text-slate-500">
+                        Patient: {patient ? `${patient.first_name} ${patient.last_name}` : rx.patient_id}
+                        {rx.delivery_sent_at && ` · Sent: ${format(new Date(rx.delivery_sent_at), 'MMM d, h:mm a')}`}
+                      </p>
+                    </div>
+                    <Badge className={`${statusColors2[rx.delivery_status] || 'bg-slate-100 text-slate-600'} border-0 text-xs`}>
+                      {rx.delivery_status}
+                    </Badge>
+                    {next[rx.delivery_status] && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => updateDeliveryStatus.mutate({ id: rx.id, status: next[rx.delivery_status] })}
+                      >
+                        {nextLabel[rx.delivery_status]}
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Prescription Lists */}
       <Tabs defaultValue="new" className="space-y-6">
         <TabsList>
