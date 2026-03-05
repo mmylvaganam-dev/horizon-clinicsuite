@@ -33,6 +33,14 @@ export default function TelemedicinePatientPortal() {
     enabled: !!session?.id,
   });
 
+  const { data: myPrescriptions = [] } = useQuery({
+    queryKey: ['telePatientPrescriptions', session?.id],
+    queryFn: () => base44.entities.Prescription.filter({ patient_id: session.patient_id || session.id }),
+    enabled: !!session,
+  });
+
+  const renewablePrescriptions = myPrescriptions.filter(p => ['Verified', 'Dispensed'].includes(p.status));
+
   const upcoming = appointments.filter(a => ['BOOKED', 'CONFIRMED', 'IN_PROGRESS'].includes(a.status));
   const past = appointments.filter(a => ['COMPLETED', 'CANCELLED', 'NO_SHOW'].includes(a.status));
 
