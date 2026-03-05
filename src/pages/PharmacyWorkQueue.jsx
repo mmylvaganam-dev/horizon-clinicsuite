@@ -85,19 +85,52 @@ export default function PharmacyWorkQueue() {
     }
   });
 
-  // Filter prescriptions
+  // Apply shared filters + sort to any prescription list
+  const applyFilters = (list, statusOverride = null) => {
+    const { search, status, patientId, dateFrom, dateTo, sortBy, sortDir } = filters;
+    let result = list.filter(p => {
+      const effectiveStatus = statusOverride || status;
+      if (effectiveStatus !== 'all' && p.status !== effectiveStatus) return false;
+      if (patientId !== 'all' && p.patient_id !== patientId) return false;
+      if (dateFrom && p.prescribed_date && new Date(p.prescribed_date) < new Date(dateFrom)) return false;
+      if (dateTo && p.prescribed_date && new Date(p.prescribed_date) > new Date(dateTo + 'T23:59:59')) return false;
+      if (search) {
+        const q = search.toLowerCase();
+        const patient = patients.find(pat => pat.id === p.patient_id);
+        const patientName = patient ? `${patient.first_name} ${patient.last_name}` : '';
+        if (!p.drug_name?.toLowerCase().includes(q) && !patientName.toLowerCase().includes(q) && !patient?.patient_id?.toLowerCase().includes(q)) return false;
+      }
+      return true;
+    });
+
+    result.sort((a, b) => {
+      let valA, valB;
+      if (sortBy === 'prescribed_date') {
+        valA = new Date(a.prescribed_date || 0).getTime();
+        valB = new Date(b.prescribed_date || 0).getTime();
+      } else if (sortBy === 'drug_name') {
+        valA = (a.drug_name || '').toLowerCase();
+        valB = (b.drug_name || '').toLowerCase();
+      } else if (sortBy === 'patient_name') {
+        const pA = patients.find(p => p.id === a.patient_id);
+        const pB = patients.find(p => p.id === b.patient_id);
+        valA = pA ? `${pA.first_name} ${pA.last_name}`.toLowerCase() : '';
+        valB = pB ? `${pB.first_name} ${pB.last_name}`.toLowerCase() : '';
+      }
+      if (valA < valB) return sortDir === 'asc' ? -1 : 1;
+      if (valA > valB) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return result;
+  };
+
   const newPrescriptions = prescriptions.filter(p => p.status === 'New');
   const verifiedPrescriptions = prescriptions.filter(p => p.status === 'Verified');
   const dispensedPrescriptions = prescriptions.filter(p => p.status === 'Dispensed');
 
-  const filteredNew = newPrescriptions.filter(p => {
-    const patient = patients.find(pat => pat.id === p.patient_id);
-    const search = searchQuery.toLowerCase();
-    return search === '' ||
-      p.drug_name.toLowerCase().includes(search) ||
-      (patient && `${patient.first_name} ${patient.last_name}`.toLowerCase().includes(search)) ||
-      patient?.patient_id?.toLowerCase().includes(search);
-  });
+  const filteredNew = applyFilters(prescriptions, 'New');
+  const filteredVerified = applyFilters(prescriptions, 'Verified');
+  const filteredDispensed = applyFilters(prescriptions, 'Dispensed');
 
   const getPatient = (patientId) => patients.find(p => p.id === patientId);
 
