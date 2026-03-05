@@ -113,6 +113,16 @@ export default function PatientDetails() {
     enabled: !!patientId,
   });
 
+  const { data: teleAppointments = [], refetch: refetchTele } = useQuery({
+    queryKey: ['patientTeleAppointments', patientId],
+    queryFn: async () => {
+      // Find linked TelePatient by emr patient_id or email
+      const tele = await base44.entities.TeleAppointment.filter({ emr_patient_id: patientId });
+      return tele;
+    },
+    enabled: !!patientId,
+  });
+
   const updateMutation = useMutation({
     mutationFn: (data) => base44.entities.Patient.update(patientId, data),
     onSuccess: () => {
