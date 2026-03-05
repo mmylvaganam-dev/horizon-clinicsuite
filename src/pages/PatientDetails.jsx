@@ -308,7 +308,7 @@ export default function PatientDetails() {
 
       {/* Tabs Content */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid grid-cols-3 lg:grid-cols-7 w-full">
+        <TabsList className="grid grid-cols-3 lg:grid-cols-8 w-full">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           {access.canViewAppointments && <TabsTrigger value="appointments">Appointments</TabsTrigger>}
           {access.canViewClinicalNotes && <TabsTrigger value="records">Records</TabsTrigger>}
@@ -316,6 +316,12 @@ export default function PatientDetails() {
           {access.canViewLabResults && <TabsTrigger value="labs">Labs</TabsTrigger>}
           {access.canViewReferrals && <TabsTrigger value="referrals">Referrals</TabsTrigger>}
           {access.canViewTasks && <TabsTrigger value="tasks">Tasks</TabsTrigger>}
+          <TabsTrigger value="tele">
+            Tele
+            {teleAppointments.filter(a => ['BOOKED','CONFIRMED','IN_PROGRESS'].includes(a.status)).length > 0 && (
+              <Badge className="ml-1 bg-teal-600 text-white border-0 text-xs">{teleAppointments.filter(a => ['BOOKED','CONFIRMED','IN_PROGRESS'].includes(a.status)).length}</Badge>
+            )}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
