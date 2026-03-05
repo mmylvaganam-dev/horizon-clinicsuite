@@ -242,7 +242,7 @@ export default function ProviderDashboard() {
       </Card>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
           <CardContent className="p-6">
             <Calendar className="w-8 h-8 mb-2 opacity-80" />
@@ -267,11 +267,156 @@ export default function ProviderDashboard() {
           </CardContent>
         </Card>
 
+        <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+          <CardContent className="p-6">
+            <Pill className="w-8 h-8 mb-2 opacity-80" />
+            <p className="text-sm opacity-90">Pending RX</p>
+            <p className="text-3xl font-bold mt-1">{stats.pendingPrescriptions}</p>
+          </CardContent>
+        </Card>
+
         <Card className="bg-gradient-to-br from-rose-500 to-rose-600 text-white">
           <CardContent className="p-6">
-            <XCircle className="w-8 h-8 mb-2 opacity-80" />
-            <p className="text-sm opacity-90">Cancelled</p>
-            <p className="text-3xl font-bold mt-1">{stats.cancelled}</p>
+            <AlertTriangle className="w-8 h-8 mb-2 opacity-80" />
+            <p className="text-sm opacity-90">Alerts</p>
+            <p className="text-3xl font-bold mt-1">{stats.patientAlerts}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Pending Prescriptions & Patient Alerts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Pending Prescriptions */}
+        <Card>
+          <div className="p-4 border-b bg-gradient-to-r from-purple-600 to-purple-700 text-white">
+            <h2 className="text-lg font-bold flex items-center gap-2">
+              <Pill className="w-5 h-5" />
+              Pending Prescription Verifications
+            </h2>
+            <p className="text-sm opacity-90 mt-1">{pendingPrescriptions.length} prescriptions awaiting action</p>
+          </div>
+          <CardContent className="p-0">
+            {pendingPrescriptions.length === 0 ? (
+              <div className="p-8 text-center">
+                <Pill className="w-10 h-10 mx-auto text-slate-300 mb-3" />
+                <p className="text-slate-500">No pending prescriptions</p>
+              </div>
+            ) : (
+              <div className="divide-y max-h-96 overflow-y-auto">
+                {pendingPrescriptions.slice(0, 8).map(rx => {
+                  const patient = patients.find(p => p.id === rx.patient_id);
+                  return (
+                    <div key={rx.id} className="p-4 hover:bg-slate-50 transition-colors">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-slate-900 truncate">
+                            {rx.drug_name} {rx.strength && `(${rx.strength})`}
+                          </p>
+                          <p className="text-sm text-slate-600 mt-1">
+                            {patient ? `${patient.first_name} ${patient.last_name}` : 'Unknown Patient'}
+                          </p>
+                          <p className="text-xs text-slate-500 mt-1">
+                            {rx.directions} • Qty: {rx.quantity}
+                          </p>
+                        </div>
+                        <div className="flex gap-2 flex-shrink-0">
+                          <Badge className={
+                            rx.status === 'New' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'
+                          }>
+                            {rx.status}
+                          </Badge>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => patient && navigate(createPageUrl(`PatientDetails?id=${patient.id}`))}
+                            title="View patient"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {pendingPrescriptions.length > 8 && (
+              <div className="p-3 border-t bg-slate-50 text-center">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate(createPageUrl('Prescriptions'))}
+                  className="text-purple-600"
+                >
+                  View All {pendingPrescriptions.length} <ExternalLink className="w-3 h-3 ml-1" />
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Patient Alerts */}
+        <Card>
+          <div className="p-4 border-b bg-gradient-to-r from-rose-600 to-rose-700 text-white">
+            <h2 className="text-lg font-bold flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5" />
+              Patient Alerts & Recent Issues
+            </h2>
+            <p className="text-sm opacity-90 mt-1">{alerts.length} recent alerts from your patients</p>
+          </div>
+          <CardContent className="p-0">
+            {alerts.length === 0 ? (
+              <div className="p-8 text-center">
+                <AlertTriangle className="w-10 h-10 mx-auto text-slate-300 mb-3" />
+                <p className="text-slate-500">No recent patient alerts</p>
+              </div>
+            ) : (
+              <div className="divide-y max-h-96 overflow-y-auto">
+                {alerts.slice(0, 8).map(alert => {
+                  const patient = patients.find(p => p.id === alert.patient_id);
+                  return (
+                    <div key={alert.id} className="p-4 hover:bg-slate-50 transition-colors">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-slate-900 truncate">
+                            {alert.chief_complaint || alert.diagnosis || 'Clinical Issue'}
+                          </p>
+                          <p className="text-sm text-slate-600 mt-1">
+                            {patient ? `${patient.first_name} ${patient.last_name}` : 'Unknown Patient'}
+                          </p>
+                          <p className="text-xs text-slate-500 mt-1">
+                            {alert.record_type?.replace('_', ' ')} • {format(new Date(alert.record_date), 'MMM d, yyyy')}
+                          </p>
+                          {alert.diagnosis_code && (
+                            <p className="text-xs text-slate-400 mt-1">Code: {alert.diagnosis_code}</p>
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => patient && navigate(createPageUrl(`EMR?patientId=${patient.id}`))}
+                          title="View EMR"
+                        >
+                          <FileText className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {alerts.length > 8 && (
+              <div className="p-3 border-t bg-slate-50 text-center">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate(createPageUrl('MedicalRecords'))}
+                  className="text-rose-600"
+                >
+                  View All Records <ExternalLink className="w-3 h-3 ml-1" />
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
