@@ -379,6 +379,7 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Patient Login Page', page: 'TeleLogin', icon: Video, description: 'Patient OTP login page for the telemedicine portal' },
         { name: 'Provider Portal', page: 'TelemedicineProviderPortal', icon: Activity, description: 'Doctor-facing virtual consultation portal' },
         { name: 'Admin', page: 'TelemedicineAdmin', icon: Settings, description: 'Virtual hospital administration and configuration' },
+        { name: 'Reports & Analytics', page: 'TeleReports', icon: BarChart3, description: 'Consultation reports, KPIs, CSV/PDF exports — CrossBorder Health Network analytics' },
       ]
     },
     {
