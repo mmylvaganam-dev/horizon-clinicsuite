@@ -43,6 +43,7 @@ import { usePatientAccess, logPatientProfileView } from '../components/rbac/Pati
 import EnableTeleAccessDialog from '@/components/telemedicine/EnableTeleAccessDialog';
 import PreferredPharmacySelector from '@/components/patients/PreferredPharmacySelector';
 import SendToPharmacyDialog from '@/components/patients/SendToPharmacyDialog';
+import AppointmentCard from '@/components/telemedicine/AppointmentCard';
 import {
   AlertDialog,
   AlertDialogAction,
