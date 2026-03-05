@@ -173,6 +173,43 @@ export default function RenewalRequestsTab({ selectedOrgId }) {
         </div>
       )}
 
+      {/* Stock Alert Dialog */}
+      {stockAlert && (
+        <Dialog open={!!stockAlert} onOpenChange={() => { setStockAlert(null); toast.success('Renewal approved — new prescription created'); }}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2 text-amber-700">
+                <AlertTriangle className="w-5 h-5" />
+                {stockAlert.status === 'out_of_stock' ? 'Out of Stock' : stockAlert.status === 'insufficient' ? 'Insufficient Stock' : 'Low Stock Warning'}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className={`rounded-lg p-4 border ${stockAlert.status === 'out_of_stock' ? 'bg-red-50 border-red-200' : 'bg-amber-50 border-amber-200'}`}>
+                <div className="flex items-start gap-3">
+                  <Package className={`w-5 h-5 mt-0.5 ${stockAlert.status === 'out_of_stock' ? 'text-red-500' : 'text-amber-500'}`} />
+                  <div className="text-sm space-y-1">
+                    <p className="font-semibold text-slate-900">{stockAlert.drugName}</p>
+                    {stockAlert.status === 'out_of_stock' && (
+                      <p className="text-red-700">No stock available. Prescription was created but <strong>cannot be filled</strong> without restocking.</p>
+                    )}
+                    {stockAlert.status === 'insufficient' && (
+                      <p className="text-amber-700">Current stock: <strong>{stockAlert.currentQty}</strong> units — Prescribed: <strong>{stockAlert.requestedQty}</strong> units. Stock is insufficient to fill this prescription.</p>
+                    )}
+                    {stockAlert.status === 'low' && (
+                      <p className="text-amber-700">Current stock: <strong>{stockAlert.currentQty}</strong> units (below threshold of {LOW_STOCK_THRESHOLD}). Consider reordering soon.</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-slate-500">The prescription has been created successfully. Please update inventory or raise a purchase order as needed.</p>
+              <Button className="w-full" onClick={() => { setStockAlert(null); toast.success('Renewal approved — new prescription created'); }}>
+                Acknowledged
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
       {/* Review Dialog */}
       {selected && (
         <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
