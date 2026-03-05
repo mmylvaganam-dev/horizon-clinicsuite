@@ -432,7 +432,7 @@ export default function PharmacyWorkQueue() {
               </CardContent>
             </Card>
           ) : (
-            verifiedPrescriptions.map((prescription) => {
+            filteredVerified.map((prescription) => {
               const patient = getPatient(prescription.patient_id);
               return (
                 <Card key={prescription.id} className="hover:shadow-lg transition-shadow border-l-4 border-blue-500">
