@@ -196,6 +196,7 @@ import StaffDirectory from './pages/StaffDirectory';
 import TaskManagement from './pages/TaskManagement';
 import TeleLogin from './pages/TeleLogin';
 import TelemedicineAdmin from './pages/TelemedicineAdmin';
+import TelemedicineBilling from './pages/TelemedicineBilling';
 import TelemedicineCorporates from './pages/TelemedicineCorporates';
 import TelemedicineDoctors from './pages/TelemedicineDoctors';
 import TelemedicinePatientPortal from './pages/TelemedicinePatientPortal';
@@ -212,13 +213,12 @@ import TodaySalesDetails from './pages/TodaySalesDetails';
 import UserApprovals from './pages/UserApprovals';
 import UserManagement from './pages/UserManagement';
 import VendorManagement from './pages/VendorManagement';
+import VirtualHospitalAdmin from './pages/VirtualHospitalAdmin';
 import VitalsTrend from './pages/VitalsTrend';
 import WholesaleMarketplace from './pages/WholesaleMarketplace';
 import WholesalePlatformAdmin from './pages/WholesalePlatformAdmin';
 import WholesalePortal from './pages/WholesalePortal';
 import WholesaleProviderAdmin from './pages/WholesaleProviderAdmin';
-import VirtualHospitalAdmin from './pages/VirtualHospitalAdmin';
-import TelemedicineBilling from './pages/TelemedicineBilling';
 import __Layout from './Layout.jsx';
 
 
@@ -372,6 +372,7 @@ export const PAGES = {
     "TaskManagement": TaskManagement,
     "TeleLogin": TeleLogin,
     "TelemedicineAdmin": TelemedicineAdmin,
+    "TelemedicineBilling": TelemedicineBilling,
     "TelemedicineCorporates": TelemedicineCorporates,
     "TelemedicineDoctors": TelemedicineDoctors,
     "TelemedicinePatientPortal": TelemedicinePatientPortal,
@@ -388,13 +389,12 @@ export const PAGES = {
     "UserApprovals": UserApprovals,
     "UserManagement": UserManagement,
     "VendorManagement": VendorManagement,
+    "VirtualHospitalAdmin": VirtualHospitalAdmin,
     "VitalsTrend": VitalsTrend,
     "WholesaleMarketplace": WholesaleMarketplace,
     "WholesalePlatformAdmin": WholesalePlatformAdmin,
     "WholesalePortal": WholesalePortal,
     "WholesaleProviderAdmin": WholesaleProviderAdmin,
-    "VirtualHospitalAdmin": VirtualHospitalAdmin,
-    "TelemedicineBilling": TelemedicineBilling,
 }
 
 export const pagesConfig = {
