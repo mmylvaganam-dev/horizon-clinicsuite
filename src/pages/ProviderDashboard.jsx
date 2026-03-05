@@ -99,6 +99,8 @@ export default function ProviderDashboard() {
     return isSameDay(new Date(apt.start_time), new Date(dateFrom));
   });
 
+  const pendingPrescriptions = prescriptions.filter(p => p.status === 'New' || p.status === 'Verified');
+  
   const stats = {
     totalAppointments: appointments.length,
     todayTotal: todayAppointments.length,
@@ -107,6 +109,8 @@ export default function ProviderDashboard() {
     scheduled: todayAppointments.filter(a => a.status === 'scheduled' || a.status === 'confirmed').length,
     cancelled: todayAppointments.filter(a => a.status === 'cancelled').length,
     noShow: todayAppointments.filter(a => a.status === 'no-show').length,
+    pendingPrescriptions: pendingPrescriptions.length,
+    patientAlerts: alerts.length,
   };
 
   return (
