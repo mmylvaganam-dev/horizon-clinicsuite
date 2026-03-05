@@ -37,6 +37,21 @@ export default function PharmacyWorkQueue() {
     queryFn: () => base44.entities.Prescription.list('-prescribed_date'),
   });
 
+  // Incoming deliveries sent to THIS pharmacy org
+  const deliveryQueue = prescriptions.filter(p =>
+    p.delivery_requested &&
+    p.target_pharmacy_org_id === selectedOrgId &&
+    (p.delivery_status === 'pending' || p.delivery_status === 'received' || p.delivery_status === 'preparing')
+  );
+
+  const updateDeliveryStatus = useMutation({
+    mutationFn: ({ id, status }) => base44.entities.Prescription.update(id, { delivery_status: status }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['prescriptions']);
+      toast.success('Status updated');
+    }
+  });
+
   const { data: patients = [] } = useQuery({
     queryKey: ['patients'],
     queryFn: () => base44.entities.Patient.list(),
