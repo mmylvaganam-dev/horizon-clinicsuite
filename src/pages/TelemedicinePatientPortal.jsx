@@ -135,7 +135,7 @@ export default function TelemedicinePatientPortal() {
                   </Button>
                 </div>
               ) : (
-                upcoming.map(a => <AppointmentCard key={a.id} appt={a} role="patient" />)
+                upcoming.map(a => <AppointmentCard key={a.id} appt={a} role="patient" onRefresh={refetch} />)
               )}
             </TabsContent>
 
