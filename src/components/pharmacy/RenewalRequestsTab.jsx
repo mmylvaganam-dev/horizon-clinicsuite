@@ -10,10 +10,13 @@ import { CheckCircle2, XCircle, RefreshCw, User, FileText, AlertTriangle, Packag
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 
+const LOW_STOCK_THRESHOLD = 10;
+
 export default function RenewalRequestsTab({ selectedOrgId }) {
   const qc = useQueryClient();
   const [selected, setSelected] = useState(null);
   const [pharmacistNotes, setPharmacistNotes] = useState('');
+  const [stockAlert, setStockAlert] = useState(null); // { drugName, currentQty, requestedQty, status }
 
   const { data: requests = [], isLoading } = useQuery({
     queryKey: ['renewalRequests', selectedOrgId],
