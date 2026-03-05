@@ -433,6 +433,9 @@ export default function PatientDetails() {
                     <p className="font-medium">{patient.blood_type}</p>
                   </div>
                 )}
+                <div className="pt-2 border-t border-slate-100">
+                  <PreferredPharmacySelector patient={patient} />
+                </div>
               </CardContent>
             </Card>
 
