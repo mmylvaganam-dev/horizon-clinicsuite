@@ -121,7 +121,8 @@ export default function PatientSOAPTab({ patientId }) {
 
       const response = await base44.functions.invoke('generateSOAPNote', {
         patient_id: patientId,
-        voice_transcript: `PDF extracted: ${JSON.stringify(aiResponse)}`
+        voice_transcript: `PDF extracted: ${JSON.stringify(aiResponse)}`,
+        note_date: noteDate
       });
 
       return response.data;
