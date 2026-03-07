@@ -144,7 +144,8 @@ export default function PatientSOAPTab({ patientId }) {
     mutationFn: async () => {
       const response = await base44.functions.invoke('generateSOAPNote', {
         patient_id: patientId,
-        voice_transcript: transcript
+        voice_transcript: transcript,
+        note_date: noteDate
       });
       return response.data;
     },
