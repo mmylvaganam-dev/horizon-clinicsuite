@@ -16,6 +16,7 @@ export default function PatientSOAPTab({ patientId }) {
   const [uploadMode, setUploadMode] = useState('text'); // 'text' or 'pdf'
   const [transcript, setTranscript] = useState('');
   const [uploadedFile, setUploadedFile] = useState(null);
+  const [noteDate, setNoteDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [generating, setGenerating] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [mediaRecorder, setMediaRecorder] = useState(null);
