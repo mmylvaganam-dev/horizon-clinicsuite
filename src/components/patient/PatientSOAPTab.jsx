@@ -5,7 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { FileText, Upload, Sparkles, Loader2, Mic } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { FileText, Upload, Sparkles, Loader2, Mic, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 
