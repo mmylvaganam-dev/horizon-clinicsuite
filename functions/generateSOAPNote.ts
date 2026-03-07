@@ -10,7 +10,7 @@ Deno.serve(async (req) => {
         }
 
         const payload = await req.json();
-        const { patient_id, encounter_id, voice_transcript } = payload;
+        const { patient_id, encounter_id, voice_transcript, note_date } = payload;
 
         if (!patient_id || !voice_transcript) {
             return Response.json({ error: 'patient_id and voice_transcript are required' }, { status: 400 });
