@@ -61,7 +61,7 @@ Be concise but comprehensive. Use medical terminology appropriately.`;
             encounter_id: encounter_id || '',
             provider_id: user.id,
             provider_email: user.email,
-            note_date: new Date().toISOString(),
+            note_date: note_date ? new Date(note_date).toISOString() : new Date().toISOString(),
             subjective: aiResponse.subjective,
             objective: aiResponse.objective,
             assessment: aiResponse.assessment,
