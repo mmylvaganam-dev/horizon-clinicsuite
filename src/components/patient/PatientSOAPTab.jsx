@@ -266,6 +266,24 @@ export default function PatientSOAPTab({ patientId }) {
           </DialogHeader>
           
           <div className="space-y-4">
+            {/* Backdating */}
+            <div className="flex items-center gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <Calendar className="w-4 h-4 text-amber-600 flex-shrink-0" />
+              <div className="flex-1 flex items-center gap-3">
+                <Label className="text-sm font-medium text-amber-800 whitespace-nowrap">Note Date:</Label>
+                <Input
+                  type="date"
+                  value={noteDate}
+                  onChange={(e) => setNoteDate(e.target.value)}
+                  max={format(new Date(), 'yyyy-MM-dd')}
+                  className="h-8 text-sm border-amber-300 bg-white w-auto"
+                />
+              </div>
+              {noteDate !== format(new Date(), 'yyyy-MM-dd') && (
+                <span className="text-xs text-amber-700 font-medium">Backdated</span>
+              )}
+            </div>
+
             <div className="flex gap-2">
               <Button
                 variant={uploadMode === 'text' ? 'default' : 'outline'}
