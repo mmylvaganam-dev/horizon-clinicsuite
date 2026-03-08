@@ -63,7 +63,7 @@ function LayoutContent({ children, currentPageName }) {
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
-  const { isPlatformOwner, user: contextUser, isTeleEnabled } = useOrganization();
+  const { isPlatformOwner, user: contextUser, isTeleEnabled, isVirtualHospital } = useOrganization();
 
   // Auto-refresh all data every 60 seconds
   useEffect(() => {
