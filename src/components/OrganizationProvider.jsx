@@ -59,6 +59,23 @@ export function OrganizationProvider({ children }) {
   });
 
   // For regular users: get their assigned organization from UserRole
+  // Check if TELEMEDICINE module is enabled for the selected org's company
+  const { data: isTeleEnabled = false } = useQuery({
+    queryKey: ['teleModuleEnabled', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return false;
+      const orgs = await base44.entities.Organization.filter({ id: selectedOrgId });
+      if (!orgs[0]?.company_id) return false;
+      const access = await base44.entities.CompanyModuleAccess.filter({
+        company_id: orgs[0].company_id,
+        module_code: 'TELEMEDICINE',
+        is_enabled: true,
+      });
+      return access.length > 0;
+    },
+    enabled: !!selectedOrgId,
+  });
+
   const { data: userOrganization } = useQuery({
     queryKey: ['userOrganization', user?.email],
     queryFn: async () => {
