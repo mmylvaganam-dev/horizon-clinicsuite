@@ -344,6 +344,7 @@ function LayoutContent({ children, currentPageName }) {
     {
       category: 'Reports',
       icon: BarChart3,
+      moduleRequired: 'REPORTS',
       items: [
         { name: 'Sales Analytics', page: 'SalesAnalytics', icon: DollarSign, description: 'Pharmacy revenue analytics - View sales trends, request deletions' },
         { name: 'Reports', page: 'Reports', icon: FileText, description: 'Report library - Access all clinical, financial, and operational reports' },
