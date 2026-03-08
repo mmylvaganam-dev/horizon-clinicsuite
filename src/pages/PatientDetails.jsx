@@ -597,7 +597,7 @@ export default function PatientDetails() {
           </Card>
         </TabsContent>}
 
-        <TabsContent value="tele" className="space-y-3">
+        {isTeleEnabled && <TabsContent value="tele" className="space-y-3">
           {teleAppointments.length === 0 ? (
             <Card className="p-12 text-center bg-white border-0 shadow-sm">
               <Video className="w-12 h-12 mx-auto text-slate-300 mb-4" />
