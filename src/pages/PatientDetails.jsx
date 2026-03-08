@@ -597,26 +597,28 @@ export default function PatientDetails() {
           </Card>
         </TabsContent>}
 
-        {isTeleEnabled && <TabsContent value="tele" className="space-y-3">
-          {teleAppointments.length === 0 ? (
-            <Card className="p-12 text-center bg-white border-0 shadow-sm">
-              <Video className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-              <h3 className="text-lg font-medium text-slate-900">No telemedicine appointments</h3>
-              <p className="text-slate-500 mt-1">No tele-consult records linked to this patient</p>
-            </Card>
-          ) : (
-            teleAppointments
-              .sort((a, b) => new Date(b.scheduled_time) - new Date(a.scheduled_time))
-              .map(appt => (
-                <AppointmentCard
-                  key={appt.id}
-                  appt={appt}
-                  role="staff"
-                  onRefresh={refetchTele}
-                />
-              ))
-          )}
-        </TabsContent>}
+        {isTeleEnabled && (
+          <TabsContent value="tele" className="space-y-3">
+            {teleAppointments.length === 0 ? (
+              <Card className="p-12 text-center bg-white border-0 shadow-sm">
+                <Video className="w-12 h-12 mx-auto text-slate-300 mb-4" />
+                <h3 className="text-lg font-medium text-slate-900">No telemedicine appointments</h3>
+                <p className="text-slate-500 mt-1">No tele-consult records linked to this patient</p>
+              </Card>
+            ) : (
+              teleAppointments
+                .sort((a, b) => new Date(b.scheduled_time) - new Date(a.scheduled_time))
+                .map(appt => (
+                  <AppointmentCard
+                    key={appt.id}
+                    appt={appt}
+                    role="staff"
+                    onRefresh={refetchTele}
+                  />
+                ))
+            )}
+          </TabsContent>
+        )}
         </Tabs>
 
       {/* Telemedicine Access Dialog */}
