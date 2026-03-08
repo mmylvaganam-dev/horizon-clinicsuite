@@ -194,6 +194,7 @@ import ShiftHandover from './pages/ShiftHandover';
 import SmsLogs from './pages/SmsLogs';
 import StaffDirectory from './pages/StaffDirectory';
 import TaskManagement from './pages/TaskManagement';
+import TeleAppointments from './pages/TeleAppointments';
 import TeleLogin from './pages/TeleLogin';
 import TeleReports from './pages/TeleReports';
 import TelemedicineAdmin from './pages/TelemedicineAdmin';
@@ -220,7 +221,6 @@ import WholesaleMarketplace from './pages/WholesaleMarketplace';
 import WholesalePlatformAdmin from './pages/WholesalePlatformAdmin';
 import WholesalePortal from './pages/WholesalePortal';
 import WholesaleProviderAdmin from './pages/WholesaleProviderAdmin';
-import TeleAppointments from './pages/TeleAppointments';
 import __Layout from './Layout.jsx';
 
 
@@ -372,6 +372,7 @@ export const PAGES = {
     "SmsLogs": SmsLogs,
     "StaffDirectory": StaffDirectory,
     "TaskManagement": TaskManagement,
+    "TeleAppointments": TeleAppointments,
     "TeleLogin": TeleLogin,
     "TeleReports": TeleReports,
     "TelemedicineAdmin": TelemedicineAdmin,
@@ -398,7 +399,6 @@ export const PAGES = {
     "WholesalePlatformAdmin": WholesalePlatformAdmin,
     "WholesalePortal": WholesalePortal,
     "WholesaleProviderAdmin": WholesaleProviderAdmin,
-    "TeleAppointments": TeleAppointments,
 }
 
 export const pagesConfig = {

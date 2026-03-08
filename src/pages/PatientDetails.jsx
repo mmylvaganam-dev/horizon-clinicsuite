@@ -417,7 +417,7 @@ export default function PatientDetails() {
                     </div>
                     <div>
                       <p className="text-sm text-slate-500">Date of Birth</p>
-                      <p className="font-medium">{format(new Date(patient.date_of_birth), 'MMMM d, yyyy')}</p>
+                      <p className="font-medium">{format(new Date(patient.date_of_birth), 'dd/MM/yyyy')}</p>
                     </div>
                   </div>
                 )}
@@ -522,7 +522,7 @@ export default function PatientDetails() {
                     </p>
                     <div className="flex items-center gap-2 text-sm text-slate-500">
                       <Clock className="w-4 h-4" />
-                      <span>{format(new Date(apt.date), 'MMM d, yyyy')} at {apt.time}</span>
+                      <span>{format(new Date(apt.date), 'dd/MM/yyyy')} at {apt.time}</span>
                       {apt.provider && <span>• Dr. {apt.provider}</span>}
                     </div>
                   </div>
@@ -552,7 +552,7 @@ export default function PatientDetails() {
                       {record.record_type?.replace(/[_-]/g, ' ')}
                     </p>
                     <p className="text-sm text-slate-500 mt-1">
-                      {format(new Date(record.record_date), 'MMM d, yyyy')}
+                      {format(new Date(record.record_date), 'dd/MM/yyyy')}
                       {record.provider && ` • Dr. ${record.provider}`}
                     </p>
                     {record.diagnosis && (
