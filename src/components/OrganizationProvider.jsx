@@ -65,17 +65,21 @@ export function OrganizationProvider({ children }) {
     queryKey: ['teleModuleEnabled', selectedOrgId],
     queryFn: async () => {
       if (!selectedOrgId) return { isTeleEnabled: false, isVirtualHospital: false };
-      const orgs = await base44.entities.Organization.filter({ id: selectedOrgId });
-      const org = orgs[0];
+      // Fetch all orgs and find matching one
+      const allOrgs = await base44.entities.Organization.list();
+      const org = allOrgs.find(o => o.id === selectedOrgId);
       if (!org?.company_id) return { isTeleEnabled: false, isVirtualHospital: false };
-      const access = await base44.entities.CompanyModuleAccess.filter({
-        company_id: org.company_id,
-        module_code: 'TELEMEDICINE',
-        is_enabled: true,
-      });
-      const teleEnabled = access.length > 0;
+      // Fetch module access for this company
+      const allAccess = await base44.entities.CompanyModuleAccess.list();
+      const teleAccess = allAccess.find(a =>
+        a.company_id === org.company_id &&
+        a.module_code === 'TELEMEDICINE' &&
+        a.is_enabled === true
+      );
+      const teleEnabled = !!teleAccess;
       // Virtual hospital = tele enabled AND org type is 'hospital'
       const virtualHospital = teleEnabled && org.type === 'hospital';
+      console.log('🔵 Tele check - org:', org.name, 'type:', org.type, 'teleEnabled:', teleEnabled, 'isVirtualHospital:', virtualHospital);
       return { isTeleEnabled: teleEnabled, isVirtualHospital: virtualHospital };
     },
     enabled: !!selectedOrgId,
