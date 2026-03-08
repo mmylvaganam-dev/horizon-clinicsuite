@@ -64,6 +64,9 @@ export default function AdminModuleToggles() {
     return role?.code === 'ORG_SUPER_USER';
   });
 
+  // Modules that ONLY platform owners can enable — never delegatable to org admins
+  const PLATFORM_OWNER_ONLY_MODULES = ['TELEMEDICINE', 'VIRTUAL_HOSPITAL'];
+
   const canAccess = isPlatformOwner || isOrgSuperUser;
 
   if (currentUser && !canAccess) {
