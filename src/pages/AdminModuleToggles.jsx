@@ -320,11 +320,14 @@ export default function AdminModuleToggles() {
                       const canToggle = isPlatformOwner || (isOrgSuperUser && status.canOrgToggle && !isPlatformOwnerOnlyModule);
 
                       return (
-                        <div key={code} className="flex items-center justify-between p-3 rounded-lg border bg-white">
+                        <div key={code} className={`flex items-center justify-between p-3 rounded-lg border bg-white ${isPlatformOwnerOnlyModule && !isPlatformOwner ? 'opacity-50' : ''}`}>
                           <div>
                             <span className="text-sm font-medium">{module.module_name}</span>
                             {!status.globalEnabled && (
                               <Badge variant="secondary" className="ml-2 text-xs">Global OFF</Badge>
+                            )}
+                            {isPlatformOwnerOnlyModule && !isPlatformOwner && (
+                              <Badge variant="secondary" className="ml-2 text-xs bg-rose-50 text-rose-600 border-rose-200">Platform Owner Only</Badge>
                             )}
                           </div>
                           <Switch
