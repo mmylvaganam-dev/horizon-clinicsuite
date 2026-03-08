@@ -694,9 +694,9 @@ function LayoutContent({ children, currentPageName }) {
               <span className="text-xs mt-1">Daily Ops</span>
             </button>
             <button
-              onClick={() => navigate(createPageUrl('PatientHub'))}
+              onClick={() => navigate(createPageUrl('Patients'))}
               className={`flex flex-col items-center justify-center flex-1 h-full ${
-                currentPageName === 'PatientHub' ? 'text-teal-600' : 'text-slate-400'
+                currentPageName === 'Patients' ? 'text-teal-600' : 'text-slate-400'
               }`}
             >
               <Users className="w-6 h-6" />
