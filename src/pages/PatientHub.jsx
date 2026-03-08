@@ -45,6 +45,19 @@ export default function PatientHub() {
     queryFn: () => base44.entities.SecondOpinionRequest.list('-created_date', 100),
   });
 
+  // Local EMR patients — to detect links and support "admit to clinic"
+  const { data: localPatients = [] } = useQuery({
+    queryKey: ['localPatientsForHub'],
+    queryFn: () => base44.entities.Patient.list('-created_date', 500),
+  });
+
+  const getLinkedLocalPatient = (telePatient) => {
+    if (telePatient.patient_id) return localPatients.find(p => p.id === telePatient.patient_id);
+    // Also try matching by email
+    if (telePatient.email) return localPatients.find(p => p.email === telePatient.email);
+    return null;
+  };
+
   const createPatientMutation = useMutation({
     mutationFn: (data) => base44.entities.TelePatient.create({ ...data, tele_access_enabled: true }),
     onSuccess: () => {
