@@ -66,12 +66,21 @@ export function OrganizationProvider({ children }) {
       const allOrgs = await base44.entities.Organization.list();
       const org = allOrgs.find(o => o.id === selectedOrgId);
       if (!org?.company_id) return { isTeleEnabled: false, isVirtualHospital: false, enabledModules: [] };
+      // CRITICAL: Telemedicine/Virtual Hospital status is read ONLY from CompanyModuleAccess
+      // (controlled exclusively by platform owners). OrganizationModuleAccess cannot override these.
       const allAccess = await base44.entities.CompanyModuleAccess.filter({ company_id: org.company_id, is_enabled: true });
-      const enabledModules = allAccess.map(a => a.module_code);
-      const teleEnabled = enabledModules.includes('TELEMEDICINE');
-      const virtualHospital = enabledModules.includes('VIRTUAL_HOSPITAL');
-      console.log('🔵 Modules for org:', org.name, enabledModules);
-      return { isTeleEnabled: teleEnabled || virtualHospital, isVirtualHospital: virtualHospital, enabledModules };
+      const companyEnabledModules = allAccess.map(a => a.module_code);
+      // For non-tele modules, also check OrganizationModuleAccess
+      const orgAccess = await base44.entities.OrganizationModuleAccess.filter({ organization_id: selectedOrgId, is_enabled: true });
+      const orgEnabledModules = orgAccess.map(a => a.module_code);
+      // Merge: org-level modules must also exist at company level (company gates everything)
+      const enabledModules = companyEnabledModules.filter(code => code !== 'TELEMEDICINE' && code !== 'VIRTUAL_HOSPITAL')
+        .concat(companyEnabledModules.filter(code => code === 'TELEMEDICINE' || code === 'VIRTUAL_HOSPITAL'));
+      // Tele flags: ONLY from CompanyModuleAccess (platform owner controlled)
+      const teleEnabled = companyEnabledModules.includes('TELEMEDICINE');
+      const virtualHospital = companyEnabledModules.includes('VIRTUAL_HOSPITAL');
+      console.log('🔵 Modules for org:', org.name, 'Company modules:', companyEnabledModules, 'Tele:', teleEnabled, 'VH:', virtualHospital);
+      return { isTeleEnabled: teleEnabled || virtualHospital, isVirtualHospital: virtualHospital, enabledModules: companyEnabledModules };
     },
     enabled: !!selectedOrgId,
   });
