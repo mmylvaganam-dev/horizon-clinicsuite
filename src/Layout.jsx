@@ -303,7 +303,7 @@ function LayoutContent({ children, currentPageName }) {
     {
       category: 'Laboratory',
       icon: TestTube,
-      moduleRequired: 'LIS',
+      moduleRequired: 'LABORATORY',
       items: [
         { name: 'LIS Dashboard', page: 'LISDashboard', icon: Activity, description: 'Lab overview - Pending tests, sample tracking, and turnaround time metrics' },
         { name: 'Orders & Accessioning', page: 'LISOrders', icon: FileText, description: 'Lab orders - Receive test orders, assign accession numbers, print labels' },
