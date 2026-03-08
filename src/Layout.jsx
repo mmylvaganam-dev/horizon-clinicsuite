@@ -355,6 +355,7 @@ function LayoutContent({ children, currentPageName }) {
     {
       category: 'Communications',
       icon: MessageSquare,
+      moduleRequired: 'COMMUNICATIONS',
       items: [
         { name: 'Messages', page: 'Messaging', icon: MessageSquare, description: 'Internal messaging - Chat with staff, send secure messages within the organization' },
         { name: 'Communications', page: 'Communications', icon: Mail, description: 'Patient communications - Send SMS, emails, and appointment reminders to patients' },
