@@ -239,6 +239,7 @@ function LayoutContent({ children, currentPageName }) {
     {
       category: 'Pharmacy',
       icon: ShoppingBag,
+      moduleRequired: 'PHARMACY',
       items: [
         { name: 'Point of Sale', page: 'PharmacyBilling', icon: ShoppingBag, description: 'POS system - Sell medicines, process walk-in customers, generate invoices' },
         { name: 'Dashboard', page: 'PharmacyDashboard', icon: Activity, description: 'Pharmacy overview - Sales stats, stock alerts, and quick actions' },
