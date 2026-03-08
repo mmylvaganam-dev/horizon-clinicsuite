@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, Package, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
+import { Building2, Package, CheckCircle, XCircle, ArrowRight, Lock } from 'lucide-react';
 import toast from 'react-hot-toast';
+
+const PLATFORM_OWNER_EMAILS = ['mmylvaganam@premierhealthcanada.ca', 'mylvaganam@premierhealthcanada.ca'];
 
 export default function CompanyModuleManagement() {
   const queryClient = useQueryClient();
@@ -17,6 +19,20 @@ export default function CompanyModuleManagement() {
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
+
+  const isPlatformOwner = PLATFORM_OWNER_EMAILS.includes(user?.email) || user?.is_platform_owner === true;
+
+  if (user && !isPlatformOwner) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="p-8 text-center max-w-md">
+          <Lock className="w-16 h-16 text-rose-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Platform Owner Only</h2>
+          <p className="text-slate-600">Company module management is restricted to platform owners only.</p>
+        </Card>
+      </div>
+    );
+  }
 
   const { data: companies = [] } = useQuery({
     queryKey: ['companies'],
