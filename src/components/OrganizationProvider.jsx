@@ -165,6 +165,7 @@ export function OrganizationProvider({ children }) {
         isPlatformOwner,
         onOrgChange: handleOrgChange,
         user,
+        isTeleEnabled,
       }}
     >
       {children}
