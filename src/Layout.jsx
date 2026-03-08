@@ -154,6 +154,9 @@ function LayoutContent({ children, currentPageName }) {
   
   console.log('🔴 Layout - PLATFORM OWNER STATUS:', isDefinitelyPlatformOwner, '(This should ALWAYS be true for platform owner, regardless of org/company status)');
 
+  // Helper: check if a module code is enabled (platform owners always see everything)
+  const isModuleOn = (code) => isDefinitelyPlatformOwner || enabledModules.length === 0 || enabledModules.includes(code);
+
   const { data: pendingApprovals = [] } = useQuery({
     queryKey: ['pendingApprovals'],
     queryFn: async () => {
