@@ -39,8 +39,8 @@ export default function PatientForm({ open, onOpenChange, patient, onSubmit, isL
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (nameChanged) {
-      onRequestNameEdit?.(formData);
+    if (nameChanged && onRequestNameEdit) {
+      onRequestNameEdit(formData);
     } else {
       onSubmit(formData);
     }
