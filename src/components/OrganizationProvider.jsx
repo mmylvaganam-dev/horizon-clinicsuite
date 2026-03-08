@@ -171,6 +171,7 @@ export function OrganizationProvider({ children }) {
         user,
         isTeleEnabled,
         isVirtualHospital,
+        enabledModules,
       }}
     >
       {children}
