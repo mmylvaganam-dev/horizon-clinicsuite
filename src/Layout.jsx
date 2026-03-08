@@ -65,9 +65,6 @@ function LayoutContent({ children, currentPageName }) {
   const queryClient = useQueryClient();
   const { isPlatformOwner, user: contextUser, isTeleEnabled, isVirtualHospital, enabledModules = [] } = useOrganization();
 
-  // Helper: check if a module code is enabled (platform owners always see everything)
-  const isModuleOn = (code) => isDefinitelyPlatformOwner || enabledModules.length === 0 || enabledModules.includes(code);
-
   // Auto-refresh all data every 60 seconds
   useEffect(() => {
     const interval = setInterval(() => {
