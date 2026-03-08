@@ -60,21 +60,29 @@ export function OrganizationProvider({ children }) {
 
   // For regular users: get their assigned organization from UserRole
   // Check if TELEMEDICINE module is enabled for the selected org's company
-  const { data: isTeleEnabled = false } = useQuery({
+  // Also determine if this org is a "Virtual Hospital" (org type = hospital with tele enabled)
+  const { data: teleData = { isTeleEnabled: false, isVirtualHospital: false } } = useQuery({
     queryKey: ['teleModuleEnabled', selectedOrgId],
     queryFn: async () => {
-      if (!selectedOrgId) return false;
+      if (!selectedOrgId) return { isTeleEnabled: false, isVirtualHospital: false };
       const orgs = await base44.entities.Organization.filter({ id: selectedOrgId });
-      if (!orgs[0]?.company_id) return false;
+      const org = orgs[0];
+      if (!org?.company_id) return { isTeleEnabled: false, isVirtualHospital: false };
       const access = await base44.entities.CompanyModuleAccess.filter({
-        company_id: orgs[0].company_id,
+        company_id: org.company_id,
         module_code: 'TELEMEDICINE',
         is_enabled: true,
       });
-      return access.length > 0;
+      const teleEnabled = access.length > 0;
+      // Virtual hospital = tele enabled AND org type is 'hospital'
+      const virtualHospital = teleEnabled && org.type === 'hospital';
+      return { isTeleEnabled: teleEnabled, isVirtualHospital: virtualHospital };
     },
     enabled: !!selectedOrgId,
   });
+
+  const isTeleEnabled = teleData.isTeleEnabled;
+  const isVirtualHospital = teleData.isVirtualHospital;
 
   const { data: userOrganization } = useQuery({
     queryKey: ['userOrganization', user?.email],
