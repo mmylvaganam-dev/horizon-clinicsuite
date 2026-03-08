@@ -318,6 +318,7 @@ function LayoutContent({ children, currentPageName }) {
     {
       category: 'Diagnostics',
       icon: Activity,
+      moduleRequired: 'DIAGNOSTICS',
       items: [
         { name: 'Orders & Results', page: 'OrdersResults', icon: FileText, description: 'Diagnostics center - Manage radiology, ECG, ultrasound orders and results' },
         { name: 'Release Queue', page: 'ReleaseQueue', icon: FileText, description: 'Result approval - Review and release diagnostic reports to patients' },
