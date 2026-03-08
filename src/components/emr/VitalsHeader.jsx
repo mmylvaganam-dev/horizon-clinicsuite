@@ -15,7 +15,8 @@ export default function VitalsHeader({ patientId }) {
   const navigate = useNavigate();
   const [showAddVitals, setShowAddVitals] = useState(false);
   const [vitalsForm, setVitalsForm] = useState({
-    HR: '', BP_sys: '', BP_dia: '', RR: '', Temp: '', Weight: '', Height: '', SpO2: ''
+    HR: '', BP_sys: '', BP_dia: '', RR: '', Temp: '', Weight: '', Height: '', SpO2: '',
+    recorded_at_input: new Date().toISOString().slice(0, 16)
   });
 
   const { data: vitals = [] } = useQuery({
@@ -35,20 +36,21 @@ export default function VitalsHeader({ patientId }) {
         ? (data.Weight / Math.pow(data.Height / 100, 2)).toFixed(1) 
         : null;
       
+      const { recorded_at_input, ...vitalsData } = data;
       return base44.entities.PatientVital.create({
         patient_ref: patientId,
-        recorded_at: new Date().toISOString(),
+        recorded_at: recorded_at_input ? new Date(recorded_at_input).toISOString() : new Date().toISOString(),
         source: 'manual',
         recorded_by: user.id,
         recorded_by_email: user.email,
         BMI,
-        ...data
+        ...vitalsData
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['patientVitals', patientId] });
       setShowAddVitals(false);
-      setVitalsForm({ HR: '', BP_sys: '', BP_dia: '', RR: '', Temp: '', Weight: '', Height: '', SpO2: '' });
+      setVitalsForm({ HR: '', BP_sys: '', BP_dia: '', RR: '', Temp: '', Weight: '', Height: '', SpO2: '', recorded_at_input: new Date().toISOString().slice(0, 16) });
     }
   });
 
