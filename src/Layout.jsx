@@ -495,11 +495,8 @@ function LayoutContent({ children, currentPageName }) {
                     <nav className="flex-1 p-4 overflow-y-auto bg-slate-50">
                       <Accordion type="multiple" defaultValue={['Main', 'Pharmacy', 'Platform Administration']} className="space-y-1">
                         {navigationGroups.filter(group => {
-                          // CRITICAL: Platform Administration visibility is based ONLY on user email - never organization or company status
-                          if (group.platformOwnerOnly) {
-                            console.log('🔴 Filtering Platform Administration - isPlatformOwner:', isDefinitelyPlatformOwner);
-                            return isDefinitelyPlatformOwner;
-                          }
+                          if (group.platformOwnerOnly) return isDefinitelyPlatformOwner;
+                          if (group.moduleRequired) return isModuleOn(group.moduleRequired);
                           return true;
                         }).map((group) => (
                 <AccordionItem key={group.category} value={group.category} className="border-none">
