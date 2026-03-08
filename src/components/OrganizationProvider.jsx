@@ -76,11 +76,16 @@ export function OrganizationProvider({ children }) {
         a.module_code === 'TELEMEDICINE' &&
         a.is_enabled === true
       );
+      const virtualHospitalAccess = allAccess.find(a =>
+        a.company_id === org.company_id &&
+        a.module_code === 'VIRTUAL_HOSPITAL' &&
+        a.is_enabled === true
+      );
       const teleEnabled = !!teleAccess;
-      // Virtual hospital = tele enabled AND org type is 'hospital'
-      const virtualHospital = teleEnabled && org.type === 'hospital';
-      console.log('🔵 Tele check - org:', org.name, 'type:', org.type, 'teleEnabled:', teleEnabled, 'isVirtualHospital:', virtualHospital);
-      return { isTeleEnabled: teleEnabled, isVirtualHospital: virtualHospital };
+      // Virtual hospital = dedicated VIRTUAL_HOSPITAL module enabled
+      const virtualHospital = !!virtualHospitalAccess;
+      console.log('🔵 Tele check - org:', org.name, 'teleEnabled:', teleEnabled, 'isVirtualHospital:', virtualHospital);
+      return { isTeleEnabled: teleEnabled || virtualHospital, isVirtualHospital: virtualHospital };
     },
     enabled: !!selectedOrgId,
   });
