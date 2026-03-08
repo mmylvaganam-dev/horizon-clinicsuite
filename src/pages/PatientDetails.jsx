@@ -233,14 +233,16 @@ export default function PatientDetails() {
             <Home className="w-4 h-4 mr-2" />
             Home Care
           </Button>
-          <Button
-            variant="outline"
-            className="border-teal-300 text-teal-700 hover:bg-teal-50"
-            onClick={() => setShowTeleAccess(true)}
-          >
-            <Video className="w-4 h-4 mr-2" />
-            Tele Access
-          </Button>
+          {isTeleEnabled && (
+            <Button
+              variant="outline"
+              className="border-teal-300 text-teal-700 hover:bg-teal-50"
+              onClick={() => setShowTeleAccess(true)}
+            >
+              <Video className="w-4 h-4 mr-2" />
+              Tele Access
+            </Button>
+          )}
           <Button
             variant="outline"
             className="border-teal-300 text-teal-700 hover:bg-teal-50"
