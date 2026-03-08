@@ -118,7 +118,15 @@ export default function VitalsHeader({ patientId }) {
           <DialogHeader>
             <DialogTitle>Add Vitals</DialogTitle>
           </DialogHeader>
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="mt-4 mb-2">
+            <Label>Date & Time of Recording</Label>
+            <Input
+              type="datetime-local"
+              value={vitalsForm.recorded_at_input}
+              onChange={(e) => setVitalsForm({...vitalsForm, recorded_at_input: e.target.value})}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>HR (bpm)</Label>
               <Input type="number" value={vitalsForm.HR} onChange={(e) => setVitalsForm({...vitalsForm, HR: parseFloat(e.target.value) || ''})} />
