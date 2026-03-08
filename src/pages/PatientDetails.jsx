@@ -64,7 +64,7 @@ const statusColors = {
 export default function PatientDetails() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { selectedOrgId } = useOrganization();
+  const { selectedOrgId, isTeleEnabled } = useOrganization();
   const urlParams = new URLSearchParams(window.location.search);
   const patientId = urlParams.get('id');
 
