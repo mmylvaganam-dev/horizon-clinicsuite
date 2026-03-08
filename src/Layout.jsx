@@ -371,6 +371,7 @@ function LayoutContent({ children, currentPageName }) {
       category: 'Telemedicine',
       icon: Video,
       items: [
+        { name: 'Global Patient Hub', page: 'PatientHub', icon: Globe, description: 'Global telemedicine patients - overseas patients, second opinions, medical tourism' },
         { name: 'Services', page: 'TelemedicineServices', icon: Video, description: 'Manage virtual care service types and offerings' },
         { name: 'Doctors', page: 'TelemedicineDoctors', icon: Users, description: 'Manage doctors available for virtual consultations' },
         { name: 'Subscriptions', page: 'TelemedicineSubscriptions', icon: DollarSign, description: 'Individual, family and corporate subscription plans' },
