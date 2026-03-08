@@ -221,10 +221,7 @@ function LayoutContent({ children, currentPageName }) {
       icon: ShoppingBag,
       items: [
         { name: 'New Sale', page: 'SalesWorkspace', icon: ShoppingBag, description: 'Process new sales - Pharmacy, GP, Specialist, Radiology, and Home Care services all in one place' },
-        ...(isTeleEnabled
-          ? [{ name: 'Global Patient Hub', page: 'PatientHub', icon: Globe, description: 'Global telemedicine patient management - overseas patients, second opinions, medical tourism' }]
-          : [{ name: 'Patients', page: 'Patients', icon: Users, description: 'Patient registry - Register and manage local clinic patients' }]
-        ),
+        { name: 'Patients', page: 'Patients', icon: Users, description: 'Patient registry - Register and manage local clinic patients' },
       ]
     },
     {
