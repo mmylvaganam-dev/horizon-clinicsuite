@@ -258,6 +258,7 @@ function LayoutContent({ children, currentPageName }) {
     {
       category: 'Home Care',
       icon: Users,
+      moduleRequired: 'HOME_CARE',
       items: [
         { name: 'Dashboard', page: 'HomeCareDashboard', icon: Activity, description: 'Home care overview - Active cases, scheduled visits, and staff assignments' },
         { name: 'Batch Management', page: 'HomeCareBatchManagement', icon: Users, description: 'Batch processing - Group and manage multiple home care referrals efficiently' },
