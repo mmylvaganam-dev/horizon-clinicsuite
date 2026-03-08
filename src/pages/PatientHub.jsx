@@ -135,6 +135,12 @@ export default function PatientHub() {
             <Input placeholder="Search by name, email, country..." className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
           </div>
 
+          {/* Workflow explanation banner */}
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm">
+            <p className="font-semibold text-blue-900 mb-1 flex items-center gap-2"><Link2 className="w-4 h-4" /> Global Patient → Local Clinic Workflow</p>
+            <p className="text-blue-700">Global patients (overseas / telemedicine) are separate from local EMR patients. When a global patient visits Sri Lanka for treatment, use <strong>"Admit to Local Clinic"</strong> to create a linked EMR record at the physical clinic.</p>
+          </div>
+
           {isLoading ? (
             <div className="text-center py-12 text-slate-400">Loading patients...</div>
           ) : filtered.length === 0 ? (
@@ -144,32 +150,56 @@ export default function PatientHub() {
             </div>
           ) : (
             <div className="space-y-3">
-              {filtered.map((patient) => (
-                <Card key={patient.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedPatient(patient)}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center text-teal-700 font-bold">
-                          {patient.name?.charAt(0) || '?'}
-                        </div>
-                        <div>
-                          <p className="font-semibold text-slate-900">{patient.name}</p>
-                          <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5">
-                            <Mail className="w-3 h-3" />{patient.email}
-                            {patient.country_of_residence && <><MapPin className="w-3 h-3 ml-1" />{patient.country_of_residence}</>}
+              {filtered.map((patient) => {
+                const linkedLocal = getLinkedLocalPatient(patient);
+                return (
+                  <Card key={patient.id} className="hover:shadow-md transition-shadow">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center text-teal-700 font-bold flex-shrink-0">
+                            {patient.name?.charAt(0) || '?'}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-slate-900">{patient.name}</p>
+                            <div className="flex items-center gap-2 text-xs text-slate-500 mt-0.5 flex-wrap">
+                              <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{patient.email}</span>
+                              {patient.country_of_residence && <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{patient.country_of_residence}</span>}
+                            </div>
+                            {/* Linked local patient indicator */}
+                            {linkedLocal ? (
+                              <Link to={createPageUrl(`PatientDetails?id=${linkedLocal.id}`)} className="inline-flex items-center gap-1 mt-1 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded px-2 py-0.5 hover:bg-emerald-100 transition-colors">
+                                <UserCheck className="w-3 h-3" />
+                                Linked EMR: {linkedLocal.first_name} {linkedLocal.last_name} — PHN {linkedLocal.phn}
+                              </Link>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 mt-1 text-xs text-slate-500 bg-slate-50 border border-slate-200 rounded px-2 py-0.5">
+                                <Globe className="w-3 h-3" /> Global only — no local EMR record
+                              </span>
+                            )}
                           </div>
                         </div>
+                        <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                          <div className="flex items-center gap-2 flex-wrap justify-end">
+                            <Badge className={getRegionBadge(patient.region)}>{patient.region || 'OTHER'}</Badge>
+                            <Badge variant="outline" className="text-xs">{patientAppointments(patient.id).length} consults</Badge>
+                            {patientOpinions(patient.id).length > 0 && <Badge className="bg-purple-100 text-purple-800 text-xs">2nd opinion</Badge>}
+                          </div>
+                          {!linkedLocal && (
+                            <Link
+                              to={createPageUrl(`Patients`)}
+                              className="text-xs text-teal-700 border border-teal-300 rounded px-2 py-1 hover:bg-teal-50 flex items-center gap-1 transition-colors"
+                              title="Go to Patients to register this person at a local clinic"
+                            >
+                              <Building2 className="w-3 h-3" /> Admit to Local Clinic
+                            </Link>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={getRegionBadge(patient.region)}>{patient.region || 'OTHER'}</Badge>
-                        <Badge variant="outline" className="text-xs">{patientAppointments(patient.id).length} consults</Badge>
-                        {patientOpinions(patient.id).length > 0 && <Badge className="bg-purple-100 text-purple-800 text-xs">2nd opinion</Badge>}
-                        <Eye className="w-4 h-4 text-slate-400" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           )}
         </TabsContent>
