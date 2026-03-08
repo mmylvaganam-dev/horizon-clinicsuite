@@ -9,28 +9,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { User, Phone, Heart, Shield, Loader2, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
+const emptyForm = {
+  first_name: '', last_name: '', nic: '', date_of_birth: '', gender: '',
+  email: '', phone: '', mobile: '', address: '',
+  emergency_contact_name: '', emergency_contact_phone: '',
+  blood_type: '', allergies: '', chronic_conditions: '',
+  insurance_provider: '', insurance_number: '',
+  status: 'active', patient_type: 'registered', notes: '',
+};
+
 export default function PatientForm({ open, onOpenChange, patient, onSubmit, isLoading, onRequestNameEdit }) {
-  const [formData, setFormData] = useState(patient || {
-    first_name: '',
-    last_name: '',
-    nic: '',
-    date_of_birth: '',
-    gender: '',
-    email: '',
-    phone: '',
-    mobile: '',
-    address: '',
-    emergency_contact_name: '',
-    emergency_contact_phone: '',
-    blood_type: '',
-    allergies: '',
-    chronic_conditions: '',
-    insurance_provider: '',
-    insurance_number: '',
-    status: 'active',
-    patient_type: 'registered',
-    notes: '',
-  });
+  const [formData, setFormData] = useState(patient ? { ...emptyForm, ...patient } : emptyForm);
+
+  useEffect(() => {
+    if (open) {
+      setFormData(patient ? { ...emptyForm, ...patient } : emptyForm);
+    }
+  }, [open, patient]);
 
   const isEditing = !!patient;
   const firstNameChanged = isEditing && formData.first_name !== patient.first_name;
