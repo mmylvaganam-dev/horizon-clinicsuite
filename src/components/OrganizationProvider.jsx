@@ -174,6 +174,7 @@ export function OrganizationProvider({ children }) {
         onOrgChange: handleOrgChange,
         user,
         isTeleEnabled,
+        isVirtualHospital,
       }}
     >
       {children}
