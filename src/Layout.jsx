@@ -279,6 +279,7 @@ function LayoutContent({ children, currentPageName }) {
     {
       category: 'Clinical',
       icon: FileText,
+      moduleRequired: 'CLINICAL',
       items: [
         { name: 'Appointments', page: 'Appointments', icon: Calendar, description: 'Appointment booking - Schedule, reschedule, and manage patient appointments' },
         { name: 'Patients', page: 'Patients', icon: Users, description: 'Patient registry - Register new patients, search and view patient records' },
@@ -327,6 +328,7 @@ function LayoutContent({ children, currentPageName }) {
     {
       category: 'Operations',
       icon: Activity,
+      moduleRequired: 'OPERATIONS',
       items: [
         { name: 'Shift Handover Book', page: 'ShiftHandover', icon: FileText, description: 'Shift logs - Document and handover important events between shifts' },
         { name: 'Daily Close', page: 'DailyClose', icon: DollarSign, description: 'End of day - Close daily operations, reconcile cash, and finalize transactions' },
