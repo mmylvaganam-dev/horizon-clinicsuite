@@ -291,6 +291,7 @@ function LayoutContent({ children, currentPageName }) {
     {
       category: 'Dental Clinic',
       icon: Activity,
+      moduleRequired: 'DENTAL',
       items: [
         { name: 'Dental Dashboard', page: 'DentalModule', icon: Activity, description: 'Dental overview - Encounters, treatment plans, and active problems' },
         { name: 'Dental Schedule', page: 'DentalSchedule', icon: Calendar, description: 'Dental appointments - Book patients to specific chairs and dentists' },
