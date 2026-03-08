@@ -316,7 +316,8 @@ export default function AdminModuleToggles() {
                     {moduleCodes.map(code => {
                       const module = modules.find(m => m.module_code === code) || { module_code: code, module_name: code };
                       const status = getModuleStatus(code);
-                      const canToggle = isPlatformOwner || (isOrgSuperUser && status.canOrgToggle);
+                      const isPlatformOwnerOnlyModule = PLATFORM_OWNER_ONLY_MODULES.includes(code);
+                      const canToggle = isPlatformOwner || (isOrgSuperUser && status.canOrgToggle && !isPlatformOwnerOnlyModule);
 
                       return (
                         <div key={code} className="flex items-center justify-between p-3 rounded-lg border bg-white">
