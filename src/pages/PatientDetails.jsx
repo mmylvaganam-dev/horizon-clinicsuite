@@ -616,7 +616,7 @@ export default function PatientDetails() {
                 />
               ))
           )}
-        </TabsContent>
+        </TabsContent>}
         </Tabs>
 
       {/* Telemedicine Access Dialog */}
