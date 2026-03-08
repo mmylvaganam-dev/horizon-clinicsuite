@@ -58,40 +58,27 @@ export function OrganizationProvider({ children }) {
     enabled: isPlatformOwner,
   });
 
-  // For regular users: get their assigned organization from UserRole
-  // Check if TELEMEDICINE module is enabled for the selected org's company
-  // Also determine if this org is a "Virtual Hospital" (org type = hospital with tele enabled)
-  const { data: teleData = { isTeleEnabled: false, isVirtualHospital: false } } = useQuery({
-    queryKey: ['teleModuleEnabled', selectedOrgId],
+  // Fetch all enabled module codes for the selected org's company
+  const { data: moduleData = { isTeleEnabled: false, isVirtualHospital: false, enabledModules: [] } } = useQuery({
+    queryKey: ['companyModules', selectedOrgId],
     queryFn: async () => {
-      if (!selectedOrgId) return { isTeleEnabled: false, isVirtualHospital: false };
-      // Fetch all orgs and find matching one
+      if (!selectedOrgId) return { isTeleEnabled: false, isVirtualHospital: false, enabledModules: [] };
       const allOrgs = await base44.entities.Organization.list();
       const org = allOrgs.find(o => o.id === selectedOrgId);
-      if (!org?.company_id) return { isTeleEnabled: false, isVirtualHospital: false };
-      // Fetch module access for this company
-      const allAccess = await base44.entities.CompanyModuleAccess.list();
-      const teleAccess = allAccess.find(a =>
-        a.company_id === org.company_id &&
-        a.module_code === 'TELEMEDICINE' &&
-        a.is_enabled === true
-      );
-      const virtualHospitalAccess = allAccess.find(a =>
-        a.company_id === org.company_id &&
-        a.module_code === 'VIRTUAL_HOSPITAL' &&
-        a.is_enabled === true
-      );
-      const teleEnabled = !!teleAccess;
-      // Virtual hospital = dedicated VIRTUAL_HOSPITAL module enabled
-      const virtualHospital = !!virtualHospitalAccess;
-      console.log('🔵 Tele check - org:', org.name, 'teleEnabled:', teleEnabled, 'isVirtualHospital:', virtualHospital);
-      return { isTeleEnabled: teleEnabled || virtualHospital, isVirtualHospital: virtualHospital };
+      if (!org?.company_id) return { isTeleEnabled: false, isVirtualHospital: false, enabledModules: [] };
+      const allAccess = await base44.entities.CompanyModuleAccess.filter({ company_id: org.company_id, is_enabled: true });
+      const enabledModules = allAccess.map(a => a.module_code);
+      const teleEnabled = enabledModules.includes('TELEMEDICINE');
+      const virtualHospital = enabledModules.includes('VIRTUAL_HOSPITAL');
+      console.log('🔵 Modules for org:', org.name, enabledModules);
+      return { isTeleEnabled: teleEnabled || virtualHospital, isVirtualHospital: virtualHospital, enabledModules };
     },
     enabled: !!selectedOrgId,
   });
 
-  const isTeleEnabled = teleData.isTeleEnabled;
-  const isVirtualHospital = teleData.isVirtualHospital;
+  const isTeleEnabled = moduleData.isTeleEnabled;
+  const isVirtualHospital = moduleData.isVirtualHospital;
+  const enabledModules = moduleData.enabledModules;
 
   const { data: userOrganization } = useQuery({
     queryKey: ['userOrganization', user?.email],
