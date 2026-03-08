@@ -11,8 +11,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   Users, Globe, Upload, FileText, Video, Stethoscope,
-  Plus, Search, Eye, ArrowRight, MapPin, Phone, Mail
+  Plus, Search, Eye, ArrowRight, MapPin, Phone, Mail, Link2, UserCheck, Building2
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '../utils';
 import toast from 'react-hot-toast';
 import ConsentModal from '../components/telehealth/ConsentModal';
 
