@@ -367,22 +367,29 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Help Desk', page: 'HelpDesk', icon: Ticket, description: 'Support tickets, remote sessions via HopToDesk, live chat, and screenshot uploads for IT support' },
       ]
     },
-    {
+    ...(isTeleEnabled ? [{
       category: 'Telemedicine',
       icon: Video,
       items: [
-        { name: 'Global Patient Hub', page: 'PatientHub', icon: Globe, description: 'Global telemedicine patients - overseas patients, second opinions, medical tourism' },
-        { name: 'Services', page: 'TelemedicineServices', icon: Video, description: 'Manage virtual care service types and offerings' },
-        { name: 'Doctors', page: 'TelemedicineDoctors', icon: Users, description: 'Manage doctors available for virtual consultations' },
-        { name: 'Subscriptions', page: 'TelemedicineSubscriptions', icon: DollarSign, description: 'Individual, family and corporate subscription plans' },
-        { name: 'Corporates', page: 'TelemedicineCorporates', icon: Building2, description: 'Corporate client accounts and employee coverage' },
-        { name: 'Patient Portal', page: 'TelemedicinePatientPortal', icon: Users, description: 'Patient-facing virtual hospital portal' },
-        { name: 'Patient Login Page', page: 'TeleLogin', icon: Video, description: 'Patient OTP login page for the telemedicine portal' },
-        { name: 'Provider Portal', page: 'TelemedicineProviderPortal', icon: Activity, description: 'Doctor-facing virtual consultation portal' },
-        { name: 'Admin', page: 'TelemedicineAdmin', icon: Settings, description: 'Virtual hospital administration and configuration' },
-        { name: 'Reports & Analytics', page: 'TeleReports', icon: BarChart3, description: 'Consultation reports, KPIs, CSV/PDF exports — CrossBorder Health Network analytics' },
+        // For physical clinics (tele module ON but not virtual hospital): show Tele Appointments
+        ...(!isVirtualHospital ? [
+          { name: 'Tele Appointments', page: 'TeleAppointments', icon: Video, description: 'Virtual consultations for your registered patients' },
+        ] : []),
+        // For virtual hospitals only: show Global Patient Hub and full suite
+        ...(isVirtualHospital ? [
+          { name: 'Global Patient Hub', page: 'PatientHub', icon: Globe, description: 'Global telemedicine patients - overseas patients, second opinions, medical tourism' },
+          { name: 'Services', page: 'TelemedicineServices', icon: Video, description: 'Manage virtual care service types and offerings' },
+          { name: 'Doctors', page: 'TelemedicineDoctors', icon: Users, description: 'Manage doctors available for virtual consultations' },
+          { name: 'Subscriptions', page: 'TelemedicineSubscriptions', icon: DollarSign, description: 'Individual, family and corporate subscription plans' },
+          { name: 'Corporates', page: 'TelemedicineCorporates', icon: Building2, description: 'Corporate client accounts and employee coverage' },
+          { name: 'Patient Portal', page: 'TelemedicinePatientPortal', icon: Users, description: 'Patient-facing virtual hospital portal' },
+          { name: 'Patient Login Page', page: 'TeleLogin', icon: Video, description: 'Patient OTP login page for the telemedicine portal' },
+          { name: 'Provider Portal', page: 'TelemedicineProviderPortal', icon: Activity, description: 'Doctor-facing virtual consultation portal' },
+          { name: 'Admin', page: 'TelemedicineAdmin', icon: Settings, description: 'Virtual hospital administration and configuration' },
+          { name: 'Reports & Analytics', page: 'TeleReports', icon: BarChart3, description: 'Consultation reports, KPIs, CSV/PDF exports — CrossBorder Health Network analytics' },
+        ] : []),
       ]
-    },
+    }] : []),
     {
       category: 'Premier Wholesale',
       icon: Package,
