@@ -328,14 +328,26 @@ export default function BarcodeSetup() {
                       </Button>
                     </>
                   ) : (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => startEdit(item)}
-                    >
-                      <Edit className="w-4 h-4 mr-1" />
-                      Edit
-                    </Button>
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => startEdit(item)}
+                      >
+                        <Edit className="w-4 h-4 mr-1" />
+                        {item.barcode ? 'Edit' : 'Add Barcode'}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-teal-600 hover:text-teal-700 hover:bg-teal-50"
+                        onClick={() => navigate(createPageUrl(`PharmacyInventory?search=${encodeURIComponent(item.display_name || '')}`))}
+                        title="View this product in Inventory"
+                      >
+                        <ExternalLink className="w-4 h-4 mr-1" />
+                        View
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>
