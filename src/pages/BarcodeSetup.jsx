@@ -15,10 +15,15 @@ import {
   Check,
   AlertCircle,
   Info,
-  Printer
+  Printer,
+  Wand2,
+  ExternalLink
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '../utils';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function BarcodeSetup() {
   const queryClient = useQueryClient();
