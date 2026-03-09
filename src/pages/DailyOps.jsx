@@ -16,14 +16,20 @@ import {
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
+import { useOrganization } from '@/components/OrganizationProvider';
 
 export default function DailyOps() {
+  const { selectedOrgId: contextOrgId, isPlatformOwner } = useOrganization();
   const [selectedOrgId, setSelectedOrgId] = useState('all');
   const [selectedLocationId, setSelectedLocationId] = useState('all');
+
+  // Non-platform-owners are locked to their own org
+  const effectiveOrgId = isPlatformOwner ? selectedOrgId : (contextOrgId || 'all');
 
   const { data: organizations = [] } = useQuery({
     queryKey: ['organizations'],
     queryFn: () => base44.entities.Organization.list(),
+    enabled: isPlatformOwner,
   });
 
   const { data: locations = [] } = useQuery({

@@ -30,9 +30,11 @@ import toast from 'react-hot-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useOrganization } from '@/components/OrganizationProvider';
 
 export default function SalesWorkspace() {
   const queryClient = useQueryClient();
+  const { selectedOrgId } = useOrganization();
   const [cart, setCart] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [patientSearch, setPatientSearch] = useState('');
@@ -44,45 +46,61 @@ export default function SalesWorkspace() {
   const [emailSent, setEmailSent] = useState(false);
   const [smsSent, setSmsSent] = useState(false);
 
-  // Fetch all service data
+  // Fetch all service data - filtered by organization
   const { data: pharmacyStock = [] } = useQuery({
-    queryKey: ['pharmacyStock'],
-    queryFn: () => base44.entities.PharmacyStock.list('-created_date'),
+    queryKey: ['pharmacyStock', selectedOrgId],
+    queryFn: () => selectedOrgId
+      ? base44.entities.PharmacyStock.filter({ organization_id: selectedOrgId })
+      : base44.entities.PharmacyStock.list('-created_date'),
   });
 
   const { data: gpProfiles = [] } = useQuery({
-    queryKey: ['gpProfiles'],
-    queryFn: () => base44.entities.GPProfile.filter({ status: 'active' }),
+    queryKey: ['gpProfiles', selectedOrgId],
+    queryFn: () => selectedOrgId
+      ? base44.entities.GPProfile.filter({ status: 'active', organization_id: selectedOrgId })
+      : base44.entities.GPProfile.filter({ status: 'active' }),
   });
 
   const { data: specialists = [] } = useQuery({
-    queryKey: ['specialists'],
-    queryFn: () => base44.entities.SpecialistProfile.filter({ status: 'active' }),
+    queryKey: ['specialists', selectedOrgId],
+    queryFn: () => selectedOrgId
+      ? base44.entities.SpecialistProfile.filter({ status: 'active', organization_id: selectedOrgId })
+      : base44.entities.SpecialistProfile.filter({ status: 'active' }),
   });
 
   const { data: radiologyServices = [] } = useQuery({
-    queryKey: ['radiologyServices'],
-    queryFn: () => base44.entities.RadiologyService.filter({ status: 'active' }),
+    queryKey: ['radiologyServices', selectedOrgId],
+    queryFn: () => selectedOrgId
+      ? base44.entities.RadiologyService.filter({ status: 'active', organization_id: selectedOrgId })
+      : base44.entities.RadiologyService.filter({ status: 'active' }),
   });
 
   const { data: homeCareServices = [] } = useQuery({
-    queryKey: ['homeCareServices'],
-    queryFn: () => base44.entities.HomeCareServiceCatalog.filter({ status: 'active' }),
+    queryKey: ['homeCareServices', selectedOrgId],
+    queryFn: () => selectedOrgId
+      ? base44.entities.HomeCareServiceCatalog.filter({ status: 'active', organization_id: selectedOrgId })
+      : base44.entities.HomeCareServiceCatalog.filter({ status: 'active' }),
   });
 
   const { data: labTests = [] } = useQuery({
-    queryKey: ['labTests'],
-    queryFn: () => base44.entities.LabTestCatalog.filter({ is_active: true }),
+    queryKey: ['labTests', selectedOrgId],
+    queryFn: () => selectedOrgId
+      ? base44.entities.LabTestCatalog.filter({ is_active: true, organization_id: selectedOrgId })
+      : base44.entities.LabTestCatalog.filter({ is_active: true }),
   });
 
   const { data: healthPackages = [] } = useQuery({
-    queryKey: ['healthPackages'],
-    queryFn: () => base44.entities.HealthPackage.filter({ active: true }),
+    queryKey: ['healthPackages', selectedOrgId],
+    queryFn: () => selectedOrgId
+      ? base44.entities.HealthPackage.filter({ active: true, organization_id: selectedOrgId })
+      : base44.entities.HealthPackage.filter({ active: true }),
   });
 
   const { data: patients = [] } = useQuery({
-    queryKey: ['patients'],
-    queryFn: () => base44.entities.Patient.list(),
+    queryKey: ['patients', selectedOrgId],
+    queryFn: () => selectedOrgId
+      ? base44.entities.Patient.filter({ organization_id: selectedOrgId })
+      : base44.entities.Patient.list(),
   });
 
   const { data: companies = [] } = useQuery({

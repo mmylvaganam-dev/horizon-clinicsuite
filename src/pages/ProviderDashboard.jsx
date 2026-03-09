@@ -83,12 +83,12 @@ export default function ProviderDashboard() {
 
   // Service categories
   const services = [
-    { name: 'General Service', icon: Stethoscope, color: 'from-blue-500 to-blue-600' },
-    { name: 'OPD Service', icon: Users, color: 'from-teal-500 to-teal-600' },
-    { name: 'General Procedure', icon: Activity, color: 'from-purple-500 to-purple-600' },
-    { name: 'Dental Practice', icon: Stethoscope, color: 'from-rose-500 to-rose-600' },
-    { name: 'Laboratory Service', icon: Activity, color: 'from-emerald-500 to-emerald-600' },
-    { name: 'Pharmacy Service', icon: Activity, color: 'from-indigo-500 to-indigo-600' },
+    { name: 'General Service', icon: Stethoscope, color: 'from-blue-500 to-blue-600', page: 'Appointments' },
+    { name: 'OPD Service', icon: Users, color: 'from-teal-500 to-teal-600', page: 'FrontDeskWorkspace' },
+    { name: 'General Procedure', icon: Activity, color: 'from-purple-500 to-purple-600', page: 'EMR' },
+    { name: 'Dental Practice', icon: Stethoscope, color: 'from-rose-500 to-rose-600', page: 'DentalModule' },
+    { name: 'Laboratory Service', icon: Activity, color: 'from-emerald-500 to-emerald-600', page: 'LISOrders' },
+    { name: 'Pharmacy Service', icon: Activity, color: 'from-indigo-500 to-indigo-600', page: 'PharmacyWorkQueue' },
   ];
 
   const navigate = useNavigate();
@@ -160,7 +160,7 @@ export default function ProviderDashboard() {
       {/* Service Categories */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {services.map((service, idx) => (
-          <Card key={idx} className="hover:shadow-lg transition-all cursor-pointer">
+          <Card key={idx} className="hover:shadow-lg transition-all cursor-pointer" onClick={() => navigate(createPageUrl(service.page))}>
             <CardContent className="p-6 text-center">
               <div className={`w-12 h-12 rounded-lg bg-gradient-to-br ${service.color} flex items-center justify-center mx-auto mb-3`}>
                 <service.icon className="w-6 h-6 text-white" />
