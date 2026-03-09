@@ -32,6 +32,12 @@ export default function DailyOps() {
     enabled: isPlatformOwner,
   });
 
+  const { data: companies = [] } = useQuery({
+    queryKey: ['companies'],
+    queryFn: () => base44.entities.CompanyProfile.list(),
+  });
+  const currency = companies[0]?.base_currency || 'LKR';
+
   const { data: locations = [] } = useQuery({
     queryKey: ['locations'],
     queryFn: () => base44.entities.Location.list(),
