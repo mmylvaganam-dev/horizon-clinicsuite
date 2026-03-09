@@ -52,11 +52,37 @@ export default function BarcodeSetup() {
     }
   });
 
-  const filteredStock = pharmacyStock.filter(item => {
+  // Auto-generate barcodes for products without one
+  const autoGenerateBarcodes = async () => {
+    const itemsWithoutBarcode = pharmacyStock.filter(item => !item.barcode);
+    if (itemsWithoutBarcode.length === 0) {
+      toast.success('All products already have barcodes!');
+      return;
+    }
+    setIsAutoGenerating(true);
+    let count = 0;
+    for (const item of itemsWithoutBarcode) {
+      // Generate a barcode from the product's display_name or id
+      const autoBarcode = `BC${item.id.replace(/-/g, '').substring(0, 10).toUpperCase()}`;
+      await base44.entities.PharmacyStock.update(item.id, { barcode: autoBarcode });
+      count++;
+    }
+    queryClient.invalidateQueries({ queryKey: ['pharmacyStock'] });
+    setIsAutoGenerating(false);
+    toast.success(`Auto-generated barcodes for ${count} products!`);
+  };
+
+  const baseFiltered = pharmacyStock.filter(item => {
     const query = searchQuery.toLowerCase();
     return item.display_name?.toLowerCase().includes(query) ||
            item.barcode?.toLowerCase().includes(query);
   });
+
+  const filteredStock = filterTab === 'missing'
+    ? baseFiltered.filter(item => !item.barcode)
+    : filterTab === 'assigned'
+    ? baseFiltered.filter(item => !!item.barcode)
+    : baseFiltered;
 
   const startEdit = (item) => {
     setEditingId(item.id);
