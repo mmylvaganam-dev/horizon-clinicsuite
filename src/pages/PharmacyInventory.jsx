@@ -86,7 +86,10 @@ export default function PharmacyInventory() {
   const [showZeroStockOnly, setShowZeroStockOnly] = useState(false);
   const [showExpiredOnly, setShowExpiredOnly] = useState(false);
   const [showExpiringOnly, setShowExpiringOnly] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('search') || '';
+  });
 
   const { data: balances = [] } = useQuery({
     queryKey: ['inventoryBalances', selectedOrgId],
