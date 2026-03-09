@@ -27,9 +27,12 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function BarcodeSetup() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [editingId, setEditingId] = useState(null);
   const [editBarcode, setEditBarcode] = useState('');
+  const [filterTab, setFilterTab] = useState('all');
+  const [isAutoGenerating, setIsAutoGenerating] = useState(false);
 
   const { data: pharmacyStock = [] } = useQuery({
     queryKey: ['pharmacyStock'],
