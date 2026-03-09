@@ -228,9 +228,9 @@ export default function BarcodeSetup() {
         </CardContent>
       </Card>
 
-      {/* Search */}
+      {/* Search + Filter */}
       <Card>
-        <CardContent className="p-4">
+        <CardContent className="p-4 space-y-3">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
             <Input
@@ -240,13 +240,32 @@ export default function BarcodeSetup() {
               className="pl-10"
             />
           </div>
+          <div className="flex items-center justify-between gap-4">
+            <Tabs value={filterTab} onValueChange={setFilterTab}>
+              <TabsList>
+                <TabsTrigger value="all">All ({pharmacyStock.length})</TabsTrigger>
+                <TabsTrigger value="missing" className="text-orange-600">Missing ({stockWithoutBarcode})</TabsTrigger>
+                <TabsTrigger value="assigned" className="text-green-600">Assigned ({stockWithBarcode})</TabsTrigger>
+              </TabsList>
+            </Tabs>
+            {stockWithoutBarcode > 0 && (
+              <Button
+                onClick={autoGenerateBarcodes}
+                disabled={isAutoGenerating}
+                className="bg-orange-600 hover:bg-orange-700"
+              >
+                <Wand2 className="w-4 h-4 mr-2" />
+                {isAutoGenerating ? 'Generating...' : `Auto-Generate ${stockWithoutBarcode} Barcodes`}
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
 
       {/* Products List */}
       <Card>
         <CardHeader>
-          <CardTitle>Product Barcodes</CardTitle>
+          <CardTitle>Product Barcodes ({filteredStock.length})</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
