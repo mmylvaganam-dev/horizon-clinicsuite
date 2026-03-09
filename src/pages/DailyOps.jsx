@@ -203,7 +203,7 @@ export default function DailyOps() {
              </CardHeader>
              <CardContent>
                <p className="text-3xl font-bold text-green-600 mb-2">{todaySales.length}</p>
-               <p className="text-lg font-semibold text-slate-900">${totalSalesAmount.toFixed(2)}</p>
+               <p className="text-lg font-semibold text-slate-900">{currency} {totalSalesAmount.toFixed(2)}</p>
                <p className="text-xs text-slate-500 mt-2">transactions</p>
              </CardContent>
            </Card>
