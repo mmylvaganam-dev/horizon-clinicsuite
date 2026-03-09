@@ -232,7 +232,6 @@ function LayoutContent({ children, currentPageName }) {
       items: [
         { name: 'Home', page: 'Home', icon: LayoutDashboard, description: 'Main dashboard - Overview of sales, patients, and key metrics' },
         { name: 'Daily Operations', page: 'DailyOps', icon: Activity, description: 'Daily operations center - Track real-time patient flow, staff activities, and operational metrics' },
-        { name: 'Provider Dashboard', page: 'ProviderDashboard', icon: Activity, description: 'For doctors and providers - View your appointments, patient queue, and clinical tasks' },
       ]
     },
     {
