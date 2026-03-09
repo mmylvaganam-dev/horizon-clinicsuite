@@ -281,6 +281,7 @@ function LayoutContent({ children, currentPageName }) {
       icon: FileText,
       moduleRequired: 'CLINICAL',
       items: [
+        { name: 'Provider Dashboard', page: 'ProviderDashboard', icon: Activity, description: 'Doctor\'s primary dashboard - View your appointments, patient queue, and clinical tasks' },
         { name: 'Appointments', page: 'Appointments', icon: Calendar, description: 'Appointment booking - Schedule, reschedule, and manage patient appointments' },
         { name: 'Patients', page: 'Patients', icon: Users, description: 'Patient registry - Register new patients, search and view patient records' },
         { name: 'EMR', page: 'EMR', icon: FileText, description: 'Electronic Medical Records - Clinical documentation, diagnoses, prescriptions, vitals' },

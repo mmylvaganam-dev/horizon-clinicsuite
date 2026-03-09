@@ -37,58 +37,48 @@ export default function DailyOps() {
     queryFn: () => base44.entities.Location.list(),
   });
 
-  // CRITICAL: Include selectedOrgId in query key AND filter parameter to isolate data by org
   const { data: pharmacySales = [], isLoading: loadingSales } = useQuery({
-    queryKey: ['pharmacySales', selectedOrgId],
+    queryKey: ['pharmacySales', effectiveOrgId],
     queryFn: async () => {
-      if (!selectedOrgId || selectedOrgId === 'all') {
-        console.log('DailyOps - Fetching ALL orgs sales');
+      if (!effectiveOrgId || effectiveOrgId === 'all') {
         return base44.entities.PharmacySaleHeader.list();
       }
-      console.log('DailyOps - Fetching sales for org:', selectedOrgId);
-      const result = await base44.entities.PharmacySaleHeader.filter({ organization_id: selectedOrgId });
-      return result;
+      return base44.entities.PharmacySaleHeader.filter({ organization_id: effectiveOrgId });
     },
     staleTime: 30000,
   });
 
   const { data: pharmacyStock = [], isLoading: loadingStock } = useQuery({
-    queryKey: ['pharmacyStock', selectedOrgId],
+    queryKey: ['pharmacyStock', effectiveOrgId],
     queryFn: async () => {
-      if (!selectedOrgId || selectedOrgId === 'all') {
-        console.log('DailyOps - Fetching ALL orgs stock');
+      if (!effectiveOrgId || effectiveOrgId === 'all') {
         return base44.entities.PharmacyStock.list();
       }
-      console.log('DailyOps - Fetching stock for org:', selectedOrgId);
-      const result = await base44.entities.PharmacyStock.filter({ organization_id: selectedOrgId });
-      return result;
+      return base44.entities.PharmacyStock.filter({ organization_id: effectiveOrgId });
     },
     staleTime: 30000,
   });
 
   const { data: patients = [] } = useQuery({
-    queryKey: ['patients', selectedOrgId],
+    queryKey: ['patients', effectiveOrgId],
     queryFn: async () => {
-      if (!selectedOrgId || selectedOrgId === 'all') {
-        console.log('DailyOps - Fetching ALL orgs patients');
+      if (!effectiveOrgId || effectiveOrgId === 'all') {
         return base44.entities.Patient.list();
       }
-      console.log('DailyOps - Fetching patients for org:', selectedOrgId);
-      const result = await base44.entities.Patient.filter({ organization_id: selectedOrgId });
-      return result;
+      return base44.entities.Patient.filter({ organization_id: effectiveOrgId });
     },
     staleTime: 30000,
   });
 
   const filterByOrgAndLocation = (item) => {
-    const orgMatch = selectedOrgId === 'all' || item.organization_id === selectedOrgId;
+    const orgMatch = effectiveOrgId === 'all' || item.organization_id === effectiveOrgId;
     const locMatch = selectedLocationId === 'all' || item.location_id === selectedLocationId;
     return orgMatch && locMatch;
   };
 
-  const filteredLocations = selectedOrgId === 'all' 
+  const filteredLocations = effectiveOrgId === 'all' 
     ? locations 
-    : locations.filter(loc => loc.organization_id === selectedOrgId);
+    : locations.filter(loc => loc.organization_id === effectiveOrgId);
 
   // Today's sales - compare using Colombo date
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Colombo', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
@@ -150,6 +140,7 @@ export default function DailyOps() {
 
       <Card className="p-4 bg-white border-0 shadow-sm">
         <div className="flex flex-col sm:flex-row gap-4">
+          {isPlatformOwner && (
           <div className="flex items-center gap-2 flex-1">
             <Building2 className="w-4 h-4 text-slate-400" />
             <Select value={selectedOrgId} onValueChange={(val) => {
@@ -167,6 +158,7 @@ export default function DailyOps() {
               </SelectContent>
             </Select>
           </div>
+          )}
           <div className="flex items-center gap-2 flex-1">
             <MapPin className="w-4 h-4 text-slate-400" />
             <Select value={selectedLocationId} onValueChange={setSelectedLocationId}>
