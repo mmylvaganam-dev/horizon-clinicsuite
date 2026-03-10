@@ -187,6 +187,14 @@ export default function PatientHub() {
                             <Badge variant="outline" className="text-xs">{patientAppointments(patient.id).length} consults</Badge>
                             {patientOpinions(patient.id).length > 0 && <Badge className="bg-purple-100 text-purple-800 text-xs">2nd opinion</Badge>}
                           </div>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-teal-600 hover:bg-teal-50 text-xs"
+                            onClick={() => setViewingPatient(patient)}
+                          >
+                            <Eye className="w-3 h-3 mr-1" /> View Profile
+                          </Button>
                           {!linkedLocal && (
                             <Link
                               to={createPageUrl(`Patients`)}
