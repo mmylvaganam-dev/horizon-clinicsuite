@@ -5,11 +5,12 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, CheckCircle, XCircle, Clock, User } from 'lucide-react';
+import { Calendar, CheckCircle, XCircle, Clock, User, Stethoscope } from 'lucide-react';
 import AppointmentCard from '@/components/telemedicine/AppointmentCard';
 import ProviderStatsBar from '@/components/telemedicine/ProviderStatsBar';
 import TodaySchedule from '@/components/telemedicine/TodaySchedule';
 import ProviderTasksPanel from '@/components/telemedicine/ProviderTasksPanel';
+import ConsultationWorkspace from '@/components/telemedicine/ConsultationWorkspace';
 import { format } from 'date-fns';
 
 const NEXT_STATUS = {
