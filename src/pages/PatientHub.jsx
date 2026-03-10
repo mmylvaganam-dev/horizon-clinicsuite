@@ -290,6 +290,13 @@ export default function PatientHub() {
         </TabsContent>
       </Tabs>
 
+      {/* Patient Profile Dialog */}
+      <TelePatientProfileDialog
+        patient={viewingPatient}
+        open={!!viewingPatient}
+        onClose={() => setViewingPatient(null)}
+      />
+
       {/* Add Patient Dialog */}
       <Dialog open={showAddPatient} onOpenChange={setShowAddPatient}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
