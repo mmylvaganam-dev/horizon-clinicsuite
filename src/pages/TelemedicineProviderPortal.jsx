@@ -22,6 +22,7 @@ const NEXT_STATUS = {
 export default function TelemedicineProviderPortal() {
   const [selectedProvider, setSelectedProvider] = useState('');
   const [tab, setTab] = useState('dashboard');
+  const [emrAppt, setEmrAppt] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: providers = [] } = useQuery({
