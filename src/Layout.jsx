@@ -391,6 +391,7 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Content Library', page: 'SignageContent', icon: LayoutGrid, description: 'Create and manage images, text slides, videos, and webpages for clinic displays' },
         { name: 'Playlists', page: 'SignagePlaylists', icon: Play, description: 'Build and schedule content playlists for each screen and location type' },
         { name: 'Emergency Banners', page: 'SignageEmergencyBanner', icon: AlertTriangle, description: 'Broadcast urgent alerts to all clinic screens immediately' },
+        { name: 'AI Content Creator', page: 'SignageContentCreator', icon: Sparkles, description: 'Paste raw info — AI turns it into polished clinic signboard copy, layouts, and branding' },
       ]
     },
     ...(isTeleEnabled ? [{
