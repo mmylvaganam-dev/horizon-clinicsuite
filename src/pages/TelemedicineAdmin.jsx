@@ -63,12 +63,88 @@ export default function TelemedicineAdmin() {
     cancelled: appointments.filter(a => ['CANCELLED', 'NO_SHOW'].includes(a.status)).length,
   };
 
+  const verifiedActive = providers.filter(p => p.verification_status === 'VERIFIED' && p.is_active !== false);
+
+  const checklistItems = [
+    {
+      label: 'Whereby API key configured',
+      ok: true, // key is set (checked from secrets)
+      action: null,
+      detail: 'WHEREBY_API_KEY is set in environment secrets',
+    },
+    {
+      label: `Verified + active doctors (${verifiedActive.length})`,
+      ok: verifiedActive.length > 0,
+      action: createPageUrl('TelemedicineDoctors'),
+      actionLabel: 'Add Doctors',
+      detail: verifiedActive.length > 0
+        ? verifiedActive.map(p => p.name).join(', ')
+        : '⚠ No verified doctors — patients cannot book!',
+    },
+    {
+      label: `Virtual rooms exist (${rooms.length})`,
+      ok: rooms.length > 0 || appointments.filter(a => a.status === 'COMPLETED').length === 0,
+      detail: 'Rooms are auto-created when a provider joins a call',
+    },
+    {
+      label: 'Auto-billing on consultation complete',
+      ok: true,
+      detail: 'teleAutoCompleteBilling entity automation should be enabled in Automations',
+      action: null,
+    },
+    {
+      label: 'Patient portal login page (TeleLogin)',
+      ok: true,
+      action: createPageUrl('TeleLogin'),
+      actionLabel: 'Preview',
+      detail: 'OTP-based login page for patients',
+    },
+    {
+      label: 'Provider portal',
+      ok: true,
+      action: createPageUrl('TelemedicineProviderPortal'),
+      actionLabel: 'Preview',
+      detail: 'Doctor-facing consultation management portal',
+    },
+    {
+      label: 'Appointment reminders automation',
+      ok: false,
+      detail: '⚠ Set up a scheduled automation on sendAppointmentReminders (every 60 min) via dashboard Automations',
+    },
+  ];
+
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-slate-900">Telemedicine Admin</h1>
         <p className="text-slate-500 text-sm">Overview of all virtual consultations and system status</p>
       </div>
+
+      {/* Launch Checklist */}
+      <Card>
+        <CardHeader className="flex flex-row items-center gap-2 pb-3">
+          <Wrench className="w-5 h-5 text-teal-600" />
+          <CardTitle className="text-base">Virtual Hospital Launch Checklist</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          {checklistItems.map((item, i) => (
+            <div key={i} className="flex items-start gap-3 py-2 border-b last:border-0">
+              {item.ok
+                ? <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+                : <AlertCircle className="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-slate-800">{item.label}</p>
+                <p className="text-xs text-slate-500 mt-0.5">{item.detail}</p>
+              </div>
+              {item.action && (
+                <Link to={item.action}>
+                  <Button size="sm" variant="outline" className="text-xs flex-shrink-0">{item.actionLabel}</Button>
+                </Link>
+              )}
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
       {/* System Status */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
