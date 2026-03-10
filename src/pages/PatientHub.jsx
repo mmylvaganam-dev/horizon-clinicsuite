@@ -25,6 +25,7 @@ export default function PatientHub() {
   const [showAddPatient, setShowAddPatient] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [showConsent, setShowConsent] = useState(false);
+  const [viewingPatient, setViewingPatient] = useState(null);
   const [newPatient, setNewPatient] = useState({
     name: '', email: '', phone: '', date_of_birth: '',
     gender: 'male', nationality: '', country_of_residence: '',
