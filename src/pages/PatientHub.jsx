@@ -17,6 +17,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import toast from 'react-hot-toast';
 import ConsentModal from '../components/telehealth/ConsentModal';
+import TelePatientProfileDialog from '../components/telemedicine/TelePatientProfileDialog';
 
 export default function PatientHub() {
   const queryClient = useQueryClient();
