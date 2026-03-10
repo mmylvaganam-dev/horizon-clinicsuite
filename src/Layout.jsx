@@ -379,6 +379,18 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Help Desk', page: 'HelpDesk', icon: Ticket, description: 'Support tickets, remote sessions via HopToDesk, live chat, and screenshot uploads for IT support' },
       ]
     },
+    {
+      category: 'Digital Signage',
+      icon: Monitor,
+      moduleRequired: 'DIGITAL_SIGNAGE',
+      items: [
+        { name: 'Dashboard', page: 'DigitalSignageDashboard', icon: Monitor, description: 'Overview of all clinic TV screens, playlists, and active emergency banners' },
+        { name: 'Screens', page: 'SignageScreens', icon: Monitor, description: 'Manage clinic TV displays, generate player URLs for Raspberry Pi and kiosk browsers' },
+        { name: 'Content Library', page: 'SignageContent', icon: LayoutGrid, description: 'Create and manage images, text slides, videos, and webpages for clinic displays' },
+        { name: 'Playlists', page: 'SignagePlaylists', icon: Play, description: 'Build and schedule content playlists for each screen and location type' },
+        { name: 'Emergency Banners', page: 'SignageEmergencyBanner', icon: AlertTriangle, description: 'Broadcast urgent alerts to all clinic screens immediately' },
+      ]
+    },
     ...(isTeleEnabled ? [{
       category: 'Telemedicine',
       icon: Video,
