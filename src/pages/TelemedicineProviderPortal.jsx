@@ -163,12 +163,30 @@ export default function TelemedicineProviderPortal() {
               ) : (
                 past
                   .sort((a, b) => new Date(b.scheduled_time) - new Date(a.scheduled_time))
-                  .map(appt => <AppointmentCard key={appt.id} appt={appt} role="provider" />)
+                  .map(appt => (
+                    <div key={appt.id} className="space-y-2">
+                      <AppointmentCard appt={appt} role="provider" />
+                      <div className="px-1">
+                        <Button size="sm" variant="outline" className="border-teal-300 text-teal-700 hover:bg-teal-50"
+                          onClick={() => setEmrAppt(appt)}>
+                          <Stethoscope className="w-4 h-4 mr-1" /> View / Edit EMR Notes
+                        </Button>
+                      </div>
+                    </div>
+                  ))
               )}
             </TabsContent>
           </Tabs>
         </>
       )}
+
+      {/* Consultation EMR Workspace */}
+      <ConsultationWorkspace
+        appt={emrAppt}
+        open={!!emrAppt}
+        onClose={() => setEmrAppt(null)}
+        onSaved={() => queryClient.invalidateQueries({ queryKey: ['teleAppointmentsProvider'] })}
+      />
     </div>
   );
 }
