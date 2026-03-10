@@ -10,46 +10,81 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Plus, Edit2, Trash2, Image, FileText, Video, Globe, Eye, EyeOff } from 'lucide-react';
+import { Plus, Edit2, Trash2, Image, FileText, Video, Globe, Eye, EyeOff, GraduationCap } from 'lucide-react';
 import toast from 'react-hot-toast';
+import SignageTVPreview from '../components/signage/SignageTVPreview';
 
 const TYPE_ICONS = { image: Image, video: Video, text: FileText, webpage: Globe };
 const TYPE_COLORS = { image: 'text-purple-600 bg-purple-50', video: 'text-red-600 bg-red-50', text: 'text-teal-600 bg-teal-50', webpage: 'text-blue-600 bg-blue-50' };
 
-const emptyForm = { title: '', type: 'text', media_url: '', headline: '', body_text: '', cta_text: '', background_color: '#0d9488', is_active: true, start_at: '', end_at: '' };
+const emptyForm = {
+  title: '', type: 'text', media_url: '', headline: '', body_text: '', cta_text: '',
+  background_color: '#0d9488', is_active: true, is_health_education: false, start_at: '', end_at: ''
+};
 
 export default function SignageContent() {
   const qc = useQueryClient();
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterActive, setFilterActive] = useState('all');
+  const [filterEdu, setFilterEdu] = useState(false);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
+  const [previewItem, setPreviewItem] = useState(null);
 
   const { data: items = [], isLoading } = useQuery({ queryKey: ['signageItems'], queryFn: () => base44.entities.SignageItem.list() });
+  const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
+
+  const logAudit = async (action, item, changes = '') => {
+    await base44.entities.SignageAuditLog.create({
+      entity_type: 'item', entity_id: item.id || 'new', entity_name: item.title,
+      action, changed_by_email: user?.email || 'unknown', changes_summary: changes
+    });
+  };
 
   const upsert = useMutation({
     mutationFn: d => editing ? base44.entities.SignageItem.update(editing.id, d) : base44.entities.SignageItem.create(d),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['signageItems'] }); setOpen(false); toast.success(editing ? 'Item updated' : 'Item created'); }
+    onSuccess: async (res, vars) => {
+      await logAudit(editing ? 'updated' : 'created', { id: res?.id || editing?.id, title: vars.title }, editing ? 'Updated content item' : 'Created new content item');
+      qc.invalidateQueries({ queryKey: ['signageItems'] });
+      setOpen(false);
+      toast.success(editing ? 'Item updated' : 'Item created');
+    }
   });
+
   const remove = useMutation({
-    mutationFn: id => base44.entities.SignageItem.delete(id),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['signageItems'] }); toast.success('Item deleted'); }
+    mutationFn: async (item) => { await base44.entities.SignageItem.delete(item.id); return item; },
+    onSuccess: async (item) => {
+      await logAudit('deleted', item, 'Item deleted');
+      qc.invalidateQueries({ queryKey: ['signageItems'] });
+      toast.success('Item deleted');
+    }
   });
+
   const toggleActive = useMutation({
     mutationFn: item => base44.entities.SignageItem.update(item.id, { is_active: !item.is_active }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ['signageItems'] })
   });
 
   const openCreate = () => { setEditing(null); setForm(emptyForm); setOpen(true); };
-  const openEdit = item => { setEditing(item); setForm({ title: item.title, type: item.type, media_url: item.media_url || '', headline: item.headline || '', body_text: item.body_text || '', cta_text: item.cta_text || '', background_color: item.background_color || '#0d9488', is_active: item.is_active !== false, start_at: item.start_at || '', end_at: item.end_at || '' }); setOpen(true); };
+  const openEdit = item => {
+    setEditing(item);
+    setForm({
+      title: item.title, type: item.type, media_url: item.media_url || '',
+      headline: item.headline || '', body_text: item.body_text || '', cta_text: item.cta_text || '',
+      background_color: item.background_color || '#0d9488', is_active: item.is_active !== false,
+      is_health_education: item.is_health_education || false, start_at: item.start_at || '', end_at: item.end_at || ''
+    });
+    setOpen(true);
+  };
 
   const filtered = items.filter(item => {
     if (search && !item.title?.toLowerCase().includes(search.toLowerCase())) return false;
     if (filterType !== 'all' && item.type !== filterType) return false;
     if (filterActive === 'active' && !item.is_active) return false;
     if (filterActive === 'inactive' && item.is_active) return false;
+    if (filterEdu && !item.is_health_education) return false;
     return true;
   });
 
@@ -63,7 +98,7 @@ export default function SignageContent() {
         <Button onClick={openCreate} className="gap-2"><Plus className="w-4 h-4" /> New Item</Button>
       </div>
 
-      <div className="flex gap-3 flex-wrap">
+      <div className="flex gap-3 flex-wrap items-center">
         <Input placeholder="Search content..." value={search} onChange={e => setSearch(e.target.value)} className="w-52" />
         <Select value={filterType} onValueChange={setFilterType}>
           <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
@@ -83,6 +118,12 @@ export default function SignageContent() {
             <SelectItem value="inactive">Inactive</SelectItem>
           </SelectContent>
         </Select>
+        <button
+          onClick={() => setFilterEdu(!filterEdu)}
+          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm border transition-all ${filterEdu ? 'bg-green-600 text-white border-green-600' : 'bg-white text-slate-600 border-slate-200 hover:border-green-400'}`}
+        >
+          <GraduationCap className="w-4 h-4" /> Health Edu Only
+        </button>
       </div>
 
       {isLoading ? <p className="text-center py-16 text-slate-400">Loading...</p> : (
@@ -92,7 +133,6 @@ export default function SignageContent() {
             const colorClass = TYPE_COLORS[item.type] || TYPE_COLORS.text;
             return (
               <Card key={item.id} className={`overflow-hidden transition-shadow hover:shadow-md ${!item.is_active ? 'opacity-60' : ''}`}>
-                {/* Preview area */}
                 <div className="h-32 flex items-center justify-center relative overflow-hidden"
                   style={{ background: item.type === 'text' ? (item.background_color || '#0d9488') : '#1e293b' }}>
                   {item.type === 'image' && item.media_url ? (
@@ -105,12 +145,17 @@ export default function SignageContent() {
                   ) : (
                     <div className="flex flex-col items-center gap-2">
                       <Icon className="w-8 h-8 text-slate-400" />
-                      <p className="text-slate-500 text-xs">{item.media_url ? new URL(item.media_url).hostname : 'No URL set'}</p>
+                      <p className="text-slate-500 text-xs truncate max-w-[160px]">{item.media_url || 'No URL set'}</p>
                     </div>
                   )}
                   {!item.is_active && (
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                       <Badge className="bg-slate-700 text-white">Inactive</Badge>
+                    </div>
+                  )}
+                  {item.is_health_education && (
+                    <div className="absolute top-2 right-2">
+                      <Badge className="bg-green-600 text-white gap-1"><GraduationCap className="w-3 h-3" /> Edu</Badge>
                     </div>
                   )}
                 </div>
@@ -121,15 +166,17 @@ export default function SignageContent() {
                   </div>
                   {(item.start_at || item.end_at) && (
                     <p className="text-xs text-slate-400 mb-2">
-                      {item.start_at ? `From ${new Date(item.start_at).toLocaleDateString()}` : ''}{item.end_at ? ` to ${new Date(item.end_at).toLocaleDateString()}` : ''}
+                      {item.start_at ? `From ${new Date(item.start_at).toLocaleDateString()}` : ''}
+                      {item.end_at ? ` to ${new Date(item.end_at).toLocaleDateString()}` : ''}
                     </p>
                   )}
                   <div className="flex gap-2 mt-3">
                     <Button size="sm" variant="outline" onClick={() => openEdit(item)} className="gap-1 flex-1"><Edit2 className="w-3 h-3" /> Edit</Button>
+                    <Button size="sm" variant="outline" onClick={() => setPreviewItem(item)} title="Preview"><Eye className="w-3 h-3" /></Button>
                     <Button size="sm" variant="outline" onClick={() => toggleActive.mutate(item)} title={item.is_active ? 'Deactivate' : 'Activate'}>
                       {item.is_active ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
                     </Button>
-                    <Button size="sm" variant="outline" className="text-red-500 hover:bg-red-50" onClick={() => { if (confirm('Delete this item?')) remove.mutate(item.id); }}><Trash2 className="w-3 h-3" /></Button>
+                    <Button size="sm" variant="outline" className="text-red-500 hover:bg-red-50" onClick={() => { if (confirm('Delete this item?')) remove.mutate(item); }}><Trash2 className="w-3 h-3" /></Button>
                   </div>
                 </CardContent>
               </Card>
@@ -137,6 +184,10 @@ export default function SignageContent() {
           })}
           {filtered.length === 0 && <p className="col-span-3 text-center py-16 text-slate-400">No content items found.</p>}
         </div>
+      )}
+
+      {previewItem && (
+        <SignageTVPreview items={[previewItem]} screen={null} onClose={() => setPreviewItem(null)} />
       )}
 
       <Dialog open={open} onOpenChange={setOpen}>
@@ -184,6 +235,10 @@ export default function SignageContent() {
             <div className="flex items-center gap-3">
               <Switch checked={form.is_active} onCheckedChange={v => setForm({ ...form, is_active: v })} />
               <Label>Active</Label>
+            </div>
+            <div className="flex items-center gap-3">
+              <Switch checked={form.is_health_education} onCheckedChange={v => setForm({ ...form, is_health_education: v })} />
+              <Label className="flex items-center gap-1"><GraduationCap className="w-4 h-4 text-green-600" /> Health Education Content (visible in Education Mode)</Label>
             </div>
 
             <div className="flex gap-2 justify-end pt-2">
