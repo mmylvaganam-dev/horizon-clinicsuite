@@ -1017,6 +1017,20 @@ export default function Admin() {
             </Card>
           )}
 
+          {/* Data Export */}
+          <Card className="border-l-4 border-teal-500">
+            <CardHeader className="bg-slate-50 border-b">
+              <CardTitle className="flex items-center gap-3 text-lg text-slate-900">
+                <Download className="w-5 h-5 text-teal-600" />
+                Data Export (CSV / PDF)
+              </CardTitle>
+              <p className="text-sm text-slate-600 mt-1">Download reports for external use</p>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <DataExportPanel organizationId={selectedOrgId} />
+            </CardContent>
+          </Card>
+
           {/* Admin Categories Grid */}
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-slate-700 flex items-center gap-2">
