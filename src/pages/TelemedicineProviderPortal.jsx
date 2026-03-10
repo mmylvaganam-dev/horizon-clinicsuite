@@ -121,6 +121,14 @@ export default function TelemedicineProviderPortal() {
                             Mark as {NEXT_STATUS[appt.status]}
                           </Button>
                         )}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="border-teal-300 text-teal-700 hover:bg-teal-50"
+                          onClick={() => setEmrAppt(appt)}
+                        >
+                          <Stethoscope className="w-4 h-4 mr-1" /> EMR / Notes
+                        </Button>
                         {!['COMPLETED', 'CANCELLED', 'NO_SHOW'].includes(appt.status) && (
                           <>
                             <Button
