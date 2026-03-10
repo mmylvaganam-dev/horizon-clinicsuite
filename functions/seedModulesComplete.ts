@@ -26,6 +26,7 @@ Deno.serve(async (req) => {
       { module_code: 'FINANCE', module_name: 'Financial Management', description: 'Accounting, ledger, and financial reporting', category: 'finance' },
       { module_code: 'HR_PAYROLL', module_name: 'HR & Payroll', description: 'Staff management and payroll processing', category: 'administration' },
       { module_code: 'QUEUE_MGMT', module_name: 'Queue Management', description: 'Virtual queue and patient flow management — OPD, Lab, Pharmacy, Doctor counters with real-time display board and SMS notifications', category: 'clinical' },
+      { module_code: 'DIGITAL_SIGNAGE', module_name: 'Digital Signage', description: 'Manage clinic TV screens, playlists, content library, emergency banners, and health education slideshows', category: 'engagement' },
     ];
 
     const results = [];
