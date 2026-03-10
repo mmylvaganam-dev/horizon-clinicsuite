@@ -10,7 +10,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Plus, Edit2, Trash2, Image, FileText, Video, Globe, Eye, EyeOff, GraduationCap } from 'lucide-react';
+import { Plus, Edit2, Trash2, Image, FileText, Video, Globe, Eye, EyeOff, GraduationCap, CheckCircle, Clock, XCircle, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '../utils';
 import toast from 'react-hot-toast';
 import SignageTVPreview from '../components/signage/SignageTVPreview';
 
@@ -19,7 +21,15 @@ const TYPE_COLORS = { image: 'text-purple-600 bg-purple-50', video: 'text-red-60
 
 const emptyForm = {
   title: '', type: 'text', media_url: '', headline: '', body_text: '', cta_text: '',
-  background_color: '#0d9488', is_active: true, is_health_education: false, start_at: '', end_at: ''
+  background_color: '#0d9488', is_active: true, is_health_education: false,
+  start_at: '', end_at: '', layout_style: 'hero', template_type: 'general_announcement',
+  approval_status: 'draft'
+};
+
+const APPROVAL_STYLES = {
+  draft:    { label: 'Draft',    icon: Clock,         class: 'bg-amber-100 text-amber-800' },
+  approved: { label: 'Approved', icon: CheckCircle,   class: 'bg-green-100 text-green-800' },
+  published:{ label: 'Published',icon: CheckCircle,   class: 'bg-teal-100 text-teal-800' },
 };
 
 export default function SignageContent() {
@@ -32,6 +42,7 @@ export default function SignageContent() {
   const [editing, setEditing] = useState(null);
   const [form, setForm] = useState(emptyForm);
   const [previewItem, setPreviewItem] = useState(null);
+  const [filterApproval, setFilterApproval] = useState('all');
 
   const { data: items = [], isLoading } = useQuery({ queryKey: ['signageItems'], queryFn: () => base44.entities.SignageItem.list() });
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
@@ -74,10 +85,26 @@ export default function SignageContent() {
       title: item.title, type: item.type, media_url: item.media_url || '',
       headline: item.headline || '', body_text: item.body_text || '', cta_text: item.cta_text || '',
       background_color: item.background_color || '#0d9488', is_active: item.is_active !== false,
-      is_health_education: item.is_health_education || false, start_at: item.start_at || '', end_at: item.end_at || ''
+      is_health_education: item.is_health_education || false, start_at: item.start_at || '', end_at: item.end_at || '',
+      layout_style: item.layout_style || 'hero', template_type: item.template_type || 'general_announcement',
+      approval_status: item.approval_status || 'draft'
     });
     setOpen(true);
   };
+
+  const approve = useMutation({
+    mutationFn: item => base44.entities.SignageItem.update(item.id, {
+      approval_status: 'approved', is_active: true,
+      approved_by: user?.email, approved_at: new Date().toISOString()
+    }),
+    onSuccess: async (_, item) => {
+      await logAudit('updated', item, 'Content approved — now active and assignable to playlists');
+      qc.invalidateQueries({ queryKey: ['signageItems'] });
+      toast.success('Content approved and activated!');
+    }
+  });
+
+  const isAdmin = user?.role === 'admin';
 
   const filtered = items.filter(item => {
     if (search && !item.title?.toLowerCase().includes(search.toLowerCase())) return false;
@@ -85,6 +112,7 @@ export default function SignageContent() {
     if (filterActive === 'active' && !item.is_active) return false;
     if (filterActive === 'inactive' && item.is_active) return false;
     if (filterEdu && !item.is_health_education) return false;
+    if (filterApproval !== 'all' && (item.approval_status || 'draft') !== filterApproval) return false;
     return true;
   });
 
@@ -93,9 +121,16 @@ export default function SignageContent() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Content Library</h1>
-          <p className="text-slate-500 text-sm">Create and manage signage content items</p>
+          <p className="text-slate-500 text-sm">Create and manage signage content · only Approved items can be added to playlists</p>
         </div>
-        <Button onClick={openCreate} className="gap-2"><Plus className="w-4 h-4" /> New Item</Button>
+        <div className="flex gap-2">
+          <Link to={createPageUrl('SignageContentCreator')}>
+            <Button variant="outline" className="gap-2 border-teal-300 text-teal-700 hover:bg-teal-50">
+              <Sparkles className="w-4 h-4" /> AI Creator
+            </Button>
+          </Link>
+          <Button onClick={openCreate} className="gap-2"><Plus className="w-4 h-4" /> New Item</Button>
+        </div>
       </div>
 
       <div className="flex gap-3 flex-wrap items-center">
@@ -116,6 +151,15 @@ export default function SignageContent() {
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="active">Active</SelectItem>
             <SelectItem value="inactive">Inactive</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={filterApproval} onValueChange={setFilterApproval}>
+          <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Status</SelectItem>
+            <SelectItem value="draft">Draft</SelectItem>
+            <SelectItem value="approved">Approved</SelectItem>
+            <SelectItem value="published">Published</SelectItem>
           </SelectContent>
         </Select>
         <button
@@ -158,6 +202,14 @@ export default function SignageContent() {
                       <Badge className="bg-green-600 text-white gap-1"><GraduationCap className="w-3 h-3" /> Edu</Badge>
                     </div>
                   )}
+                  {/* Approval status badge */}
+                  {(item.approval_status || 'draft') !== 'approved' && (
+                    <div className="absolute bottom-2 left-2">
+                      <Badge className={APPROVAL_STYLES[item.approval_status || 'draft']?.class || 'bg-amber-100 text-amber-800'}>
+                        {APPROVAL_STYLES[item.approval_status || 'draft']?.label || 'Draft'}
+                      </Badge>
+                    </div>
+                  )}
                 </div>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-2">
@@ -170,12 +222,14 @@ export default function SignageContent() {
                       {item.end_at ? ` to ${new Date(item.end_at).toLocaleDateString()}` : ''}
                     </p>
                   )}
-                  <div className="flex gap-2 mt-3">
+                  <div className="flex gap-2 mt-3 flex-wrap">
                     <Button size="sm" variant="outline" onClick={() => openEdit(item)} className="gap-1 flex-1"><Edit2 className="w-3 h-3" /> Edit</Button>
                     <Button size="sm" variant="outline" onClick={() => setPreviewItem(item)} title="Preview"><Eye className="w-3 h-3" /></Button>
-                    <Button size="sm" variant="outline" onClick={() => toggleActive.mutate(item)} title={item.is_active ? 'Deactivate' : 'Activate'}>
-                      {item.is_active ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
-                    </Button>
+                    {isAdmin && (item.approval_status || 'draft') === 'draft' && (
+                      <Button size="sm" className="gap-1 bg-green-600 hover:bg-green-700 text-white" onClick={() => approve.mutate(item)} title="Approve">
+                        <CheckCircle className="w-3 h-3" /> Approve
+                      </Button>
+                    )}
                     <Button size="sm" variant="outline" className="text-red-500 hover:bg-red-50" onClick={() => { if (confirm('Delete this item?')) remove.mutate(item); }}><Trash2 className="w-3 h-3" /></Button>
                   </div>
                 </CardContent>
