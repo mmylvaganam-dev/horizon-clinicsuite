@@ -47,6 +47,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import SalesActivityManager from '../components/admin/SalesActivityManager';
 import SystemHealthChecker from '../components/admin/SystemHealthChecker';
+import DataExportPanel from '../components/admin/DataExportPanel';
 import AppGuide from '../components/shared/AppGuide';
 
 export default function Admin() {

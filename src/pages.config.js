@@ -106,6 +106,7 @@ import DentalRecalls from './pages/DentalRecalls';
 import DentalSchedule from './pages/DentalSchedule';
 import DentalSterilization from './pages/DentalSterilization';
 import DiagnosticsWorkspace from './pages/DiagnosticsWorkspace';
+import DigitalSignageDashboard from './pages/DigitalSignageDashboard';
 import EMR from './pages/EMR';
 import FaxInbox from './pages/FaxInbox';
 import FinanceCompanies from './pages/FinanceCompanies';
@@ -191,6 +192,11 @@ import SalesWorkspace from './pages/SalesWorkspace';
 import SendSMS from './pages/SendSMS';
 import Settings from './pages/Settings';
 import ShiftHandover from './pages/ShiftHandover';
+import SignageContent from './pages/SignageContent';
+import SignageEmergencyBanner from './pages/SignageEmergencyBanner';
+import SignagePlayer from './pages/SignagePlayer';
+import SignagePlaylists from './pages/SignagePlaylists';
+import SignageScreens from './pages/SignageScreens';
 import SmsLogs from './pages/SmsLogs';
 import StaffDirectory from './pages/StaffDirectory';
 import TaskManagement from './pages/TaskManagement';
@@ -283,6 +289,7 @@ export const PAGES = {
     "DentalSchedule": DentalSchedule,
     "DentalSterilization": DentalSterilization,
     "DiagnosticsWorkspace": DiagnosticsWorkspace,
+    "DigitalSignageDashboard": DigitalSignageDashboard,
     "EMR": EMR,
     "FaxInbox": FaxInbox,
     "FinanceCompanies": FinanceCompanies,
@@ -368,6 +375,11 @@ export const PAGES = {
     "SendSMS": SendSMS,
     "Settings": Settings,
     "ShiftHandover": ShiftHandover,
+    "SignageContent": SignageContent,
+    "SignageEmergencyBanner": SignageEmergencyBanner,
+    "SignagePlayer": SignagePlayer,
+    "SignagePlaylists": SignagePlaylists,
+    "SignageScreens": SignageScreens,
     "SmsLogs": SmsLogs,
     "StaffDirectory": StaffDirectory,
     "TaskManagement": TaskManagement,
