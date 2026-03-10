@@ -101,7 +101,11 @@ export default function SignagePlaylists() {
   };
 
   const assignedItemIds = new Set(allCurrentItems.map(ci => ci.signage_item_id));
-  const availableItems = signageItems.filter(si => !assignedItemIds.has(si.id) && si.is_active);
+  // Only approved/published items can be added to playlists
+  const availableItems = signageItems.filter(si =>
+    !assignedItemIds.has(si.id) && si.is_active &&
+    (si.approval_status === 'approved' || si.approval_status === 'published')
+  );
 
   const getPreviewItems = () => {
     return currentItems.map(pi => {

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Monitor, AlertTriangle, Users } from 'lucide-react';
+import TemplateSlide from '../components/signage/TemplateSlide';
 
 const THEMES = {
   default: 'linear-gradient(135deg, #0d9488 0%, #115e59 100%)',
@@ -170,6 +171,8 @@ export default function SignagePlayer() {
           if (si.end_at && new Date(si.end_at) < now) continue;
           // Health education mode filter
           if (playlist?.health_edu_mode && !si.is_health_education) continue;
+          // Only approved/published content goes on TV
+          if (si.approval_status && si.approval_status === 'draft') continue;
           loaded.push({ ...si, display_seconds: pi.display_seconds || 10 });
         }
         setItems(loaded);
@@ -273,7 +276,11 @@ export default function SignagePlayer() {
               {currentItem.type === 'webpage' && (
                 <iframe src={currentItem.media_url} className="w-full h-full border-0" title={currentItem.title} />
               )}
-              {currentItem.type === 'text' && <TextSlide item={currentItem} />}
+              {currentItem.type === 'text' && (
+                currentItem.layout_style && currentItem.layout_style !== 'hero'
+                  ? <TemplateSlide item={currentItem} />
+                  : <TextSlide item={currentItem} />
+              )}
             </motion.div>
           )}
         </AnimatePresence>

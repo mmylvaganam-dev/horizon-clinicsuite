@@ -282,6 +282,31 @@ export default function SignageContent() {
             )}
 
             <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Template Type</Label>
+                <Select value={form.template_type || 'general_announcement'} onValueChange={v => setForm({ ...form, template_type: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {['health_tip','promo','emergency','service_ad','queue','general_announcement'].map(t => (
+                      <SelectItem key={t} value={t}>{t.replace(/_/g,' ')}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Layout Style</Label>
+                <Select value={form.layout_style || 'hero'} onValueChange={v => setForm({ ...form, layout_style: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {['hero','split','banner','sidebar','fullscreen'].map(l => (
+                      <SelectItem key={l} value={l}>{l}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
               <div><Label>Show From</Label><Input type="datetime-local" value={form.start_at} onChange={e => setForm({ ...form, start_at: e.target.value })} /></div>
               <div><Label>Show Until</Label><Input type="datetime-local" value={form.end_at} onChange={e => setForm({ ...form, end_at: e.target.value })} /></div>
             </div>
@@ -292,8 +317,22 @@ export default function SignageContent() {
             </div>
             <div className="flex items-center gap-3">
               <Switch checked={form.is_health_education} onCheckedChange={v => setForm({ ...form, is_health_education: v })} />
-              <Label className="flex items-center gap-1"><GraduationCap className="w-4 h-4 text-green-600" /> Health Education Content (visible in Education Mode)</Label>
+              <Label className="flex items-center gap-1"><GraduationCap className="w-4 h-4 text-green-600" /> Health Education Content</Label>
             </div>
+
+            {isAdmin && (
+              <div>
+                <Label>Approval Status</Label>
+                <Select value={form.approval_status || 'draft'} onValueChange={v => setForm({ ...form, approval_status: v, is_active: v === 'approved' || v === 'published' })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">Draft (not assignable)</SelectItem>
+                    <SelectItem value="approved">Approved (active)</SelectItem>
+                    <SelectItem value="published">Published</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div className="flex gap-2 justify-end pt-2">
               <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
