@@ -37,7 +37,9 @@ import {
   Monitor,
   Video,
   Phone,
-  Ticket
+  Ticket,
+  LayoutGrid,
+  Play
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
