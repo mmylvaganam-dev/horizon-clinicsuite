@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 Deno.serve(async (req) => {
   try {
@@ -41,11 +41,12 @@ Deno.serve(async (req) => {
 
     const wherebyData = await wherebyRes.json();
 
-    // Save to VirtualRoom entity
+    // Save to VirtualRoom entity — both participant URL and host URL
     const room = await base44.asServiceRole.entities.VirtualRoom.create({
       appointment_id,
       whereby_room_id: wherebyData.meetingId,
-      join_url: wherebyData.roomUrl,
+      join_url: wherebyData.roomUrl,       // participant URL
+      host_url: wherebyData.hostRoomUrl,   // host URL (provider gets extra controls)
       expiry_time: expiryTime,
     });
 

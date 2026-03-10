@@ -66,11 +66,22 @@ export default function AppointmentCard({ appt, role = 'patient', onRefresh }) {
   });
 
   const handleJoin = () => {
-    if (room?.join_url) {
-      window.open(room.join_url, '_blank');
+    if (room) {
+      // Providers get host URL with full controls; patients get regular join URL
+      const url = (role === 'provider' || role === 'staff') && room.host_url
+        ? room.host_url
+        : room.join_url;
+      window.open(url, '_blank');
     } else {
       createRoomMutation.mutate();
     }
+  };
+
+  const handleJoinFromNew = (newRoom) => {
+    const url = (role === 'provider' || role === 'staff') && newRoom.host_url
+      ? newRoom.host_url
+      : newRoom.join_url;
+    window.open(url, '_blank');
   };
 
   return (
