@@ -6,8 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, Users, Video, CheckCircle, Clock, XCircle, AlertCircle } from 'lucide-react';
+import { Calendar, Users, Video, CheckCircle, Clock, XCircle, AlertCircle, Wrench, DollarSign } from 'lucide-react';
 import { format } from 'date-fns';
+import { createPageUrl } from '@/utils';
+import { Link } from 'react-router-dom';
 import AppointmentCard from '@/components/telemedicine/AppointmentCard';
 
 const STATUS_COLORS = {

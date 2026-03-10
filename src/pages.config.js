@@ -221,12 +221,6 @@ import WholesaleMarketplace from './pages/WholesaleMarketplace';
 import WholesalePlatformAdmin from './pages/WholesalePlatformAdmin';
 import WholesalePortal from './pages/WholesalePortal';
 import WholesaleProviderAdmin from './pages/WholesaleProviderAdmin';
-import DigitalSignageDashboard from './pages/DigitalSignageDashboard';
-import SignageScreens from './pages/SignageScreens';
-import SignageContent from './pages/SignageContent';
-import SignagePlaylists from './pages/SignagePlaylists';
-import SignageEmergencyBanner from './pages/SignageEmergencyBanner';
-import SignagePlayer from './pages/SignagePlayer';
 import __Layout from './Layout.jsx';
 
 
@@ -405,12 +399,6 @@ export const PAGES = {
     "WholesalePlatformAdmin": WholesalePlatformAdmin,
     "WholesalePortal": WholesalePortal,
     "WholesaleProviderAdmin": WholesaleProviderAdmin,
-    "DigitalSignageDashboard": DigitalSignageDashboard,
-    "SignageScreens": SignageScreens,
-    "SignageContent": SignageContent,
-    "SignagePlaylists": SignagePlaylists,
-    "SignageEmergencyBanner": SignageEmergencyBanner,
-    "SignagePlayer": SignagePlayer,
 }
 
 export const pagesConfig = {
