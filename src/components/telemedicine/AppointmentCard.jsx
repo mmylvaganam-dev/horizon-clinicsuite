@@ -59,7 +59,7 @@ export default function AppointmentCard({ appt, role = 'patient', onRefresh }) {
       return res.data.room;
     },
     onSuccess: (newRoom) => {
-      window.open(newRoom.join_url, '_blank');
+      handleJoinFromNew(newRoom);
       setJoining(false);
     },
     onError: () => setJoining(false),
