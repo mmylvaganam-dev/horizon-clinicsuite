@@ -141,8 +141,8 @@ export default function CompanyModuleManagement() {
     ).length;
   };
 
-  // Business modules that can be toggled
-  const businessModules = modules.filter(m => m.status === 'active');
+  // Business modules that can be toggled (all non-core modules regardless of status field)
+  const businessModules = modules.filter(m => !m.is_core);
 
   return (
     <div className="space-y-6">
