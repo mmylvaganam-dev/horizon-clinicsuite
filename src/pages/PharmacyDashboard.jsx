@@ -185,6 +185,28 @@ export default function PharmacyDashboard() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedSales = filteredSales.slice(startIndex, startIndex + itemsPerPage);
 
+  // Profit calculation helpers
+  const getSaleProfit = (saleId) => {
+    const lines = saleLines.filter(l => l.sale_header_id === saleId);
+    return lines.reduce((sum, line) => {
+      const stockItem = pharmacyStock.find(s => s.id === line.stock_id);
+      const cost = (stockItem?.unit_cost || 0) * (line.qty || 0);
+      return sum + ((line.line_total || 0) - cost);
+    }, 0);
+  };
+
+  const filteredProfit = filteredSales
+    .filter(s => s.status === 'paid' || s.status === 'completed')
+    .reduce((sum, s) => sum + getSaleProfit(s.id), 0);
+
+  const filteredRevenue = filteredSales
+    .filter(s => s.status === 'paid' || s.status === 'completed')
+    .reduce((sum, s) => sum + (s.total || 0), 0);
+
+  const profitMarginPct = filteredRevenue > 0
+    ? ((filteredProfit / filteredRevenue) * 100).toFixed(1)
+    : '0.0';
+
   // Stats
   const todaySales = sales.filter(s => {
     if (!s.sale_date) return false;
