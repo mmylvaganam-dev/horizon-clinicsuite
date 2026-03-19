@@ -884,9 +884,11 @@ export default function SalesWorkspace() {
           )}
 
           {activeServiceTab === 'package' && (
-            filteredPackages.length === 0 && searchQuery !== '' ? (
+            filteredPackages.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-slate-500">No health packages found matching "{searchQuery}"</p>
+                <Heart className="w-12 h-12 mx-auto text-rose-200 mb-3" />
+                <p className="text-slate-500 font-medium">{searchQuery ? `No packages found for "${searchQuery}"` : 'No health packages set up yet'}</p>
+                <p className="text-xs text-slate-400 mt-1">Add packages in Admin → Pricing & Catalogs</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
