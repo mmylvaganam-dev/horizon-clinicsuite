@@ -524,11 +524,13 @@ export default function PharmacyBilling() {
       for (const item of cart) {
         await base44.entities.PharmacySaleLine.create({
           sale_header_id: sale.id,
+          organization_id: user?.organization_id || 'default_org',
           stock_id: item.stock_id,
           product_code: item.barcode || item.stock_id,
           barcode_value: item.barcode || '',
           product_name_cache: item.display_name,
           qty: item.quantity,
+          unit_cost: item.unit_cost || 0,
           unit_price: item.unit_price,
           line_total: item.total
         });
