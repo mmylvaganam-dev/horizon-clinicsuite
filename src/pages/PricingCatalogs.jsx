@@ -11,9 +11,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Upload, Download, FileSpreadsheet, AlertCircle, Plus, Stethoscope, Activity, Scan, Home, TestTube, Heart } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useOrganization } from '@/components/OrganizationProvider';
 
 export default function PricingCatalogs() {
   const queryClient = useQueryClient();
+  const { selectedOrgId } = useOrganization();
   const [showImport, setShowImport] = useState(false);
   const [importType, setImportType] = useState('SERVICES');
   const [selectedFile, setSelectedFile] = useState(null);
@@ -27,44 +29,46 @@ export default function PricingCatalogs() {
     queryFn: () => base44.auth.me(),
   });
 
+  const orgFilter = selectedOrgId ? { organization_id: selectedOrgId } : {};
+
   const { data: services = [] } = useQuery({
-    queryKey: ['services'],
-    queryFn: () => base44.entities.ServiceCatalog.list(),
+    queryKey: ['services', selectedOrgId],
+    queryFn: () => selectedOrgId ? base44.entities.ServiceCatalog.filter(orgFilter) : base44.entities.ServiceCatalog.list(),
   });
 
   const { data: products = [] } = useQuery({
-    queryKey: ['products'],
-    queryFn: () => base44.entities.ProductCatalog.list(),
+    queryKey: ['products', selectedOrgId],
+    queryFn: () => selectedOrgId ? base44.entities.ProductCatalog.filter(orgFilter) : base44.entities.ProductCatalog.list(),
   });
 
   const { data: gpProfiles = [] } = useQuery({
-    queryKey: ['gpProfiles'],
-    queryFn: () => base44.entities.GPProfile.list(),
+    queryKey: ['gpProfiles', selectedOrgId],
+    queryFn: () => selectedOrgId ? base44.entities.GPProfile.filter(orgFilter) : base44.entities.GPProfile.list(),
   });
 
   const { data: specialists = [] } = useQuery({
-    queryKey: ['specialists'],
-    queryFn: () => base44.entities.SpecialistProfile.list(),
+    queryKey: ['specialists', selectedOrgId],
+    queryFn: () => selectedOrgId ? base44.entities.SpecialistProfile.filter(orgFilter) : base44.entities.SpecialistProfile.list(),
   });
 
   const { data: radiologyServices = [] } = useQuery({
-    queryKey: ['radiologyServices'],
-    queryFn: () => base44.entities.RadiologyService.list(),
+    queryKey: ['radiologyServices', selectedOrgId],
+    queryFn: () => selectedOrgId ? base44.entities.RadiologyService.filter(orgFilter) : base44.entities.RadiologyService.list(),
   });
 
   const { data: homeCareServices = [] } = useQuery({
-    queryKey: ['homeCareServices'],
-    queryFn: () => base44.entities.HomeCareServiceCatalog.list(),
+    queryKey: ['homeCareServices', selectedOrgId],
+    queryFn: () => selectedOrgId ? base44.entities.HomeCareServiceCatalog.filter(orgFilter) : base44.entities.HomeCareServiceCatalog.list(),
   });
 
   const { data: labTests = [] } = useQuery({
-    queryKey: ['labTests'],
-    queryFn: () => base44.entities.LabTestCatalog.list(),
+    queryKey: ['labTests', selectedOrgId],
+    queryFn: () => selectedOrgId ? base44.entities.LabTestCatalog.filter(orgFilter) : base44.entities.LabTestCatalog.list(),
   });
 
   const { data: healthPackages = [] } = useQuery({
-    queryKey: ['healthPackages'],
-    queryFn: () => base44.entities.HealthPackage.list(),
+    queryKey: ['healthPackages', selectedOrgId],
+    queryFn: () => selectedOrgId ? base44.entities.HealthPackage.filter(orgFilter) : base44.entities.HealthPackage.list(),
   });
 
   const { data: importJobs = [] } = useQuery({
