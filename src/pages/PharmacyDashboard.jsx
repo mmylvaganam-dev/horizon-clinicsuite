@@ -473,6 +473,18 @@ export default function PharmacyDashboard() {
               <p className="text-xs opacity-80 mt-1">Remove from stock</p>
             </CardContent>
           </Card>
+
+          <Card 
+            className="bg-gradient-to-br from-violet-500 to-violet-600 text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform"
+            onClick={() => { const tab = document.querySelector('[data-value="salesforce"]'); if (tab) tab.click(); window.scrollTo({ top: 600, behavior: 'smooth' }); }}
+          >
+            <CardContent className="p-6">
+              <FileText className="w-8 h-8 mb-2 opacity-80" />
+              <p className="text-sm opacity-90">Recent Sales</p>
+              <p className="text-3xl font-bold mt-1">{sales.length}</p>
+              <p className="text-xs opacity-80 mt-1">All transactions</p>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
