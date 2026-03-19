@@ -377,8 +377,8 @@ export default function PharmacyDashboard() {
         <Button
           variant="outline"
           onClick={() => {
-            const tab = document.querySelector('[data-value="salesforce"]') as HTMLElement;
-            tab?.click();
+            const tab = document.querySelector('[data-value="salesforce"]');
+            if (tab) tab.click();
           }}
         >
           <FileText className="w-4 h-4 mr-2" />
