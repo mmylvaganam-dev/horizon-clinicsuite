@@ -1112,6 +1112,16 @@ export default function PharmacyDashboard() {
                   <span>Total:</span>
                   <span className="text-indigo-600">{currency} {fmt(selectedSale.total)}</span>
                 </div>
+                {(() => {
+                  const profit = getSaleProfit(selectedSale.id);
+                  const margin = selectedSale.total > 0 ? ((profit / selectedSale.total) * 100).toFixed(1) : '0.0';
+                  return (
+                    <div className="flex justify-between text-base font-bold pt-2 border-t bg-emerald-50 rounded-lg px-3 py-2">
+                      <span className="text-emerald-700">Gross Profit:</span>
+                      <span className="text-emerald-700">{currency} {fmt(profit)} <span className="text-xs bg-emerald-700 text-white rounded-full px-2 py-0.5 ml-1">{margin}%</span></span>
+                    </div>
+                  );
+                })()}
               </div>
 
               <div className="flex justify-end gap-2 pt-4">
