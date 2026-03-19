@@ -205,8 +205,8 @@ export default function PricingCatalogs() {
       formData.total_fee = total;
     }
     
-    if (user?.organization_id && !editingItem) {
-      formData.organization_id = user.organization_id;
+    if (!editingItem) {
+      formData.organization_id = selectedOrgId || user?.organization_id || '';
     }
 
     createMutation.mutate({ type: addType, data: formData, id: editingItem?.id });
