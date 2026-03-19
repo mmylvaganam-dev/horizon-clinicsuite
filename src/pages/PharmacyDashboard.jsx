@@ -140,8 +140,9 @@ export default function PharmacyDashboard() {
     queryKey: ['pharmacySaleLines', selectedOrgId],
     queryFn: async () => {
       if (!selectedOrgId) return [];
-      // Filter by organization_id directly (new lines have it; fallback works for old lines via stock lookup)
-      return base44.entities.PharmacySaleLine.filter({ organization_id: selectedOrgId });
+      // Fetch all lines then filter in-memory by matching sale headers (org-scoped via sales query)
+      // This handles both old records (no org_id) and new records (with org_id)
+      return base44.entities.PharmacySaleLine.list('-created_date', 1000);
     },
     enabled: !!selectedOrgId,
   });
