@@ -706,57 +706,26 @@ export default function SalesWorkspace() {
           </div>
         </div>
 
-        {/* Service Category Buttons - Horizontal Scrollable */}
-        <div className="bg-white border-b px-3 lg:px-4 py-3 overflow-x-auto">
-          <div className="flex gap-2 min-w-max">
-            <Button
-              variant={activeServiceTab === 'gp' ? 'default' : 'outline'}
-              onClick={() => setActiveServiceTab('gp')}
-              className={activeServiceTab === 'gp' ? 'bg-green-600 hover:bg-green-700' : 'hover:bg-green-50'}
-            >
-              <Stethoscope className="w-4 h-4 mr-2" />
-              GP Service
-            </Button>
-            <Button
-              variant={activeServiceTab === 'specialist' ? 'default' : 'outline'}
-              onClick={() => setActiveServiceTab('specialist')}
-              className={activeServiceTab === 'specialist' ? 'bg-purple-600 hover:bg-purple-700' : 'hover:bg-purple-50'}
-            >
-              <Activity className="w-4 h-4 mr-2" />
-              Specialist
-            </Button>
-            <Button
-              variant={activeServiceTab === 'radiology' ? 'default' : 'outline'}
-              onClick={() => setActiveServiceTab('radiology')}
-              className={activeServiceTab === 'radiology' ? 'bg-orange-600 hover:bg-orange-700' : 'hover:bg-orange-50'}
-            >
-              <Scan className="w-4 h-4 mr-2" />
-              Radiology
-            </Button>
-            <Button
-              variant={activeServiceTab === 'homecare' ? 'default' : 'outline'}
-              onClick={() => setActiveServiceTab('homecare')}
-              className={activeServiceTab === 'homecare' ? 'bg-pink-600 hover:bg-pink-700' : 'hover:bg-pink-50'}
-            >
-              <Home className="w-4 h-4 mr-2" />
-              Home Care
-            </Button>
-            <Button
-              variant={activeServiceTab === 'lab' ? 'default' : 'outline'}
-              onClick={() => setActiveServiceTab('lab')}
-              className={activeServiceTab === 'lab' ? 'bg-cyan-600 hover:bg-cyan-700' : 'hover:bg-cyan-50'}
-            >
-              <TestTube className="w-4 h-4 mr-2" />
-              Lab Tests
-            </Button>
-            <Button
-              variant={activeServiceTab === 'package' ? 'default' : 'outline'}
-              onClick={() => setActiveServiceTab('package')}
-              className={activeServiceTab === 'package' ? 'bg-rose-600 hover:bg-rose-700' : 'hover:bg-rose-50'}
-            >
-              <Heart className="w-4 h-4 mr-2" />
-              Packages
-            </Button>
+        {/* Service Category Buttons - 2-column grid, big tap targets */}
+        <div className="bg-white border-b px-3 lg:px-4 py-3">
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { key: 'gp', label: 'GP Service', icon: Stethoscope, active: 'bg-green-600 text-white border-green-600', inactive: 'bg-green-50 text-green-800 border-green-300 hover:bg-green-100' },
+              { key: 'specialist', label: 'Specialist', icon: Activity, active: 'bg-purple-600 text-white border-purple-600', inactive: 'bg-purple-50 text-purple-800 border-purple-300 hover:bg-purple-100' },
+              { key: 'radiology', label: 'Radiology', icon: Scan, active: 'bg-orange-600 text-white border-orange-600', inactive: 'bg-orange-50 text-orange-800 border-orange-300 hover:bg-orange-100' },
+              { key: 'homecare', label: 'Home Care', icon: Home, active: 'bg-pink-600 text-white border-pink-600', inactive: 'bg-pink-50 text-pink-800 border-pink-300 hover:bg-pink-100' },
+              { key: 'lab', label: 'Lab Tests', icon: TestTube, active: 'bg-cyan-600 text-white border-cyan-600', inactive: 'bg-cyan-50 text-cyan-800 border-cyan-300 hover:bg-cyan-100' },
+              { key: 'package', label: 'Packages', icon: Heart, active: 'bg-rose-600 text-white border-rose-600', inactive: 'bg-rose-50 text-rose-800 border-rose-300 hover:bg-rose-100' },
+            ].map(({ key, label, icon: Icon, active, inactive }) => (
+              <button
+                key={key}
+                onClick={() => setActiveServiceTab(key)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 font-semibold text-sm transition-all touch-manipulation ${activeServiceTab === key ? active : inactive}`}
+              >
+                <Icon className="w-5 h-5 flex-shrink-0" />
+                {label}
+              </button>
+            ))}
           </div>
         </div>
 
