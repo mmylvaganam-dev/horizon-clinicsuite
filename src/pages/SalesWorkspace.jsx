@@ -826,9 +826,11 @@ export default function SalesWorkspace() {
           )}
 
           {activeServiceTab === 'homecare' && (
-            filteredHomeCare.length === 0 && searchQuery !== '' ? (
+            filteredHomeCare.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-slate-500">No home care services found matching "{searchQuery}"</p>
+                <Home className="w-12 h-12 mx-auto text-pink-200 mb-3" />
+                <p className="text-slate-500 font-medium">{searchQuery ? `No home care found for "${searchQuery}"` : 'No home care services set up yet'}</p>
+                <p className="text-xs text-slate-400 mt-1">Add home care services in Admin → Pricing & Catalogs</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
