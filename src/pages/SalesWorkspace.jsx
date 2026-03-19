@@ -704,13 +704,13 @@ export default function SalesWorkspace() {
               { key: 'homecare', label: 'Home Care', icon: Home, active: 'bg-pink-600 text-white border-pink-600', inactive: 'bg-pink-50 text-pink-800 border-pink-300 hover:bg-pink-100' },
               { key: 'lab', label: 'Lab Tests', icon: TestTube, active: 'bg-cyan-600 text-white border-cyan-600', inactive: 'bg-cyan-50 text-cyan-800 border-cyan-300 hover:bg-cyan-100' },
               { key: 'package', label: 'Packages', icon: Heart, active: 'bg-rose-600 text-white border-rose-600', inactive: 'bg-rose-50 text-rose-800 border-rose-300 hover:bg-rose-100' },
-            ].map(({ key, label, icon: Icon, active, inactive }) => (
+            ].map(({ key, label, icon: BtnIcon, active, inactive }) => (
               <button
                 key={key}
                 onClick={() => setActiveServiceTab(key)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 font-semibold text-sm transition-all touch-manipulation ${activeServiceTab === key ? active : inactive}`}
               >
-                <Icon className="w-5 h-5 flex-shrink-0" />
+                <BtnIcon className="w-5 h-5 flex-shrink-0" />
                 {label}
               </button>
             ))}
