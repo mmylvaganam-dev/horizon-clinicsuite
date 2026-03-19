@@ -140,7 +140,8 @@ export default function PharmacyDashboard() {
     queryKey: ['pharmacySaleLines', selectedOrgId],
     queryFn: async () => {
       if (!selectedOrgId) return [];
-      return base44.entities.PharmacySaleLine.filter(orgFilter);
+      // Filter by organization_id directly (new lines have it; fallback works for old lines via stock lookup)
+      return base44.entities.PharmacySaleLine.filter({ organization_id: selectedOrgId });
     },
     enabled: !!selectedOrgId,
   });
