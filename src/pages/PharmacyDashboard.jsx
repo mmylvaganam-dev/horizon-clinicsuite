@@ -1100,9 +1100,19 @@ export default function PharmacyDashboard() {
                       <div key={idx} className="flex justify-between items-center py-2 border-b">
                         <div className="flex-1">
                           <p className="font-medium">{displayName}</p>
-                          <p className="text-sm text-slate-500">Qty: {item.qty} × {currency} {fmt(item.unit_price)}</p>
+                          <p className="text-sm text-slate-500">
+                            Qty: {item.qty} × {currency} {fmt(item.unit_price)}
+                            {stockItem?.unit_cost ? <span className="ml-2 text-slate-400">(Cost: {currency} {fmt(stockItem.unit_cost)})</span> : null}
+                          </p>
                         </div>
-                        <p className="font-bold">{currency} {fmt(item.line_total)}</p>
+                        <div className="text-right">
+                          <p className="font-bold">{currency} {fmt(item.line_total)}</p>
+                          {stockItem?.unit_cost ? (
+                            <p className="text-xs text-emerald-600 font-medium">
+                              Profit: {currency} {fmt((item.line_total || 0) - (stockItem.unit_cost * item.qty))}
+                            </p>
+                          ) : null}
+                        </div>
                       </div>
                     );
                   })
