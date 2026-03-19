@@ -720,9 +720,11 @@ export default function SalesWorkspace() {
         {/* Products/Services List */}
         <div className="flex-1 overflow-y-auto p-3 lg:p-4">
           {activeServiceTab === 'gp' && (
-            filteredGPs.length === 0 && searchQuery !== '' ? (
+            filteredGPs.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-slate-500">No GP profiles found matching "{searchQuery}"</p>
+                <Stethoscope className="w-12 h-12 mx-auto text-green-200 mb-3" />
+                <p className="text-slate-500 font-medium">{searchQuery ? `No GP found for "${searchQuery}"` : 'No GP profiles set up yet'}</p>
+                <p className="text-xs text-slate-400 mt-1">Add GP profiles in Admin → Pricing & Catalogs</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
