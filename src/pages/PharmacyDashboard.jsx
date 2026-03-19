@@ -187,11 +187,14 @@ export default function PharmacyDashboard() {
   const paginatedSales = filteredSales.slice(startIndex, startIndex + itemsPerPage);
 
   // Profit calculation helpers
+  // Uses unit_cost saved at time of sale (new lines), falls back to current stock cost
   const getSaleProfit = (saleId) => {
     const lines = saleLines.filter(l => l.sale_header_id === saleId);
     return lines.reduce((sum, line) => {
-      const stockItem = pharmacyStock.find(s => s.id === line.stock_id);
-      const cost = (stockItem?.unit_cost || 0) * (line.qty || 0);
+      const costPerUnit = line.unit_cost > 0
+        ? line.unit_cost
+        : (pharmacyStock.find(s => s.id === line.stock_id)?.unit_cost || 0);
+      const cost = costPerUnit * (line.qty || 0);
       return sum + ((line.line_total || 0) - cost);
     }, 0);
   };
