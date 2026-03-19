@@ -343,52 +343,35 @@ export default function PharmacyDashboard() {
         </div>
       </div>
 
-      {/* Quick Action Buttons */}
-      <div className="flex flex-wrap gap-2">
-        <Button
-          onClick={() => navigate(createPageUrl('PharmacyBilling'))}
-          className="bg-indigo-600 hover:bg-indigo-700"
-        >
-          <ShoppingCart className="w-4 h-4 mr-2" />
-          New Sale
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => navigate(createPageUrl('PharmacyInventory'))}
-        >
-          <Package className="w-4 h-4 mr-2" />
-          Stock Items
-        </Button>
-        <Button
-          variant="outline"
-          className={lowStockCount > 0 ? 'border-amber-400 text-amber-700 hover:bg-amber-50' : ''}
-          onClick={() => navigate(createPageUrl('PharmacyInventory'))}
-        >
-          <AlertTriangle className={`w-4 h-4 mr-2 ${lowStockCount > 0 ? 'text-amber-500' : ''}`} />
-          Low Stock {lowStockCount > 0 && <Badge className="ml-1 bg-amber-500 text-white text-xs px-1.5">{lowStockCount}</Badge>}
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => navigate(createPageUrl('TodaySalesDetails'))}
-        >
-          <Eye className="w-4 h-4 mr-2" />
-          Today's Sales ({todaySales.length})
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => {
-            const tab = document.querySelector('[data-value="salesforce"]');
-            if (tab) tab.click();
-          }}
-        >
-          <FileText className="w-4 h-4 mr-2" />
-          Recent Sales
-        </Button>
-      </div>
-
       {/* Stats Cards - Sales & Operations */}
       <div>
-        <h2 className="text-lg font-semibold text-slate-700 mb-3">Sales & Operations</h2>
+        <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <h2 className="text-lg font-semibold text-slate-700">Sales & Operations</h2>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" onClick={() => navigate(createPageUrl('PharmacyBilling'))} className="bg-indigo-600 hover:bg-indigo-700">
+              <ShoppingCart className="w-3 h-3 mr-1" />
+              New Sale
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => navigate(createPageUrl('TodaySalesDetails'))}>
+              <Eye className="w-3 h-3 mr-1" />
+              Today's Sales ({todaySales.length})
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => navigate(createPageUrl('PharmacyInventory'))}>
+              <Package className="w-3 h-3 mr-1" />
+              Stock Items
+            </Button>
+            {lowStockCount > 0 && (
+              <Button size="sm" variant="outline" className="border-amber-400 text-amber-700 hover:bg-amber-50" onClick={() => navigate(createPageUrl('PharmacyInventory'))}>
+                <AlertTriangle className="w-3 h-3 mr-1 text-amber-500" />
+                Low Stock <Badge className="ml-1 bg-amber-500 text-white text-xs px-1.5 py-0">{lowStockCount}</Badge>
+              </Button>
+            )}
+            <Button size="sm" variant="outline" onClick={() => { const tab = document.querySelector('[data-value="salesforce"]'); if (tab) tab.click(); }}>
+              <FileText className="w-3 h-3 mr-1" />
+              Recent Sales
+            </Button>
+          </div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card 
             className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg cursor-pointer hover:shadow-xl transition-all"
