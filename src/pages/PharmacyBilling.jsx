@@ -1067,6 +1067,23 @@ export default function PharmacyBilling() {
                 inputMode="search"
               />
             </div>
+
+            {/* Category Quick Buttons - scrollable row, large tap targets for mobile/iPad */}
+            <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth: 'none' }}>
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`flex-shrink-0 px-4 py-2.5 rounded-xl text-sm font-semibold border-2 transition-all whitespace-nowrap touch-manipulation ${
+                    selectedCategory === cat
+                      ? 'bg-indigo-600 text-white border-indigo-600'
+                      : 'bg-white text-slate-700 border-slate-200 hover:border-indigo-300 hover:bg-indigo-50'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Search Results */}
