@@ -55,45 +55,33 @@ export default function SalesWorkspace() {
   });
 
   const { data: gpProfiles = [] } = useQuery({
-    queryKey: ['gpProfiles', selectedOrgId],
-    queryFn: () => selectedOrgId
-      ? base44.entities.GPProfile.filter({ status: 'active', organization_id: selectedOrgId })
-      : base44.entities.GPProfile.filter({ status: 'active' }),
+    queryKey: ['gpProfiles'],
+    queryFn: () => base44.entities.GPProfile.filter({ status: 'active' }),
   });
 
   const { data: specialists = [] } = useQuery({
-    queryKey: ['specialists', selectedOrgId],
-    queryFn: () => selectedOrgId
-      ? base44.entities.SpecialistProfile.filter({ status: 'active', organization_id: selectedOrgId })
-      : base44.entities.SpecialistProfile.filter({ status: 'active' }),
+    queryKey: ['specialists'],
+    queryFn: () => base44.entities.SpecialistProfile.filter({ status: 'active' }),
   });
 
   const { data: radiologyServices = [] } = useQuery({
-    queryKey: ['radiologyServices', selectedOrgId],
-    queryFn: () => selectedOrgId
-      ? base44.entities.RadiologyService.filter({ status: 'active', organization_id: selectedOrgId })
-      : base44.entities.RadiologyService.filter({ status: 'active' }),
+    queryKey: ['radiologyServices'],
+    queryFn: () => base44.entities.RadiologyService.filter({ status: 'active' }),
   });
 
   const { data: homeCareServices = [] } = useQuery({
-    queryKey: ['homeCareServices', selectedOrgId],
-    queryFn: () => selectedOrgId
-      ? base44.entities.HomeCareServiceCatalog.filter({ status: 'active', organization_id: selectedOrgId })
-      : base44.entities.HomeCareServiceCatalog.filter({ status: 'active' }),
+    queryKey: ['homeCareServices'],
+    queryFn: () => base44.entities.HomeCareServiceCatalog.filter({ status: 'active' }),
   });
 
   const { data: labTests = [] } = useQuery({
-    queryKey: ['labTests', selectedOrgId],
-    queryFn: () => selectedOrgId
-      ? base44.entities.LabTestCatalog.filter({ is_active: true, organization_id: selectedOrgId })
-      : base44.entities.LabTestCatalog.filter({ is_active: true }),
+    queryKey: ['labTests'],
+    queryFn: () => base44.entities.LabTestCatalog.filter({ is_active: true }),
   });
 
   const { data: healthPackages = [] } = useQuery({
-    queryKey: ['healthPackages', selectedOrgId],
-    queryFn: () => selectedOrgId
-      ? base44.entities.HealthPackage.filter({ active: true, organization_id: selectedOrgId })
-      : base44.entities.HealthPackage.filter({ active: true }),
+    queryKey: ['healthPackages'],
+    queryFn: () => base44.entities.HealthPackage.list(),
   });
 
   const { data: patients = [] } = useQuery({
