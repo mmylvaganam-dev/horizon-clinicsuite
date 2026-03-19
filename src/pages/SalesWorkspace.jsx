@@ -856,9 +856,11 @@ export default function SalesWorkspace() {
           )}
 
           {activeServiceTab === 'lab' && (
-            filteredLabTests.length === 0 && searchQuery !== '' ? (
+            filteredLabTests.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-slate-500">No lab tests found matching "{searchQuery}"</p>
+                <TestTube className="w-12 h-12 mx-auto text-cyan-200 mb-3" />
+                <p className="text-slate-500 font-medium">{searchQuery ? `No lab tests found for "${searchQuery}"` : 'No lab tests set up yet'}</p>
+                <p className="text-xs text-slate-400 mt-1">Add lab tests in LIS Administration → Test Catalog</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
