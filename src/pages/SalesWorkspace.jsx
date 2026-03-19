@@ -799,9 +799,11 @@ export default function SalesWorkspace() {
           )}
 
           {activeServiceTab === 'radiology' && (
-            filteredRadiology.length === 0 && searchQuery !== '' ? (
+            filteredRadiology.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-slate-500">No radiology services found matching "{searchQuery}"</p>
+                <Scan className="w-12 h-12 mx-auto text-orange-200 mb-3" />
+                <p className="text-slate-500 font-medium">{searchQuery ? `No radiology found for "${searchQuery}"` : 'No radiology services set up yet'}</p>
+                <p className="text-xs text-slate-400 mt-1">Add radiology services in Admin → Pricing & Catalogs</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
