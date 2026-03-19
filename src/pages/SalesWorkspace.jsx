@@ -759,9 +759,11 @@ export default function SalesWorkspace() {
           )}
 
           {activeServiceTab === 'specialist' && (
-            filteredSpecialists.length === 0 && searchQuery !== '' ? (
+            filteredSpecialists.length === 0 ? (
               <div className="text-center py-12">
-                <p className="text-slate-500">No specialists found matching "{searchQuery}"</p>
+                <Activity className="w-12 h-12 mx-auto text-purple-200 mb-3" />
+                <p className="text-slate-500 font-medium">{searchQuery ? `No specialist found for "${searchQuery}"` : 'No specialist profiles set up yet'}</p>
+                <p className="text-xs text-slate-400 mt-1">Add specialist profiles in Admin → Pricing & Catalogs</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
