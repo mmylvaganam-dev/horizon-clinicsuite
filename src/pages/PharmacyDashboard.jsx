@@ -1111,9 +1111,9 @@ export default function PharmacyDashboard() {
                         </div>
                         <div className="text-right">
                           <p className="font-bold">{currency} {fmt(item.line_total)}</p>
-                          {stockItem?.unit_cost ? (
+                          {(item.unit_cost > 0 || stockItem?.unit_cost) ? (
                             <p className="text-xs text-emerald-600 font-medium">
-                              Profit: {currency} {fmt((item.line_total || 0) - (stockItem.unit_cost * item.qty))}
+                              Profit: {currency} {fmt((item.line_total || 0) - ((item.unit_cost > 0 ? item.unit_cost : stockItem?.unit_cost || 0) * item.qty))}
                             </p>
                           ) : null}
                         </div>
