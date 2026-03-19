@@ -486,6 +486,15 @@ export default function PharmacyDashboard() {
               <p className="text-xs opacity-80 mt-1">Expected profit margin</p>
             </CardContent>
           </Card>
+
+          <Card className="bg-gradient-to-br from-violet-500 to-violet-600 text-white border-0 shadow-lg">
+            <CardContent className="p-6">
+              <div className="w-8 h-8 mb-2 opacity-80 flex items-center justify-center font-bold text-lg">%</div>
+              <p className="text-sm opacity-90">Today's Gross Profit</p>
+              <p className="text-3xl font-bold mt-1">{currency} {fmt(todayProfit)}</p>
+              <p className="text-xs opacity-80 mt-1">Margin: {todayMargin}% on today's sales</p>
+            </CardContent>
+          </Card>
         </div>
       </div>
 
