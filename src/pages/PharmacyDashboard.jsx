@@ -629,21 +629,20 @@ export default function PharmacyDashboard() {
               <div className="bg-indigo-50 border border-indigo-200 rounded-lg px-4 py-3 flex flex-wrap gap-6 items-center">
                 <div className="flex items-center gap-2">
                   <ShoppingCart className="w-4 h-4 text-indigo-600" />
-                  <span className="text-sm text-indigo-700 font-medium">Filtered Sales:</span>
+                  <span className="text-sm text-indigo-700 font-medium">Sales:</span>
                   <span className="text-sm font-bold text-indigo-900">{filteredSales.length}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-emerald-600" />
-                  <span className="text-sm text-emerald-700 font-medium">Total Amount:</span>
+                  <span className="text-sm text-emerald-700 font-medium">Revenue:</span>
                   <span className="text-sm font-bold text-emerald-900">
-                    {currency} {fmt(filteredSales.reduce((sum, s) => sum + (s.total || 0), 0))}
+                    {currency} {fmt(filteredRevenue)}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-slate-500 font-medium">Paid:</span>
-                  <span className="text-sm font-bold text-slate-700">
-                    {currency} {fmt(filteredSales.filter(s => s.status === 'paid' || s.status === 'completed').reduce((sum, s) => sum + (s.total || 0), 0))}
-                  </span>
+                <div className="flex items-center gap-2 bg-emerald-100 rounded-md px-3 py-1 border border-emerald-300">
+                  <span className="text-sm text-emerald-700 font-medium">Gross Profit:</span>
+                  <span className="text-sm font-bold text-emerald-900">{currency} {fmt(filteredProfit)}</span>
+                  <span className="text-xs bg-emerald-700 text-white rounded-full px-2 py-0.5 font-bold">{profitMarginPct}%</span>
                 </div>
                 {filteredSales.filter(s => s.status === 'refund' || s.status === 'void').length > 0 && (
                   <div className="flex items-center gap-2">
