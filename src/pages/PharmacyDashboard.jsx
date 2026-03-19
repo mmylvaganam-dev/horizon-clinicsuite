@@ -216,6 +216,10 @@ export default function PharmacyDashboard() {
   });
 
   const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total || 0), 0);
+  const todayProfit = todaySales
+    .filter(s => s.status === 'paid' || s.status === 'completed')
+    .reduce((sum, s) => sum + getSaleProfit(s.id), 0);
+  const todayMargin = todayRevenue > 0 ? ((todayProfit / todayRevenue) * 100).toFixed(1) : '0.0';
 
   
   const lowStockCount = pharmacyStock.filter(item => 
