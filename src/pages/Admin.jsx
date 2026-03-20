@@ -518,9 +518,9 @@ export default function Admin() {
       textColor: 'text-teal-700',
       ownerOnlyCategory: true,
       modules: [
-        { title: 'Virtual Hospital Control', description: 'Turn features ON/OFF for the entire platform', icon: Globe, page: 'VirtualHospitalAdmin', ownerOnly: true },
-        { title: 'Patient Hub', description: 'Global patient registration & management', icon: Users, page: 'PatientHub', ownerOnly: true },
-        { title: 'Telemedicine Billing', description: '$50/consult billing dashboard', icon: DollarSign, page: 'TelemedicineBilling', ownerOnly: true },
+        { title: 'Virtual Hospital Control', description: 'Turn features ON/OFF for the entire platform', icon: Globe, page: 'VirtualHospitalAdmin', ownerOnly: true, moduleRequired: 'TELEMEDICINE' },
+        { title: 'Patient Hub', description: 'Global patient registration & management', icon: Users, page: 'PatientHub', ownerOnly: true, moduleRequired: 'TELEMEDICINE' },
+        { title: 'Telemedicine Billing', description: '$50/consult billing dashboard', icon: DollarSign, page: 'TelemedicineBilling', ownerOnly: true, moduleRequired: 'TELEMEDICINE' },
       ]
     },
     {
