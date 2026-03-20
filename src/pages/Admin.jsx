@@ -1040,7 +1040,12 @@ export default function Admin() {
             </h2>
             {adminCategories
               .filter(cat => {
-                const visibleModules = cat.modules.filter(m => !m.ownerOnly || isPlatformOwner);
+                if (cat.ownerOnlyCategory && !isPlatformOwner) return false;
+                const visibleModules = cat.modules.filter(m => {
+                  if (m.ownerOnly && !isPlatformOwner) return false;
+                  if (m.moduleRequired && !isPlatformOwner && enabledModules.length > 0 && !enabledModules.includes(m.moduleRequired)) return false;
+                  return true;
+                });
                 return visibleModules.length > 0;
               })
               .map((category, idx) => (
@@ -1058,7 +1063,11 @@ export default function Admin() {
                   {/* Module Buttons */}
                   <div className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                     {category.modules
-                      .filter(m => !m.ownerOnly || isPlatformOwner)
+                      .filter(m => {
+                        if (m.ownerOnly && !isPlatformOwner) return false;
+                        if (m.moduleRequired && !isPlatformOwner && enabledModules.length > 0 && !enabledModules.includes(m.moduleRequired)) return false;
+                        return true;
+                      })
                       .map((module) => (
                         <button
                           key={module.page}
