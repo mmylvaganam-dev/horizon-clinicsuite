@@ -472,7 +472,7 @@ export default function Admin() {
       textColor: 'text-indigo-700',
       modules: [
         { title: 'Module Toggles', description: 'Enable/disable modules', icon: Grid3X3, page: 'AdminModuleToggles' },
-        { title: 'Telephony Settings', description: 'PBX configuration & management', icon: Phone, page: 'TelephonyAdmin' },
+        { title: 'Telephony Settings', description: 'PBX configuration & management', icon: Phone, page: 'TelephonyAdmin', moduleRequired: 'TELEPHONY' },
         { title: 'Configuration', description: 'System configuration', icon: Settings, page: 'AdminConfig' },
         { title: 'Modules', description: 'Manage module access', icon: Layers, page: 'AdminModules' },
       ]
