@@ -58,7 +58,7 @@ export default function Admin() {
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState('user');
-  const { selectedOrgId, isPlatformOwner: isPlatformOwnerContext } = useOrganization();
+  const { selectedOrgId, isPlatformOwner: isPlatformOwnerContext, enabledModules = [] } = useOrganization();
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
