@@ -313,6 +313,33 @@ export default function SalesWorkspace() {
     setShowPatientDialog(true);
   };
 
+  const handleCreatePatient = async () => {
+    if (!newPatientForm.first_name || !newPatientForm.last_name) {
+      toast.error('First name and last name are required');
+      return;
+    }
+    setCreatingPatient(true);
+    try {
+      const phnResult = await base44.functions.invoke('generatePHN', { organization_id: selectedOrgId });
+      const phn = phnResult?.data?.phn || `PAT${Date.now().toString().slice(-6)}`;
+      const created = await base44.entities.Patient.create({
+        ...newPatientForm,
+        organization_id: selectedOrgId,
+        phn,
+        status: 'active',
+        patient_type: 'walk_in',
+      });
+      queryClient.invalidateQueries(['patients', selectedOrgId]);
+      handleSelectPatient(created);
+      setShowCreatePatient(false);
+      setNewPatientForm({ first_name: '', last_name: '', phone: '', gender: '' });
+      toast.success(`Patient ${created.first_name} ${created.last_name} created!`);
+    } catch (e) {
+      toast.error('Failed to create patient: ' + e.message);
+    }
+    setCreatingPatient(false);
+  };
+
   const handleCompleteSale = async () => {
     if (cart.length === 0) {
       toast.error('Cart is empty');
