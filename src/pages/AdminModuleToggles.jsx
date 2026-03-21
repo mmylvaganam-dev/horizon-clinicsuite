@@ -111,6 +111,35 @@ export default function AdminModuleToggles() {
     enabled: !!selectedOrg,
   });
 
+  // For org admins: auto-select their org and load company module access
+  const myOrg = !isPlatformOwner && isOrgSuperUser
+    ? organizations.find(o => o.id === currentUser?.organization_id) || organizations[0]
+    : null;
+
+  React.useEffect(() => {
+    if (myOrg && !selectedOrg) {
+      setSelectedOrg(myOrg.id);
+    }
+  }, [myOrg?.id]);
+
+  const myCompanyId = myOrg
+    ? myOrg.company_id
+    : selectedOrg
+      ? organizations.find(o => o.id === selectedOrg)?.company_id
+      : null;
+
+  const { data: companyModuleAccess = [] } = useQuery({
+    queryKey: ['companyModuleAccess', myCompanyId],
+    queryFn: () => base44.entities.CompanyModuleAccess.filter({ company_id: myCompanyId }),
+    enabled: !!myCompanyId,
+  });
+
+  const isEnabledAtCompanyLevel = (module_code) => {
+    if (isPlatformOwner) return true; // platform owner bypasses company gate
+    const access = companyModuleAccess.find(c => c.module_code === module_code);
+    return access?.is_enabled === true;
+  };
+
   const toggleGlobalMutation = useMutation({
     mutationFn: async ({ module_code, enabled }) => {
       const existing = globalAvailability.find(g => g.module_code === module_code);
