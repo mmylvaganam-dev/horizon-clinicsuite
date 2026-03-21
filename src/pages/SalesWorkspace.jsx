@@ -98,9 +98,8 @@ export default function SalesWorkspace() {
 
   const { data: patients = [] } = useQuery({
     queryKey: ['patients', selectedOrgId],
-    queryFn: () => selectedOrgId
-      ? base44.entities.Patient.filter({ organization_id: selectedOrgId })
-      : base44.entities.Patient.list(),
+    queryFn: () => base44.entities.Patient.filter({ organization_id: selectedOrgId }),
+    enabled: !!selectedOrgId,
   });
 
   const { data: companies = [] } = useQuery({
