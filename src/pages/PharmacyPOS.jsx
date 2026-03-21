@@ -43,9 +43,13 @@ export default function PharmacyPOS() {
   const [lastSaleId, setLastSaleId] = useState(null);
   const [showPrintDialog, setShowPrintDialog] = useState(false);
 
+  const [patientSearch, setPatientSearch] = useState('');
+
   const { data: patients = [] } = useQuery({
     queryKey: ['patients'],
     queryFn: () => base44.entities.Patient.list(),
+    staleTime: 0,
+    refetchOnMount: true,
   });
 
   const { data: drugs = [] } = useQuery({
