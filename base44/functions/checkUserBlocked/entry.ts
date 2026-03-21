@@ -9,8 +9,8 @@ Deno.serve(async (req) => {
       return Response.json({ blocked: false });
     }
 
-    // Check if user is in BlockedUsers entity
-    const blockedUsers = await base44.asServiceRole.entities.BlockedUsers.filter({ 
+    // Check if user is in BlockedUser entity
+    const blockedUsers = await base44.asServiceRole.entities.BlockedUser.filter({ 
       user_email: user.email 
     });
 
