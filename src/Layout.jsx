@@ -224,6 +224,7 @@ function LayoutContent({ children, currentPageName }) {
     {
       category: 'Sale',
       icon: ShoppingBag,
+      moduleRequiredAny: ['PHARMACY', 'CLINICAL', 'LABORATORY', 'DIAGNOSTICS', 'DENTAL'],
       items: [
         { name: 'Sale', page: 'SalesWorkspace', icon: ShoppingBag, description: 'Process new sales - Pharmacy, GP, Specialist, Radiology, and Home Care services all in one place' },
       ]
