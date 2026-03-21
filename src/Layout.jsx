@@ -511,6 +511,44 @@ function LayoutContent({ children, currentPageName }) {
                           if (group.moduleRequired) return isModuleOn(group.moduleRequired);
                           return true;
                         }).map((group) => (
+                {group.items.length === 1 ? (
+                  // Single-item group: render as a direct link, no accordion
+                  (() => {
+                    const item = group.items[0];
+                    const isActive = currentPageName === item.page;
+                    return (
+                      <TooltipProvider key={group.category} delayDuration={300}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Link
+                              to={createPageUrl(item.page)}
+                              onClick={() => setSidebarOpen(false)}
+                              className={`
+                                flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200
+                                ${isActive
+                                  ? 'bg-teal-600 text-white'
+                                  : 'text-slate-700 hover:bg-white hover:text-slate-900'
+                                }
+                              `}
+                            >
+                              <group.icon className="w-4 h-4" />
+                              <span className="font-semibold text-sm">{group.category}</span>
+                              {isActive && <ChevronRight className="w-3 h-3 ml-auto" />}
+                            </Link>
+                          </TooltipTrigger>
+                          {item.description && (
+                            <TooltipContent side="right" className="max-w-xs bg-slate-800 border-slate-700">
+                              <div className="flex items-start gap-2">
+                                <Info className="w-4 h-4 text-teal-400 mt-0.5 flex-shrink-0" />
+                                <p className="text-sm text-slate-200">{item.description}</p>
+                              </div>
+                            </TooltipContent>
+                          )}
+                        </Tooltip>
+                      </TooltipProvider>
+                    );
+                  })()
+                ) : (
                 <AccordionItem key={group.category} value={group.category} className="border-none">
                   <AccordionTrigger className="px-3 py-2 hover:no-underline hover:bg-white rounded-lg text-slate-700 hover:text-slate-900">
                     <div className="flex items-center gap-3">
@@ -557,6 +595,7 @@ function LayoutContent({ children, currentPageName }) {
                     </div>
                   </AccordionContent>
                 </AccordionItem>
+                )}
               ))}
             </Accordion>
           </nav>
