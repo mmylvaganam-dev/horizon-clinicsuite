@@ -9,38 +9,47 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get company profile to get company code
-    const companies = await base44.asServiceRole.entities.CompanyProfile.list();
-    const company = companies[0];
-    
-    if (!company || !company.company_code) {
-      return Response.json({ error: 'Company code not configured' }, { status: 400 });
-    }
-    
-    // Get all existing patients to check PHN uniqueness
-    const patients = await base44.asServiceRole.entities.Patient.list();
-    
-    // Generate unique PHN
-    let phn;
-    let isUnique = false;
-    let attempts = 0;
-    
-    while (!isUnique && attempts < 10) {
-      // Generate PHN in format: PHN-COMPANY_CODE-sequential (e.g., PHN-AHC-000001)
-      const nextNumber = patients.length + 1;
-      phn = `PHN-${company.company_code}-${nextNumber.toString().padStart(6, '0')}`;
-      
-      // Check if PHN already exists
-      isUnique = !patients.some(p => p.phn === phn);
-      attempts++;
+    const body = await req.json().catch(() => ({}));
+    const organizationId = body.organization_id;
+
+    let companyCode = 'PHN';
+
+    if (organizationId) {
+      // Get the org to find its company
+      const orgs = await base44.asServiceRole.entities.Organization.filter({ id: organizationId });
+      const org = orgs[0];
+
+      if (org?.company_id) {
+        const companies = await base44.asServiceRole.entities.CompanyProfile.filter({ id: org.company_id });
+        const company = companies[0];
+        if (company?.company_code) {
+          companyCode = company.company_code;
+        }
+      }
+    } else {
+      // Fallback: use first company
+      const companies = await base44.asServiceRole.entities.CompanyProfile.list();
+      if (companies[0]?.company_code) {
+        companyCode = companies[0].company_code;
+      }
     }
 
-    if (!isUnique) {
-      return Response.json({ error: 'Failed to generate unique PHN' }, { status: 500 });
-    }
+    // Get existing patients to determine next number
+    const patients = await base44.asServiceRole.entities.Patient.list();
+
+    // Find the highest PHN number for this company code prefix
+    const prefix = `PHN-${companyCode}-`;
+    const existingNums = patients
+      .filter(p => p.phn?.startsWith(prefix))
+      .map(p => parseInt(p.phn.replace(prefix, ''), 10))
+      .filter(n => !isNaN(n));
+
+    const nextNumber = existingNums.length > 0 ? Math.max(...existingNums) + 1 : 1;
+    const phn = `${prefix}${nextNumber.toString().padStart(6, '0')}`;
 
     return Response.json({ phn });
   } catch (error) {
+    console.error('generatePHN error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
