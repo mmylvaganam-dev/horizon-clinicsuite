@@ -510,6 +510,7 @@ function LayoutContent({ children, currentPageName }) {
                         {navigationGroups.filter(group => {
                           if (group.platformOwnerOnly) return isDefinitelyPlatformOwner;
                           if (group.moduleRequired) return isModuleOn(group.moduleRequired);
+                          if (group.moduleRequiredAny) return group.moduleRequiredAny.some(m => isModuleOn(m));
                           return true;
                         }).map((group) => {
                   if (group.items.length === 1) {
