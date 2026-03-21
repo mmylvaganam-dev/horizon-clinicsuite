@@ -419,12 +419,30 @@ export default function PharmacyPOS() {
                           <SelectValue placeholder="Walk-in customer" />
                         </SelectTrigger>
                         <SelectContent>
+                          <div className="p-2">
+                            <Input
+                              placeholder="Search patient..."
+                              value={patientSearch}
+                              onChange={(e) => setPatientSearch(e.target.value)}
+                              className="h-8 text-sm"
+                              onKeyDown={(e) => e.stopPropagation()}
+                            />
+                          </div>
                           <SelectItem value={null}>Walk-in</SelectItem>
-                          {patients.map(patient => (
-                            <SelectItem key={patient.id} value={patient.id}>
-                              {patient.first_name} {patient.last_name}
-                            </SelectItem>
-                          ))}
+                          {patients
+                            .filter(p => {
+                              const name = `${p.first_name} ${p.last_name}`.toLowerCase();
+                              const phone = p.phone || '';
+                              const mobile = p.mobile || '';
+                              const phn = p.phn || '';
+                              const q = patientSearch.toLowerCase();
+                              return !q || name.includes(q) || phone.includes(q) || mobile.includes(q) || phn.toLowerCase().includes(q);
+                            })
+                            .map(patient => (
+                              <SelectItem key={patient.id} value={patient.id}>
+                                {patient.first_name} {patient.last_name} {patient.phn ? `(${patient.phn})` : ''}
+                              </SelectItem>
+                            ))}
                         </SelectContent>
                       </Select>
                       {patientId && (
