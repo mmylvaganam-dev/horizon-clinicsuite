@@ -228,14 +228,7 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Sale', page: 'SalesWorkspace', icon: ShoppingBag, description: 'Process new sales - Pharmacy, GP, Specialist, Radiology, and Home Care services all in one place' },
       ]
     },
-    {
-      category: 'Dashboard',
-      icon: LayoutDashboard,
-      items: [
-        { name: 'Home', page: 'Home', icon: LayoutDashboard, description: 'Main dashboard - Overview of sales, patients, and key metrics' },
-        { name: 'Daily Operations', page: 'DailyOps', icon: Activity, description: 'Daily operations center - Track real-time patient flow, staff activities, and operational metrics' },
-      ]
-    },
+
     {
       category: 'Pharmacy',
       icon: ShoppingBag,
