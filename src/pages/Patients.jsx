@@ -59,7 +59,7 @@ export default function Patients() {
   const createMutation = useMutation({
     mutationFn: async (data) => {
       // Generate PHN for new patient
-      const phnResponse = await base44.functions.invoke('generatePHN', {});
+      const phnResponse = await base44.functions.invoke('generatePHN', { organization_id: selectedOrgId });
       const phn = phnResponse.data.phn;
       
       return base44.entities.Patient.create(withOrgId({
