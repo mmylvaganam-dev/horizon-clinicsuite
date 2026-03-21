@@ -47,7 +47,10 @@ export default function PatientHub() {
     queryFn: () => base44.entities.SecondOpinionRequest.list('-created_date', 100),
   });
 
-  // Local EMR patients — to detect links and support "admit to clinic"
+  // Local EMR patients — only load for cross-referencing by email, strictly read-only
+  // We intentionally do NOT filter by org here because the purpose is to detect
+  // if a global patient is already admitted anywhere in the network.
+  // But we do NOT expose these patients for selection — only for linked indicator display.
   const { data: localPatients = [] } = useQuery({
     queryKey: ['localPatientsForHub'],
     queryFn: () => base44.entities.Patient.list('-created_date', 500),
