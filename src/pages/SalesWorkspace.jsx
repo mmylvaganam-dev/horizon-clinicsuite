@@ -55,31 +55,31 @@ export default function SalesWorkspace() {
 
   const { data: gpProfiles = [] } = useQuery({
     queryKey: ['gpProfiles', selectedOrgId],
-    queryFn: () => base44.entities.GPProfile.filter({ organization_id: selectedOrgId, status: 'active' }),
+    queryFn: () => base44.entities.GPProfile.filter({ organization_id: selectedOrgId }),
     enabled: !!selectedOrgId,
   });
 
   const { data: specialists = [] } = useQuery({
     queryKey: ['specialists', selectedOrgId],
-    queryFn: () => base44.entities.SpecialistProfile.filter({ organization_id: selectedOrgId, status: 'active' }),
+    queryFn: () => base44.entities.SpecialistProfile.filter({ organization_id: selectedOrgId }),
     enabled: !!selectedOrgId,
   });
 
   const { data: radiologyServices = [] } = useQuery({
     queryKey: ['radiologyServices', selectedOrgId],
-    queryFn: () => base44.entities.RadiologyService.filter({ organization_id: selectedOrgId, status: 'active' }),
+    queryFn: () => base44.entities.RadiologyService.filter({ organization_id: selectedOrgId }),
     enabled: !!selectedOrgId,
   });
 
   const { data: homeCareServices = [] } = useQuery({
     queryKey: ['homeCareServices', selectedOrgId],
-    queryFn: () => base44.entities.HomeCareServiceCatalog.filter({ organization_id: selectedOrgId, status: 'active' }),
+    queryFn: () => base44.entities.HomeCareServiceCatalog.filter({ organization_id: selectedOrgId }),
     enabled: !!selectedOrgId,
   });
 
   const { data: labTests = [] } = useQuery({
     queryKey: ['labTests', selectedOrgId],
-    queryFn: () => base44.entities.LabTestCatalog.filter({ organization_id: selectedOrgId, is_active: true }),
+    queryFn: () => base44.entities.LabTestCatalog.filter({ organization_id: selectedOrgId }),
     enabled: !!selectedOrgId,
   });
 
