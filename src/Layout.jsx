@@ -510,10 +510,8 @@ function LayoutContent({ children, currentPageName }) {
                           if (group.platformOwnerOnly) return isDefinitelyPlatformOwner;
                           if (group.moduleRequired) return isModuleOn(group.moduleRequired);
                           return true;
-                        }).map((group) => (
-                {group.items.length === 1 ? (
-                  // Single-item group: render as a direct link, no accordion
-                  (() => {
+                        }).map((group) => {
+                  if (group.items.length === 1) {
                     const item = group.items[0];
                     const isActive = currentPageName === item.page;
                     return (
@@ -547,8 +545,8 @@ function LayoutContent({ children, currentPageName }) {
                         </Tooltip>
                       </TooltipProvider>
                     );
-                  })()
-                ) : (
+                  }
+                  return (
                 <AccordionItem key={group.category} value={group.category} className="border-none">
                   <AccordionTrigger className="px-3 py-2 hover:no-underline hover:bg-white rounded-lg text-slate-700 hover:text-slate-900">
                     <div className="flex items-center gap-3">
