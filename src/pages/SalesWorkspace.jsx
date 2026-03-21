@@ -1084,33 +1084,87 @@ export default function SalesWorkspace() {
       </div>
 
       {/* Patient Search Dialog */}
-      <Dialog open={showPatientDialog} onOpenChange={setShowPatientDialog}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <Dialog open={showPatientDialog} onOpenChange={(open) => { setShowPatientDialog(open); if (!open) setShowCreatePatient(false); }}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Select Patient</DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-2">
-            {filteredPatients.length === 0 ? (
-              <p className="text-center py-8 text-slate-500">No patients found</p>
-            ) : (
-              filteredPatients.map(patient => (
-                <Card
-                  key={patient.id}
-                  className="p-3 cursor-pointer hover:bg-slate-50 transition-colors"
-                  onClick={() => handleSelectPatient(patient)}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <p className="font-medium">{patient.first_name} {patient.last_name}</p>
-                      <p className="text-sm text-slate-600">{patient.phone}</p>
-                      <Badge variant="outline" className="mt-1 text-xs">{patient.phn}</Badge>
-                    </div>
+          {!showCreatePatient ? (
+            <div className="space-y-3">
+              <div className="space-y-2">
+                {filteredPatients.length === 0 ? (
+                  <div className="text-center py-8">
+                    <User className="w-10 h-10 mx-auto text-slate-300 mb-2" />
+                    <p className="text-slate-500">{patientSearch ? `No patient found for "${patientSearch}"` : 'No patients found'}</p>
                   </div>
-                </Card>
-              ))
-            )}
-          </div>
+                ) : (
+                  filteredPatients.map(patient => (
+                    <Card
+                      key={patient.id}
+                      className="p-3 cursor-pointer hover:bg-slate-50 transition-colors"
+                      onClick={() => handleSelectPatient(patient)}
+                    >
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium">{patient.first_name} {patient.last_name}</p>
+                          <p className="text-sm text-slate-600">{patient.phone}</p>
+                          <Badge variant="outline" className="mt-1 text-xs">{patient.phn}</Badge>
+                        </div>
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </div>
+              <div className="border-t pt-3">
+                <Button
+                  className="w-full"
+                  variant="outline"
+                  onClick={() => setShowCreatePatient(true)}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Create New Patient
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <p className="text-sm text-slate-500">Fill in the patient details to register a new walk-in patient.</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>First Name *</Label>
+                  <Input value={newPatientForm.first_name} onChange={e => setNewPatientForm({...newPatientForm, first_name: e.target.value})} placeholder="First name" />
+                </div>
+                <div>
+                  <Label>Last Name *</Label>
+                  <Input value={newPatientForm.last_name} onChange={e => setNewPatientForm({...newPatientForm, last_name: e.target.value})} placeholder="Last name" />
+                </div>
+              </div>
+              <div>
+                <Label>Phone</Label>
+                <Input value={newPatientForm.phone} onChange={e => setNewPatientForm({...newPatientForm, phone: e.target.value})} placeholder="Phone number" />
+              </div>
+              <div>
+                <Label>Gender</Label>
+                <Select value={newPatientForm.gender} onValueChange={val => setNewPatientForm({...newPatientForm, gender: val})}>
+                  <SelectTrigger><SelectValue placeholder="Select gender" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <Button variant="outline" className="flex-1" onClick={() => setShowCreatePatient(false)}>
+                  Back
+                </Button>
+                <Button className="flex-1" onClick={handleCreatePatient} disabled={creatingPatient}>
+                  {creatingPatient ? 'Creating...' : 'Create & Select Patient'}
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
