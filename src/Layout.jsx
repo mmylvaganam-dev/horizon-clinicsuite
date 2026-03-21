@@ -593,8 +593,8 @@ function LayoutContent({ children, currentPageName }) {
                     </div>
                   </AccordionContent>
                 </AccordionItem>
-                )}
-              ))}
+                  );
+                })}
             </Accordion>
           </nav>
 
