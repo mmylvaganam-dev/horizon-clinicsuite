@@ -505,7 +505,7 @@ function LayoutContent({ children, currentPageName }) {
 
           {/* Navigation */}
                     <nav className="flex-1 p-4 overflow-y-auto bg-slate-50">
-                      <Accordion type="multiple" defaultValue={['Sale', 'Pharmacy', 'Platform Administration']} className="space-y-1">
+                      <Accordion type="multiple" defaultValue={['Sale', 'Pharmacy', 'Operations', 'Platform Administration']} className="space-y-1">
                         {navigationGroups.filter(group => {
                           if (group.platformOwnerOnly) return isDefinitelyPlatformOwner;
                           if (group.moduleRequired) return isModuleOn(group.moduleRequired);
