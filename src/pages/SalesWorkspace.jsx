@@ -40,6 +40,9 @@ export default function SalesWorkspace() {
   const [patientSearch, setPatientSearch] = useState('');
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [showPatientDialog, setShowPatientDialog] = useState(false);
+  const [showCreatePatient, setShowCreatePatient] = useState(false);
+  const [newPatientForm, setNewPatientForm] = useState({ first_name: '', last_name: '', phone: '', gender: '' });
+  const [creatingPatient, setCreatingPatient] = useState(false);
   const [activeServiceTab, setActiveServiceTab] = useState('gp');
   const [showInvoiceDialog, setShowInvoiceDialog] = useState(false);
   const [completedSale, setCompletedSale] = useState(null);
