@@ -346,13 +346,20 @@ export default function AdminModuleToggles() {
                       const module = modules.find(m => m.module_code === code) || { module_code: code, module_name: code };
                       const status = getModuleStatus(code);
                       const isPlatformOwnerOnlyModule = PLATFORM_OWNER_ONLY_MODULES.includes(code);
-                      const canToggle = isPlatformOwner || (isOrgSuperUser && status.canOrgToggle && !isPlatformOwnerOnlyModule);
+                      const enabledAtCompany = isEnabledAtCompanyLevel(code);
+                      const canToggle = isPlatformOwner || (isOrgSuperUser && status.canOrgToggle && !isPlatformOwnerOnlyModule && enabledAtCompany);
+                      const notActivated = !isPlatformOwner && !enabledAtCompany;
 
                       return (
-                        <div key={code} className={`flex items-center justify-between p-3 rounded-lg border bg-white ${isPlatformOwnerOnlyModule && !isPlatformOwner ? 'opacity-50' : ''}`}>
+                        <div key={code} className={`flex items-center justify-between p-3 rounded-lg border ${notActivated ? 'bg-slate-50 opacity-60' : 'bg-white'}`}>
                           <div>
-                            <span className="text-sm font-medium">{module.module_name}</span>
-                            {!status.globalEnabled && (
+                            <span className={`text-sm font-medium ${notActivated ? 'text-slate-400' : 'text-slate-900'}`}>{module.module_name}</span>
+                            {notActivated && (
+                              <Badge variant="secondary" className="ml-2 text-xs bg-slate-100 text-slate-500 border-slate-200">
+                                <Lock className="w-3 h-3 mr-1" />Not Activated
+                              </Badge>
+                            )}
+                            {!status.globalEnabled && !notActivated && (
                               <Badge variant="secondary" className="ml-2 text-xs">Global OFF</Badge>
                             )}
                             {isPlatformOwnerOnlyModule && !isPlatformOwner && (
@@ -362,7 +369,7 @@ export default function AdminModuleToggles() {
                           <Switch
                             checked={status.orgEnabled}
                             onCheckedChange={(checked) => toggleOrgMutation.mutate({ module_code: code, enabled: checked })}
-                            disabled={!status.globalEnabled || !canToggle}
+                            disabled={!status.globalEnabled || !canToggle || notActivated}
                           />
                         </div>
                       );
