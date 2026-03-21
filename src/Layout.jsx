@@ -325,6 +325,7 @@ function LayoutContent({ children, currentPageName }) {
       icon: Activity,
       moduleRequired: 'OPERATIONS',
       items: [
+        { name: 'Daily Operations', page: 'DailyOps', icon: Activity, description: 'Daily operations center - Track real-time patient flow, staff activities, and operational metrics' },
         { name: 'Shift Handover Book', page: 'ShiftHandover', icon: FileText, description: 'Shift logs - Document and handover important events between shifts' },
         { name: 'Daily Close', page: 'DailyClose', icon: DollarSign, description: 'End of day - Close daily operations, reconcile cash, and finalize transactions' },
         { name: 'HR Dashboard', page: 'HRDashboard', icon: Users, description: 'Human resources - Staff attendance, leave management, and HR metrics' },
