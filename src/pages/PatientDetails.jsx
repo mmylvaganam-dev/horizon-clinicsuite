@@ -30,7 +30,8 @@ import {
   IdCard,
   Video,
   Send,
-  ClipboardList
+  ClipboardList,
+  BarChart2
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
@@ -208,6 +209,14 @@ export default function PatientDetails() {
           Back to Patients
         </Button>
         <div className="flex gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            onClick={() => navigate(`${createPageUrl('PatientHealthOverview')}?patient=${patientId}`)}
+            className="border-teal-300 text-teal-700 hover:bg-teal-50"
+          >
+            <BarChart2 className="w-4 h-4 mr-2" />
+            Health Overview
+          </Button>
           <Button 
             variant="outline"
             onClick={() => setShowClinicalSummary(true)}
