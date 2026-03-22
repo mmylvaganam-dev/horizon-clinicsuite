@@ -180,7 +180,9 @@ export default function UploadDocument({ patientId, defaultCategory, onSuccess }
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="LAB">Laboratory</SelectItem>
+                  <SelectItem value="LAB">Laboratory (AI extracts results)</SelectItem>
+                  <SelectItem value="PRESCRIPTION">Prescription (AI extracts meds ✨)</SelectItem>
+                  <SelectItem value="MED_SUMMARY">Medication Summary (AI extracts meds ✨)</SelectItem>
                   <SelectItem value="TEST">Diagnostic Test</SelectItem>
                   <SelectItem value="IMAGING">Diagnostic Imaging</SelectItem>
                   <SelectItem value="CONSULT_NOTE">Consult Note</SelectItem>
