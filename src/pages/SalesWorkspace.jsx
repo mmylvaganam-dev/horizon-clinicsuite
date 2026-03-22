@@ -94,7 +94,7 @@ export default function SalesWorkspace() {
 
   const { data: patients = [] } = useQuery({
     queryKey: ['patients', selectedOrgId],
-    queryFn: () => base44.entities.Patient.filter({ organization_id: selectedOrgId }),
+    queryFn: () => base44.entities.Patient.filter({ organization_id: selectedOrgId }, '-created_date', 500),
     enabled: !!selectedOrgId,
   });
 
@@ -299,7 +299,7 @@ export default function SalesWorkspace() {
       `${p.first_name} ${p.last_name}`.toLowerCase().includes(search) ||
       p.phone?.toLowerCase().includes(search) ||
       p.phn?.toLowerCase().includes(search);
-  }).slice(0, 5);
+  }).slice(0, 50);
 
   const handleSelectPatient = (patient) => {
     setSelectedPatient(patient);
