@@ -246,6 +246,12 @@ export default function PatientSOAPTab({ patientId }) {
         </div>
       )}
 
+      <ClinicalNoteEditor
+        patientId={patientId}
+        open={noteEditorOpen}
+        onClose={() => setNoteEditorOpen(false)}
+      />
+
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
