@@ -100,7 +100,7 @@ export default function VitalsHeader({ patientId }) {
               </Button>
               <Button size="sm" variant="outline" onClick={() => navigate(createPageUrl('VitalsTrend') + `?patient=${patientId}`)}>
                 <TrendingUp className="w-4 h-4 mr-1" />
-                Trends
+                History ({vitals.length})
               </Button>
             </div>
           </div>
@@ -117,6 +117,11 @@ export default function VitalsHeader({ patientId }) {
             </div>
           )}
 
+          {latestVitals.recorded_at && (
+            <p className="text-xs text-slate-400 mb-2">
+              Recorded: {new Date(latestVitals.recorded_at).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+            </p>
+          )}
           <div className="grid grid-cols-4 md:grid-cols-8 gap-4 text-sm">
             <div>
               <p className="text-slate-500 text-xs">HR</p>
