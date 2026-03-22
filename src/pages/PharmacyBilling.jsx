@@ -1357,13 +1357,75 @@ export default function PharmacyBilling() {
                 </div>
               )}
             </div>
+            {/* Credit Sale Toggle */}
+            {cart.length > 0 && (
+              <div className="border rounded-lg overflow-hidden">
+                <button
+                  className={`w-full flex items-center justify-between px-3 py-2 text-sm font-semibold transition-colors ${isCreditSale ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
+                  onClick={() => setIsCreditSale(!isCreditSale)}
+                >
+                  <span className="flex items-center gap-2">
+                    <Landmark className="w-4 h-4" />
+                    Credit Sale / Cheque
+                  </span>
+                  <span className="text-xs">{isCreditSale ? 'ON ✓' : 'OFF'}</span>
+                </button>
+                {isCreditSale && (
+                  <div className="p-3 space-y-2 bg-amber-50 border-t border-amber-200">
+                    <div>
+                      <Label className="text-xs text-slate-600">Institution / Bill To *</Label>
+                      <Input
+                        value={creditForm.institution_name}
+                        onChange={e => setCreditForm({...creditForm, institution_name: e.target.value})}
+                        placeholder="e.g. Green Memorial Hospital"
+                        className="h-8 text-sm mt-1"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label className="text-xs text-slate-600">Customer ID</Label>
+                        <Input
+                          value={creditForm.customer_id}
+                          onChange={e => setCreditForm({...creditForm, customer_id: e.target.value})}
+                          placeholder="e.g. GMH"
+                          className="h-8 text-sm mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-slate-600">Cheque Amount</Label>
+                        <Input
+                          type="number"
+                          value={creditForm.cheque_amount}
+                          onChange={e => setCreditForm({...creditForm, cheque_amount: e.target.value})}
+                          placeholder="0.00"
+                          className="h-8 text-sm mt-1"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-slate-600">Cheque Number</Label>
+                      <Input
+                        value={creditForm.cheque_number}
+                        onChange={e => setCreditForm({...creditForm, cheque_number: e.target.value})}
+                        placeholder="Cheque No."
+                        className="h-8 text-sm mt-1"
+                      />
+                    </div>
+                    {isCreditSale && !creditForm.institution_name && (
+                      <p className="text-xs text-amber-700">⚠ Institution name is required for credit sale</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
             <Button 
-              className="w-full bg-indigo-600 hover:bg-indigo-700 h-9 lg:h-10 text-sm lg:text-base" 
-              disabled={cart.length === 0 || createSaleMutation.isPending}
+              className={`w-full h-9 lg:h-10 text-sm lg:text-base ${isCreditSale ? 'bg-amber-600 hover:bg-amber-700' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+              disabled={cart.length === 0 || createSaleMutation.isPending || (isCreditSale && !creditForm.institution_name)}
               onClick={handleCompleteSale}
             >
-              <Check className="w-4 h-4 lg:w-5 lg:h-5 mr-2" />
-              {createSaleMutation.isPending ? 'Processing...' : 'Complete Sale'}
+              {isCreditSale ? <Landmark className="w-4 h-4 lg:w-5 lg:h-5 mr-2" /> : <Check className="w-4 h-4 lg:w-5 lg:h-5 mr-2" />}
+              {createSaleMutation.isPending ? 'Processing...' : isCreditSale ? 'Complete Credit Sale' : 'Complete Sale'}
             </Button>
             {cart.length > 0 && !selectedPatient && !selectedWalkIn && (
               <p className="text-[10px] lg:text-xs text-slate-500 text-center">
