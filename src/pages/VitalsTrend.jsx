@@ -225,30 +225,43 @@ export default function VitalsTrend() {
                     vitals
                       .filter(v => v.BP_sys != null && v.BP_dia != null)
                       .sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at))
-                      .map((v, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                          <span className="text-sm text-slate-500">
-                            {format(new Date(v.recorded_at), 'MMM d, yyyy h:mm a')}
-                          </span>
-                          <span className="font-semibold text-slate-900">
-                            <span className="text-red-600">{v.BP_sys}</span>/<span className="text-blue-600">{v.BP_dia}</span> mmHg
-                          </span>
-                        </div>
-                      ))
+                      .map((v, idx) => {
+                        const rSys = checkVital('BP_sys', v.BP_sys);
+                        const rDia = checkVital('BP_dia', v.BP_dia);
+                        const isCritical = [rSys, rDia].some(r => r.abnormal && r.severity === 'critical');
+                        const isWarning = !isCritical && [rSys, rDia].some(r => r.abnormal);
+                        return (
+                          <div key={idx} className={`flex items-center justify-between p-3 rounded-lg ${isCritical ? 'bg-red-50 border border-red-300' : isWarning ? 'bg-amber-50 border border-amber-200' : 'bg-slate-50'}`}>
+                            <div className="flex items-center gap-2">
+                              {(isCritical || isWarning) && <AlertTriangle className={`w-4 h-4 flex-shrink-0 ${isCritical ? 'text-red-500' : 'text-amber-500'}`} />}
+                              <span className="text-sm text-slate-500">{format(new Date(v.recorded_at), 'MMM d, yyyy h:mm a')}</span>
+                            </div>
+                            <span className={`font-semibold ${isCritical ? 'text-red-700' : isWarning ? 'text-amber-700' : 'text-slate-900'}`}>
+                              {v.BP_sys}/{v.BP_dia} mmHg
+                            </span>
+                          </div>
+                        );
+                      })
                   ) : (
                     vitals
                       .filter(v => v[selectedVital] != null)
                       .sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at))
-                      .map((v, idx) => (
-                        <div key={idx} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                          <span className="text-sm text-slate-500">
-                            {format(new Date(v.recorded_at), 'MMM d, yyyy h:mm a')}
-                          </span>
-                          <span className="font-semibold text-slate-900">
-                            {v[selectedVital]} {selectedOption?.label.match(/\(([^)]+)\)/)?.[1] || ''}
-                          </span>
-                        </div>
-                      ))
+                      .map((v, idx) => {
+                        const r = checkVital(selectedVital, v[selectedVital]);
+                        const isCritical = r.abnormal && r.severity === 'critical';
+                        const isWarning = r.abnormal && r.severity === 'warning';
+                        return (
+                          <div key={idx} className={`flex items-center justify-between p-3 rounded-lg ${isCritical ? 'bg-red-50 border border-red-300' : isWarning ? 'bg-amber-50 border border-amber-200' : 'bg-slate-50'}`}>
+                            <div className="flex items-center gap-2">
+                              {r.abnormal && <AlertTriangle className={`w-4 h-4 flex-shrink-0 ${isCritical ? 'text-red-500' : 'text-amber-500'}`} />}
+                              <span className="text-sm text-slate-500">{format(new Date(v.recorded_at), 'MMM d, yyyy h:mm a')}</span>
+                            </div>
+                            <span className={`font-semibold ${isCritical ? 'text-red-700' : isWarning ? 'text-amber-700' : 'text-slate-900'}`}>
+                              {v[selectedVital]} {selectedOption?.label.match(/\(([^)]+)\)/)?.[1] || ''}
+                            </span>
+                          </div>
+                        );
+                      })
                   )}
                 </div>
               </div>
