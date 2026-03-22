@@ -46,6 +46,7 @@ export default function VitalsHeader({ patientId }) {
 
       return base44.entities.PatientVital.create({
         patient_ref: patientId,
+        organization_id: user?.organization_id || '',
         recorded_at: recorded_at_input ? new Date(recorded_at_input).toISOString() : new Date().toISOString(),
         source: 'manual',
         recorded_by: user?.id || user?.email || 'manual',

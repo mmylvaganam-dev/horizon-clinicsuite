@@ -54,16 +54,42 @@ export default function PatientLabsTab({ patientId }) {
   const extractLabMutation = useMutation({
     mutationFn: async () => {
       setUploading(true);
+      const fileUrl = uploadedFile;
+
+      // Extract lab data via backend
       const response = await base44.functions.invoke('extractLabFromPDF', {
-        file_url: uploadedFile,
+        file_url: fileUrl,
         patient_id: patientId
       });
-      return response.data;
+      const data = response.data;
+
+      // Also save as PatientDocument so it appears in the docs tab
+      try {
+        await base44.entities.PatientDocument.create({
+          organization_id: user?.organization_id || '',
+          patient_ref: patientId,
+          doc_category: 'LAB',
+          doc_type: uploadedFileName?.endsWith('.pdf') ? 'PDF' : 'IMAGE',
+          doc_title: uploadedFileName || 'Lab Report',
+          doc_date: new Date().toISOString().split('T')[0],
+          source: 'patient_brought',
+          uploaded_by: user?.id || '',
+          uploaded_by_email: user?.email || '',
+          file_ref: fileUrl,
+          notes: `Auto-imported via AI extraction. ${data.test_count || 0} test(s), ${data.abnormal_count || 0} abnormal.`,
+          visibility: 'internal',
+          status: 'active'
+        });
+      } catch (_) { /* non-critical */ }
+
+      return data;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['patientLabResults', patientId] });
+      queryClient.invalidateQueries({ queryKey: ['patientDocuments', patientId] });
       setUploadDialogOpen(false);
       setUploadedFile(null);
+      setUploadedFileName('');
       setUploading(false);
       
       if (data.abnormal_count > 0) {
