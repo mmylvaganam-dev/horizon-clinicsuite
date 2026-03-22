@@ -143,6 +143,20 @@ export default function PharmacyBilling() {
     enabled: !!selectedOrgId,
   });
 
+  // Fetch institutions for credit sales
+  const { data: institutions = [] } = useQuery({
+    queryKey: ['institutions', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      try {
+        return await base44.entities.Institution.filter(orgFilter);
+      } catch {
+        return [];
+      }
+    },
+    enabled: !!selectedOrgId,
+  });
+
   // Auto-select patient from URL
   useEffect(() => {
     if (patientIdFromUrl && patients.length > 0 && !selectedPatient) {
@@ -423,6 +437,15 @@ export default function PharmacyBilling() {
       mobile.includes(search) ||
       phone.includes(search) ||
       phn.includes(search);
+  }).slice(0, 10);
+
+  // Filter institutions - instant search
+  const filteredInstitutions = institutions.filter(inst => {
+    const search = patientSearch.toLowerCase().trim();
+    if (search === '') return false;
+    return inst.institution_name.toLowerCase().includes(search) ||
+      (inst.contact_person?.toLowerCase().includes(search)) ||
+      (inst.contact_phone?.includes(search));
   }).slice(0, 10);
 
   // Filter walk-in patients from Patient entity
@@ -1558,36 +1581,36 @@ export default function PharmacyBilling() {
           </div>
 
           <div className="flex-1 overflow-y-auto space-y-4 py-2">
-            {patientSearch.trim() === '' ? (
-              <div className="text-center py-12">
-                <User className="w-16 h-16 mx-auto text-slate-300 mb-4" />
-                <p className="text-slate-600 font-medium">Start typing to search</p>
-                <p className="text-sm text-slate-500 mt-2">Search by name, phone, or PHN</p>
-                <Button 
-                  className="mt-6" 
-                  onClick={() => {
-                    setShowPatientDialog(false);
-                    setShowWalkInDialog(true);
-                  }}
-                >
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Register New Patient
-                </Button>
-              </div>
-            ) : (filteredPatients.length === 0 && filteredWalkIns.length === 0) ? (
-              <div className="text-center py-12">
-                <p className="text-slate-600 font-medium mb-4">No patients found</p>
-                <Button 
-                  onClick={() => {
-                    setShowPatientDialog(false);
-                    setShowWalkInDialog(true);
-                  }}
-                >
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Register New Patient
-                </Button>
-              </div>
-            ) : (
+           {patientSearch.trim() === '' ? (
+             <div className="text-center py-12">
+               <User className="w-16 h-16 mx-auto text-slate-300 mb-4" />
+               <p className="text-slate-600 font-medium">Start typing to search</p>
+               <p className="text-sm text-slate-500 mt-2">Search patients, institutions, phone, or PHN</p>
+               <Button 
+                 className="mt-6" 
+                 onClick={() => {
+                   setShowPatientDialog(false);
+                   setShowWalkInDialog(true);
+                 }}
+               >
+                 <UserPlus className="w-4 h-4 mr-2" />
+                 Register New Patient
+               </Button>
+             </div>
+           ) : (filteredPatients.length === 0 && filteredWalkIns.length === 0 && filteredInstitutions.length === 0) ? (
+             <div className="text-center py-12">
+               <p className="text-slate-600 font-medium mb-4">No customers found</p>
+               <Button 
+                 onClick={() => {
+                   setShowPatientDialog(false);
+                   setShowWalkInDialog(true);
+                 }}
+               >
+                 <UserPlus className="w-4 h-4 mr-2" />
+                 Register New Patient
+               </Button>
+             </div>
+           ) : (
               <>
                 {/* Registered Patients */}
                 {filteredPatients.length > 0 && (
@@ -1654,6 +1677,47 @@ export default function PharmacyBilling() {
                               </div>
                             </div>
                             <Badge className="bg-purple-600">Select</Badge>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Institutions */}
+                {filteredInstitutions.length > 0 && (
+                  <div>
+                    <h3 className="font-semibold text-sm text-slate-700 mb-3 px-1">Institutions ({filteredInstitutions.length})</h3>
+                    <div className="space-y-2">
+                      {filteredInstitutions.map(inst => (
+                        <Card
+                          key={inst.id}
+                          className="p-4 cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-all border-2"
+                          onClick={() => {
+                            setSelectedPatient(null);
+                            setCreditForm({ ...creditForm, institution_name: inst.institution_name, customer_id: inst.id });
+                            setPatientSearch(inst.institution_name);
+                            setShowPatientDialog(false);
+                            setIsCreditSale(true);
+                          }}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <p className="font-semibold text-lg text-slate-900">{inst.institution_name}</p>
+                              <div className="flex flex-wrap gap-2 mt-2">
+                                {inst.contact_person && (
+                                  <Badge variant="outline" className="text-xs">
+                                    👤 {inst.contact_person}
+                                  </Badge>
+                                )}
+                                {inst.contact_phone && (
+                                  <Badge variant="outline" className="text-xs bg-blue-50">
+                                    📞 {inst.contact_phone}
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            <Badge className="bg-blue-600">Institution</Badge>
                           </div>
                         </Card>
                       ))}
