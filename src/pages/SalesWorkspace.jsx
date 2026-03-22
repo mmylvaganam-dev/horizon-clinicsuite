@@ -690,7 +690,7 @@ export default function SalesWorkspace() {
             <div className="relative">
               <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <Input
-                placeholder="Tap to search and select patient"
+                placeholder="Search by name, NIC, phone or email..."
                 value={patientSearch}
                 onChange={(e) => {
                   setPatientSearch(e.target.value);
