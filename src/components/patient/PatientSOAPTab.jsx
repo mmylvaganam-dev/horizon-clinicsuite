@@ -7,9 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { FileText, Upload, Sparkles, Loader2, Mic, Calendar } from 'lucide-react';
+import { FileText, Upload, Sparkles, Loader2, Mic, Calendar, PenLine } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
+import ClinicalNoteEditor, { getNoteTypeBadgeClass } from '@/components/emr/ClinicalNoteEditor';
 
 function SOAPNoteRow({ note }) {
   const [expanded, setExpanded] = React.useState(false);
