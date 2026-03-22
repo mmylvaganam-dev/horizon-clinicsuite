@@ -240,6 +240,7 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Work Queue', page: 'PharmacyWorkQueue', icon: CheckSquare, description: 'Prescription queue - Review and verify doctor prescriptions, prepare orders for dispensing' },
         { name: 'Inventory', page: 'PharmacyInventory', icon: Package, description: 'Stock management - Track inventory levels, receive stock, adjust quantities, view transactions' },
         { name: 'Barcode Setup', page: 'BarcodeSetup', icon: Activity, description: 'Barcode configuration - Add barcodes to products, scan items, print labels' },
+        { name: 'Stock Monitoring', page: 'StockMonitoring', icon: Activity, description: 'Low-stock alerts - Monitor items below minimum threshold, flag for reorder' },
         { name: 'Product Import', page: 'PharmacyProductImport', icon: FileText, description: 'Bulk product upload - Import medicines from CSV file into the system' },
         { name: 'Operations', page: 'PharmacyOperations', icon: Activity, description: 'Daily operations - Schedule vendor visits, returns pickup, and stock tasks' },
         { name: 'Stock Import', page: 'PharmacyStockImport', icon: FileText, description: 'Bulk stock upload - Import stock batches with quantities from CSV file' },
