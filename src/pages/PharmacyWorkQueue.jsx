@@ -44,7 +44,16 @@ export default function PharmacyWorkQueue() {
 
   const { data: prescriptions = [] } = useQuery({
     queryKey: ['prescriptions'],
-    queryFn: () => base44.entities.Prescription.list('-prescribed_date'),
+    queryFn: async () => {
+      const all = await base44.entities.Prescription.list('-prescribed_date');
+      // Filter to show ONLY manual orders (orders_requested = true), not auto-linked Rx from doctors
+      return all.filter(p => p.orders_requested === true);
+    },
+  });
+
+  const { data: providers = [] } = useQuery({
+    queryKey: ['providers'],
+    queryFn: () => base44.entities.StaffProfile.list(),
   });
 
   // Incoming deliveries sent to THIS pharmacy org
@@ -132,6 +141,7 @@ export default function PharmacyWorkQueue() {
   const filteredDispensed = applyFilters(prescriptions, 'Dispensed');
 
   const getPatient = (patientId) => patients.find(p => p.id === patientId);
+  const getProvider = (providerId) => providers.find(p => p.id === providerId);
 
   const handleVerify = (prescription) => {
     updatePrescriptionMutation.mutate({
@@ -169,7 +179,7 @@ export default function PharmacyWorkQueue() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pharmacy Work Queue</h1>
-          <p className="text-slate-500 mt-1">Review and verify doctor prescriptions before dispensing</p>
+          <p className="text-slate-500 mt-1">Manual prescription orders - Verify before dispensing</p>
         </div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-4 py-2">
@@ -185,7 +195,7 @@ export default function PharmacyWorkQueue() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <h3 className="font-semibold text-blue-900 mb-2">What is This?</h3>
-              <p className="text-sm text-blue-800">The Pharmacy Work Queue is where all new prescriptions from doctors arrive. You review each prescription to verify it's correct, safe, and ready to dispense to patients.</p>
+              <p className="text-sm text-blue-800">Manual pharmacy orders you requested (e.g., from Anantham Pharmacy). Review and verify each order before dispensing to patients or institutions.</p>
             </div>
             <div>
               <h3 className="font-semibold text-blue-900 mb-2">Why It's Important</h3>
@@ -357,11 +367,11 @@ export default function PharmacyWorkQueue() {
                             <div className="flex items-center gap-2 mb-2">
                               <User className="w-4 h-4 text-slate-400" />
                               <span className="font-semibold text-slate-900">
-                                {patient ? `${patient.first_name} ${patient.last_name}` : 'Unknown Patient'}
+                                {prescription.requested_from || 'Manual Order'}
                               </span>
                             </div>
-                            {patient && (
-                              <p className="text-sm text-slate-600 ml-6">ID: {patient.patient_id}</p>
+                            {prescription.prescribed_by && (
+                              <p className="text-sm text-slate-600 ml-6">Doctor: {prescription.prescribed_by}</p>
                             )}
                           </div>
 
@@ -450,9 +460,12 @@ export default function PharmacyWorkQueue() {
                             <div className="flex items-center gap-2 mb-2">
                               <User className="w-4 h-4 text-slate-400" />
                               <span className="font-semibold text-slate-900">
-                                {patient ? `${patient.first_name} ${patient.last_name}` : 'Unknown Patient'}
+                                {prescription.requested_from || 'Manual Order'}
                               </span>
                             </div>
+                            {prescription.prescribed_by && (
+                              <p className="text-sm text-slate-600 ml-6">Doctor: {prescription.prescribed_by}</p>
+                            )}
                           </div>
 
                           <div>
