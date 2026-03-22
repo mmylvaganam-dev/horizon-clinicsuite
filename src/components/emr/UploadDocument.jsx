@@ -74,6 +74,55 @@ export default function UploadDocument({ patientId, defaultCategory, onSuccess }
           metadata: { doc_category: data.doc_category, doc_title: data.doc_title }
         });
 
+        // Auto-extract medications from prescription/med summary documents
+        if (PRESCRIPTION_CATEGORIES.includes(data.doc_category)) {
+          try {
+            const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
+              file_url: file_url,
+              json_schema: {
+                type: 'object',
+                properties: {
+                  medications: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        name: { type: 'string' },
+                        dose: { type: 'string' },
+                        frequency: { type: 'string' },
+                        route: { type: 'string' },
+                        duration: { type: 'string' }
+                      }
+                    }
+                  }
+                }
+              }
+            });
+
+            if (extracted.status === 'success' && extracted.output?.medications?.length > 0) {
+              await base44.entities.MedReconSuggestion.create({
+                patient_ref: patientId,
+                source_type: 'DocumentUpload',
+                source_id: doc.id,
+                suggested_meds_json: { add_medications: extracted.output.medications },
+                status: 'pending'
+              });
+              toast.success(`Extracted ${extracted.output.medications.length} medication(s) — check med suggestions`);
+            }
+          } catch (_) { /* non-critical, doc is already saved */ }
+        }
+
+        // Auto-extract lab results from lab documents  
+        if (LAB_CATEGORIES.includes(data.doc_category) && docType === 'PDF') {
+          try {
+            await base44.functions.invoke('extractLabFromPDF', {
+              file_url: file_url,
+              patient_id: patientId
+            });
+            toast.success('Lab results extracted from PDF');
+          } catch (_) { /* non-critical */ }
+        }
+
         return doc;
       } finally {
         setUploading(false);
