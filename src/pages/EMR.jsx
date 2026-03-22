@@ -29,6 +29,7 @@ export default function EMR() {
   const { selectedOrgId } = useOrganization();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPatient, setSelectedPatient] = useState(null);
+  const [showClinicalSummary, setShowClinicalSummary] = useState(false);
 
   // Read patient ID from URL parameter
   const urlParams = new URLSearchParams(window.location.search);
