@@ -1768,9 +1768,21 @@ export default function PharmacyBilling() {
           
           {completedSale && (
             <div className="space-y-4">
-              <div className="bg-slate-50 p-4 rounded-lg">
-                <p className="text-sm text-slate-600">Receipt #{completedSale.receipt_number}</p>
-                <p className="font-semibold">{completedSale.customer_name}</p>
+              <div className={`p-4 rounded-lg ${completedSale.is_credit_sale ? 'bg-amber-50 border border-amber-200' : 'bg-slate-50'}`}>
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-sm text-slate-600">Receipt #{completedSale.receipt_number}</p>
+                  {completedSale.is_credit_sale && (
+                    <Badge className="bg-amber-600 text-white text-xs">Credit Sale</Badge>
+                  )}
+                </div>
+                {completedSale.is_credit_sale ? (
+                  <p className="font-semibold">{completedSale.credit_institution}</p>
+                ) : (
+                  <p className="font-semibold">{completedSale.customer_name}</p>
+                )}
+                {completedSale.is_credit_sale && completedSale.credit_cheque_number && (
+                  <p className="text-xs text-amber-700 mt-1">Cheque #{completedSale.credit_cheque_number}</p>
+                )}
                 <p className="text-2xl font-bold text-indigo-600 mt-2">
                   {completedSale.currency} {completedSale.total.toFixed(2)}
                 </p>
