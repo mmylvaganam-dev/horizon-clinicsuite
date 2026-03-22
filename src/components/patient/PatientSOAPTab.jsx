@@ -87,7 +87,8 @@ export default function PatientSOAPTab({ patientId }) {
 
   const { data: soapNotes = [] } = useQuery({
     queryKey: ['patientSOAP', patientId],
-    queryFn: () => base44.entities.SOAPNote.filter({ patient_id: patientId }),
+    queryFn: () => base44.entities.SOAPNote.filter({ patient_id: patientId }, '-note_date'),
+    enabled: !!patientId,
   });
 
   const startRecording = () => {

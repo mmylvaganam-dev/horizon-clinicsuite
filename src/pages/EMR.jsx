@@ -66,12 +66,6 @@ export default function EMR() {
     enabled: !!selectedPatient,
   });
 
-  const { data: soapNotes = [] } = useQuery({
-    queryKey: ['patientSOAP', selectedPatient?.id],
-    queryFn: () => base44.entities.SOAPNote.filter({ patient_id: selectedPatient.id }, '-note_date'),
-    enabled: !!selectedPatient,
-  });
-
   const filteredPatients = patients.filter(p => {
     const fullName = `${p.first_name} ${p.last_name}`.toLowerCase();
     const search = searchTerm.toLowerCase();
