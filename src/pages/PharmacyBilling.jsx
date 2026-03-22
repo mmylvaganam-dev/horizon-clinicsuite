@@ -62,6 +62,8 @@ export default function PharmacyBilling() {
   const [activeTab, setActiveTab] = useState('name');
   const [emailSent, setEmailSent] = useState(false);
   const [smsSent, setSmsSent] = useState(false);
+  const [isCreditSale, setIsCreditSale] = useState(false);
+  const [creditForm, setCreditForm] = useState({ institution_name: '', customer_id: '', cheque_number: '', cheque_amount: '' });
 
   const { data: pharmacyStock = [], isLoading: stockLoading, error: stockError } = useQuery({
     queryKey: ['pharmacyStock', selectedOrgId],
