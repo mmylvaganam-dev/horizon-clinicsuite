@@ -140,10 +140,16 @@ export default function VitalsTrend() {
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <div>
+        <div className="flex-1">
           <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Vitals Trend</h1>
           {patient && <p className="text-slate-500 mt-1">{patient.first_name} {patient.last_name}</p>}
         </div>
+        {vitals.length > 0 && (
+          <Button onClick={downloadPDF} variant="outline">
+            <Download className="w-4 h-4 mr-2" />
+            Download PDF Report
+          </Button>
+        )}
       </div>
 
       <Card>
