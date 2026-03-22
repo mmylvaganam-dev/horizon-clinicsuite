@@ -207,19 +207,21 @@ export default function BankStatementManager() {
       // Create bank statement upload record
        await base44.entities.BankStatementUpload.create({
          organization_id: selectedOrgId,
-         bank_account_id: selectedAccountId,
+         company_ref: companyProfile.id,
+         bank_account_ref: selectedAccountId,
          statement_month: detectedMonth,
-         file_url: uploadResult.file_url,
-         file_name: file.name,
+         file_ref: uploadResult.file_url,
          created_by: currentUser?.email || 'system',
+         created_by_email: currentUser?.email || 'system',
          upload_date: new Date().toISOString(),
          opening_balance: extractResult.output.opening_balance || 0,
          closing_balance: extractResult.output.closing_balance || 0,
-         total_deposits: extractResult.output.total_deposits || 0,
-         total_withdrawals: extractResult.output.total_withdrawals || 0,
-         transaction_count: extractResult.output.transactions?.length || 0,
-         upload_status: 'processed',
-         processed_at: new Date().toISOString()
+         extracted_summary_json: {
+           total_deposits: extractResult.output.total_deposits || 0,
+           total_withdrawals: extractResult.output.total_withdrawals || 0,
+           transaction_count: extractResult.output.transactions?.length || 0,
+           file_name: file.name
+         }
        });
 
       queryClient.invalidateQueries(['bankStatements']);
