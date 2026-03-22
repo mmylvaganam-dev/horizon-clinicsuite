@@ -21,7 +21,7 @@ export default function VitalsHeader({ patientId }) {
 
   const { data: vitals = [] } = useQuery({
     queryKey: ['patientVitals', patientId],
-    queryFn: () => base44.entities.PatientVital.filter({ patient_ref: patientId }),
+    queryFn: () => base44.entities.PatientVital.filter({ patient_ref: patientId }, '-recorded_at', 50),
     enabled: !!patientId
   });
 
