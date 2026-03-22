@@ -292,14 +292,20 @@ export default function SalesWorkspace() {
     pkg.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Filter patients
-  const filteredPatients = patients.filter(p => {
-    const search = patientSearch.toLowerCase();
-    return search === '' ||
+  // Filter patients — only show results when user has typed something
+  const filteredPatients = patientSearch.trim().length < 2 ? [] : patients.filter(p => {
+    const search = patientSearch.toLowerCase().trim();
+    return (
       `${p.first_name} ${p.last_name}`.toLowerCase().includes(search) ||
+      p.first_name?.toLowerCase().includes(search) ||
+      p.last_name?.toLowerCase().includes(search) ||
       p.phone?.toLowerCase().includes(search) ||
-      p.phn?.toLowerCase().includes(search);
-  }).slice(0, 50);
+      p.mobile?.toLowerCase().includes(search) ||
+      p.email?.toLowerCase().includes(search) ||
+      p.nic?.toLowerCase().includes(search) ||
+      p.phn?.toLowerCase().includes(search)
+    );
+  }).slice(0, 30);
 
   const handleSelectPatient = (patient) => {
     setSelectedPatient(patient);
