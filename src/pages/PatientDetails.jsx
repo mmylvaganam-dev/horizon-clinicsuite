@@ -210,6 +210,13 @@ export default function PatientDetails() {
         <div className="flex gap-2 flex-wrap">
           <Button 
             variant="outline"
+            onClick={() => setShowClinicalSummary(true)}
+          >
+            <ClipboardList className="w-4 h-4 mr-2" />
+            Clinical Summary
+          </Button>
+          <Button 
+            variant="outline"
             onClick={() => setShowPHNCard(true)}
           >
             <CreditCard className="w-4 h-4 mr-2" />

@@ -177,12 +177,18 @@ export default function EMR() {
                     </div>
                   </div>
                 </div>
-                <Link to={`${createPageUrl('PatientDetails')}?id=${selectedPatient.id}`}>
-                  <Button variant="secondary" size="sm">
-                    <User className="w-4 h-4 mr-2" />
-                    Full Profile
+                <div className="flex gap-2">
+                  <Button variant="secondary" size="sm" onClick={() => setShowClinicalSummary(true)}>
+                    <ClipboardList className="w-4 h-4 mr-2" />
+                    Clinical Summary
                   </Button>
-                </Link>
+                  <Link to={`${createPageUrl('PatientDetails')}?id=${selectedPatient.id}`}>
+                    <Button variant="secondary" size="sm">
+                      <User className="w-4 h-4 mr-2" />
+                      Full Profile
+                    </Button>
+                  </Link>
+                </div>
               </div>
 
               {selectedPatient.allergies && (
