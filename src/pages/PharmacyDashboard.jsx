@@ -227,6 +227,22 @@ export default function PharmacyDashboard() {
     .reduce((sum, s) => sum + getSaleProfit(s.id), 0);
   const todayMargin = todayRevenue > 0 ? ((todayProfit / todayRevenue) * 100).toFixed(1) : '0.0';
 
+  // Credit vs Cash breakdown
+  const creditSales = sales.filter(s => s.is_credit_sale === true || s.credit_institution);
+  const cashSales = sales.filter(s => s.is_credit_sale !== true && !s.credit_institution);
+  
+  const creditSaleAmount = creditSales.reduce((sum, s) => sum + (s.total || 0), 0);
+  const cashSaleAmount = cashSales.reduce((sum, s) => sum + (s.total || 0), 0);
+  
+  const creditSaleCount = creditSales.length;
+  const cashSaleCount = cashSales.length;
+  
+  const todayCreditSales = todaySales.filter(s => s.is_credit_sale === true || s.credit_institution);
+  const todayCashSales = todaySales.filter(s => s.is_credit_sale !== true && !s.credit_institution);
+  
+  const todayCreditAmount = todayCreditSales.reduce((sum, s) => sum + (s.total || 0), 0);
+  const todayCashAmount = todayCashSales.reduce((sum, s) => sum + (s.total || 0), 0);
+
   
   const lowStockCount = pharmacyStock.filter(item => 
     item.quantity <= 10 && item.quality_status === 'usable'
@@ -526,24 +542,70 @@ export default function PharmacyDashboard() {
           </Card>
 
           <Card 
-            className="bg-gradient-to-br from-cyan-500 to-cyan-600 text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform"
-            onClick={() => navigate(createPageUrl('PharmacyInventory'))}
+           className="bg-gradient-to-br from-cyan-500 to-cyan-600 text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform"
+           onClick={() => navigate(createPageUrl('PharmacyInventory'))}
           >
-            <CardContent className="p-6">
-              <div className="w-8 h-8 mb-2 opacity-80 flex items-center justify-center font-bold text-lg">{currency}</div>
-              <p className="text-sm opacity-90">Potential Profit</p>
-              <p className="text-3xl font-bold mt-1">{currency} {fmt(pharmacyStock.reduce((sum, item) => sum + ((item.mrp || 0) * (item.quantity || 0)), 0) - pharmacyStock.reduce((sum, item) => sum + ((item.unit_cost || 0) * (item.quantity || 0)), 0))}</p>
-              <p className="text-xs opacity-80 mt-1">Expected profit margin</p>
-            </CardContent>
+           <CardContent className="p-6">
+             <div className="w-8 h-8 mb-2 opacity-80 flex items-center justify-center font-bold text-lg">{currency}</div>
+             <p className="text-sm opacity-90">Potential Profit</p>
+             <p className="text-3xl font-bold mt-1">{currency} {fmt(pharmacyStock.reduce((sum, item) => sum + ((item.mrp || 0) * (item.quantity || 0)), 0) - pharmacyStock.reduce((sum, item) => sum + ((item.unit_cost || 0) * (item.quantity || 0)), 0))}</p>
+             <p className="text-xs opacity-80 mt-1">Expected profit margin</p>
+           </CardContent>
           </Card>
 
           <Card className="bg-gradient-to-br from-violet-500 to-violet-600 text-white border-0 shadow-lg">
-            <CardContent className="p-6">
-              <div className="w-8 h-8 mb-2 opacity-80 flex items-center justify-center font-bold text-lg">%</div>
-              <p className="text-sm opacity-90">Today's Gross Profit</p>
-              <p className="text-3xl font-bold mt-1">{currency} {fmt(todayProfit)}</p>
-              <p className="text-xs opacity-80 mt-1">Margin: {todayMargin}% on today's sales</p>
-            </CardContent>
+           <CardContent className="p-6">
+             <div className="w-8 h-8 mb-2 opacity-80 flex items-center justify-center font-bold text-lg">%</div>
+             <p className="text-sm opacity-90">Today's Gross Profit</p>
+             <p className="text-3xl font-bold mt-1">{currency} {fmt(todayProfit)}</p>
+             <p className="text-xs opacity-80 mt-1">Margin: {todayMargin}% on today's sales</p>
+           </CardContent>
+          </Card>
+          </div>
+          </div>
+
+          {/* Cash vs Credit Sales Breakdown */}
+          <div>
+          <h2 className="text-lg font-semibold text-slate-700 mb-3">Cash vs Credit Sales</h2>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform"
+           onClick={() => navigate(createPageUrl('CreditCustomerManagement'))}
+          >
+           <CardContent className="p-6">
+             <div className="w-8 h-8 mb-2 opacity-80 flex items-center justify-center font-bold text-lg">{currency}</div>
+             <p className="text-sm opacity-90">Cash Sales</p>
+             <p className="text-3xl font-bold mt-1">{currency} {fmt(cashSaleAmount)}</p>
+             <p className="text-xs opacity-80 mt-1">{cashSaleCount} transactions</p>
+           </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-amber-500 to-amber-600 text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform"
+           onClick={() => navigate(createPageUrl('CreditCustomerManagement'))}
+          >
+           <CardContent className="p-6">
+             <div className="w-8 h-8 mb-2 opacity-80 flex items-center justify-center font-bold text-lg">{currency}</div>
+             <p className="text-sm opacity-90">Credit Sales</p>
+             <p className="text-3xl font-bold mt-1">{currency} {fmt(creditSaleAmount)}</p>
+             <p className="text-xs opacity-80 mt-1">{creditSaleCount} institutions</p>
+           </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg">
+           <CardContent className="p-6">
+             <div className="w-8 h-8 mb-2 opacity-80 flex items-center justify-center font-bold text-lg">{currency}</div>
+             <p className="text-sm opacity-90">Today's Cash</p>
+             <p className="text-3xl font-bold mt-1">{currency} {fmt(todayCashAmount)}</p>
+             <p className="text-xs opacity-80 mt-1">{todayCashSales.length} sales</p>
+           </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0 shadow-lg">
+           <CardContent className="p-6">
+             <div className="w-8 h-8 mb-2 opacity-80 flex items-center justify-center font-bold text-lg">{currency}</div>
+             <p className="text-sm opacity-90">Today's Credit</p>
+             <p className="text-3xl font-bold mt-1">{currency} {fmt(todayCreditAmount)}</p>
+             <p className="text-xs opacity-80 mt-1">{todayCreditSales.length} sales</p>
+           </CardContent>
           </Card>
         </div>
       </div>
