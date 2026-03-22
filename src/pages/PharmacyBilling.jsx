@@ -598,7 +598,12 @@ export default function PharmacyBilling() {
         tax: taxAmount,
         total: totalAmount,
         customer_email: selectedPatient?.email || selectedWalkIn?.email,
-        customer_phone: selectedPatient?.mobile || selectedWalkIn?.phone
+        customer_phone: selectedPatient?.mobile || selectedWalkIn?.phone,
+        is_credit_sale: isCreditSale,
+        credit_institution: creditForm.institution_name,
+        credit_customer_id: creditForm.customer_id,
+        credit_cheque_number: creditForm.cheque_number,
+        credit_cheque_amount: creditForm.cheque_amount,
       };
     },
     onSuccess: (completedSaleData) => {
