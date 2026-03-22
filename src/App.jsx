@@ -7,6 +7,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import PatientInvoiceManager from './pages/PatientInvoiceManager';
 import PatientHealthOverview from './pages/PatientHealthOverview';
+import CreditCustomerManagement from './pages/CreditCustomerManagement';
 import LandingPage from './pages/LandingPage';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -63,6 +64,7 @@ const AuthenticatedApp = () => {
       ))}
       <Route path="/PatientInvoiceManager" element={<LayoutWrapper currentPageName="PatientInvoiceManager"><PatientInvoiceManager /></LayoutWrapper>} />
       <Route path="/PatientHealthOverview" element={<LayoutWrapper currentPageName="PatientHealthOverview"><PatientHealthOverview /></LayoutWrapper>} />
+      <Route path="/CreditCustomerManagement" element={<LayoutWrapper currentPageName="CreditCustomerManagement"><CreditCustomerManagement /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
