@@ -248,6 +248,8 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Requests', page: 'PharmacyRequests', icon: FileText, description: 'Stock requests - Manage inter-location transfers and reorder requests' },
         { name: 'Bill Card Reports', page: 'PharmacyBillCardReports', icon: BarChart3, description: 'Bill card tracking - Monitor stock movement, quantity in/out, and balances' },
         { name: 'Procurement', page: 'Procurement', icon: ShoppingBag, description: 'Purchase orders - Create POs, receive goods, manage vendors' },
+        { name: 'Credit Sale Institutions', page: 'InstitutionManagement', icon: Building2, description: 'Manage credit institutions - Add hospitals, clinics, corporates for credit sales' },
+        { name: 'Credit Sales Accounts', page: 'CreditCustomerManagement', icon: DollarSign, description: 'Credit accounts & payments - Track outstanding balances, payment history, and statements' },
       ]
     },
     {
@@ -330,8 +332,6 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Daily Operations', page: 'DailyOps', icon: Activity, description: 'Daily operations center - Track real-time patient flow, staff activities, and operational metrics' },
         { name: 'Shift Handover Book', page: 'ShiftHandover', icon: FileText, description: 'Shift logs - Document and handover important events between shifts' },
         { name: 'Daily Close', page: 'DailyClose', icon: DollarSign, description: 'End of day - Close daily operations, reconcile cash, and finalize transactions' },
-        { name: 'Credit Customers', page: 'CreditCustomerManagement', icon: Building2, description: 'Manage credit accounts - Track outstanding balances, payment history, and generate statements' },
-        { name: 'Institutions', page: 'InstitutionManagement', icon: Building2, description: 'Institution setup - Add hospitals, clinics, corporates for credit sales' },
         { name: 'HR Dashboard', page: 'HRDashboard', icon: Users, description: 'Human resources - Staff attendance, leave management, and HR metrics' },
         { name: 'Staff Directory', page: 'StaffDirectory', icon: Users, description: 'Employee registry - Manage staff profiles, credentials, and schedules' },
         { name: 'Payroll', page: 'PayrollManagement', icon: DollarSign, description: 'Salary processing - Calculate and manage staff payments and deductions' },
