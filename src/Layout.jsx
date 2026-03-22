@@ -464,6 +464,7 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'User Access Approvals', page: 'UserApprovals', icon: CheckSquare, description: 'Approve or reject new user access requests for your organization' },
         { name: 'Sale Deletion Requests', page: 'SaleDeletionRequests', icon: CheckSquare, description: 'Review and approve staff sale deletion requests' },
         { name: 'Pricing & Catalogs', page: 'PricingCatalogs', icon: DollarSign, description: 'Service pricing - Configure service fees, packages, and price lists' },
+        { name: 'Patient Invoices', page: 'PatientInvoiceManager', icon: FileText, description: 'View patient invoices, track revenue, and download branded PDF receipts with SOAP note summaries' },
         { name: 'Patient Edit Approvals', page: 'PatientEditApprovals', icon: CheckSquare, description: 'Review and approve patient information edit requests' },
       ]
     },
