@@ -62,15 +62,36 @@ export default function VitalsHeader({ patientId }) {
   });
 
   const latestVitals = vitals[0] || {};
+  const latestAlerts = getVitalsAlerts(latestVitals);
+  const hasCritical = latestAlerts.some(a => a.severity === 'critical');
+
+  const vitalColor = (key) => {
+    const r = checkVital(key, latestVitals[key]);
+    if (!r.abnormal) return '';
+    return r.severity === 'critical' ? 'text-red-600' : 'text-amber-600';
+  };
+  const bpColor = () => {
+    const rSys = checkVital('BP_sys', latestVitals.BP_sys);
+    const rDia = checkVital('BP_dia', latestVitals.BP_dia);
+    if (!rSys.abnormal && !rDia.abnormal) return '';
+    const sev = [rSys, rDia].some(r => r.severity === 'critical') ? 'critical' : 'warning';
+    return sev === 'critical' ? 'text-red-600' : 'text-amber-600';
+  };
 
   return (
     <>
-      <Card className="bg-gradient-to-r from-teal-50 to-blue-50 border-teal-200">
+      <Card className={`border-2 ${hasCritical ? 'border-red-400 bg-red-50' : latestAlerts.length > 0 ? 'border-amber-300 bg-amber-50' : 'bg-gradient-to-r from-teal-50 to-blue-50 border-teal-200'}`}>
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Activity className="w-5 h-5 text-teal-600" />
+              <Activity className={`w-5 h-5 ${hasCritical ? 'text-red-600' : latestAlerts.length > 0 ? 'text-amber-600' : 'text-teal-600'}`} />
               <h3 className="font-semibold text-slate-900">Latest Vitals</h3>
+              {latestAlerts.length > 0 && (
+                <span className={`flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full ${hasCritical ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                  <AlertTriangle className="w-3 h-3" />
+                  {hasCritical ? 'Critical Values' : 'Abnormal Values'}
+                </span>
+              )}
             </div>
             <div className="flex gap-2">
               <Button size="sm" variant="outline" onClick={() => setShowAddVitals(true)}>
@@ -83,22 +104,35 @@ export default function VitalsHeader({ patientId }) {
               </Button>
             </div>
           </div>
+
+          {latestAlerts.length > 0 && (
+            <div className={`mb-3 p-2 rounded-lg text-xs space-y-0.5 ${hasCritical ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'}`}>
+              {latestAlerts.map((a, i) => (
+                <div key={i} className="flex items-center gap-1">
+                  <AlertTriangle className="w-3 h-3 flex-shrink-0" />
+                  <span>{a.message}</span>
+                  {a.severity === 'critical' && <span className="font-bold ml-1">⚠ CRITICAL</span>}
+                </div>
+              ))}
+            </div>
+          )}
+
           <div className="grid grid-cols-4 md:grid-cols-8 gap-4 text-sm">
             <div>
               <p className="text-slate-500 text-xs">HR</p>
-              <p className="font-semibold">{latestVitals.HR || '-'} <span className="text-xs text-slate-500">bpm</span></p>
+              <p className={`font-semibold ${vitalColor('HR')}`}>{latestVitals.HR || '-'} <span className="text-xs text-slate-500">bpm</span></p>
             </div>
             <div>
               <p className="text-slate-500 text-xs">BP</p>
-              <p className="font-semibold">{latestVitals.BP_sys && latestVitals.BP_dia ? `${latestVitals.BP_sys}/${latestVitals.BP_dia}` : '-'}</p>
+              <p className={`font-semibold ${bpColor()}`}>{latestVitals.BP_sys && latestVitals.BP_dia ? `${latestVitals.BP_sys}/${latestVitals.BP_dia}` : '-'}</p>
             </div>
             <div>
               <p className="text-slate-500 text-xs">RR</p>
-              <p className="font-semibold">{latestVitals.RR || '-'} <span className="text-xs text-slate-500">/min</span></p>
+              <p className={`font-semibold ${vitalColor('RR')}`}>{latestVitals.RR || '-'} <span className="text-xs text-slate-500">/min</span></p>
             </div>
             <div>
               <p className="text-slate-500 text-xs">Temp</p>
-              <p className="font-semibold">{latestVitals.Temp || '-'} <span className="text-xs text-slate-500">°C</span></p>
+              <p className={`font-semibold ${vitalColor('Temp')}`}>{latestVitals.Temp || '-'} <span className="text-xs text-slate-500">°C</span></p>
             </div>
             <div>
               <p className="text-slate-500 text-xs">Weight</p>
@@ -110,11 +144,11 @@ export default function VitalsHeader({ patientId }) {
             </div>
             <div>
               <p className="text-slate-500 text-xs">BMI</p>
-              <p className="font-semibold">{latestVitals.BMI || '-'}</p>
+              <p className={`font-semibold ${vitalColor('BMI')}`}>{latestVitals.BMI || '-'}</p>
             </div>
             <div>
               <p className="text-slate-500 text-xs">SpO2</p>
-              <p className="font-semibold">{latestVitals.SpO2 || '-'} <span className="text-xs text-slate-500">%</span></p>
+              <p className={`font-semibold ${vitalColor('SpO2')}`}>{latestVitals.SpO2 || '-'} <span className="text-xs text-slate-500">%</span></p>
             </div>
           </div>
         </CardContent>
