@@ -45,8 +45,6 @@ export default function ClinicalNoteEditor({ patientId, open, onClose }) {
   const [noteType, setNoteType] = useState('SOAP');
   const [content, setContent] = useState('');
 
-  const { data: user } = React.useMemo(() => ({ data: null }), []); // will be fetched inline
-
   const saveMutation = useMutation({
     mutationFn: async () => {
       const me = await base44.auth.me();
