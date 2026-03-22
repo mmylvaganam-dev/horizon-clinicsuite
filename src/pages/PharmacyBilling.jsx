@@ -27,7 +27,9 @@ import {
   Mail,
   MessageSquare,
   Package,
-  AlertCircle
+  AlertCircle,
+  CreditCard,
+  Landmark
 } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
