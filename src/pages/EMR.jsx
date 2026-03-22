@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, FileText, User, Activity, TestTube, UserCheck, Calendar, Pill, Lock } from 'lucide-react';
+import { Search, FileText, User, Activity, TestTube, UserCheck, Calendar, Pill, Lock, ClipboardList } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { Link, useNavigate } from 'react-router-dom';

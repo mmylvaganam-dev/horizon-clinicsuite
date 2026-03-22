@@ -29,7 +29,8 @@ import {
   ShoppingBag,
   IdCard,
   Video,
-  Send
+  Send,
+  ClipboardList
 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
