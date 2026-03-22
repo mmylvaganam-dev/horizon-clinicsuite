@@ -22,6 +22,7 @@ import VitalsHeader from '../components/emr/VitalsHeader';
 import SmartBox from '../components/emr/SmartBox';
 import DiagnosticsTab from '../components/emr/DiagnosticsTab';
 import CPPManager from '../components/emr/CPPManager';
+import ClinicalSummaryReport from '../components/emr/ClinicalSummaryReport';
 
 export default function EMR() {
   const navigate = useNavigate();
