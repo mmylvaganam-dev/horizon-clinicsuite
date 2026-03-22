@@ -227,90 +227,9 @@ export default function PatientSOAPTab({ patientId }) {
         <p className="text-sm text-slate-500 text-center py-8">No SOAP notes yet</p>
       ) : (
         <div className="space-y-2">
-          {soapNotes.map((note) => {
-            const [expanded, setExpanded] = React.useState(false);
-            
-            return (
-              <div key={note.id} className="p-3 rounded-lg border bg-white">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-purple-600" />
-                    <span className="text-sm font-medium">{format(new Date(note.note_date), 'MMM d, yyyy h:mm a')}</span>
-                    <Badge className={note.status === 'signed' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}>
-                      {note.status}
-                    </Badge>
-                    {note.ai_generated && (
-                      <Badge variant="outline" className="bg-purple-50 text-purple-700">AI</Badge>
-                    )}
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setExpanded(!expanded)}
-                    className="text-xs h-7"
-                  >
-                    {expanded ? 'Hide' : 'Full View'}
-                  </Button>
-                </div>
-                
-                {/* Brief view - just S and A */}
-                {!expanded && (
-                  <div className="text-sm space-y-1">
-                    {note.subjective && (
-                      <p className="text-slate-700">
-                        <span className="font-semibold text-teal-700">S:</span> {note.subjective.substring(0, 80)}{note.subjective.length > 80 ? '...' : ''}
-                      </p>
-                    )}
-                    {note.assessment && (
-                      <p className="text-slate-700">
-                        <span className="font-semibold text-teal-700">A:</span> {note.assessment.substring(0, 60)}{note.assessment.length > 60 ? '...' : ''}
-                      </p>
-                    )}
-                  </div>
-                )}
-                
-                {/* Full detailed view */}
-                {expanded && (
-                  <div className="space-y-3 pt-2 border-t">
-                    {note.subjective && (
-                      <div>
-                        <p className="text-xs font-semibold text-teal-700 mb-1 uppercase">Subjective:</p>
-                        <p className="text-sm text-slate-700 whitespace-pre-wrap">{note.subjective}</p>
-                      </div>
-                    )}
-                    {note.objective && (
-                      <div>
-                        <p className="text-xs font-semibold text-teal-700 mb-1 uppercase">Objective:</p>
-                        <p className="text-sm text-slate-700 whitespace-pre-wrap">{note.objective}</p>
-                      </div>
-                    )}
-                    {note.assessment && (
-                      <div>
-                        <p className="text-xs font-semibold text-teal-700 mb-1 uppercase">Assessment:</p>
-                        <p className="text-sm text-slate-700 whitespace-pre-wrap">{note.assessment}</p>
-                      </div>
-                    )}
-                    {note.plan && (
-                      <div>
-                        <p className="text-xs font-semibold text-teal-700 mb-1 uppercase">Plan:</p>
-                        <p className="text-sm text-slate-700 whitespace-pre-wrap">{note.plan}</p>
-                      </div>
-                    )}
-                    {note.icd10_codes && note.icd10_codes.length > 0 && (
-                      <div>
-                        <p className="text-xs font-semibold text-teal-700 mb-1 uppercase">ICD-10 Codes:</p>
-                        <div className="flex flex-wrap gap-1">
-                          {note.icd10_codes.map((code, idx) => (
-                            <Badge key={idx} variant="outline" className="text-xs">{code}</Badge>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          {soapNotes.map((note) => (
+            <SOAPNoteRow key={note.id} note={note} />
+          ))}
         </div>
       )}
 
