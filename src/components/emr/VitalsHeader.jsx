@@ -47,7 +47,7 @@ export default function VitalsHeader({ patientId }) {
         patient_ref: patientId,
         recorded_at: recorded_at_input ? new Date(recorded_at_input).toISOString() : new Date().toISOString(),
         source: 'manual',
-        recorded_by: user?.id,
+        recorded_by: user?.id || user?.email || 'manual',
         recorded_by_email: user?.email,
         ...(BMI !== null ? { BMI } : {}),
         ...cleanVitals
