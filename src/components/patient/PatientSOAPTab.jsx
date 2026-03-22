@@ -218,11 +218,17 @@ export default function PatientSOAPTab({ patientId }) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">SOAP Notes</h3>
-        <Button onClick={() => setDialogOpen(true)} size="sm" className="bg-purple-600 hover:bg-purple-700">
-          <Sparkles className="w-4 h-4 mr-2" />
-          Generate Note
-        </Button>
+        <h3 className="text-lg font-semibold">Clinical Notes</h3>
+        <div className="flex gap-2">
+          <Button onClick={() => setNoteEditorOpen(true)} size="sm" variant="outline">
+            <PenLine className="w-4 h-4 mr-2" />
+            New Note
+          </Button>
+          <Button onClick={() => setDialogOpen(true)} size="sm" className="bg-purple-600 hover:bg-purple-700">
+            <Sparkles className="w-4 h-4 mr-2" />
+            AI Generate
+          </Button>
+        </div>
       </div>
 
       {soapNotes.length === 0 ? (
