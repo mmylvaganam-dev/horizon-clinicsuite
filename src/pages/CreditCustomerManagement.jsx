@@ -37,15 +37,30 @@ export default function CreditCustomerManagement() {
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paymentNotes, setPaymentNotes] = useState('');
 
-  // Fetch all credit sales
+  // Fetch all credit sales - INCLUDING institution-based sales
   const { data: creditSales = [] } = useQuery({
     queryKey: ['creditSales', selectedOrgId],
     queryFn: async () => {
       if (!selectedOrgId) return [];
-      return base44.entities.PharmacySaleHeader.filter({
+      const sales = await base44.entities.PharmacySaleHeader.filter({
         ...orgFilter,
         status: 'credit'
       }, '-sale_date');
+      return sales;
+    },
+    enabled: !!selectedOrgId,
+  });
+
+  // Fetch institutions
+  const { data: institutions = [] } = useQuery({
+    queryKey: ['institutions', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      try {
+        return await base44.entities.Institution.filter(orgFilter);
+      } catch {
+        return [];
+      }
     },
     enabled: !!selectedOrgId,
   });
@@ -64,9 +79,25 @@ export default function CreditCustomerManagement() {
     enabled: !!selectedOrgId,
   });
 
-  // Group sales by institution
+  // Group sales by institution - Match with registered institutions
   const customerGroups = creditSales.reduce((acc, sale) => {
-    const institution = sale.notes?.split('|').find(n => n.includes('Bill To:'))?.split('Bill To:')[1]?.trim() || 'Unknown Institution';
+    // Try to get institution name from notes or customer_id
+    let institution = sale.notes?.split('|').find(n => n.includes('Bill To:'))?.split('Bill To:')[1]?.trim();
+    
+    // If not found, try to extract from notes containing institution info
+    if (!institution) {
+      const billToMatch = sale.notes?.match(/Bill To:\s*([^|]+)/);
+      institution = billToMatch ? billToMatch[1].trim() : null;
+    }
+
+    // Fallback to customer_id if it's an institution UUID
+    if (!institution && sale.customer_id) {
+      const matchedInst = institutions.find(i => i.id === sale.customer_id);
+      institution = matchedInst?.institution_name;
+    }
+
+    institution = institution || 'Unknown Institution';
+
     if (!acc[institution]) {
       acc[institution] = [];
     }
@@ -74,7 +105,7 @@ export default function CreditCustomerManagement() {
     return acc;
   }, {});
 
-  // Calculate balances per customer
+  // Calculate balances per customer with integrated institution data
   const customerData = Object.entries(customerGroups).map(([institution, sales]) => {
     const totalSales = sales.reduce((sum, s) => sum + (s.total || 0), 0);
     const paidAmount = creditPayments
@@ -82,8 +113,18 @@ export default function CreditCustomerManagement() {
       .reduce((sum, p) => sum + (p.amount || 0), 0);
     const outstanding = totalSales - paidAmount;
 
+    // Find matching institution record
+    const instRecord = institutions.find(i => i.institution_name === institution);
+
     return {
       institution,
+      institution_id: instRecord?.id,
+      institution_type: instRecord?.institution_type,
+      contact_person: instRecord?.contact_person,
+      contact_phone: instRecord?.contact_phone,
+      contact_email: instRecord?.contact_email,
+      credit_limit: instRecord?.credit_limit,
+      credit_terms_days: instRecord?.credit_terms_days,
       totalSales,
       paidAmount,
       outstanding,
