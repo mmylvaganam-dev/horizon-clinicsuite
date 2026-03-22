@@ -143,40 +143,61 @@ export default function BankStatementManager() {
     const file = e.target.files[0];
     if (!file || !selectedAccountId) return;
 
+    // Validate file type
+    const validTypes = ['text/csv', 'application/pdf', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
+    if (!validTypes.includes(file.type) && !file.name.match(/\.(csv|pdf|xlsx?|xls)$/i)) {
+      alert('Please upload a CSV, Excel, or PDF file');
+      return;
+    }
+
     setUploading(true);
     try {
       // Upload file
       const uploadResponse = await base44.integrations.Core.UploadFile({ file });
       const uploadResult = uploadResponse.data || uploadResponse;
       
-      // Extract data from file
-      const extractResponse = await base44.integrations.Core.ExtractDataFromUploadedFile({
-        file_url: uploadResult.file_url,
-        json_schema: {
-          type: "object",
-          properties: {
-            statement_period_start: { type: "string" },
-            statement_period_end: { type: "string" },
-            transactions: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  date: { type: "string" },
-                  description: { type: "string" },
-                  amount: { type: "number" },
-                  type: { type: "string" }
+      if (!uploadResult?.file_url) {
+        throw new Error('File upload failed - no URL returned');
+      }
+
+      // Extract data from file - with better error handling for PDFs
+      let extractResult;
+      try {
+        const extractResponse = await base44.integrations.Core.ExtractDataFromUploadedFile({
+          file_url: uploadResult.file_url,
+          json_schema: {
+            type: "object",
+            properties: {
+              statement_period_start: { type: "string" },
+              statement_period_end: { type: "string" },
+              transactions: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    date: { type: "string" },
+                    description: { type: "string" },
+                    amount: { type: "number" },
+                    type: { type: "string" }
+                  }
                 }
-              }
-            },
-            opening_balance: { type: "number" },
-            closing_balance: { type: "number" },
-            total_deposits: { type: "number" },
-            total_withdrawals: { type: "number" }
+              },
+              opening_balance: { type: "number" },
+              closing_balance: { type: "number" },
+              total_deposits: { type: "number" },
+              total_withdrawals: { type: "number" }
+            }
           }
-        }
-      });
-      const extractResult = extractResponse.data || extractResponse;
+        });
+        extractResult = extractResponse.data || extractResponse;
+      } catch (extractError) {
+        console.error('Extraction error:', extractError);
+        throw new Error(`Failed to extract data from ${file.type === 'application/pdf' ? 'PDF' : 'file'}: ${extractError.message || 'Please ensure the file contains valid bank statement data'}`);
+      }
+
+      if (!extractResult?.output) {
+        throw new Error('No data could be extracted from the file');
+      }
 
       // Auto-detect statement month from the data
       const detectedMonth = extractResult.output.statement_period_start 
@@ -189,6 +210,7 @@ export default function BankStatementManager() {
         bank_account_id: selectedAccountId,
         statement_month: detectedMonth,
         file_url: uploadResult.file_url,
+        file_name: file.name,
         opening_balance: extractResult.output.opening_balance || 0,
         closing_balance: extractResult.output.closing_balance || 0,
         total_deposits: extractResult.output.total_deposits || 0,
@@ -200,8 +222,10 @@ export default function BankStatementManager() {
 
       queryClient.invalidateQueries(['bankStatements']);
       setUploadDialogOpen(false);
+      alert('✓ Statement uploaded and processed successfully');
     } catch (error) {
-      alert('Failed to upload statement: ' + error.message);
+      console.error('Upload error:', error);
+      alert('Failed to upload statement:\n\n' + (error.message || 'Unknown error occurred'));
     } finally {
       setUploading(false);
     }
