@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
 Deno.serve(async (req) => {
   try {
@@ -9,12 +9,12 @@ Deno.serve(async (req) => {
       return Response.json({ approved: false, error: 'Not authenticated' }, { status: 401 });
     }
 
-    // Platform owner (no restrictions)
+    // Platform owner always approved
     const platformOwnerEmails = [
       'mylvaganam@premierhealthcanada.ca',
       'mmylvaganam@premierhealthcanada.ca'
     ];
-    if (platformOwnerEmails.includes(user.email)) {
+    if (platformOwnerEmails.includes(user.email) || user.is_platform_owner) {
       return Response.json({ 
         approved: true, 
         role: 'platform_owner',
@@ -27,7 +27,6 @@ Deno.serve(async (req) => {
     const blockedRecords = await base44.asServiceRole.entities.BlockedUser.filter({ 
       email: user.email 
     });
-    
     if (blockedRecords.length > 0) {
       return Response.json({ 
         approved: false, 
@@ -36,26 +35,45 @@ Deno.serve(async (req) => {
       }, { status: 403 });
     }
 
-    // Check UserApproval - ALL users must be approved by platform owner
+    // Check UserApproval records for this user email
     const approvals = await base44.asServiceRole.entities.UserApproval.filter({ 
       user_email: user.email 
     });
-    
-    const hasApproval = approvals.some(a => a.final_status === 'approved' || a.platform_owner_status === 'approved');
-    
-    if (!hasApproval) {
+
+    const approvedRecord = approvals.find(a => 
+      a.final_status === 'approved' || a.platform_owner_status === 'approved'
+    );
+
+    if (approvedRecord) {
+      // If user doesn't have organization_id set yet, set it now from the approval record
+      if (!user.organization_id && approvedRecord.organization_id) {
+        const users = await base44.asServiceRole.entities.User.filter({ email: user.email });
+        if (users.length > 0) {
+          await base44.asServiceRole.entities.User.update(users[0].id, {
+            organization_id: approvedRecord.organization_id
+          });
+          console.log('✅ Auto-assigned organization_id on first login:', approvedRecord.organization_id);
+        }
+      }
       return Response.json({ 
-        approved: false, 
-        needs_approval: true,
-        error: 'Pending platform owner approval' 
-      }, { status: 403 });
+        approved: true, 
+        role: 'user',
+        user_email: user.email,
+        organization_id: approvedRecord.organization_id
+      });
+    }
+
+    // No approval record found - check if user has admin role (admins are always approved)
+    if (user.role === 'admin') {
+      return Response.json({ approved: true, role: 'admin', user_email: user.email });
     }
 
     return Response.json({ 
-      approved: true, 
-      role: 'user',
-      user_email: user.email 
-    });
+      approved: false, 
+      needs_approval: true,
+      error: 'Pending platform owner approval' 
+    }, { status: 403 });
+
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
