@@ -13,6 +13,7 @@ import toast from 'react-hot-toast';
 export default function PatientLabsTab({ patientId }) {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
+  const [uploadedFileName, setUploadedFileName] = useState('');
   const [uploading, setUploading] = useState(false);
 
   const queryClient = useQueryClient();
@@ -41,13 +42,16 @@ export default function PatientLabsTab({ patientId }) {
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
+    setUploadedFileName(file.name);
+    setUploading(true);
     try {
       const response = await base44.integrations.Core.UploadFile({ file });
       setUploadedFile(response.file_url);
       toast.success('File uploaded');
     } catch (error) {
       toast.error('Upload failed');
+    } finally {
+      setUploading(false);
     }
   };
 
