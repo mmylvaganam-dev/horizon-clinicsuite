@@ -205,20 +205,22 @@ export default function BankStatementManager() {
         : moment().format('YYYY-MM');
 
       // Create bank statement upload record
-      await base44.entities.BankStatementUpload.create({
-        organization_id: selectedOrgId,
-        bank_account_id: selectedAccountId,
-        statement_month: detectedMonth,
-        file_url: uploadResult.file_url,
-        file_name: file.name,
-        opening_balance: extractResult.output.opening_balance || 0,
-        closing_balance: extractResult.output.closing_balance || 0,
-        total_deposits: extractResult.output.total_deposits || 0,
-        total_withdrawals: extractResult.output.total_withdrawals || 0,
-        transaction_count: extractResult.output.transactions?.length || 0,
-        upload_status: 'processed',
-        processed_at: new Date().toISOString()
-      });
+       await base44.entities.BankStatementUpload.create({
+         organization_id: selectedOrgId,
+         bank_account_id: selectedAccountId,
+         statement_month: detectedMonth,
+         file_url: uploadResult.file_url,
+         file_name: file.name,
+         created_by: currentUser?.email || 'system',
+         upload_date: new Date().toISOString(),
+         opening_balance: extractResult.output.opening_balance || 0,
+         closing_balance: extractResult.output.closing_balance || 0,
+         total_deposits: extractResult.output.total_deposits || 0,
+         total_withdrawals: extractResult.output.total_withdrawals || 0,
+         transaction_count: extractResult.output.transactions?.length || 0,
+         upload_status: 'processed',
+         processed_at: new Date().toISOString()
+       });
 
       queryClient.invalidateQueries(['bankStatements']);
       setUploadDialogOpen(false);
