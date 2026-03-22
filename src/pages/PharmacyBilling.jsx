@@ -517,9 +517,12 @@ export default function PharmacyBilling() {
         subtotal: subtotalAmount,
         tax_total: taxAmount,
         total: totalAmount,
-        status: 'paid',
-        payment_method: 'cash',
-        notes: finalDiscountAmount > 0 ? `Discount: Rs ${finalDiscountAmount.toFixed(2)}` : ''
+        status: isCreditSale ? 'credit' : 'paid',
+        payment_method: isCreditSale ? 'cheque' : 'cash',
+        notes: [
+          finalDiscountAmount > 0 ? `Discount: Rs ${finalDiscountAmount.toFixed(2)}` : '',
+          isCreditSale ? `CREDIT SALE | Bill To: ${creditForm.institution_name} | Customer ID: ${creditForm.customer_id} | Cheque No: ${creditForm.cheque_number} | Cheque Amt: Rs ${creditForm.cheque_amount}` : ''
+        ].filter(Boolean).join(' | ')
       };
 
       const sale = await base44.entities.PharmacySaleHeader.create(saleData);
