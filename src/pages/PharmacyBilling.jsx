@@ -892,6 +892,8 @@ export default function PharmacyBilling() {
     setPatientSearch('');
     setPrescriptionFile(null);
     setPrescriptionUrl(null);
+    setIsCreditSale(false);
+    setCreditForm({ institution_name: '', customer_id: '', cheque_number: '', cheque_amount: '' });
   };
 
   console.log('PharmacyBilling - Rendering with:', { selectedOrgId, stockCount: pharmacyStock.length, cartCount: cart.length });
