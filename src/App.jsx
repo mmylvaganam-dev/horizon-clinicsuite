@@ -9,6 +9,7 @@ import PatientInvoiceManager from './pages/PatientInvoiceManager';
 import PatientHealthOverview from './pages/PatientHealthOverview';
 import CreditCustomerManagement from './pages/CreditCustomerManagement';
 import StockMonitoring from './pages/StockMonitoring';
+import InstitutionManagement from './pages/InstitutionManagement';
 import LandingPage from './pages/LandingPage';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -67,6 +68,7 @@ const AuthenticatedApp = () => {
       <Route path="/PatientHealthOverview" element={<LayoutWrapper currentPageName="PatientHealthOverview"><PatientHealthOverview /></LayoutWrapper>} />
       <Route path="/CreditCustomerManagement" element={<LayoutWrapper currentPageName="CreditCustomerManagement"><CreditCustomerManagement /></LayoutWrapper>} />
       <Route path="/StockMonitoring" element={<LayoutWrapper currentPageName="StockMonitoring"><StockMonitoring /></LayoutWrapper>} />
+      <Route path="/InstitutionManagement" element={<LayoutWrapper currentPageName="InstitutionManagement"><InstitutionManagement /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

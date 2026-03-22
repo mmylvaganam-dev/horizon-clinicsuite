@@ -331,6 +331,7 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Shift Handover Book', page: 'ShiftHandover', icon: FileText, description: 'Shift logs - Document and handover important events between shifts' },
         { name: 'Daily Close', page: 'DailyClose', icon: DollarSign, description: 'End of day - Close daily operations, reconcile cash, and finalize transactions' },
         { name: 'Credit Customers', page: 'CreditCustomerManagement', icon: Building2, description: 'Manage credit accounts - Track outstanding balances, payment history, and generate statements' },
+        { name: 'Institutions', page: 'InstitutionManagement', icon: Building2, description: 'Institution setup - Add hospitals, clinics, corporates for credit sales' },
         { name: 'HR Dashboard', page: 'HRDashboard', icon: Users, description: 'Human resources - Staff attendance, leave management, and HR metrics' },
         { name: 'Staff Directory', page: 'StaffDirectory', icon: Users, description: 'Employee registry - Manage staff profiles, credentials, and schedules' },
         { name: 'Payroll', page: 'PayrollManagement', icon: DollarSign, description: 'Salary processing - Calculate and manage staff payments and deductions' },
