@@ -33,18 +33,24 @@ export default function VitalsHeader({ patientId }) {
   const addVitalsMutation = useMutation({
     mutationFn: async (data) => {
       const BMI = data.Weight && data.Height 
-        ? (data.Weight / Math.pow(data.Height / 100, 2)).toFixed(1) 
+        ? parseFloat((data.Weight / Math.pow(data.Height / 100, 2)).toFixed(1))
         : null;
       
       const { recorded_at_input, ...vitalsData } = data;
+
+      // Strip out empty-string fields so numeric fields don't fail validation
+      const cleanVitals = Object.fromEntries(
+        Object.entries(vitalsData).filter(([, v]) => v !== '' && v !== null && v !== undefined)
+      );
+
       return base44.entities.PatientVital.create({
         patient_ref: patientId,
         recorded_at: recorded_at_input ? new Date(recorded_at_input).toISOString() : new Date().toISOString(),
         source: 'manual',
         recorded_by: user?.id,
         recorded_by_email: user?.email,
-        BMI,
-        ...vitalsData
+        ...(BMI !== null ? { BMI } : {}),
+        ...cleanVitals
       });
     },
     onSuccess: () => {
