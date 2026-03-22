@@ -1098,28 +1098,55 @@ export default function SalesWorkspace() {
           
           {!showCreatePatient ? (
             <div className="space-y-3">
+              <div className="text-xs text-slate-500 bg-slate-50 rounded-lg px-3 py-2 flex flex-wrap gap-2">
+                <span className="font-medium text-slate-600">Search by:</span>
+                {['Name', 'NIC', 'Phone / Mobile', 'Email', 'PHN'].map(f => (
+                  <span key={f} className="bg-white border border-slate-200 px-2 py-0.5 rounded-full">{f}</span>
+                ))}
+              </div>
               <div className="space-y-2">
-                {filteredPatients.length === 0 ? (
+                {patientSearch.trim().length < 2 ? (
+                  <div className="text-center py-8">
+                    <User className="w-10 h-10 mx-auto text-slate-200 mb-2" />
+                    <p className="text-slate-400 text-sm">Type at least 2 characters to search</p>
+                  </div>
+                ) : filteredPatients.length === 0 ? (
                   <div className="text-center py-8">
                     <User className="w-10 h-10 mx-auto text-slate-300 mb-2" />
-                    <p className="text-slate-500">{patientSearch ? `No patient found for "${patientSearch}"` : 'No patients found'}</p>
+                    <p className="text-slate-500">No patient found for "{patientSearch}"</p>
+                    <p className="text-xs text-slate-400 mt-1">Try name, NIC, phone, email, or PHN</p>
                   </div>
                 ) : (
-                  filteredPatients.map(patient => (
-                    <Card
-                      key={patient.id}
-                      className="p-3 cursor-pointer hover:bg-slate-50 transition-colors"
-                      onClick={() => handleSelectPatient(patient)}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-medium">{patient.first_name} {patient.last_name}</p>
-                          <p className="text-sm text-slate-600">{patient.phone}</p>
-                          <Badge variant="outline" className="mt-1 text-xs">{patient.phn}</Badge>
+                  filteredPatients.map(patient => {
+                    const s = patientSearch.toLowerCase().trim();
+                    const matchedFields = [];
+                    if (patient.nic?.toLowerCase().includes(s)) matchedFields.push(`NIC: ${patient.nic}`);
+                    if (patient.mobile?.toLowerCase().includes(s) || patient.phone?.toLowerCase().includes(s)) matchedFields.push(`📞 ${patient.mobile || patient.phone}`);
+                    if (patient.email?.toLowerCase().includes(s)) matchedFields.push(`✉️ ${patient.email}`);
+                    return (
+                      <Card
+                        key={patient.id}
+                        className="p-3 cursor-pointer hover:bg-indigo-50 hover:border-indigo-300 transition-colors"
+                        onClick={() => handleSelectPatient(patient)}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-slate-900">{patient.first_name} {patient.last_name}</p>
+                            <div className="flex flex-wrap gap-1.5 mt-1">
+                              <Badge variant="outline" className="text-xs">{patient.phn}</Badge>
+                              {patient.gender && <Badge variant="outline" className="text-xs capitalize">{patient.gender}</Badge>}
+                              {matchedFields.map(m => (
+                                <span key={m} className="text-xs text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-200">{m}</span>
+                              ))}
+                            </div>
+                            {!matchedFields.length && (patient.phone || patient.mobile) && (
+                              <p className="text-xs text-slate-500 mt-1">{patient.mobile || patient.phone}</p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </Card>
-                  ))
+                      </Card>
+                    );
+                  })
                 )}
               </div>
               <div className="border-t pt-3">
