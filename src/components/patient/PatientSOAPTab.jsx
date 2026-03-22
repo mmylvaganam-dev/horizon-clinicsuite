@@ -68,6 +68,7 @@ function SOAPNoteRow({ note }) {
 }
 
 export default function PatientSOAPTab({ patientId }) {
+  const [noteEditorOpen, setNoteEditorOpen] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [uploadMode, setUploadMode] = useState('text'); // 'text' or 'pdf'
   const [transcript, setTranscript] = useState('');
