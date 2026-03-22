@@ -1093,7 +1093,7 @@ export default function SalesWorkspace() {
       <Dialog open={showPatientDialog} onOpenChange={(open) => { setShowPatientDialog(open); if (!open) setShowCreatePatient(false); }}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Select Patient</DialogTitle>
+            <DialogTitle>Search & Select Patient</DialogTitle>
           </DialogHeader>
           
           {!showCreatePatient ? (
