@@ -369,6 +369,14 @@ export default function EMR() {
           <p className="text-slate-500 mt-2">Enter patient name or MRN to access their medical records</p>
         </Card>
       )}
+
+      {selectedPatient && (
+        <ClinicalSummaryReport
+          patient={selectedPatient}
+          open={showClinicalSummary}
+          onOpenChange={setShowClinicalSummary}
+        />
+      )}
     </div>
   );
 }

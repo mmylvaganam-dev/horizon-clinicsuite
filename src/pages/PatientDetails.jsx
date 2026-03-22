@@ -663,6 +663,13 @@ export default function PatientDetails() {
         onOpenChange={setShowTeleAccess}
       />
 
+      {/* Clinical Summary */}
+      <ClinicalSummaryReport
+        patient={patient}
+        open={showClinicalSummary}
+        onOpenChange={setShowClinicalSummary}
+      />
+
       {/* PHN Card Dialog */}
       <PHNCard 
         open={showPHNCard}
