@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, FileText, User, Activity, TestTube, UserCheck, Calendar, Pill, Lock, ClipboardList } from 'lucide-react';
+import { Search, FileText, User, Activity, TestTube, UserCheck, Calendar, Pill, Lock, ClipboardList, UserPlus } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { Link, useNavigate } from 'react-router-dom';
@@ -106,7 +106,17 @@ export default function EMR() {
                   ))}
                 </div>
               ) : filteredPatients.length === 0 ? (
-                <p className="text-sm text-slate-500 text-center py-8">No patients found</p>
+                <div className="text-center py-8 space-y-3">
+                  <p className="text-sm text-slate-500">No patients found matching "{searchTerm}"</p>
+                  <Button
+                    size="sm"
+                    onClick={() => navigate(`${createPageUrl('Patients')}?new=1`)}
+                    className="bg-teal-600 hover:bg-teal-700"
+                  >
+                    <UserPlus className="w-4 h-4 mr-2" />
+                    Register New Patient
+                  </Button>
+                </div>
               ) : (
                 filteredPatients.map((patient) => (
                   <div
