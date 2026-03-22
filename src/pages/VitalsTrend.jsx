@@ -42,6 +42,81 @@ export default function VitalsTrend() {
 
   const selectedOption = vitalOptions.find(v => v.value === selectedVital);
 
+  const downloadPDF = () => {
+    const doc = new jsPDF();
+    const pageW = doc.internal.pageSize.getWidth();
+
+    // Header
+    doc.setFillColor(13, 148, 136); // teal-600
+    doc.rect(0, 0, pageW, 30, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18);
+    doc.setFont(undefined, 'bold');
+    doc.text('Vitals History Report', 14, 12);
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text(`Generated: ${format(new Date(), 'MMM d, yyyy h:mm a')}`, 14, 22);
+
+    // Patient info
+    doc.setTextColor(30, 30, 30);
+    doc.setFontSize(13);
+    doc.setFont(undefined, 'bold');
+    doc.text(`Patient: ${patient?.first_name || ''} ${patient?.last_name || ''}`, 14, 42);
+    if (patient?.date_of_birth) {
+      doc.setFontSize(10);
+      doc.setFont(undefined, 'normal');
+      doc.text(`DOB: ${patient.date_of_birth}  |  PHN: ${patient.phn || 'N/A'}`, 14, 50);
+    }
+
+    // Table header
+    const sortedVitals = [...vitals].sort((a, b) => new Date(b.recorded_at) - new Date(a.recorded_at));
+    const cols = ['Date & Time', 'HR', 'BP', 'RR', 'Temp', 'Weight', 'Height', 'BMI', 'SpO2'];
+    const colW = [45, 16, 22, 14, 16, 18, 18, 14, 16];
+    let y = 62;
+
+    doc.setFillColor(241, 245, 249);
+    doc.rect(14, y - 5, pageW - 28, 8, 'F');
+    doc.setFontSize(8);
+    doc.setFont(undefined, 'bold');
+    doc.setTextColor(71, 85, 105);
+    let x = 14;
+    cols.forEach((col, i) => { doc.text(col, x, y); x += colW[i]; });
+
+    y += 5;
+    doc.setFont(undefined, 'normal');
+    doc.setTextColor(30, 30, 30);
+
+    sortedVitals.forEach((v, idx) => {
+      if (y > 270) { doc.addPage(); y = 20; }
+      if (idx % 2 === 0) {
+        doc.setFillColor(248, 250, 252);
+        doc.rect(14, y - 4, pageW - 28, 7, 'F');
+      }
+      doc.setFontSize(8);
+      x = 14;
+      const row = [
+        format(new Date(v.recorded_at), 'MMM d, yyyy h:mm a'),
+        v.HR != null ? `${v.HR}` : '-',
+        v.BP_sys != null ? `${v.BP_sys}/${v.BP_dia}` : '-',
+        v.RR != null ? `${v.RR}` : '-',
+        v.Temp != null ? `${v.Temp}°C` : '-',
+        v.Weight != null ? `${v.Weight}kg` : '-',
+        v.Height != null ? `${v.Height}cm` : '-',
+        v.BMI != null ? `${v.BMI}` : '-',
+        v.SpO2 != null ? `${v.SpO2}%` : '-',
+      ];
+      row.forEach((cell, i) => { doc.text(cell, x, y); x += colW[i]; });
+      y += 7;
+    });
+
+    // Footer
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text('This report is generated from electronic health records and is for clinical use only.', 14, 285);
+
+    doc.save(`vitals-${patient?.first_name || 'patient'}-${patient?.last_name || ''}-${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+  };
+
   const chartData = selectedVital === 'BP'
     ? vitals
         .filter(v => v.BP_sys != null && v.BP_dia != null)
