@@ -626,6 +626,91 @@ export default function PharmacyBilling() {
 
   const handlePrintInvoice = () => {
     if (!completedSale) return;
+
+    // For credit sales, print A4 invoice format (like the voucher)
+    if (completedSale.is_credit_sale) {
+      const itemRowsHTML = (completedSale.items || []).map(item => `
+        <tr>
+          <td>${item.display_name || ''}</td>
+          <td style="text-align:center">${item.quantity}</td>
+          <td style="text-align:right">${(item.unit_price || 0).toLocaleString('en-LK', {minimumFractionDigits:2})}</td>
+          <td style="text-align:right">${(item.total || 0).toLocaleString('en-LK', {minimumFractionDigits:2})}</td>
+        </tr>
+      `).join('');
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(`
+        <html><head><title>Invoice ${completedSale.receipt_number}</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 0; padding: 20mm; font-size: 12px; color: #000; }
+          .logo-header { text-align: center; margin-bottom: 16px; }
+          .logo-header h1 { font-size: 20px; font-weight: bold; margin: 0; }
+          .logo-header h2 { font-size: 14px; font-weight: normal; margin: 4px 0 0; }
+          .meta-row { display: flex; justify-content: space-between; margin-bottom: 16px; border: 1px solid #ccc; }
+          .meta-box { padding: 8px 12px; flex: 1; }
+          .meta-box strong { display: block; font-size: 10px; text-transform: uppercase; margin-bottom: 4px; }
+          .meta-box p { margin: 2px 0; }
+          table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+          th { background: #333; color: #fff; padding: 8px; text-align: left; font-size: 11px; }
+          td { padding: 7px 8px; border-bottom: 1px solid #eee; }
+          .totals-table { width: 50%; margin-left: auto; }
+          .totals-table td { border: none; padding: 4px 8px; }
+          .grand-total td { font-weight: bold; font-size: 14px; background: #333; color: #fff; padding: 8px; }
+          .cheque-box { margin-top: 16px; padding: 10px 14px; border: 1px solid #ccc; background: #fffbe6; }
+          .cheque-box strong { display: block; font-size: 11px; text-transform: uppercase; margin-bottom: 6px; }
+          .footer-sig { display: flex; justify-content: space-between; margin-top: 40px; }
+          .footer-sig div { text-align: center; width: 40%; }
+          .footer-sig .line { border-top: 1px solid #000; padding-top: 4px; font-size: 11px; }
+          .footer-address { text-align: center; margin-top: 24px; font-size: 11px; border-top: 1px solid #eee; padding-top: 10px; }
+        </style></head>
+        <body>
+          <div class="logo-header">
+            <h1>${completedSale.organization_name}</h1>
+            <h2>Credit Invoice</h2>
+          </div>
+          <div class="meta-row">
+            <div class="meta-box" style="border-right:1px solid #ccc">
+              <strong>Bill To</strong>
+              <p><b>${completedSale.credit_institution}</b></p>
+              ${completedSale.credit_customer_id ? `<p>Customer ID: ${completedSale.credit_customer_id}</p>` : ''}
+            </div>
+            <div class="meta-box">
+              <strong>Invoice #</strong><p><b>${completedSale.receipt_number}</b></p>
+              <strong style="margin-top:8px">Date</strong><p>${completedSale.sale_datetime}</p>
+              <strong style="margin-top:8px">Terms</strong><p>Due upon receipt</p>
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>Description</th><th style="text-align:center">QTY</th><th style="text-align:right">Unit Price</th><th style="text-align:right">Amount</th></tr></thead>
+            <tbody>${itemRowsHTML}</tbody>
+          </table>
+          <table class="totals-table">
+            <tr><td>Subtotal Rs.</td><td style="text-align:right">${completedSale.subtotal.toLocaleString('en-LK', {minimumFractionDigits:2})}</td></tr>
+            ${completedSale.discount_amount > 0 ? `<tr><td>Discount</td><td style="text-align:right">-${completedSale.currency} ${completedSale.discount_amount.toFixed(2)}</td></tr>` : ''}
+            <tr><td>Other Charges</td><td style="text-align:right">0.00</td></tr>
+            <tr><td>Tax</td><td style="text-align:right">0.00</td></tr>
+            <tr class="grand-total"><td>TOTAL</td><td style="text-align:right">Rs. ${completedSale.total.toLocaleString('en-LK', {minimumFractionDigits:2})}</td></tr>
+          </table>
+          ${completedSale.credit_cheque_number || completedSale.credit_cheque_amount ? `
+          <div class="cheque-box">
+            <strong>Cheque Payment Details</strong>
+            ${completedSale.credit_cheque_number ? `<p>Cheque No: <b>${completedSale.credit_cheque_number}</b></p>` : ''}
+            ${completedSale.credit_cheque_amount ? `<p>Cheque Amount: <b>Rs. ${parseFloat(completedSale.credit_cheque_amount).toLocaleString('en-LK', {minimumFractionDigits:2})}</b></p>` : ''}
+          </div>` : ''}
+          <div class="footer-sig">
+            <div><div class="line">Authorized Signature</div></div>
+            <div><div class="line">Received By</div></div>
+          </div>
+          <div class="footer-address">
+            ${completedSale.location_phone ? `<p>📞 ${completedSale.location_phone}</p>` : ''}
+            ${completedSale.location_address ? `<p>📍 ${completedSale.location_address}</p>` : ''}
+            <p>Thank you for your business!</p>
+          </div>
+        </body></html>
+      `);
+      printWindow.document.close();
+      setTimeout(() => { printWindow.focus(); printWindow.print(); }, 250);
+      return;
+    }
     
     console.log('🖨️ Printing invoice with items:', completedSale.items);
     
