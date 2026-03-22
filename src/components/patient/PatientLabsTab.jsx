@@ -281,18 +281,18 @@ export default function PatientLabsTab({ patientId }) {
               <Upload className="w-12 h-12 mx-auto text-slate-400 mb-4" />
               <input
                 type="file"
-                accept=".pdf"
+                accept=".pdf,image/*"
                 onChange={handleFileUpload}
                 className="hidden"
                 id="lab-pdf-upload"
               />
-              <label htmlFor="lab-pdf-upload">
-                <Button asChild variant="outline">
-                  <span>Choose PDF File</span>
+              <label htmlFor="lab-pdf-upload" className="cursor-pointer">
+                <Button asChild variant="outline" disabled={uploading}>
+                  <span>{uploading ? 'Uploading...' : 'Choose PDF or Image'}</span>
                 </Button>
               </label>
               {uploadedFile && (
-                <p className="text-sm text-emerald-600 mt-2">✓ File uploaded successfully</p>
+                <p className="text-sm text-emerald-600 mt-2">✓ {uploadedFileName || 'File uploaded successfully'}</p>
               )}
             </div>
 
