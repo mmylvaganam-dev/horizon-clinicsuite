@@ -58,6 +58,7 @@ const AuthenticatedApp = () => {
           }
         />
       ))}
+      <Route path="/PatientInvoiceManager" element={<LayoutWrapper currentPageName="PatientInvoiceManager"><PatientInvoiceManager /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
