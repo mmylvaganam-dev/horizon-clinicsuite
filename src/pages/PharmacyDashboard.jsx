@@ -23,7 +23,8 @@ import {
   ChevronRight,
   RotateCw,
   Trash2,
-  Printer
+  Printer,
+  Building2
 } from 'lucide-react';
 import { formatSL } from '@/components/utils/dateUtils';
 import { useNavigate } from 'react-router-dom';
@@ -364,6 +365,14 @@ export default function PharmacyDashboard() {
         <Button variant="outline" onClick={() => navigate(createPageUrl('TodaySalesDetails'))}>
           <Eye className="w-4 h-4 mr-2" />
           Today's Sales ({todaySales.length})
+        </Button>
+        <Button 
+          variant="outline" 
+          className="border-amber-300 text-amber-700 hover:bg-amber-50"
+          onClick={() => navigate(createPageUrl('CreditCustomerManagement'))}
+        >
+          <Building2 className="w-4 h-4 mr-2" />
+          Credit Accounts
         </Button>
       </div>
 
