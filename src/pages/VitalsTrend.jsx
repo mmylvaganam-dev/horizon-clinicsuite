@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Activity, ArrowLeft, Download, AlertTriangle } from 'lucide-react';
 import { jsPDF } from 'jspdf';
+import { checkVital, getVitalsAlerts } from '@/lib/vitalsThresholds';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
