@@ -23,6 +23,7 @@ import SmartBox from '../components/emr/SmartBox';
 import DiagnosticsTab from '../components/emr/DiagnosticsTab';
 import CPPManager from '../components/emr/CPPManager';
 import ClinicalSummaryReport from '../components/emr/ClinicalSummaryReport';
+import PatientDocumentHub from '../components/emr/PatientDocumentHub';
 
 export default function EMR() {
   const navigate = useNavigate();
