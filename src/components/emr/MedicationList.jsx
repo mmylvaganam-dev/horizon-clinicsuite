@@ -78,7 +78,30 @@ export default function MedicationList({ patientId }) {
     }
   });
 
-  const activeMeds = prescriptions.filter(p => p.status === 'Verified' || p.status === 'Dispensed' || p.status === 'New');
+  const updateRxMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Prescription.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['patientPrescriptions', patientId] });
+      toast.success('Medication updated');
+      setEditRx(null);
+    },
+    onError: (e) => toast.error('Failed: ' + e.message)
+  });
+
+  const openEdit = (rx) => {
+    setEditRx(rx);
+    setEditForm({
+      drug_name: rx.drug_name,
+      strength: rx.strength || '',
+      directions: rx.directions || '',
+      quantity: rx.quantity || '',
+      refills: rx.refills || 0,
+      notes: rx.notes || '',
+      status: rx.status,
+    });
+  };
+
+  const activeMeds = prescriptions.filter(p => p.status !== 'Cancelled');
 
   return (
     <div className="space-y-4">
