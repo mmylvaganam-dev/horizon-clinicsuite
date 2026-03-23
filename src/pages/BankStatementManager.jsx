@@ -124,7 +124,7 @@ export default function BankStatementManager() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(['bankAccounts']);
+      queryClient.invalidateQueries({ queryKey: ['bankAccounts'] });
       setNewAccountOpen(false);
       setNewAccount({
         account_nickname: '',
