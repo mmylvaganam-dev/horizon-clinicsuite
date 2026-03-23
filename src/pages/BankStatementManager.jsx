@@ -204,27 +204,29 @@ export default function BankStatementManager() {
         ? moment(extractResult.output.statement_period_start).format('YYYY-MM')
         : moment().format('YYYY-MM');
 
-      // Create bank statement upload record
-       await base44.entities.BankStatementUpload.create({
-         organization_id: selectedOrgId,
-         company_ref: companyProfile.id,
-         bank_account_ref: selectedAccountId,
-         statement_month: detectedMonth,
-         file_ref: uploadResult.file_url,
-         created_by: currentUser?.email || 'system',
-         created_by_email: currentUser?.email || 'system',
-         upload_date: new Date().toISOString(),
-         opening_balance: extractResult.output.opening_balance || 0,
-         closing_balance: extractResult.output.closing_balance || 0,
-         extracted_summary_json: {
-           total_deposits: extractResult.output.total_deposits || 0,
-           total_withdrawals: extractResult.output.total_withdrawals || 0,
-           transaction_count: extractResult.output.transactions?.length || 0,
-           file_name: file.name
-         }
-       });
+      const summaryData = extractResult?.output || {};
+      await base44.entities.BankStatementUpload.create({
+        organization_id: selectedOrgId,
+        company_ref: companyProfile?.id || '',
+        bank_account_ref: selectedAccountId,
+        statement_month: detectedMonth,
+        file_ref: uploadResult.file_url,
+        created_by: currentUser?.email || 'system',
+        created_by_email: currentUser?.email || 'system',
+        upload_date: new Date().toISOString(),
+        opening_balance: summaryData.opening_balance || 0,
+        closing_balance: summaryData.closing_balance || 0,
+        extracted_summary_json: {
+          total_deposits: summaryData.total_deposits || 0,
+          total_withdrawals: summaryData.total_withdrawals || 0,
+          transaction_count: summaryData.transactions?.length || 0,
+          file_name: file.name,
+          period_start: summaryData.statement_period_start,
+          period_end: summaryData.statement_period_end
+        }
+      });
 
-      queryClient.invalidateQueries(['bankStatements']);
+      queryClient.invalidateQueries({ queryKey: ['bankStatements'] });
       setUploadDialogOpen(false);
       alert('✓ Statement uploaded and processed successfully');
     } catch (error) {
