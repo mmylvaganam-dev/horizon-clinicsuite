@@ -30,8 +30,8 @@ export default function WholesaleMarketplace() {
         <div className="flex items-center gap-3">
           <Building2 className="w-10 h-10" />
           <div>
-            <h1 className="text-2xl font-black">Wholesale Marketplace</h1>
-            <p className="text-indigo-200 text-sm">Browse wholesale providers, place orders, and manage your supplier connections</p>
+            <h1 className="text-2xl font-black">Wholesale Pharma Marketplace</h1>
+            <p className="text-indigo-200 text-sm">Browse wholesale suppliers, place bulk orders, and manage your supplier connections</p>
           </div>
         </div>
         <div className="mt-4 flex gap-4">

@@ -65,7 +65,7 @@ export default function WholesaleProviderAdmin() {
           )}
           <div>
             <h1 className="text-3xl font-black tracking-tight">{myProvider.company_name}</h1>
-            <p className="text-indigo-200 text-sm">{myProvider.description || 'Wholesale Pharma Provider'} · Code: {myProvider.company_code}</p>
+            <p className="text-indigo-200 text-sm">{myProvider.description || 'Wholesale Supplier'} · Code: {myProvider.company_code}</p>
           </div>
         </div>
       </div>
