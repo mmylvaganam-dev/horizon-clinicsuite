@@ -240,10 +240,15 @@ export default function BankStatementManager() {
   // Check access AFTER all hooks
   const hasAccess = isPlatformOwner || currentUser?.bank_statement_access === true || userRoles.some(r => r.role_id === 'ORG_SUPER_USER' || r.role_id === 'PLATFORM_OWNER');
 
+  // Helper to get deposits/withdrawals/transactions (handles both old and new schema)
+  const getDeposits = (s) => s.extracted_summary_json?.total_deposits ?? s.total_deposits ?? 0;
+  const getWithdrawals = (s) => s.extracted_summary_json?.total_withdrawals ?? s.total_withdrawals ?? 0;
+  const getTxCount = (s) => s.extracted_summary_json?.transaction_count ?? s.transaction_count ?? 0;
+
   // Calculate KPIs
   const kpis = React.useMemo(() => {
-    const totalDeposits = statements.reduce((sum, s) => sum + (s.total_deposits || 0), 0);
-    const totalWithdrawals = statements.reduce((sum, s) => sum + (s.total_withdrawals || 0), 0);
+    const totalDeposits = statements.reduce((sum, s) => sum + getDeposits(s), 0);
+    const totalWithdrawals = statements.reduce((sum, s) => sum + getWithdrawals(s), 0);
     const netCashFlow = totalDeposits - totalWithdrawals;
     const avgMonthlyDeposits = statements.length > 0 ? totalDeposits / statements.length : 0;
     
@@ -252,7 +257,7 @@ export default function BankStatementManager() {
       totalWithdrawals,
       netCashFlow,
       avgMonthlyDeposits,
-      transactionCount: statements.reduce((sum, s) => sum + (s.transaction_count || 0), 0)
+      transactionCount: statements.reduce((sum, s) => sum + getTxCount(s), 0)
     };
   }, [statements]);
 
