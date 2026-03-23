@@ -209,7 +209,7 @@ export default function EMR() {
           <SmartBox patientId={selectedPatient.id} />
 
           <Tabs defaultValue="cpp" className="space-y-6">
-            <TabsList className="grid grid-cols-2 lg:grid-cols-8 w-full">
+            <TabsList className="grid grid-cols-3 lg:grid-cols-9 w-full">
               <TabsTrigger value="cpp">CPP</TabsTrigger>
               <TabsTrigger value="medications">Medications</TabsTrigger>
               <TabsTrigger value="history">History</TabsTrigger>
@@ -218,6 +218,7 @@ export default function EMR() {
               <TabsTrigger value="labs">Labs (LIS)</TabsTrigger>
               <TabsTrigger value="referrals">Specialists</TabsTrigger>
               <TabsTrigger value="records">Records</TabsTrigger>
+              <TabsTrigger value="documents" className="text-teal-600 font-semibold">📎 AI Docs</TabsTrigger>
             </TabsList>
 
             <TabsContent value="cpp">
