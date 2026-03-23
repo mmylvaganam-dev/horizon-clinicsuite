@@ -4,13 +4,19 @@ import { base44 } from '@/api/base44Client';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Pill, Check, X, Sparkles, Plus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Pill, Check, X, Sparkles, Pencil, BanIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 
 export default function MedicationList({ patientId }) {
   const queryClient = useQueryClient();
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [editRx, setEditRx] = useState(null);
+  const [editForm, setEditForm] = useState({});
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
