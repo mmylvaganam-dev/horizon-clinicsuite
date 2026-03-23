@@ -416,12 +416,12 @@ function LayoutContent({ children, currentPageName }) {
       ]
     }] : []),
     {
-      category: 'Premier Wholesale',
+      category: 'Wholesale Pharma',
       icon: Package,
       items: [
-        { name: 'Platform Admin', page: 'WholesalePlatformAdmin', icon: Shield, description: 'Manage wholesale providers, approve connections, link buyers to suppliers (Platform Owner Only)' },
-        { name: 'My Provider Portal', page: 'WholesaleProviderAdmin', icon: Package, description: 'Wholesale provider admin — manage your products, orders, buyers, credit & payments' },
-        { name: 'Marketplace', page: 'WholesaleMarketplace', icon: Package, description: 'Browse all wholesale providers, place orders, and manage your supplier connections' },
+        { name: 'Platform Admin', page: 'WholesalePlatformAdmin', icon: Shield, description: 'Manage all wholesale suppliers, approve connections, and link retail pharmacies to suppliers' },
+        { name: 'My Supplier Portal', page: 'WholesaleProviderAdmin', icon: Package, description: 'Wholesale supplier admin — manage your product catalog, process orders, buyers, credit & payments' },
+        { name: 'Marketplace', page: 'WholesaleMarketplace', icon: Package, description: 'Browse wholesale suppliers, place orders, and manage your supplier connections' },
       ],
       platformOwnerOnly: false
     },

@@ -9,14 +9,11 @@ import WSCreditAccounts from '@/components/wholesale/WSCreditAccounts';
 import WSPayments from '@/components/wholesale/WSPayments';
 import WSDashboard from '@/components/wholesale/WSDashboard';
 import WSCompanyInfoBar from '@/components/wholesale/WSCompanyInfoBar';
-
-const WHOLESALE_ADMINS = [
-  'mmylvaganam@premierhealthcanada.ca',
-  'mylvaganam@premierhealthcanada.ca',
-];
+import { useOrganization } from '@/components/OrganizationProvider';
 
 export default function PremierWholesale() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const { isDefinitelyPlatformOwner } = useOrganization();
 
   const { data: user, isLoading } = useQuery({
     queryKey: ['currentUser'],
@@ -31,7 +28,9 @@ export default function PremierWholesale() {
     );
   }
 
-  if (!WHOLESALE_ADMINS.includes(user?.email)) {
+  const isAdmin = isDefinitelyPlatformOwner || user?.role === 'admin';
+
+  if (!isAdmin) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-6">
         <div className="w-24 h-24 bg-red-100 rounded-full flex items-center justify-center">
@@ -39,7 +38,7 @@ export default function PremierWholesale() {
         </div>
         <div className="text-center">
           <h1 className="text-3xl font-black text-slate-900">Restricted Access</h1>
-          <p className="text-slate-500 mt-2 text-lg">Premier Wholesale Pharma is a private module.</p>
+          <p className="text-slate-500 mt-2 text-lg">This is the platform wholesale management module.</p>
           <p className="text-slate-400 mt-1">Contact the platform owner to request access.</p>
         </div>
       </div>
@@ -50,24 +49,18 @@ export default function PremierWholesale() {
     <div className="space-y-6">
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-700 via-purple-700 to-indigo-800 rounded-2xl p-6 text-white shadow-2xl">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-              <Package className="w-7 h-7 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-black tracking-tight">Premier Wholesale Pharma</h1>
-              <p className="text-indigo-200 text-sm font-medium">Medicines • Medical Equipment • Surgical Supplies — A to Z</p>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+            <Package className="w-7 h-7 text-white" />
           </div>
-          <div className="flex items-center gap-2 bg-white/10 border border-white/30 rounded-xl px-4 py-2">
-            <Lock className="w-4 h-4 text-yellow-300" />
-            <span className="text-sm font-bold text-yellow-200">PLATFORM OWNER ONLY</span>
+          <div>
+            <h1 className="text-3xl font-black tracking-tight">Wholesale Pharma</h1>
+            <p className="text-indigo-200 text-sm font-medium">Medicines · Medical Equipment · Surgical Supplies — Platform Wholesale Hub</p>
           </div>
         </div>
         <p className="text-indigo-200 mt-3 text-sm max-w-2xl">
-          Central wholesale hub — supply medicines and equipment to all pharmacies and clinics on the platform.
-          Control pricing, manage orders, extend credit, and monitor every supply chain transaction across the country.
+          Central wholesale management — supply medicines and equipment to all pharmacies and clinics on the platform.
+          Control pricing, manage orders, extend credit, and monitor every supply chain transaction.
         </p>
       </div>
 
@@ -91,7 +84,6 @@ export default function PremierWholesale() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Company Info Bar — visible on all tabs */}
         <WSCompanyInfoBar tab={activeTab} />
 
         <TabsContent value="dashboard"><WSDashboard /></TabsContent>
