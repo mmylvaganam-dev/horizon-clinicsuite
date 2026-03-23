@@ -130,19 +130,27 @@ export default function MedicationList({ patientId }) {
                   <Pill className="w-5 h-5 text-blue-600" />
                 </div>
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <p className="font-semibold text-slate-900">{rx.drug_name}</p>
-                    <Badge variant="outline" className="bg-emerald-50 text-emerald-700">
+                    <Badge variant="outline" className={rx.status === 'Cancelled' ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-700'}>
                       {rx.status}
                     </Badge>
                   </div>
-                  {rx.strength && <p className="text-sm text-slate-600">Strength: {rx.strength}</p>}
+                  {rx.strength && <p className="text-sm text-slate-600">Dose: {rx.strength}</p>}
                   {rx.directions && <p className="text-sm text-slate-600">Directions: {rx.directions}</p>}
-                  {rx.quantity && <p className="text-sm text-slate-500">Quantity: {rx.quantity}</p>}
+                  {rx.quantity && <p className="text-sm text-slate-500">Qty: {rx.quantity}{rx.refills > 0 ? ` · ${rx.refills} refill(s)` : ''}</p>}
                   {rx.prescribed_date && (
-                    <p className="text-xs text-slate-400 mt-1">
-                      Prescribed: {format(new Date(rx.prescribed_date), 'MMM d, yyyy')}
-                    </p>
+                    <p className="text-xs text-slate-400 mt-1">Prescribed: {format(new Date(rx.prescribed_date), 'MMM d, yyyy')}</p>
+                  )}
+                </div>
+                <div className="flex gap-1 flex-shrink-0">
+                  <Button variant="ghost" size="sm" onClick={() => openEdit(rx)} title="Edit">
+                    <Pencil className="w-4 h-4 text-slate-500" />
+                  </Button>
+                  {rx.status !== 'Cancelled' && (
+                    <Button variant="ghost" size="sm" onClick={() => updateRxMutation.mutate({ id: rx.id, data: { status: 'Cancelled' } })} title="Inactivate">
+                      <BanIcon className="w-4 h-4 text-red-400" />
+                    </Button>
                   )}
                 </div>
               </div>
