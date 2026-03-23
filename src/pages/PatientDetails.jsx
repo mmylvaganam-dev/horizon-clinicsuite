@@ -47,6 +47,7 @@ import PreferredPharmacySelector from '@/components/patients/PreferredPharmacySe
 import SendToPharmacyDialog from '@/components/patients/SendToPharmacyDialog';
 import ClinicalSummaryReport from '@/components/emr/ClinicalSummaryReport';
 import AppointmentCard from '@/components/telemedicine/AppointmentCard';
+import PatientCareAccessManager from '@/components/patients/PatientCareAccessManager';
 import {
   AlertDialog,
   AlertDialogAction,
