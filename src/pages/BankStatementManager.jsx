@@ -289,9 +289,9 @@ export default function BankStatementManager() {
   const monthlyData = React.useMemo(() => {
     return statements.map(s => ({
       month: moment(s.statement_month).format('MMM YYYY'),
-      deposits: s.total_deposits || 0,
-      withdrawals: s.total_withdrawals || 0,
-      netFlow: (s.total_deposits || 0) - (s.total_withdrawals || 0)
+      deposits: getDeposits(s),
+      withdrawals: getWithdrawals(s),
+      netFlow: getDeposits(s) - getWithdrawals(s)
     }));
   }, [statements]);
 
