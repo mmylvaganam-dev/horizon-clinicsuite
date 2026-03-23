@@ -316,6 +316,17 @@ export default function EMR() {
               </Card>
             </TabsContent>
 
+            <TabsContent value="documents">
+              <Card className="bg-white border-0 shadow-sm">
+                <CardContent className="pt-6">
+                  <PatientDocumentHub
+                    patientId={selectedPatient.id}
+                    patientName={`${selectedPatient.first_name} ${selectedPatient.last_name}`}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
             <TabsContent value="records">
               <Card className="bg-white border-0 shadow-sm">
                 <CardHeader>
