@@ -338,6 +338,9 @@ export default function PatientDetails() {
           {access.canViewLabResults && <TabsTrigger value="labs">Labs</TabsTrigger>}
           {access.canViewReferrals && <TabsTrigger value="referrals">Referrals</TabsTrigger>}
           {access.canViewTasks && <TabsTrigger value="tasks">Tasks</TabsTrigger>}
+          <TabsTrigger value="care_network" className="text-teal-600">
+            🏥 Care Network
+          </TabsTrigger>
           {isTeleEnabled && (
             <TabsTrigger value="tele">
               Tele
