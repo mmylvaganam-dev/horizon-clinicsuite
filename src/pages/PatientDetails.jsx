@@ -88,6 +88,7 @@ export default function PatientDetails() {
   });
 
   const access = usePatientAccess();
+  const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
 
   const { data: patient, isLoading: loadingPatient } = useQuery({
     queryKey: ['patient', patientId],
