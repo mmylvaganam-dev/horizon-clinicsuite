@@ -159,6 +159,67 @@ export default function MedicationList({ patientId }) {
         </div>
       )}
 
+      {/* Edit Medication Dialog */}
+      <Dialog open={!!editRx} onOpenChange={(o) => !o && setEditRx(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Medication</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 mt-2">
+            <div>
+              <Label>Drug Name</Label>
+              <Input value={editForm.drug_name || ''} onChange={e => setEditForm({ ...editForm, drug_name: e.target.value })} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Dose / Strength</Label>
+                <Input value={editForm.strength || ''} onChange={e => setEditForm({ ...editForm, strength: e.target.value })} placeholder="e.g. 500mg" />
+              </div>
+              <div>
+                <Label>Quantity</Label>
+                <Input type="number" value={editForm.quantity || ''} onChange={e => setEditForm({ ...editForm, quantity: e.target.value })} />
+              </div>
+            </div>
+            <div>
+              <Label>Directions / Frequency</Label>
+              <Input value={editForm.directions || ''} onChange={e => setEditForm({ ...editForm, directions: e.target.value })} placeholder="e.g. 1 tab twice daily after meals" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Refills</Label>
+                <Input type="number" value={editForm.refills || 0} onChange={e => setEditForm({ ...editForm, refills: parseInt(e.target.value) || 0 })} />
+              </div>
+              <div>
+                <Label>Status</Label>
+                <Select value={editForm.status} onValueChange={v => setEditForm({ ...editForm, status: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="New">New</SelectItem>
+                    <SelectItem value="Verified">Verified (Active)</SelectItem>
+                    <SelectItem value="Dispensed">Dispensed</SelectItem>
+                    <SelectItem value="Cancelled">Cancelled (Inactive)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <Label>Notes</Label>
+              <Textarea rows={2} value={editForm.notes || ''} onChange={e => setEditForm({ ...editForm, notes: e.target.value })} placeholder="Clinical notes" />
+            </div>
+            <div className="flex gap-2 justify-end">
+              <Button variant="outline" onClick={() => setEditRx(null)}>Cancel</Button>
+              <Button
+                className="bg-teal-600 hover:bg-teal-700"
+                disabled={updateRxMutation.isPending}
+                onClick={() => updateRxMutation.mutate({ id: editRx.id, data: editForm })}
+              >
+                {updateRxMutation.isPending ? 'Saving...' : 'Save Changes'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Med Suggestions Review Dialog */}
       <Dialog open={showSuggestions} onOpenChange={setShowSuggestions}>
         <DialogContent className="max-w-2xl">
