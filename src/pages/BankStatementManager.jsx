@@ -646,15 +646,15 @@ export default function BankStatementManager() {
                     <div className="flex items-center gap-6">
                       <div>
                         <p className="text-xs text-slate-500">Deposits</p>
-                        <p className="font-semibold text-green-600">${statement.total_deposits?.toLocaleString()}</p>
+                        <p className="font-semibold text-green-600">${getDeposits(statement).toLocaleString()}</p>
                       </div>
                       <div>
                         <p className="text-xs text-slate-500">Withdrawals</p>
-                        <p className="font-semibold text-red-600">${statement.total_withdrawals?.toLocaleString()}</p>
+                        <p className="font-semibold text-red-600">${getWithdrawals(statement).toLocaleString()}</p>
                       </div>
                       <div>
                         <p className="text-xs text-slate-500">Transactions</p>
-                        <p className="font-semibold">{statement.transaction_count}</p>
+                        <p className="font-semibold">{getTxCount(statement)}</p>
                       </div>
                       <Badge className={statement.upload_status === 'processed' ? 'bg-green-500' : 'bg-yellow-500'}>
                         {statement.upload_status === 'processed' ? (
