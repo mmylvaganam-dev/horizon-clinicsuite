@@ -620,6 +620,15 @@ export default function PatientDetails() {
           </Card>
         </TabsContent>}
 
+        <TabsContent value="care_network">
+          <PatientCareAccessManager
+            patient={patient}
+            currentOrgId={selectedOrgId}
+            currentOrgName={selectedOrgId}
+            isAdmin={user?.role === 'admin'}
+          />
+        </TabsContent>
+
         {isTeleEnabled && (
           <TabsContent value="tele" className="space-y-3">
             {teleAppointments.length === 0 ? (
