@@ -1567,6 +1567,7 @@ export default function PharmacyBilling() {
               </div>
             )}
 
+
             <Button 
               className={`w-full h-9 lg:h-10 text-sm lg:text-base ${isCreditSale ? 'bg-amber-600 hover:bg-amber-700' : 'bg-indigo-600 hover:bg-indigo-700'}`}
               disabled={cart.length === 0 || createSaleMutation.isPending || (isCreditSale && !creditForm.institution_name)}
