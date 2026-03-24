@@ -87,6 +87,16 @@ export default function PatientDetails() {
     },
   });
 
+  const { data: currentOrganization } = useQuery({
+    queryKey: ['currentOrganization', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return null;
+      const orgs = await base44.entities.Organization.list();
+      return orgs.find(o => o.id === selectedOrgId) || null;
+    },
+    enabled: !!selectedOrgId,
+  });
+
   const access = usePatientAccess();
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
 
