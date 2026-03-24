@@ -120,10 +120,8 @@ Return JSON with: { problems: [{ name, notes }], medications: [{ name, dose, fre
   });
 
   React.useEffect(() => {
-    if (summary) {
-      setSummaryText(summary.summary_text);
-    }
-  }, [summary]);
+    setSummaryText(summary?.summary_text || '');
+  }, [summary, patientId]);
 
   return (
     <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
