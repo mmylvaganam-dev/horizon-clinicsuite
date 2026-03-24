@@ -39,14 +39,37 @@ const QUILL_MODULES = {
   ]
 };
 
-export default function ClinicalNoteEditor({ patientId, open, onClose }) {
+export default function ClinicalNoteEditor({ patientId, open, onClose, editNote = null }) {
   const queryClient = useQueryClient();
+  const isEditing = !!editNote;
+
   const [noteDate, setNoteDate] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [noteType, setNoteType] = useState('SOAP');
   const [content, setContent] = useState('');
 
+  // Populate form when editing
+  React.useEffect(() => {
+    if (editNote) {
+      setNoteDate(format(new Date(editNote.note_date), 'yyyy-MM-dd'));
+      setNoteType(editNote.note_type || 'SOAP');
+      setContent(editNote.rich_content || '');
+    } else {
+      setNoteDate(format(new Date(), 'yyyy-MM-dd'));
+      setNoteType('SOAP');
+      setContent('');
+    }
+  }, [editNote, open]);
+
   const saveMutation = useMutation({
     mutationFn: async () => {
+      if (isEditing) {
+        return base44.entities.SOAPNote.update(editNote.id, {
+          note_date: new Date(noteDate).toISOString(),
+          note_type: noteType,
+          rich_content: content,
+          status: editNote.status === 'signed' ? 'amended' : editNote.status,
+        });
+      }
       const me = await base44.auth.me();
       return base44.entities.SOAPNote.create({
         patient_id: patientId,
@@ -61,7 +84,7 @@ export default function ClinicalNoteEditor({ patientId, open, onClose }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['patientSOAP', patientId] });
-      toast.success('Clinical note saved');
+      toast.success(isEditing ? 'Note updated' : 'Clinical note saved');
       setContent('');
       setNoteDate(format(new Date(), 'yyyy-MM-dd'));
       setNoteType('SOAP');
