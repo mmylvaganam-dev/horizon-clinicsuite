@@ -1482,16 +1482,42 @@ export default function PharmacyBilling() {
             {/* Credit Sale Toggle */}
             {cart.length > 0 && (
               <div className="border rounded-lg overflow-hidden">
-                <button
-                  className={`w-full flex items-center justify-between px-3 py-2 text-sm font-semibold transition-colors ${isCreditSale ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}`}
-                  onClick={() => setIsCreditSale(!isCreditSale)}
-                >
-                  <span className="flex items-center gap-2">
-                    <Landmark className="w-4 h-4" />
-                    Credit Sale / Cheque
-                  </span>
-                  <span className="text-xs">{isCreditSale ? 'ON ✓' : 'OFF'}</span>
-                </button>
+                <div className={`flex items-center ${isCreditSale ? 'bg-amber-600 text-white' : 'bg-slate-100 text-slate-700'}`}>
+                  <button
+                    className={`flex-1 flex items-center justify-between px-3 py-2 text-sm font-semibold transition-colors ${isCreditSale ? 'hover:bg-amber-700' : 'hover:bg-slate-200'}`}
+                    onClick={() => setIsCreditSale(!isCreditSale)}
+                  >
+                    <span className="flex items-center gap-2">
+                      <Landmark className="w-4 h-4" />
+                      Credit Sale / Cheque
+                    </span>
+                    <span className="text-xs">{isCreditSale ? 'ON ✓' : 'OFF'}</span>
+                  </button>
+                  <button
+                    className={`px-2 py-2 border-l transition-colors ${isCreditSale ? 'border-amber-500 hover:bg-amber-700' : 'border-slate-300 hover:bg-slate-200'}`}
+                    onClick={() => setShowCreditHelp(!showCreditHelp)}
+                    title="How to use Credit Sale"
+                  >
+                    <HelpCircle className="w-4 h-4" />
+                  </button>
+                </div>
+                {showCreditHelp && (
+                  <div className="p-3 bg-blue-50 border-t border-blue-200 text-xs text-blue-900 space-y-2">
+                    <p className="font-semibold text-blue-800 flex items-center gap-1.5">
+                      <Info className="w-3.5 h-3.5" /> How Credit Sale Works
+                    </p>
+                    <ol className="space-y-1.5 pl-1 list-none">
+                      <li className="flex gap-2"><span className="font-bold text-blue-700 shrink-0">1.</span><span>Search for the institution (hospital/clinic) in the patient search bar — it auto-fills the credit form.</span></li>
+                      <li className="flex gap-2"><span className="font-bold text-blue-700 shrink-0">2.</span><span>Or toggle <strong>Credit Sale</strong> ON and manually type the institution name.</span></li>
+                      <li className="flex gap-2"><span className="font-bold text-blue-700 shrink-0">3.</span><span>Enter <strong>Customer ID</strong>, <strong>Cheque Number</strong> and <strong>Cheque Amount</strong> if paying by cheque.</span></li>
+                      <li className="flex gap-2"><span className="font-bold text-blue-700 shrink-0">4.</span><span>Click <strong>Complete Credit Sale</strong> — an A4 credit invoice with signature lines is printed.</span></li>
+                      <li className="flex gap-2"><span className="font-bold text-blue-700 shrink-0">5.</span><span>The sale is recorded as <strong>Credit</strong> and tracked under <em>Credit Sales Accounts</em> in the sidebar.</span></li>
+                    </ol>
+                    <p className="text-blue-700 border-t border-blue-200 pt-2">
+                      💡 Manage institutions &amp; view outstanding balances under <strong>Credit Sale Institutions</strong> and <strong>Credit Sales Accounts</strong>.
+                    </p>
+                  </div>
+                )}
                 {isCreditSale && (
                   <div className="p-3 space-y-2 bg-amber-50 border-t border-amber-200">
                     <div>
