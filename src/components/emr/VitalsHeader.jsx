@@ -16,7 +16,8 @@ export default function VitalsHeader({ patientId }) {
   const navigate = useNavigate();
   const [showAddVitals, setShowAddVitals] = useState(false);
   const [vitalsForm, setVitalsForm] = useState({
-    HR: '', BP_sys: '', BP_dia: '', RR: '', Temp: '', Weight: '', Height: '', SpO2: '',
+    HR: '', BP_sys: '', BP_dia: '', BP_arm: 'left', BP_sys_right: '', BP_dia_right: '',
+    RR: '', Temp: '', Weight: '', Height: '', SpO2: '',
     recorded_at_input: new Date().toISOString().slice(0, 16)
   });
 
