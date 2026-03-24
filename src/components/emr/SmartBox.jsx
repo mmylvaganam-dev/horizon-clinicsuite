@@ -119,7 +119,7 @@ Return JSON with: { problems: [{ name, notes }], medications: [{ name, dose, fre
     }
   });
 
-  React.useEffect(() => {
+  useEffect(() => {
     setSummaryText(summary?.summary_text || '');
   }, [summary, patientId]);
 
