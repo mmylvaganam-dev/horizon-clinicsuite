@@ -33,7 +33,7 @@ import {
   HelpCircle,
   Info
 } from 'lucide-react';
-import { useState as useTooltipState } from 'react';
+
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
