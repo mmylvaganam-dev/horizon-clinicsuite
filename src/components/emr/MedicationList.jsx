@@ -110,7 +110,7 @@ export default function MedicationList({ patientId }) {
     });
   };
 
-  const activeMeds = prescriptions.filter(p => p.status !== 'Cancelled');
+  const activeMeds = prescriptions;
 
   return (
     <div className="space-y-4">
