@@ -264,6 +264,7 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Nursing Staff', page: 'HomeCareStaff', icon: Users, description: 'Care staff management - Nursing officers and home care workers directory' },
         { name: 'Scheduling', page: 'HomeCareScheduling', icon: Calendar, description: 'Visit scheduling - Plan and assign home visits to nursing staff' },
         { name: 'Daily Reports', page: 'HomeCareReports', icon: FileText, description: 'Service documentation - Daily reports from home visits and care activities' },
+        { name: 'Invoicing & Billing', page: 'HomeCareInvoiceManager', icon: DollarSign, description: 'Bill patients for daily care, pharmacy supplies, lab tests and other services — print 80mm receipts' },
       ]
     },
     {
