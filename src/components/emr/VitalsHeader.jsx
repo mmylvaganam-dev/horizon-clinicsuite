@@ -190,14 +190,45 @@ export default function VitalsHeader({ patientId }) {
               <Label>SpO2 (%)</Label>
               <Input type="number" value={vitalsForm.SpO2} onChange={(e) => setVitalsForm({...vitalsForm, SpO2: parseFloat(e.target.value) || ''})} />
             </div>
+            <div className="col-span-2">
+              <Label>BP Arm</Label>
+              <div className="flex gap-2 mt-1">
+                {['left', 'right', 'both'].map(arm => (
+                  <button
+                    key={arm}
+                    type="button"
+                    onClick={() => setVitalsForm({...vitalsForm, BP_arm: arm})}
+                    className={`flex-1 py-1.5 rounded-lg border text-sm font-medium capitalize transition-colors ${
+                      vitalsForm.BP_arm === arm
+                        ? 'bg-teal-600 text-white border-teal-600'
+                        : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    {arm === 'both' ? 'Both Arms' : `${arm.charAt(0).toUpperCase() + arm.slice(1)} Arm`}
+                  </button>
+                ))}
+              </div>
+            </div>
             <div>
-              <Label>BP Systolic</Label>
+              <Label>{vitalsForm.BP_arm === 'both' ? 'BP Systolic (Left)' : 'BP Systolic'}</Label>
               <Input type="number" value={vitalsForm.BP_sys} onChange={(e) => setVitalsForm({...vitalsForm, BP_sys: parseFloat(e.target.value) || ''})} />
             </div>
             <div>
-              <Label>BP Diastolic</Label>
+              <Label>{vitalsForm.BP_arm === 'both' ? 'BP Diastolic (Left)' : 'BP Diastolic'}</Label>
               <Input type="number" value={vitalsForm.BP_dia} onChange={(e) => setVitalsForm({...vitalsForm, BP_dia: parseFloat(e.target.value) || ''})} />
             </div>
+            {vitalsForm.BP_arm === 'both' && (
+              <>
+                <div>
+                  <Label>BP Systolic (Right)</Label>
+                  <Input type="number" value={vitalsForm.BP_sys_right} onChange={(e) => setVitalsForm({...vitalsForm, BP_sys_right: parseFloat(e.target.value) || ''})} />
+                </div>
+                <div>
+                  <Label>BP Diastolic (Right)</Label>
+                  <Input type="number" value={vitalsForm.BP_dia_right} onChange={(e) => setVitalsForm({...vitalsForm, BP_dia_right: parseFloat(e.target.value) || ''})} />
+                </div>
+              </>
+            )}
             <div>
               <Label>RR (/min)</Label>
               <Input type="number" value={vitalsForm.RR} onChange={(e) => setVitalsForm({...vitalsForm, RR: parseFloat(e.target.value) || ''})} />
