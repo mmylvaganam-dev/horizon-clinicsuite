@@ -11,6 +11,7 @@ import CreditCustomerManagement from './pages/CreditCustomerManagement';
 import StockMonitoring from './pages/StockMonitoring';
 import InstitutionManagement from './pages/InstitutionManagement';
 import LandingPage from './pages/LandingPage';
+import PatientAccessRequests from './pages/PatientAccessRequests';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -69,6 +70,7 @@ const AuthenticatedApp = () => {
       <Route path="/CreditCustomerManagement" element={<LayoutWrapper currentPageName="CreditCustomerManagement"><CreditCustomerManagement /></LayoutWrapper>} />
       <Route path="/StockMonitoring" element={<LayoutWrapper currentPageName="StockMonitoring"><StockMonitoring /></LayoutWrapper>} />
       <Route path="/InstitutionManagement" element={<LayoutWrapper currentPageName="InstitutionManagement"><InstitutionManagement /></LayoutWrapper>} />
+      <Route path="/PatientAccessRequests" element={<LayoutWrapper currentPageName="PatientAccessRequests"><PatientAccessRequests /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
