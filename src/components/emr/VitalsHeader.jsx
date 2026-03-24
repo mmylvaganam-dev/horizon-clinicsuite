@@ -130,8 +130,15 @@ export default function VitalsHeader({ patientId }) {
               <p className={`font-semibold ${vitalColor('HR')}`}>{latestVitals.HR || '-'} <span className="text-xs text-slate-500">bpm</span></p>
             </div>
             <div>
-              <p className="text-slate-500 text-xs">BP</p>
-              <p className={`font-semibold ${bpColor()}`}>{latestVitals.BP_sys && latestVitals.BP_dia ? `${latestVitals.BP_sys}/${latestVitals.BP_dia}` : '-'}</p>
+              <p className="text-slate-500 text-xs">
+                BP {latestVitals.BP_arm === 'left' ? '(L)' : latestVitals.BP_arm === 'right' ? '(R)' : latestVitals.BP_arm === 'both' ? '(L/R)' : ''}
+              </p>
+              <p className={`font-semibold ${bpColor()}`}>
+                {latestVitals.BP_sys && latestVitals.BP_dia ? `${latestVitals.BP_sys}/${latestVitals.BP_dia}` : '-'}
+              </p>
+              {latestVitals.BP_arm === 'both' && latestVitals.BP_sys_right && (
+                <p className="text-xs text-slate-500">{`R: ${latestVitals.BP_sys_right}/${latestVitals.BP_dia_right}`}</p>
+              )}
             </div>
             <div>
               <p className="text-slate-500 text-xs">RR</p>
