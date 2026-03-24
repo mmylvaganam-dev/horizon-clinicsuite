@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -99,7 +99,7 @@ export default function ClinicalNoteEditor({ patientId, open, onClose, editNote 
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="w-5 h-5 text-teal-600" />
-            New Clinical Note
+            {isEditing ? 'Edit Clinical Note' : 'New Clinical Note'}
           </DialogTitle>
         </DialogHeader>
 
