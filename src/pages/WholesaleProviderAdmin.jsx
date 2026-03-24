@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BarChart3, Package, ShoppingCart, CreditCard, TrendingUp, Users, Lock } from 'lucide-react';
+import { BarChart3, Package, ShoppingCart, CreditCard, TrendingUp, Users, Lock, AlertTriangle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import WSProviderDashboard from '@/components/wholesale/WSProviderDashboard.jsx';
 import WSProviderProducts from '@/components/wholesale/WSProviderProducts.jsx';
@@ -10,6 +10,7 @@ import WSProviderOrders from '@/components/wholesale/WSProviderOrders.jsx';
 import WSProviderConnections from '@/components/wholesale/WSProviderConnections.jsx';
 import WSProviderCreditAccounts from '@/components/wholesale/WSProviderCreditAccounts.jsx';
 import WSProviderPayments from '@/components/wholesale/WSProviderPayments.jsx';
+import WSStockAlerts from '@/components/wholesale/WSStockAlerts.jsx';
 
 export default function WholesaleProviderAdmin() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -90,6 +91,9 @@ export default function WholesaleProviderAdmin() {
           <TabsTrigger value="payments" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white rounded-lg px-4 py-2 font-semibold flex items-center gap-2">
             <TrendingUp className="w-4 h-4" /> Payments
           </TabsTrigger>
+          <TabsTrigger value="stock_alerts" className="data-[state=active]:bg-red-600 data-[state=active]:text-white rounded-lg px-4 py-2 font-semibold flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4" /> Stock Alerts
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard"><WSProviderDashboard provider={myProvider} /></TabsContent>
@@ -98,6 +102,7 @@ export default function WholesaleProviderAdmin() {
         <TabsContent value="connections"><WSProviderConnections provider={myProvider} /></TabsContent>
         <TabsContent value="credit"><WSProviderCreditAccounts provider={myProvider} /></TabsContent>
         <TabsContent value="payments"><WSProviderPayments provider={myProvider} /></TabsContent>
+        <TabsContent value="stock_alerts"><WSStockAlerts provider={myProvider} /></TabsContent>
       </Tabs>
     </div>
   );

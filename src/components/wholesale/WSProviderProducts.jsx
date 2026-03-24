@@ -28,7 +28,7 @@ export default function WSProviderProducts({ provider }) {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const data = { ...form, provider_id: provider.id, unit_price: Number(form.unit_price), mrp: Number(form.mrp) || undefined, stock_qty: Number(form.stock_qty) || 0, min_order_qty: Number(form.min_order_qty) || 1 };
+      const data = { ...form, provider_id: provider.id, unit_price: Number(form.unit_price), mrp: Number(form.mrp) || undefined, stock_qty: Number(form.stock_qty) || 0, min_order_qty: Number(form.min_order_qty) || 1, reorder_level: Number(form.reorder_level) || 10 };
       if (editing) return await base44.entities.WholesaleProduct.update(editing.id, data);
       return await base44.entities.WholesaleProduct.create(data);
     },
