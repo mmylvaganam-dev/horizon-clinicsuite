@@ -12,6 +12,7 @@ import StockMonitoring from './pages/StockMonitoring';
 import InstitutionManagement from './pages/InstitutionManagement';
 import LandingPage from './pages/LandingPage';
 import PatientAccessRequests from './pages/PatientAccessRequests';
+import HomeCareInvoiceManager from './pages/HomeCareInvoiceManager';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
