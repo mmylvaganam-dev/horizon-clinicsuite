@@ -88,6 +88,15 @@ export default function MedicationList({ patientId }) {
     onError: (e) => toast.error('Failed: ' + e.message)
   });
 
+  const deleteRxMutation = useMutation({
+    mutationFn: (id) => base44.entities.Prescription.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['patientPrescriptions', patientId] });
+      toast.success('Medication removed');
+    },
+    onError: (e) => toast.error('Failed: ' + e.message)
+  });
+
   const openEdit = (rx) => {
     setEditRx(rx);
     setEditForm({
