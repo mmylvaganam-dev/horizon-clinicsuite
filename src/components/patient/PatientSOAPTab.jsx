@@ -280,7 +280,7 @@ export default function PatientSOAPTab({ patientId }) {
       ) : (
         <div className="space-y-2">
           {soapNotes.map((note) => (
-            <SOAPNoteRow key={note.id} note={note} />
+            <SOAPNoteRow key={note.id} note={note} onEdit={handleEdit} onArchive={handleArchive} />
           ))}
         </div>
       )}
