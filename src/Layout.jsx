@@ -31,6 +31,7 @@ import {
   Globe,
   Crown,
   Shield,
+  Network,
   AlertTriangle,
   RefreshCw,
   Cloud,
