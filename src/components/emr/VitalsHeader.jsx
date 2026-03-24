@@ -47,6 +47,9 @@ export default function VitalsHeader({ patientId }) {
       
       const { recorded_at_input, ...vitalsData } = data;
 
+      // Auto-calculate MAP if BP present
+      const map = calcMAP(data.BP_sys, data.BP_dia);
+
       // Strip out empty-string fields so numeric fields don't fail validation
       const cleanVitals = Object.fromEntries(
         Object.entries(vitalsData).filter(([, v]) => v !== '' && v !== null && v !== undefined)
