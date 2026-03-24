@@ -54,8 +54,9 @@ export default function HomeCarePatients() {
   });
 
   const { data: patients = [] } = useQuery({
-    queryKey: ['homeCarePatients'],
-    queryFn: () => base44.entities.Patient.list('-created_date'),
+    queryKey: ['homeCarePatients', selectedOrgId],
+    queryFn: () => base44.entities.Patient.filter({ organization_id: selectedOrgId }, '-created_date'),
+    enabled: !!selectedOrgId,
   });
 
   const createPatientMutation = useMutation({
