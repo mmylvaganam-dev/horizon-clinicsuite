@@ -110,6 +110,25 @@ export default function PatientSOAPTab({ patientId }) {
     enabled: !!patientId,
   });
 
+  const archiveMutation = useMutation({
+    mutationFn: (note) => base44.entities.SOAPNote.update(note.id, { status: 'archived' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['patientSOAP', patientId] });
+      toast.success('Note archived');
+    },
+  });
+
+  const handleEdit = (note) => {
+    setEditingNote(note);
+    setNoteEditorOpen(true);
+  };
+
+  const handleArchive = (note) => {
+    if (window.confirm('Archive this note? It will be hidden from the active list.')) {
+      archiveMutation.mutate(note);
+    }
+  };
+
   const startRecording = () => {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
       toast.error('Speech recognition not supported');
