@@ -153,14 +153,26 @@ export default function MedicationList({ patientId }) {
                   )}
                 </div>
                 <div className="flex gap-1 flex-shrink-0">
-                  <Button variant="ghost" size="sm" onClick={() => openEdit(rx)} title="Edit">
+                  <Button variant="ghost" size="sm" onClick={() => openEdit(rx)} title="Edit medication">
                     <Pencil className="w-4 h-4 text-slate-500" />
                   </Button>
                   {rx.status !== 'Cancelled' && (
-                    <Button variant="ghost" size="sm" onClick={() => updateRxMutation.mutate({ id: rx.id, data: { status: 'Cancelled' } })} title="Inactivate">
-                      <BanIcon className="w-4 h-4 text-red-400" />
+                    <Button variant="ghost" size="sm" onClick={() => updateRxMutation.mutate({ id: rx.id, data: { status: 'Cancelled' } })} title="Mark as inactive">
+                      <BanIcon className="w-4 h-4 text-amber-400" />
                     </Button>
                   )}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    title="Delete permanently"
+                    onClick={() => {
+                      if (window.confirm(`Delete "${rx.drug_name}" from this patient's medication list?`)) {
+                        deleteRxMutation.mutate(rx.id);
+                      }
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4 text-red-400" />
+                  </Button>
                 </div>
               </div>
             </div>
