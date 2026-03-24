@@ -204,9 +204,28 @@ export default function VitalsHeader({ patientId }) {
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div>
+             <div>
               <Label>HR (bpm)</Label>
               <Input type="number" value={vitalsForm.HR} onChange={(e) => setVitalsForm({...vitalsForm, HR: parseFloat(e.target.value) || ''})} />
+            </div>
+            <div>
+              <Label>HR Rhythm</Label>
+              <div className="flex gap-2 mt-1">
+                {['regular', 'irregular'].map(r => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setVitalsForm({...vitalsForm, HR_rhythm: r})}
+                    className={`flex-1 py-1.5 rounded-lg border text-sm font-medium capitalize transition-colors ${
+                      vitalsForm.HR_rhythm === r
+                        ? r === 'irregular' ? 'bg-amber-500 text-white border-amber-500' : 'bg-teal-600 text-white border-teal-600'
+                        : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    {r.charAt(0).toUpperCase() + r.slice(1)}
+                  </button>
+                ))}
+              </div>
             </div>
             <div>
               <Label>SpO2 (%)</Label>
