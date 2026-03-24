@@ -237,6 +237,29 @@ export default function WSProviderOrders({ provider }) {
                     </div>
                   )}
                   {order.notes && <p className="text-xs text-slate-500 italic">Note: {order.notes}</p>}
+                  {(order.status === 'delivered' || order.payment_status === 'paid' || order.payment_status === 'credit') && (
+                    <div className="flex justify-end">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-indigo-300 text-indigo-700 hover:bg-indigo-50 gap-2"
+                        disabled={generatingPdf === order.id}
+                        onClick={async () => {
+                          setGeneratingPdf(order.id);
+                          try {
+                            generateWholesaleInvoicePDF(order, items, provider);
+                          } catch (e) {
+                            toast.error('Failed to generate PDF');
+                          }
+                          setGeneratingPdf(null);
+                        }}
+                      >
+                        {generatingPdf === order.id
+                          ? <><Loader2 className="w-4 h-4 animate-spin" /> Generating...</>
+                          : <><FileText className="w-4 h-4" /> Download Invoice PDF</>}
+                      </Button>
+                    </div>
+                  )}
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <p className="text-xs font-semibold text-slate-600 mb-1">Update Status</p>
