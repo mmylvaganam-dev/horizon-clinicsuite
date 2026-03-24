@@ -135,10 +135,15 @@ export default function VitalsHeader({ patientId }) {
               Recorded: {new Date(latestVitals.recorded_at).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
             </p>
           )}
-          <div className="grid grid-cols-4 md:grid-cols-8 gap-4 text-sm">
+          <div className="grid grid-cols-4 md:grid-cols-9 gap-4 text-sm">
             <div>
               <p className="text-slate-500 text-xs">HR</p>
               <p className={`font-semibold ${vitalColor('HR')}`}>{latestVitals.HR || '-'} <span className="text-xs text-slate-500">bpm</span></p>
+              {latestVitals.HR_rhythm && (
+                <p className={`text-xs font-medium mt-0.5 ${latestVitals.HR_rhythm === 'irregular' ? 'text-amber-600' : 'text-slate-400'}`}>
+                  {latestVitals.HR_rhythm === 'irregular' ? '⚠ Irregular' : 'Regular'}
+                </p>
+              )}
             </div>
             <div>
               <p className="text-slate-500 text-xs">
@@ -150,6 +155,12 @@ export default function VitalsHeader({ patientId }) {
               {latestVitals.BP_arm === 'both' && latestVitals.BP_sys_right && (
                 <p className="text-xs text-slate-500">{`R: ${latestVitals.BP_sys_right}/${latestVitals.BP_dia_right}`}</p>
               )}
+            </div>
+            <div>
+              <p className="text-slate-500 text-xs">MAP</p>
+              <p className={`font-semibold ${latestVitals.MAP && (latestVitals.MAP < 70 || latestVitals.MAP > 100) ? (latestVitals.MAP < 60 || latestVitals.MAP > 110 ? 'text-red-600' : 'text-amber-600') : ''}`}>
+                {latestVitals.MAP || '-'} <span className="text-xs text-slate-500">{latestVitals.MAP ? 'mmHg' : ''}</span>
+              </p>
             </div>
             <div>
               <p className="text-slate-500 text-xs">RR</p>
