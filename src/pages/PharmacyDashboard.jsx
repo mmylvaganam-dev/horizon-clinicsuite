@@ -32,6 +32,7 @@ import { createPageUrl } from '../utils';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import MedicineReturnDialog from '../components/pharmacy/MedicineReturnDialog';
+import LowStockWidget from '../components/pharmacy/LowStockWidget';
 import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
