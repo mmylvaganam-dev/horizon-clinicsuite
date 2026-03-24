@@ -16,10 +16,17 @@ export default function VitalsHeader({ patientId }) {
   const navigate = useNavigate();
   const [showAddVitals, setShowAddVitals] = useState(false);
   const [vitalsForm, setVitalsForm] = useState({
-    HR: '', BP_sys: '', BP_dia: '', BP_arm: 'left', BP_sys_right: '', BP_dia_right: '',
+    HR: '', HR_rhythm: 'regular', BP_sys: '', BP_dia: '', BP_arm: 'left', BP_sys_right: '', BP_dia_right: '',
     RR: '', Temp: '', Weight: '', Height: '', SpO2: '',
     recorded_at_input: new Date().toISOString().slice(0, 16)
   });
+
+  // Auto-calculate MAP from BP_sys and BP_dia
+  const calcMAP = (sys, dia) => {
+    const s = parseFloat(sys), d = parseFloat(dia);
+    if (!s || !d) return null;
+    return Math.round(d + (s - d) / 3);
+  };
 
   const { data: vitals = [] } = useQuery({
     queryKey: ['patientVitals', patientId],
