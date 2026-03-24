@@ -12,10 +12,11 @@ import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import ClinicalNoteEditor, { getNoteTypeBadgeClass } from '@/components/emr/ClinicalNoteEditor';
 
-function SOAPNoteRow({ note }) {
+function SOAPNoteRow({ note, onEdit, onArchive }) {
   const [expanded, setExpanded] = React.useState(false);
+  const isArchived = note.status === 'archived';
   return (
-    <div className="p-3 rounded-lg border bg-white">
+    <div className={`p-3 rounded-lg border bg-white ${isArchived ? 'opacity-50' : ''}`}>
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2 flex-wrap">
           <FileText className="w-4 h-4 text-purple-600" />
@@ -23,16 +24,33 @@ function SOAPNoteRow({ note }) {
           {note.note_type && (
             <Badge className={`${getNoteTypeBadgeClass(note.note_type)} border-0 text-xs`}>{note.note_type}</Badge>
           )}
-          <Badge className={note.status === 'signed' ? 'bg-emerald-100 text-emerald-700 border-0' : 'bg-amber-100 text-amber-700 border-0'}>
+          <Badge className={
+            note.status === 'signed' ? 'bg-emerald-100 text-emerald-700 border-0' :
+            note.status === 'archived' ? 'bg-slate-100 text-slate-500 border-0' :
+            note.status === 'amended' ? 'bg-blue-100 text-blue-700 border-0' :
+            'bg-amber-100 text-amber-700 border-0'
+          }>
             {note.status}
           </Badge>
           {note.ai_generated && (
             <Badge variant="outline" className="bg-purple-50 text-purple-700 text-xs">AI</Badge>
           )}
         </div>
-        <Button size="sm" variant="outline" onClick={() => setExpanded(!expanded)} className="text-xs h-7">
-          {expanded ? 'Collapse' : 'View'}
-        </Button>
+        <div className="flex items-center gap-1">
+          {!isArchived && (
+            <>
+              <Button size="sm" variant="ghost" onClick={() => onEdit(note)} className="text-xs h-7 text-slate-600 hover:text-teal-700" title="Edit note">
+                <Pencil className="w-3.5 h-3.5" />
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => onArchive(note)} className="text-xs h-7 text-slate-600 hover:text-red-600" title="Archive note">
+                <Archive className="w-3.5 h-3.5" />
+              </Button>
+            </>
+          )}
+          <Button size="sm" variant="outline" onClick={() => setExpanded(!expanded)} className="text-xs h-7">
+            {expanded ? 'Collapse' : 'View'}
+          </Button>
+        </div>
       </div>
       {expanded && (
         <div className="space-y-3 pt-2 border-t mt-2">
