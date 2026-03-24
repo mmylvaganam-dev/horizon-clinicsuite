@@ -625,8 +625,7 @@ export default function PatientDetails() {
           <PatientCareAccessManager
             patient={patient}
             currentOrgId={selectedOrgId}
-            currentOrgName={selectedOrgId}
-            isAdmin={user?.role === 'admin'}
+            currentOrgName={currentOrganization?.name || selectedOrgId}
           />
         </TabsContent>
 
