@@ -12,7 +12,7 @@ import { Plus, Search, Pencil, Package } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const CATEGORIES = ['medicine', 'surgical', 'equipment', 'diagnostic', 'ppe', 'lab_supply', 'hospital_furniture', 'consumable', 'other'];
-const EMPTY = { name: '', brand: '', sku: '', category: 'medicine', unit: 'box', unit_price: '', mrp: '', stock_qty: '', min_order_qty: 1, description: '', status: 'active' };
+const EMPTY = { name: '', brand: '', sku: '', category: 'medicine', unit: 'box', unit_price: '', mrp: '', stock_qty: '', min_order_qty: 1, reorder_level: 10, description: '', status: 'active' };
 
 export default function WSProviderProducts({ provider }) {
   const queryClient = useQueryClient();
@@ -41,7 +41,7 @@ export default function WSProviderProducts({ provider }) {
     },
   });
 
-  const openEdit = (p) => { setEditing(p); setForm({ name: p.name, brand: p.brand || '', sku: p.sku || '', category: p.category, unit: p.unit, unit_price: p.unit_price, mrp: p.mrp || '', stock_qty: p.stock_qty, min_order_qty: p.min_order_qty || 1, description: p.description || '', status: p.status }); setOpen(true); };
+  const openEdit = (p) => { setEditing(p); setForm({ name: p.name, brand: p.brand || '', sku: p.sku || '', category: p.category, unit: p.unit, unit_price: p.unit_price, mrp: p.mrp || '', stock_qty: p.stock_qty, min_order_qty: p.min_order_qty || 1, reorder_level: p.reorder_level ?? 10, description: p.description || '', status: p.status }); setOpen(true); };
   const openNew = () => { setEditing(null); setForm(EMPTY); setOpen(true); };
 
   const filtered = products.filter(p => !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.brand?.toLowerCase().includes(search.toLowerCase()) || p.sku?.toLowerCase().includes(search.toLowerCase()));
@@ -113,9 +113,14 @@ export default function WSProviderProducts({ provider }) {
               <div><Label>MRP (LKR)</Label><Input type="number" value={form.mrp} onChange={e => setForm(f => ({ ...f, mrp: e.target.value }))} /></div>
               <div><Label>Unit</Label><Input placeholder="box, strip..." value={form.unit} onChange={e => setForm(f => ({ ...f, unit: e.target.value }))} /></div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <div><Label>Stock Qty</Label><Input type="number" value={form.stock_qty} onChange={e => setForm(f => ({ ...f, stock_qty: e.target.value }))} /></div>
               <div><Label>Min Order Qty</Label><Input type="number" value={form.min_order_qty} onChange={e => setForm(f => ({ ...f, min_order_qty: e.target.value }))} /></div>
+              <div>
+                <Label>Reorder Level</Label>
+                <Input type="number" value={form.reorder_level} onChange={e => setForm(f => ({ ...f, reorder_level: e.target.value }))} />
+                <p className="text-xs text-slate-400 mt-0.5">Alert when stock ≤ this</p>
+              </div>
             </div>
             <div>
               <Label>Status</Label>
