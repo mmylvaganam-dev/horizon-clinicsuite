@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
 Deno.serve(async (req) => {
   try {
@@ -13,6 +13,7 @@ Deno.serve(async (req) => {
     const organizationId = body.organization_id;
 
     let companyCode = 'PHN';
+    let companyOrgIds = []; // all org IDs belonging to this company
 
     if (organizationId) {
       // Get the org to find its company
@@ -25,6 +26,12 @@ Deno.serve(async (req) => {
         if (company?.company_code) {
           companyCode = company.company_code;
         }
+
+        // Get ALL orgs belonging to this company so we only count patients within this company
+        const allCompanyOrgs = await base44.asServiceRole.entities.Organization.filter({ company_id: org.company_id });
+        companyOrgIds = allCompanyOrgs.map(o => o.id);
+      } else {
+        companyOrgIds = [organizationId];
       }
     } else {
       // Fallback: use first company
@@ -34,11 +41,22 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Get existing patients to determine next number
-    const patients = await base44.asServiceRole.entities.Patient.list();
+    // Get existing patients for this company's orgs only to determine next number
+    const prefix = `PHN-${companyCode}-`;
+
+    let patients = [];
+    if (companyOrgIds.length > 0) {
+      // Fetch patients for each org in this company
+      for (const orgId of companyOrgIds) {
+        const orgPatients = await base44.asServiceRole.entities.Patient.filter({ organization_id: orgId });
+        patients = patients.concat(orgPatients);
+      }
+    } else {
+      // Fallback: search by PHN prefix across all patients
+      patients = await base44.asServiceRole.entities.Patient.list();
+    }
 
     // Find the highest PHN number for this company code prefix
-    const prefix = `PHN-${companyCode}-`;
     const existingNums = patients
       .filter(p => p.phn?.startsWith(prefix))
       .map(p => parseInt(p.phn.replace(prefix, ''), 10))
