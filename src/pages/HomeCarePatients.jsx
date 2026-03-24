@@ -67,7 +67,8 @@ export default function HomeCarePatients() {
       
       return await base44.entities.Patient.create({
         ...data,
-        phn: phn
+        phn: phn,
+        organization_id: selectedOrgId,
       });
     },
     onSuccess: () => {
