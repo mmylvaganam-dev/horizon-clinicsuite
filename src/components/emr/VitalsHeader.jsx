@@ -63,6 +63,7 @@ export default function VitalsHeader({ patientId }) {
         recorded_by: user?.id || user?.email || 'manual',
         recorded_by_email: user?.email,
         ...(BMI !== null ? { BMI } : {}),
+        ...(map !== null ? { MAP: map } : {}),
         ...cleanVitals
       });
     },
