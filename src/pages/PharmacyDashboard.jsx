@@ -565,7 +565,10 @@ export default function PharmacyDashboard() {
           </div>
           </div>
 
-          {/* Cash vs Credit Sales Breakdown */}
+          {/* Low Stock Alert Widget */}
+      <LowStockWidget selectedOrgId={selectedOrgId} orgFilter={orgFilter} />
+
+      {/* Cash vs Credit Sales Breakdown */}
           <div>
           <h2 className="text-lg font-semibold text-slate-700 mb-3">Cash vs Credit Sales</h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
