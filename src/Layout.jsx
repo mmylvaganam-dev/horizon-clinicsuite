@@ -31,7 +31,6 @@ import {
   Globe,
   Crown,
   Shield,
-  Network,
   AlertTriangle,
   RefreshCw,
   Cloud,
@@ -455,9 +454,9 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'External Integrations', page: 'PlatformIntegrations', icon: Activity, description: 'Patient portal, government reporting, partner management' },
         { name: 'Platform Users', page: 'PlatformUserManagement', icon: Users, description: 'View and manage all users across all organizations' },
         { name: 'User Approvals', page: 'UserApprovals', icon: CheckSquare, description: 'Approve or reject pending user access requests' },
-        { name: 'Patient Access Requests', page: 'PatientAccessRequests', icon: Network, description: 'Review and approve cross-clinic patient record sharing requests from orgs and patients' },
         { name: 'Blocked Users', page: 'BlockedUsers', icon: Shield, description: 'Permanently block users from accessing the platform' },
         { name: 'Transfer Ownership', page: 'PlatformOwnership', icon: Crown, description: 'Transfer platform ownership to another user' },
+        { name: 'Patient Access Requests', page: 'PatientAccessRequests', icon: Network, description: 'Review and approve cross-clinic patient record access requests from organizations and patients' },
       ],
       platformOwnerOnly: true
     },
