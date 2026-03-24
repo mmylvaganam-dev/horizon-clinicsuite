@@ -258,6 +258,14 @@ export default function VitalsHeader({ patientId }) {
               <Label>{vitalsForm.BP_arm === 'both' ? 'BP Diastolic (Left)' : 'BP Diastolic'}</Label>
               <Input type="number" value={vitalsForm.BP_dia} onChange={(e) => setVitalsForm({...vitalsForm, BP_dia: parseFloat(e.target.value) || ''})} />
             </div>
+            {/* MAP auto-preview */}
+            {vitalsForm.BP_sys && vitalsForm.BP_dia && (
+              <div className="col-span-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 flex items-center gap-2">
+                <span className="text-xs text-blue-700 font-semibold">MAP (auto):</span>
+                <span className="text-sm font-bold text-blue-800">{calcMAP(vitalsForm.BP_sys, vitalsForm.BP_dia)} mmHg</span>
+                <span className="text-xs text-blue-500 ml-1">= DBP + (SBP−DBP)/3</span>
+              </div>
+            )}
             {vitalsForm.BP_arm === 'both' && (
               <>
                 <div>
