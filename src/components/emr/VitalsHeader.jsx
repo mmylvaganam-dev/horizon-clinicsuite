@@ -70,7 +70,7 @@ export default function VitalsHeader({ patientId }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['patientVitals', patientId] });
       setShowAddVitals(false);
-      setVitalsForm({ HR: '', BP_sys: '', BP_dia: '', BP_arm: 'left', BP_sys_right: '', BP_dia_right: '', RR: '', Temp: '', Weight: '', Height: '', SpO2: '', recorded_at_input: new Date().toISOString().slice(0, 16) });
+      setVitalsForm({ HR: '', HR_rhythm: 'regular', BP_sys: '', BP_dia: '', BP_arm: 'left', BP_sys_right: '', BP_dia_right: '', RR: '', Temp: '', Weight: '', Height: '', SpO2: '', recorded_at_input: new Date().toISOString().slice(0, 16) });
     }
   });
 
