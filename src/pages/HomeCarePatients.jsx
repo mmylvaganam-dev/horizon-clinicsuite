@@ -27,9 +27,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
+import { useOrganization } from '@/components/OrganizationProvider';
 
 export default function HomeCarePatients() {
   const queryClient = useQueryClient();
+  const { selectedOrgId } = useOrganization();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchExisting, setSearchExisting] = useState('');
