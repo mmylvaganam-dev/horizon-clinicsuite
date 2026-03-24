@@ -48,7 +48,7 @@ export default function ClinicalNoteEditor({ patientId, open, onClose, editNote 
   const [content, setContent] = useState('');
 
   // Populate form when editing
-  React.useEffect(() => {
+  useEffect(() => {
     if (editNote) {
       setNoteDate(format(new Date(editNote.note_date), 'yyyy-MM-dd'));
       setNoteType(editNote.note_type || 'SOAP');
