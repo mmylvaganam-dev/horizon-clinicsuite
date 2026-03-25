@@ -36,6 +36,7 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
+import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 
 export default function PharmacyInventory() {
   const queryClient = useQueryClient();

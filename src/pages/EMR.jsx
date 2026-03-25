@@ -25,6 +25,7 @@ import CPPManager from '../components/emr/CPPManager';
 import ClinicalSummaryReport from '../components/emr/ClinicalSummaryReport';
 import PatientDocumentHub from '../components/emr/PatientDocumentHub';
 import PatientForm from '../components/patients/PatientForm';
+import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 
 export default function EMR() {
   const navigate = useNavigate();

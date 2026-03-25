@@ -26,6 +26,7 @@ import { formatSL } from '@/components/utils/dateUtils';
 import AppointmentForm from '../components/appointments/AppointmentForm';
 import LinkedRecords from '../components/shared/LinkedRecords';
 import TelehealthPatientPreview from '../components/appointments/TelehealthPatientPreview';
+import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 import {
   AlertDialog,
   AlertDialogAction,
