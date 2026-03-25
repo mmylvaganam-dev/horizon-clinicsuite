@@ -91,7 +91,7 @@ export default function StockMonitoring() {
   };
 
   // Sync local email state from loaded config
-  React.useEffect(() => {
+  useEffect(() => {
     if (alertEmailConfig?.value !== undefined) {
       setAlertEmail(alertEmailConfig.value);
     }
