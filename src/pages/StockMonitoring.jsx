@@ -187,6 +187,61 @@ export default function StockMonitoring() {
           </div>
         </div>
 
+        {/* Alert Notification Settings */}
+        <Card className={`border-2 ${alertEnabled ? 'border-teal-200 bg-teal-50' : 'border-slate-200 bg-slate-50'}`}>
+          <CardContent className="pt-5 pb-5">
+            <div className="flex items-start gap-4 flex-wrap">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                {alertEnabled
+                  ? <Bell className="w-5 h-5 text-teal-600 flex-shrink-0" />
+                  : <BellOff className="w-5 h-5 text-slate-400 flex-shrink-0" />
+                }
+                <div>
+                  <p className="font-semibold text-slate-900 text-sm">Low Stock Email Alerts</p>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    {alertEnabled
+                      ? 'Alerts are active — emails sent when stock drops below threshold'
+                      : 'Alerts are paused — no emails will be sent'}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-slate-500">{alertEnabled ? 'On' : 'Off'}</span>
+                <Switch
+                  checked={alertEnabled}
+                  onCheckedChange={handleToggleAlert}
+                  disabled={savingAlertSettings}
+                />
+              </div>
+            </div>
+            {alertEnabled && (
+              <div className="mt-4 pt-4 border-t border-teal-200 flex items-end gap-3 flex-wrap">
+                <div className="flex-1 min-w-48">
+                  <label className="text-xs font-medium text-slate-700 flex items-center gap-1 mb-1">
+                    <Mail className="w-3 h-3" /> Alert Email Address
+                  </label>
+                  <Input
+                    type="email"
+                    value={alertEmail}
+                    onChange={(e) => setAlertEmail(e.target.value)}
+                    placeholder="e.g. pharmacy@clinic.lk"
+                    className="h-8 text-sm"
+                  />
+                  <p className="text-xs text-slate-400 mt-1">Leave blank to send to all admin users</p>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={handleSaveEmail}
+                  disabled={savingAlertSettings}
+                  className="bg-teal-600 hover:bg-teal-700 h-8"
+                >
+                  {savingAlertSettings ? 'Saving...' : 'Save Email'}
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card className="border-red-200 bg-red-50">
