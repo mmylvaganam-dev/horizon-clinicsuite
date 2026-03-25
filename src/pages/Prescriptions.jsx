@@ -186,51 +186,100 @@ export default function Prescriptions() {
           <CardContent className="space-y-4">
             <div>
               <Label>Drug Name *</Label>
-              <Select
-                value={formData.drug_name}
-                onValueChange={(value) => {
-                  setFormData({ ...formData, drug_name: value });
-                  setInteractionCheck(null);
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select drug" />
-                </SelectTrigger>
-                <SelectContent>
-                  {drugCatalog.map((drug) => (
-                    <SelectItem key={drug.id} value={drug.drug_name}>
-                      {drug.drug_name} {drug.strength && `(${drug.strength})`}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {formData.drug_name && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={checkInteractions}
-                  disabled={checkingInteractions}
-                  className="mt-2"
-                >
-                  {checkingInteractions ? 'Checking...' : 'Check Drug Interactions'}
-                </Button>
-              )}
+              <div className="relative">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input
+                    ref={drugInputRef}
+                    value={drugSearch}
+                    onChange={(e) => {
+                      setDrugSearch(e.target.value);
+                      setFormData({ ...formData, drug_name: e.target.value });
+                      setShowDrugDropdown(true);
+                      setInteractionCheck(null);
+                    }}
+                    onFocus={() => setShowDrugDropdown(true)}
+                    placeholder="Search drug name, generic or brand..."
+                    className="pl-9"
+                    required
+                  />
+                  {checkingInteractions && (
+                    <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-teal-500 animate-spin" />
+                  )}
+                </div>
+                {showDrugDropdown && filteredDrugs.length > 0 && (
+                  <div ref={dropdownRef} className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                    {filteredDrugs.map((drug, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        className="w-full text-left px-4 py-2.5 hover:bg-teal-50 flex items-center justify-between text-sm border-b border-slate-50 last:border-0"
+                        onMouseDown={() => selectDrug(drug)}
+                      >
+                        <span className="font-medium text-slate-800">{drug.label}</span>
+                        <span className={`text-xs px-1.5 py-0.5 rounded ${drug.source === 'stock' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                          {drug.source === 'stock' ? 'In Stock' : 'Catalog'}
+                        </span>
+                      </button>
+                    ))}
+                    {drugSearch && !allDrugs.find(d => d.label.toLowerCase() === drugSearch.toLowerCase()) && (
+                      <button
+                        type="button"
+                        className="w-full text-left px-4 py-2.5 hover:bg-amber-50 text-sm text-amber-700 border-t"
+                        onMouseDown={() => selectDrug({ label: drugSearch, strength: '' })}
+                      >
+                        + Use "{drugSearch}" as custom drug name
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+              <p className="text-xs text-slate-400 mt-1">Searches drug catalog + pharmacy stock. Interaction check runs automatically on selection.</p>
             </div>
 
-            {interactionCheck && (
-              <div className={`p-4 rounded-lg border-2 ${
-                interactionCheck.has_interactions 
-                  ? 'bg-rose-50 border-rose-300' 
+            {/* Interaction / Safety Check Result */}
+            {checkingInteractions && (
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center gap-2 text-sm text-blue-700">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Checking drug interactions, allergies & patient health profile...
+              </div>
+            )}
+            {interactionCheck && !checkingInteractions && (
+              <div className={`p-4 rounded-lg border-2 space-y-2 ${
+                (interactionCheck.severity === 'severe' || interactionCheck.severity === 'contraindicated')
+                  ? 'bg-rose-50 border-rose-400'
+                  : (interactionCheck.severity === 'moderate')
+                  ? 'bg-amber-50 border-amber-400'
+                  : interactionCheck.interactions?.length > 0 || interactionCheck.allergy_concerns?.length > 0
+                  ? 'bg-amber-50 border-amber-300'
                   : 'bg-emerald-50 border-emerald-300'
               }`}>
-                <p className={`font-semibold mb-2 ${
-                  interactionCheck.has_interactions ? 'text-rose-900' : 'text-emerald-900'
-                }`}>
-                  {interactionCheck.has_interactions ? '⚠️ Drug Interactions Detected' : '✓ No Interactions Found'}
-                </p>
-                {interactionCheck.has_interactions && (
-                  <p className="text-sm text-rose-800">{interactionCheck.interaction_summary}</p>
+                <div className="flex items-center gap-2">
+                  {(interactionCheck.interactions?.length > 0 || interactionCheck.allergy_concerns?.length > 0)
+                    ? <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+                    : <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                  }
+                  <p className="font-semibold text-slate-800">
+                    Severity: <span className={`capitalize ${
+                      interactionCheck.severity === 'severe' || interactionCheck.severity === 'contraindicated' ? 'text-rose-700' :
+                      interactionCheck.severity === 'moderate' ? 'text-amber-700' : 'text-emerald-700'
+                    }`}>{interactionCheck.severity || 'none'}</span>
+                  </p>
+                </div>
+                {interactionCheck.allergy_concerns?.length > 0 && (
+                  <div>
+                    <p className="text-sm font-semibold text-rose-800">⚠️ Allergy Concerns:</p>
+                    {interactionCheck.allergy_concerns.map((c, i) => <p key={i} className="text-sm text-rose-700 ml-3">• {c}</p>)}
+                  </div>
+                )}
+                {interactionCheck.interactions?.length > 0 && (
+                  <div>
+                    <p className="text-sm font-semibold text-amber-800">Drug Interactions:</p>
+                    {interactionCheck.interactions.map((c, i) => <p key={i} className="text-sm text-amber-700 ml-3">• {c}</p>)}
+                  </div>
+                )}
+                {interactionCheck.recommendations && (
+                  <p className="text-sm text-slate-600 italic border-t border-slate-200 pt-2">{interactionCheck.recommendations}</p>
                 )}
               </div>
             )}
