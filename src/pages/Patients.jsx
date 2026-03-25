@@ -137,9 +137,27 @@ export default function Patients() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Patients</h1>
-          <p className="text-slate-500 mt-1">{patients.length} total patients registered</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Patients</h1>
+            <p className="text-slate-500 mt-1">{patients.length} total patients registered</p>
+          </div>
+          <PageInfoTooltip
+            title="Patient Registry"
+            description="Central directory of all registered patients. Search, register, view, and manage patient profiles."
+            useCases={[
+              "Register a new patient and generate their PHN (Patient Health Number)",
+              "Search for an existing patient to view their profile or book an appointment",
+              "Filter by active/inactive/deceased status",
+              "Click a patient card to open their full clinical profile"
+            ]}
+            bestPractices={[
+              "Always search before registering to avoid duplicates",
+              "Use PHN, mobile number, or NIC for faster search",
+              "Print the PHN card after registering a new patient",
+              "Keep contact details up to date for SMS reminders"
+            ]}
+          />
         </div>
         <Button 
           onClick={() => { setEditingPatient(null); setFormOpen(true); }}
