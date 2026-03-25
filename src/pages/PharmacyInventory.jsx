@@ -384,9 +384,27 @@ export default function PharmacyInventory() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pharmacy Inventory</h1>
-          <p className="text-slate-500 mt-1">Stock balances and transaction tracking</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pharmacy Inventory</h1>
+            <p className="text-slate-500 mt-1">Stock balances and transaction tracking</p>
+          </div>
+          <PageInfoTooltip
+            title="Pharmacy Inventory"
+            description="Manage all pharmacy stock — track quantities, receive new batches, adjust for discrepancies, and monitor expiry dates."
+            useCases={[
+              "Receive a new delivery from a supplier — click 'Receive Stock'",
+              "Check low stock and expired items using the alert cards",
+              "Edit a product's price, MRP, batch number, or expiry date",
+              "View transaction history for any stock movement"
+            ]}
+            bestPractices={[
+              "Always enter batch number and expiry date when receiving stock",
+              "Use 'Adjust Stock' with a reason when correcting counting errors",
+              "Review expiry alerts weekly — click the orange card to filter",
+              "Set alert thresholds to match your reorder cycle (e.g. 10 units = 1 week supply)"
+            ]}
+          />
         </div>
         <Button onClick={() => setShowReceiveDialog(true)}>
           <Plus className="w-4 h-4 mr-2" />
