@@ -138,7 +138,7 @@ export default function ClinicalNoteEditor({ patientId, open, onClose, editNote 
           <div className="flex items-center gap-2 text-sm text-slate-500">
             <span>Tagged as:</span>
             <Badge className={`${getNoteTypeBadgeClass(noteType)} border-0`}>{noteType}</Badge>
-            {noteDate !== format(new Date(), 'yyyy-MM-dd') && (
+            {noteDate !== getSLTodayISO() && (
               <Badge variant="outline" className="text-amber-700 border-amber-300 bg-amber-50">Backdated</Badge>
             )}
           </div>
