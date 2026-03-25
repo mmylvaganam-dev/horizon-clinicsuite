@@ -113,7 +113,7 @@ export default function ClinicalNoteEditor({ patientId, open, onClose, editNote 
               <Input
                 type="date"
                 value={noteDate}
-                max={format(new Date(), 'yyyy-MM-dd')}
+                max={getSLTodayISO()}
                 onChange={e => setNoteDate(e.target.value)}
               />
             </div>
