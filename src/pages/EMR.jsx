@@ -48,10 +48,28 @@ export default function EMR() {
   const { data: patients = [], isLoading } = useQuery({
     queryKey: ['patients', selectedOrgId],
     queryFn: async () => {
-      if (!selectedOrgId) return []; // No org assigned = no patients visible
-      return base44.entities.Patient.filter({ organization_id: selectedOrgId }, '-created_date');
+      const filter = selectedOrgId ? { organization_id: selectedOrgId } : {};
+      return base44.entities.Patient.filter(filter, '-created_date');
     },
-    enabled: !!selectedOrgId,
+  });
+
+  const createPatientMutation = useMutation({
+    mutationFn: async (data) => {
+      const patientData = { ...data };
+      if (selectedOrgId) patientData.organization_id = selectedOrgId;
+      // Generate PHN
+      try {
+        const phnRes = await base44.functions.invoke('generatePHN', { organization_id: selectedOrgId });
+        if (phnRes.data?.phn) patientData.phn = phnRes.data.phn;
+      } catch (e) { /* PHN optional */ }
+      return base44.entities.Patient.create(patientData);
+    },
+    onSuccess: (newPatient) => {
+      queryClient.invalidateQueries({ queryKey: ['patients'] });
+      setShowAddPatient(false);
+      setSelectedPatient(newPatient);
+      setSearchTerm(`${newPatient.first_name} ${newPatient.last_name}`);
+    },
   });
 
   // Auto-select patient from URL
