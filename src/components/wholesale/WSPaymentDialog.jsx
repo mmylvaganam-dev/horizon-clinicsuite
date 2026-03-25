@@ -102,6 +102,17 @@ export default function WSPaymentDialog({ open, onOpenChange, providerId, compan
         </DialogHeader>
 
         <div className="space-y-4 mt-2">
+          {/* Buyer selection (only when not pre-set) */}
+          {!companyId && connections.length > 0 && (
+            <div>
+              <Label>Buyer *</Label>
+              <select className="w-full border border-slate-200 rounded-lg p-2 mt-1 text-sm" value={selectedCompanyId} onChange={e => setSelectedCompanyId(e.target.value)}>
+                <option value="">— Select buyer —</option>
+                {connections.map(c => <option key={c.buyer_company_id} value={c.buyer_company_id}>{c.buyer_name}</option>)}
+              </select>
+            </div>
+          )}
+
           {/* Amount & Date */}
           <div className="grid grid-cols-2 gap-3">
             <div>
