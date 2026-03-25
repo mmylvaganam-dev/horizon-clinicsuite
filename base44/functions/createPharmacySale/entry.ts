@@ -52,13 +52,20 @@ Deno.serve(async (req) => {
             receiptNumber = `RX-${Date.now()}`;
         }
 
+        // Sri Lanka time helper (UTC+5:30)
+        const slNowISO = () => {
+            const now = new Date();
+            const slTime = new Date(now.getTime() + (330 * 60 * 1000));
+            return slTime.toISOString().replace('Z', '+05:30');
+        };
+
         // Create the sale HEADER
         const saleHeader = await base44.asServiceRole.entities.PharmacySaleHeader.create({
             organization_id: saleData.organization_id,
             location_id: saleData.location_id,
             patient_ref: saleData.patient_id || null,
             sale_number: receiptNumber,
-            sale_date: new Date().toISOString(),
+            sale_date: slNowISO(),
             status: 'paid',
             subtotal,
             tax_total: tax,
