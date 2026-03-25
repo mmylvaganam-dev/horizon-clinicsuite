@@ -342,8 +342,9 @@ export default function PatientDetails() {
 
       {/* Tabs Content */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid grid-cols-3 lg:grid-cols-9 w-full">
+        <TabsList className="grid grid-cols-3 lg:grid-cols-10 w-full">
           <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="timeline" className="text-teal-600 font-medium">📋 Timeline</TabsTrigger>
           {access.canViewAppointments && <TabsTrigger value="appointments">Appointments</TabsTrigger>}
           {access.canViewClinicalNotes && <TabsTrigger value="records">Records</TabsTrigger>}
           {access.canViewClinicalNotes && <TabsTrigger value="soap">SOAP Notes</TabsTrigger>}
