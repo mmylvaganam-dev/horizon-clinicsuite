@@ -65,9 +65,29 @@ export default function WholesaleProviderAdmin() {
               <Package className="w-8 h-8 text-white" />
             </div>
           )}
-          <div>
-            <h1 className="text-3xl font-black tracking-tight">{myProvider.company_name}</h1>
-            <p className="text-indigo-200 text-sm">{myProvider.description || 'Wholesale Supplier'} · Code: {myProvider.company_code}</p>
+          <div className="flex items-start gap-3 flex-1">
+            <div>
+              <h1 className="text-3xl font-black tracking-tight">{myProvider.company_name}</h1>
+              <p className="text-indigo-200 text-sm">{myProvider.description || 'Wholesale Supplier'} · Code: {myProvider.company_code}</p>
+            </div>
+            <PageInfoTooltip
+              title="My Supplier Portal"
+              description="As a wholesale supplier, manage your product catalog, process incoming orders from retail pharmacies, manage buyer connections, credit accounts, and payments."
+              useCases={[
+                "Products: Add, edit, or deactivate products in your wholesale catalog",
+                "Orders: Review and process incoming orders from connected retail pharmacies",
+                "Buyer Connections: Approve or reject connection requests from retail pharmacies",
+                "Credit Accounts: View outstanding balances per buyer and payment history",
+                "Payments: Record payments received and manage cheque clearance status",
+                "Stock Alerts: Monitor products falling below reorder levels"
+              ]}
+              bestPractices={[
+                "Keep product prices and availability up to date to avoid rejected orders",
+                "Process orders within 24 hours — buyers see status in real-time",
+                "Use cheque image upload when recording payments for audit trail",
+                "Review Stock Alerts daily to prevent stockouts"
+              ]}
+            />
           </div>
         </div>
       </div>
