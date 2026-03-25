@@ -6,6 +6,7 @@ import { Package, Truck, Building2, Link, DollarSign } from 'lucide-react';
 import WSMarketplaceBrowse from '@/components/wholesale/WSMarketplaceBrowse.jsx';
 import WSMyOrders from '@/components/wholesale/WSMyOrders.jsx';
 import WSMyConnections from '@/components/wholesale/WSMyConnections.jsx';
+import WSBuyerPaymentsOverview from '@/components/wholesale/WSBuyerPaymentsOverview.jsx';
 import { useOrganization } from '@/components/OrganizationProvider';
 
 export default function WholesaleMarketplace() {
