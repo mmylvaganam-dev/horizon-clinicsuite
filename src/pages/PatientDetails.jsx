@@ -364,6 +364,10 @@ export default function PatientDetails() {
           )}
         </TabsList>
 
+        <TabsContent value="timeline">
+          <PatientCareTimeline patientId={patientId} />
+        </TabsContent>
+
         <TabsContent value="overview" className="space-y-6">
           {!access.canViewFullChart && (
             <Card className="bg-blue-50 border-blue-200">
