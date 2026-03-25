@@ -50,11 +50,11 @@ export default function ClinicalNoteEditor({ patientId, open, onClose, editNote 
   // Populate form when editing
   useEffect(() => {
     if (editNote) {
-      setNoteDate(format(new Date(editNote.note_date), 'yyyy-MM-dd'));
+      setNoteDate(editNote.note_date?.slice(0, 10) || getSLTodayISO());
       setNoteType(editNote.note_type || 'SOAP');
       setContent(editNote.rich_content || '');
     } else {
-      setNoteDate(format(new Date(), 'yyyy-MM-dd'));
+      setNoteDate(getSLTodayISO());
       setNoteType('SOAP');
       setContent('');
     }
