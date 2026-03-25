@@ -21,6 +21,17 @@ Deno.serve(async (req) => {
   // Fetch all stock (service role so no user auth needed)
   const allStock = await base44.asServiceRole.entities.PharmacyStock.list('-updated_date', 5000);
 
+  // Check per-org alert enabled setting before sending emails
+  const allConfigs = await base44.asServiceRole.entities.OrganizationConfig.list();
+  const isAlertEnabled = (orgId) => {
+    const cfg = allConfigs.find(c => c.organization_id === orgId && c.config_key_id === 'low_stock_alert_enabled');
+    return cfg ? cfg.value !== 'false' : true; // default enabled
+  };
+  const getAlertEmail = (orgId) => {
+    const cfg = allConfigs.find(c => c.organization_id === orgId && c.config_key_id === 'low_stock_alert_email');
+    return cfg?.value || null;
+  };
+
   const stockToCheck = organization_id
     ? allStock.filter(s => s.organization_id === organization_id)
     : allStock;
