@@ -355,9 +355,27 @@ export default function PharmacyDashboard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pharmacy Dashboard</h1>
-          <p className="text-slate-500 mt-1">Sales, orders, and inventory management</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Pharmacy Dashboard</h1>
+            <p className="text-slate-500 mt-1">Sales, orders, and inventory management</p>
+          </div>
+          <PageInfoTooltip
+            title="Pharmacy Dashboard"
+            description="Overview of all pharmacy activity — today's sales, stock levels, financial metrics, and quick actions."
+            useCases={[
+              "Review daily sales and revenue at the start/end of a shift",
+              "Check low stock and expired items needing attention",
+              "Navigate quickly to POS, Inventory, or Credit Accounts",
+              "Monitor today's cash vs credit sales breakdown"
+            ]}
+            bestPractices={[
+              "Check the Low Stock widget every morning before opening",
+              "Use 'View All Today's Sales' to verify transactions",
+              "Review gross profit margin daily to catch pricing issues",
+              "Click any stat card to navigate directly to that module"
+            ]}
+          />
         </div>
       </div>
 
