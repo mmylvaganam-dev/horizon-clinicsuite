@@ -88,6 +88,20 @@ export const getSLTodayISO = () => {
 // Return a JS Date representing "now" correctly offset for SL
 export const getSLNow = () => new Date();
 
+// Return ISO string with Sri Lanka offset (+05:30) for saving to DB
+// Use this instead of new Date().toISOString() when recording timestamps
+export const getSLNowISO = () => {
+  const now = new Date();
+  // SL is UTC+5:30 = 330 minutes
+  const offsetMs = 330 * 60 * 1000;
+  const slTime = new Date(now.getTime() + offsetMs);
+  // Replace the Z suffix with +05:30
+  return slTime.toISOString().replace('Z', '+05:30');
+};
+
+// Return today's date as YYYY-MM-DD in Colombo timezone (alias for getSLTodayISO)
+export const getSLToday = getSLTodayISO;
+
 // Parse a date string and return formatted SL date
 export const slFormat = (dateInput, pattern) => {
   if (!dateInput) return '';
