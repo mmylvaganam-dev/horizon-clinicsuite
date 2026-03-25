@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import {
   AlertTriangle,
   TrendingDown,
@@ -15,7 +16,10 @@ import {
   Search,
   Settings,
   AlertCircle,
-  Zap
+  Zap,
+  Bell,
+  BellOff,
+  Mail
 } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
