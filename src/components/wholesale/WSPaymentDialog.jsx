@@ -86,6 +86,7 @@ export default function WSPaymentDialog({ open, onOpenChange, providerId, compan
       queryClient.invalidateQueries(['wsBuyerPayments']);
       toast.success('Payment recorded!');
       setForm({ ...BLANK });
+      setSelectedCompanyId('');
       onOpenChange(false);
       onSuccess?.();
     },
