@@ -105,9 +105,27 @@ export default function EMR() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Electronic Medical Records</h1>
-        <p className="text-slate-500 mt-1">Comprehensive patient chart management</p>
+      <div className="flex items-center gap-3">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Electronic Medical Records</h1>
+          <p className="text-slate-500 mt-1">Comprehensive patient chart management</p>
+        </div>
+        <PageInfoTooltip
+          title="EMR — Electronic Medical Records"
+          description="Full patient chart — search for a patient to view their CPP, medications, SOAP notes, labs, diagnostics, and documents in one place."
+          useCases={[
+            "Search a patient and review their current medications and allergies",
+            "Add a new SOAP note during a consultation",
+            "View lab results and diagnostic reports in the patient chart",
+            "Upload and AI-analyze clinical documents in the AI Docs tab"
+          ]}
+          bestPractices={[
+            "Always check the CPP (Cumulative Patient Profile) first for active problems",
+            "Use the SmartBox AI alert for drug interaction warnings",
+            "Generate a Clinical Summary before a referral or discharge",
+            "Upload letters and reports to the AI Docs tab for automatic extraction"
+          ]}
+        />
       </div>
 
       <Card className="bg-white border-0 shadow-sm">
