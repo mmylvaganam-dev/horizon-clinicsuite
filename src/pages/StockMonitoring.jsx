@@ -50,6 +50,53 @@ export default function StockMonitoring() {
     enabled: !!selectedOrgId,
   });
 
+  // Fetch alert notification config for this org
+  const { data: alertConfigs = [] } = useQuery({
+    queryKey: ['stockAlertConfig', selectedOrgId],
+    queryFn: () => base44.entities.OrganizationConfig.filter({ organization_id: selectedOrgId }),
+    enabled: !!selectedOrgId,
+  });
+
+  const alertEnabledConfig = alertConfigs.find(c => c.config_key_id === ALERT_ENABLED_KEY);
+  const alertEmailConfig = alertConfigs.find(c => c.config_key_id === ALERT_EMAIL_KEY);
+  const alertEnabled = alertEnabledConfig ? alertEnabledConfig.value !== 'false' : true;
+  const alertEmailValue = alertEmailConfig?.value || '';
+
+  const saveAlertSetting = async (key, value) => {
+    const existing = alertConfigs.find(c => c.config_key_id === key);
+    if (existing) {
+      await base44.entities.OrganizationConfig.update(existing.id, { value: String(value) });
+    } else {
+      await base44.entities.OrganizationConfig.create({
+        organization_id: selectedOrgId,
+        config_key_id: key,
+        value: String(value),
+      });
+    }
+    queryClient.invalidateQueries({ queryKey: ['stockAlertConfig', selectedOrgId] });
+  };
+
+  const handleToggleAlert = async (checked) => {
+    setSavingAlertSettings(true);
+    await saveAlertSetting(ALERT_ENABLED_KEY, checked);
+    setSavingAlertSettings(false);
+    toast.success(checked ? 'Low stock alerts enabled' : 'Low stock alerts paused');
+  };
+
+  const handleSaveEmail = async () => {
+    setSavingAlertSettings(true);
+    await saveAlertSetting(ALERT_EMAIL_KEY, alertEmail);
+    setSavingAlertSettings(false);
+    toast.success('Alert email saved');
+  };
+
+  // Sync local email state from loaded config
+  React.useEffect(() => {
+    if (alertEmailConfig?.value !== undefined) {
+      setAlertEmail(alertEmailConfig.value);
+    }
+  }, [alertEmailConfig?.value]);
+
   // Filter items with issues
   const itemsWithAlerts = pharmacyStock.filter(item =>
     item.quality_status === 'usable' &&
