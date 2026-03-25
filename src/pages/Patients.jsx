@@ -24,6 +24,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import PatientForm from '../components/patients/PatientForm';
 import { format } from 'date-fns';
+import { useToast } from '@/components/ui/use-toast';
 
 const statusColors = {
   active: 'bg-emerald-100 text-emerald-700 border-emerald-200',
