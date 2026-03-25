@@ -110,7 +110,10 @@ export default function Patients() {
     const matchesSearch = 
       `${patient.first_name} ${patient.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
       patient.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.phone?.includes(searchTerm);
+      patient.phone?.includes(searchTerm) ||
+      patient.phn?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      patient.mobile?.includes(searchTerm) ||
+      patient.nic?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || patient.status === statusFilter || (!patient.status && statusFilter === 'active');
     
