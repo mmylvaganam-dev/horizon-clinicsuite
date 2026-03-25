@@ -86,7 +86,7 @@ export default function ClinicalNoteEditor({ patientId, open, onClose, editNote 
       queryClient.invalidateQueries({ queryKey: ['patientSOAP', patientId] });
       toast.success(isEditing ? 'Note updated' : 'Clinical note saved');
       setContent('');
-      setNoteDate(format(new Date(), 'yyyy-MM-dd'));
+      setNoteDate(getSLTodayISO());
       setNoteType('SOAP');
       onClose();
     },
