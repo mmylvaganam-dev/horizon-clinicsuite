@@ -55,7 +55,6 @@ export default function Patients() {
   const { data: patients = [], isLoading } = useQuery({
     queryKey: ['patients', selectedOrgId],
     queryFn: () => base44.entities.Patient.filter(orgFilter, '-created_date'),
-    enabled: !!selectedOrgId,
   });
 
   const createMutation = useMutation({
