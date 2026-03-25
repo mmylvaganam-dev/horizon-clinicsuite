@@ -61,28 +61,28 @@ export default function WSDirectRequest({ orgId, user, connections }) {
 
   const sendStockRequestMutation = useMutation({
     mutationFn: async () => {
+      // Get current user fresh to ensure we have their details
+      const currentUser = user || await base44.auth.me();
       const org = organizations.find(o => o.id === orgId);
       const orderNum = `REQ-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(Math.random() * 9000) + 1000}`;
 
-      // Create a WholesaleOrder marked as a "request" (pending status, zero total until priced)
       const order = await base44.entities.WholesaleOrder.create({
         provider_id: selectedProvider.id,
         provider_name: selectedProvider.company_name,
         order_number: orderNum,
-        company_id: org?.company_id || '',
-        company_name: org?.name || '',
-        organization_id: orgId,
+        company_id: org?.company_id || 'direct',
+        company_name: org?.name || 'Direct Request',
+        organization_id: orgId || 'unknown',
+        order_type: 'request',
         status: 'pending',
         subtotal: 0,
         discount_amount: 0,
         total: 0,
         payment_status: 'unpaid',
-        notes: `📋 STOCK REQUEST\n\nMedicine/Item: ${form.medicine_name}\nQuantity: ${form.quantity} ${form.unit}\nContact Phone: ${form.contact_phone || 'N/A'}\n\nAdditional Notes: ${form.notes || 'None'}`,
-        ordered_by: user?.email,
-        order_type: 'request',
+        notes: `📋 STOCK REQUEST\n\nMedicine/Item: ${form.medicine_name}\nQuantity: ${form.quantity} ${form.unit}\nContact Phone: ${form.contact_phone || 'N/A'}\nRequested by: ${currentUser?.email || 'N/A'}\n\nAdditional Notes: ${form.notes || 'None'}`,
+        ordered_by: currentUser?.email || '',
       });
 
-      // Create a single order item for the requested product
       await base44.entities.WholesaleOrderItem.create({
         order_id: order.id,
         provider_id: selectedProvider.id,
