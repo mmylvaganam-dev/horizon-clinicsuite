@@ -13,6 +13,7 @@ import InstitutionManagement from './pages/InstitutionManagement';
 import LandingPage from './pages/LandingPage';
 import PatientAccessRequests from './pages/PatientAccessRequests';
 import HomeCareInvoiceManager from './pages/HomeCareInvoiceManager';
+import AppointmentScheduler from './pages/AppointmentScheduler';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -73,6 +74,7 @@ const AuthenticatedApp = () => {
       <Route path="/InstitutionManagement" element={<LayoutWrapper currentPageName="InstitutionManagement"><InstitutionManagement /></LayoutWrapper>} />
       <Route path="/PatientAccessRequests" element={<LayoutWrapper currentPageName="PatientAccessRequests"><PatientAccessRequests /></LayoutWrapper>} />
       <Route path="/HomeCareInvoiceManager" element={<LayoutWrapper currentPageName="HomeCareInvoiceManager"><HomeCareInvoiceManager /></LayoutWrapper>} />
+      <Route path="/AppointmentScheduler" element={<LayoutWrapper currentPageName="AppointmentScheduler"><AppointmentScheduler /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
