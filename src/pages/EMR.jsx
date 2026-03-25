@@ -138,10 +138,10 @@ export default function EMR() {
                 </div>
               ) : filteredPatients.length === 0 ? (
                 <div className="text-center py-8 space-y-3">
-                  <p className="text-sm text-slate-500">No patients found matching "{searchTerm}"</p>
+                  <p className="text-sm text-slate-500">No patients found matching "<strong>{searchTerm}</strong>"</p>
                   <Button
                     size="sm"
-                    onClick={() => navigate(`${createPageUrl('Patients')}?new=1`)}
+                    onClick={() => setShowAddPatient(true)}
                     className="bg-teal-600 hover:bg-teal-700"
                   >
                     <UserPlus className="w-4 h-4 mr-2" />
