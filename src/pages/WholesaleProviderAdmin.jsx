@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart3, Package, ShoppingCart, CreditCard, TrendingUp, Users, Lock, AlertTriangle } from 'lucide-react';
+import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 import { Card, CardContent } from '@/components/ui/card';
 import WSProviderDashboard from '@/components/wholesale/WSProviderDashboard.jsx';
 import WSProviderProducts from '@/components/wholesale/WSProviderProducts.jsx';
