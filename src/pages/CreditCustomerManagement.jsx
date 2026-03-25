@@ -331,10 +331,28 @@ export default function CreditCustomerManagement() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
-              <Building2 className="w-8 h-8 text-blue-600" />
-              Credit Customers Management
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
+                <Building2 className="w-8 h-8 text-blue-600" />
+                Credit Customers Management
+              </h1>
+              <PageInfoTooltip
+                title="Credit Sales Accounts"
+                description="Track outstanding balances for credit customers (hospitals, corporates, clinics). Record payments and generate monthly statements."
+                useCases={[
+                  "View outstanding balance per institution after credit sales are made at POS",
+                  "Record a payment when a cheque or bank transfer is received",
+                  "Download a monthly account statement as PDF for a customer",
+                  "Check total outstanding across all credit customers"
+                ]}
+                bestPractices={[
+                  "Credit sales must first be made from Pharmacy POS with 'Credit Sale' toggled ON",
+                  "Record payments promptly when received — do not wait until end of month",
+                  "Always include cheque number / reference in the payment notes",
+                  "Generate and send the monthly statement to the customer for reconciliation"
+                ]}
+              />
+            </div>
             <p className="text-slate-600 mt-1">Track outstanding balances, payments, and generate statements</p>
           </div>
         </div>
