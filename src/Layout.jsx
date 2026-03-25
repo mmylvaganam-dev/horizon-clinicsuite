@@ -251,6 +251,7 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Procurement', page: 'Procurement', icon: ShoppingBag, description: 'Purchase orders - Create POs, receive goods, manage vendors' },
         { name: 'Credit Sale Institutions', page: 'InstitutionManagement', icon: Building2, description: 'Manage credit institutions - Add hospitals, clinics, corporates for credit sales' },
         { name: 'Credit Sales Accounts', page: 'CreditCustomerManagement', icon: DollarSign, description: 'Credit accounts & payments - Track outstanding balances, payment history, and statements' },
+        { name: 'Wholesale Marketplace', page: 'WholesaleMarketplace', icon: Package, description: 'Browse & order from wholesale suppliers — place bulk orders, track deliveries, manage payments' },
       ]
     },
     {
