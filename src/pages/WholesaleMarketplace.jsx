@@ -31,9 +31,27 @@ export default function WholesaleMarketplace() {
       <div className="bg-gradient-to-r from-indigo-600 to-purple-700 rounded-2xl p-6 text-white shadow-xl">
         <div className="flex items-center gap-3">
           <Building2 className="w-10 h-10" />
-          <div>
-            <h1 className="text-2xl font-black">Wholesale Pharma Marketplace</h1>
-            <p className="text-indigo-200 text-sm">Browse wholesale suppliers, place bulk orders, and manage your supplier connections</p>
+          <div className="flex items-center gap-3">
+            <div>
+              <h1 className="text-2xl font-black">Wholesale Pharma Marketplace</h1>
+              <p className="text-indigo-200 text-sm">Browse wholesale suppliers, place bulk orders, and manage your supplier connections</p>
+            </div>
+            <PageInfoTooltip
+              title="Wholesale Pharma Marketplace"
+              description="As a retail pharmacy buyer — browse your connected wholesale suppliers, place bulk orders, manage supplier connections, and track payments."
+              useCases={[
+                "Browse & Order: browse a connected supplier's product catalog and add items to cart",
+                "My Orders: track all your wholesale purchase orders and their delivery status",
+                "My Suppliers: view and manage your wholesale supplier connections and credit balances",
+                "Payments: view all payments submitted to suppliers and track cheque status"
+              ]}
+              bestPractices={[
+                "Connect to a supplier first from the My Suppliers tab before you can order",
+                "Check your credit balance before placing a large order",
+                "Submit payment via the Payments tab — include cheque image for faster clearance",
+                "View Account Statement from My Suppliers to see outstanding balance"
+              ]}
+            />
           </div>
         </div>
         <div className="mt-4 flex gap-4">
