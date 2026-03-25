@@ -72,7 +72,7 @@ export default function WSPaymentDialog({ open, onOpenChange, providerId, compan
 
       // Reduce credit account balance
       if (!submittedByBuyer) {
-        const accts = await base44.entities.WholesaleCreditAccount.filter({ provider_id: providerId, company_id: companyId });
+        const accts = await base44.entities.WholesaleCreditAccount.filter({ provider_id: providerId, company_id: resolvedCompanyId });
         if (accts[0]) {
           const newBal = Math.max(0, (accts[0].current_balance || 0) - Number(form.amount));
           await base44.entities.WholesaleCreditAccount.update(accts[0].id, { current_balance: newBal });
