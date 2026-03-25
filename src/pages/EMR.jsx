@@ -92,7 +92,15 @@ export default function EMR() {
   const filteredPatients = patients.filter(p => {
     const fullName = `${p.first_name} ${p.last_name}`.toLowerCase();
     const search = searchTerm.toLowerCase();
-    return fullName.includes(search) || p.mrn?.toLowerCase().includes(search);
+    return (
+      fullName.includes(search) ||
+      p.mrn?.toLowerCase().includes(search) ||
+      p.phn?.toLowerCase().includes(search) ||
+      p.nic?.toLowerCase().includes(search) ||
+      p.mobile?.includes(searchTerm) ||
+      p.phone?.includes(searchTerm) ||
+      p.email?.toLowerCase().includes(search)
+    );
   });
 
   return (
