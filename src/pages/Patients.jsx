@@ -23,6 +23,7 @@ import {
   UserCheck,
   UserMinus
 } from 'lucide-react';
+import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import PatientForm from '../components/patients/PatientForm';
