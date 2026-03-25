@@ -156,9 +156,27 @@ export default function Appointments() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Appointments</h1>
-          <p className="text-slate-500 mt-1">{todayAppointments.length} appointments today</p>
+        <div className="flex items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Appointments</h1>
+            <p className="text-slate-500 mt-1">{todayAppointments.length} appointments today</p>
+          </div>
+          <PageInfoTooltip
+            title="Appointments"
+            description="Book, view, and manage all patient appointments. Navigate the week calendar or click a day to see that day's appointments."
+            useCases={[
+              "Book a new appointment — click 'New Appointment'",
+              "View a provider's schedule for the current week",
+              "Update appointment status (Scheduled → Confirmed → Completed)",
+              "Click an appointment card to expand and see linked records"
+            ]}
+            bestPractices={[
+              "Use the 'Today' button to quickly jump to today's view",
+              "Filter by status to quickly find pending or cancelled appointments",
+              "Click the patient name in the expanded view to open their full profile",
+              "Telehealth appointments show a video icon — click to launch the consultation"
+            ]}
+          />
         </div>
         <Button 
           onClick={() => { setEditingAppointment(null); setFormOpen(true); }}
