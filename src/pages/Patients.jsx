@@ -18,7 +18,10 @@ import {
   ChevronRight,
   Filter,
   Grid3X3,
-  List
+  List,
+  Network,
+  UserCheck,
+  UserMinus
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
