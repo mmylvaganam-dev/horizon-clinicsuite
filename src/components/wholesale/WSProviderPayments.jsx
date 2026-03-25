@@ -133,6 +133,7 @@ export default function WSProviderPayments({ provider }) {
         providerId={provider.id}
         companyId={selectedConnection?.buyer_company_id || ''}
         companyName={selectedConnection?.buyer_name || ''}
+        connections={connections}
         userEmail={user?.email}
         submittedByBuyer={false}
         onSuccess={() => {
