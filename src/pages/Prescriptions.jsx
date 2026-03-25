@@ -29,6 +29,21 @@ export default function Prescriptions() {
 
   const [interactionCheck, setInteractionCheck] = useState(null);
   const [checkingInteractions, setCheckingInteractions] = useState(false);
+  const [drugSearch, setDrugSearch] = useState('');
+  const [showDrugDropdown, setShowDrugDropdown] = useState(false);
+  const drugInputRef = useRef(null);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target) && !drugInputRef.current?.contains(e.target)) {
+        setShowDrugDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -57,6 +72,32 @@ export default function Prescriptions() {
     queryKey: ['drugCatalog'],
     queryFn: () => base44.entities.DrugCatalog.list(),
   });
+
+  const { data: pharmacyStock = [] } = useQuery({
+    queryKey: ['pharmacyStockForRx'],
+    queryFn: () => base44.entities.PharmacyStock.list('-updated_date', 500),
+  });
+
+  // Merged, deduplicated drug list from DrugCatalog + PharmacyStock
+  const allDrugs = useMemo(() => {
+    const seen = new Set();
+    const list = [];
+    drugCatalog.forEach(d => {
+      const label = d.drug_name + (d.strength ? ` ${d.strength}` : '');
+      if (!seen.has(label)) { seen.add(label); list.push({ label, source: 'catalog', strength: d.strength || '' }); }
+    });
+    pharmacyStock.forEach(s => {
+      const label = s.display_name + (s.generic_name && s.generic_name !== s.display_name ? ` (${s.generic_name})` : '');
+      if (!seen.has(label)) { seen.add(label); list.push({ label, source: 'stock', strength: '' }); }
+    });
+    return list;
+  }, [drugCatalog, pharmacyStock]);
+
+  const filteredDrugs = useMemo(() => {
+    if (!drugSearch.trim()) return allDrugs.slice(0, 30);
+    const q = drugSearch.toLowerCase();
+    return allDrugs.filter(d => d.label.toLowerCase().includes(q)).slice(0, 40);
+  }, [allDrugs, drugSearch]);
 
   const checkInteractions = async () => {
     if (!formData.drug_name || currentMeds.length === 0) return;
