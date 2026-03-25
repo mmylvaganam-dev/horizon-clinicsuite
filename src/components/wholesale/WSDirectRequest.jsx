@@ -105,7 +105,7 @@ export default function WSDirectRequest({ orgId, user, connections }) {
       setForm({ medicine_name: '', quantity: '', unit: 'boxes', notes: '', contact_phone: '' });
       toast.success('Stock request sent to supplier! They will contact you shortly.');
     },
-    onError: () => toast.error('Failed to send stock request'),
+    onError: (err) => toast.error('Failed to send stock request: ' + (err?.message || 'Unknown error')),
   });
 
   const openRequest = (provider) => {
