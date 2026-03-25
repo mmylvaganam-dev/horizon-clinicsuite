@@ -431,6 +431,14 @@ export default function EMR() {
           onOpenChange={setShowClinicalSummary}
         />
       )}
+
+      <PatientForm
+        open={showAddPatient}
+        onOpenChange={setShowAddPatient}
+        patient={null}
+        onSubmit={(data) => createPatientMutation.mutate(data)}
+        isLoading={createPatientMutation.isPending}
+      />
     </div>
   );
 }
