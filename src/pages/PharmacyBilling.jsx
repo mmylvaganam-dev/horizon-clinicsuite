@@ -43,6 +43,7 @@ import { createPageUrl } from '../utils';
 import { useNavigate } from 'react-router-dom';
 import PHNCard from '@/components/patients/PHNCard';
 import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
+import PageInfoTooltip from '@/components/shared/PageInfoTooltip';
 
 export default function PharmacyBilling() {
   const queryClient = useQueryClient();
