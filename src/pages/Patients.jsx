@@ -177,7 +177,7 @@ export default function Patients() {
             </div>
           </Card>
         </button>
-        <button onClick={() => setStatusFilter('all')} className="text-left">
+        <Link to={createPageUrl('WholesaleMarketplace')} className="text-left">
           <Card className="p-4 border-0 shadow-sm hover:shadow-md transition-all cursor-pointer">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
@@ -185,11 +185,11 @@ export default function Patients() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-slate-900">{networkCount}</p>
-                <p className="text-xs text-slate-500">Health Network Connected</p>
+                <p className="text-xs text-slate-500">Connected Wholesale Pharmacies</p>
               </div>
             </div>
           </Card>
-        </button>
+        </Link>
       </div>
 
       {/* Filters */}
