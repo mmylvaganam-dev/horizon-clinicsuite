@@ -126,7 +126,7 @@ Deno.serve(async (req) => {
 
         // Audit log
         await base44.asServiceRole.entities.AuditLog.create({
-            timestamp: new Date().toISOString(),
+            timestamp: slNowISO(),
             user_id: user.id,
             user_email: user.email,
             organization_id: saleData.organization_id || '',
