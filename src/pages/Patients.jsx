@@ -60,15 +60,15 @@ export default function Patients() {
     queryFn: () => base44.entities.Patient.filter(orgFilter, '-created_date'),
   });
 
-  const { data: careAccess = [] } = useQuery({
-    queryKey: ['patientCareAccess', selectedOrgId],
-    queryFn: () => base44.entities.PatientCareAccess.filter({ granted_org_id: selectedOrgId, status: 'active' }),
+  const { data: wholesaleConnections = [] } = useQuery({
+    queryKey: ['wholesaleConnections', selectedOrgId],
+    queryFn: () => base44.entities.WholesaleConnection.filter({ buyer_organization_id: selectedOrgId, status: 'active' }),
     enabled: !!selectedOrgId,
   });
 
   const activeCount = patients.filter(p => (p.status || 'active') === 'active').length;
   const inactiveCount = patients.filter(p => p.status === 'inactive').length;
-  const networkCount = careAccess.length;
+  const networkCount = wholesaleConnections.length;
 
   const createMutation = useMutation({
     mutationFn: async (data) => {
