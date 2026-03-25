@@ -681,7 +681,25 @@ export default function SalesWorkspace() {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top Bar */}
         <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-4 lg:px-6 py-4">
-          <h1 className="text-xl lg:text-2xl font-bold">New Sale</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl lg:text-2xl font-bold">New Sale</h1>
+            <PageInfoTooltip
+              title="Sales Workspace — Unified Billing"
+              description="One screen for billing all service types: GP consultations, specialist visits, radiology, lab tests, pharmacy, home care, and health packages."
+              useCases={[
+                "Bill a patient for a GP or specialist consultation",
+                "Add multiple service types in one invoice (e.g., consultation + lab test + pharmacy)",
+                "Register a new walk-in patient on the spot",
+                "Mix pharmacy items with clinical services in a single bill"
+              ]}
+              bestPractices={[
+                "Select the patient first before adding services to the cart",
+                "Switch tabs (GP, Specialist, Radiology…) to find the right service",
+                "Use the search bar to quickly find any service across all categories",
+                "For pharmacy-only billing with barcode scanning, use the dedicated Pharmacy POS"
+              ]}
+            />
+          </div>
           <p className="text-sm text-indigo-100">Products & Services</p>
         </div>
 
