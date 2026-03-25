@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, AlertTriangle, CheckCircle, TrendingUp } from 'lucide-react';
+import { Upload, AlertTriangle, CheckCircle, TrendingUp, FileText, Loader2, X } from 'lucide-react';
 import { format } from 'date-fns';
 import LabTrendChart from './LabTrendChart';
 import toast from 'react-hot-toast';
 
 export default function PatientLabsTab({ patientId }) {
-  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
   const [uploadedFileName, setUploadedFileName] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef(null);
 
   const queryClient = useQueryClient();
 
@@ -39,35 +39,42 @@ export default function PatientLabsTab({ patientId }) {
     queryFn: () => base44.entities.LabParameter.list(),
   });
 
-  const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
+  const uploadFile = useCallback(async (file) => {
     if (!file) return;
     setUploadedFileName(file.name);
     setUploading(true);
     try {
       const response = await base44.integrations.Core.UploadFile({ file });
       setUploadedFile(response.file_url);
-      toast.success('File uploaded');
+      toast.success('File ready — click Extract to import');
     } catch (error) {
       toast.error('Upload failed');
     } finally {
       setUploading(false);
     }
+  }, []);
+
+  const handleFileInput = (e) => uploadFile(e.target.files[0]);
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const file = e.dataTransfer.files[0];
+    if (file && (file.type === 'application/pdf' || file.type.startsWith('image/'))) {
+      uploadFile(file);
+    } else {
+      toast.error('Please drop a PDF or image file');
+    }
   };
 
   const extractLabMutation = useMutation({
     mutationFn: async () => {
-      setUploading(true);
-      const fileUrl = uploadedFile;
-
-      // Extract lab data via backend
       const response = await base44.functions.invoke('extractLabFromPDF', {
-        file_url: fileUrl,
+        file_url: uploadedFile,
         patient_id: patientId
       });
       const data = response.data;
-
-      // Also save as PatientDocument so it appears in the docs tab
+      // Save as PatientDocument (non-critical)
       try {
         await base44.entities.PatientDocument.create({
           organization_id: user?.organization_id || '',
@@ -79,33 +86,26 @@ export default function PatientLabsTab({ patientId }) {
           source: 'patient_brought',
           uploaded_by: user?.id || '',
           uploaded_by_email: user?.email || '',
-          file_ref: fileUrl,
-          notes: `Auto-imported via AI extraction. ${data.test_count || 0} test(s), ${data.abnormal_count || 0} abnormal.`,
+          file_ref: uploadedFile,
+          notes: `AI extracted: ${data.test_count || 0} test(s), ${data.abnormal_count || 0} abnormal.`,
           visibility: 'internal',
           status: 'active'
         });
-      } catch (_) { /* non-critical */ }
-
+      } catch (_) {}
       return data;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['patientLabResults', patientId] });
       queryClient.invalidateQueries({ queryKey: ['patientDocuments', patientId] });
-      setUploadDialogOpen(false);
       setUploadedFile(null);
       setUploadedFileName('');
-      setUploading(false);
-      
-      if (data.abnormal_count > 0) {
-        toast.success(`Lab imported: ${data.abnormal_count} abnormal value(s) flagged`);
-      } else {
-        toast.success('Lab imported successfully');
-      }
+      toast.success(
+        data.abnormal_count > 0
+          ? `Imported ${data.test_count} tests — ${data.abnormal_count} abnormal value(s) flagged`
+          : `Imported ${data.test_count} test(s) successfully`
+      );
     },
-    onError: () => {
-      setUploading(false);
-      toast.error('Failed to extract lab data');
-    }
+    onError: () => toast.error('Failed to extract lab data'),
   });
 
   const acknowledgeResultMutation = useMutation({
@@ -154,14 +154,67 @@ export default function PatientLabsTab({ patientId }) {
 
   const unapprovedResults = results.filter(r => r.status === 'Released' && !r.reviewed_by);
 
+  const isProcessing = uploading || extractLabMutation.isPending;
+
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Laboratory Results</h3>
-        <Button onClick={() => setUploadDialogOpen(true)} size="sm" className="bg-blue-600 hover:bg-blue-700">
-          <Upload className="w-4 h-4 mr-2" />
-          Upload Lab PDF
-        </Button>
+      <h3 className="text-lg font-semibold">Laboratory Results</h3>
+
+      {/* Drag-and-drop upload zone */}
+      <div
+        onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+        onDragLeave={() => setIsDragOver(false)}
+        onDrop={handleDrop}
+        onClick={() => !isProcessing && fileInputRef.current?.click()}
+        className={`relative border-2 border-dashed rounded-xl p-5 text-center cursor-pointer transition-all
+          ${isDragOver ? 'border-blue-500 bg-blue-50' : 'border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-blue-50'}
+          ${isProcessing ? 'pointer-events-none opacity-70' : ''}
+        `}
+      >
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf,image/*"
+          onChange={handleFileInput}
+          className="hidden"
+        />
+        {isProcessing ? (
+          <div className="flex flex-col items-center gap-2 py-2">
+            <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+            <p className="text-sm font-medium text-blue-700">
+              {uploading ? 'Uploading file…' : 'AI is extracting lab values…'}
+            </p>
+          </div>
+        ) : uploadedFile ? (
+          <div className="flex items-center justify-between gap-3 py-1">
+            <div className="flex items-center gap-2 text-sm text-emerald-700 font-medium">
+              <FileText className="w-5 h-5 text-emerald-500" />
+              <span className="truncate max-w-xs">{uploadedFileName}</span>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                onClick={(e) => { e.stopPropagation(); extractLabMutation.mutate(); }}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Upload className="w-3 h-3 mr-1" /> Extract & Import
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={(e) => { e.stopPropagation(); setUploadedFile(null); setUploadedFileName(''); }}
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-1 py-2">
+            <Upload className="w-8 h-8 text-slate-400" />
+            <p className="text-sm font-medium text-slate-600">Drop a lab PDF or image here</p>
+            <p className="text-xs text-slate-400">or click to browse — AI will extract values, units & ranges automatically</p>
+          </div>
+        )}
       </div>
 
       {unapprovedResults.length > 0 && (
@@ -271,47 +324,6 @@ export default function PatientLabsTab({ patientId }) {
         </TabsContent>
       </Tabs>
 
-      <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Upload Lab Results PDF</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="border-2 border-dashed rounded-lg p-8 text-center">
-              <Upload className="w-12 h-12 mx-auto text-slate-400 mb-4" />
-              <input
-                type="file"
-                accept=".pdf,image/*"
-                onChange={handleFileUpload}
-                className="hidden"
-                id="lab-pdf-upload"
-              />
-              <label htmlFor="lab-pdf-upload" className="cursor-pointer">
-                <Button asChild variant="outline" disabled={uploading}>
-                  <span>{uploading ? 'Uploading...' : 'Choose PDF or Image'}</span>
-                </Button>
-              </label>
-              {uploadedFile && (
-                <p className="text-sm text-emerald-600 mt-2">✓ {uploadedFileName || 'File uploaded successfully'}</p>
-              )}
-            </div>
-
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-sm text-blue-900">
-                <strong>AI Extraction:</strong> The system will automatically extract test results, match with historical data, and flag abnormal values for review.
-              </p>
-            </div>
-
-            <Button
-              onClick={() => extractLabMutation.mutate()}
-              disabled={!uploadedFile || uploading}
-              className="w-full"
-            >
-              {uploading ? 'Extracting Lab Data...' : 'Extract & Import Lab Results'}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

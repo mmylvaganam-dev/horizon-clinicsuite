@@ -87,32 +87,51 @@ Deno.serve(async (req) => {
             entered_by: user.id
         });
 
-        // Check for abnormal values and flag
+        // Create LabResultEntry records + flag abnormal values
         const abnormalTests = [];
         for (const test of labData.test_results || []) {
-            // Get lab parameter for reference range
             const params = await base44.asServiceRole.entities.LabParameter.filter({ test_code: test.test_code });
-            
-            if (params.length > 0) {
-                const param = params[0];
-                const value = parseFloat(test.value);
-                
-                if ((param.normal_range_min && value < param.normal_range_min) || 
-                    (param.normal_range_max && value > param.normal_range_max)) {
-                    abnormalTests.push(test);
-                    
-                    // Create result flag
-                    await base44.asServiceRole.entities.ResultFlag.create({
-                        result_id: result.id,
-                        flag_type: 'abnormal',
-                        severity: 'moderate',
-                        parameter_name: test.test_name,
-                        value: test.value.toString(),
-                        reference_range: test.reference_range || `${param.normal_range_min}-${param.normal_range_max}`,
-                        flagged_by: 'system',
-                        flagged_at: new Date().toISOString()
-                    });
-                }
+            const param = params[0] || null;
+
+            const numericValue = parseFloat(test.value);
+            const refMin = param?.normal_range_min;
+            const refMax = param?.normal_range_max;
+            let isAbnormal = false;
+            let abnormalFlag = null;
+
+            if (!isNaN(numericValue) && (refMin !== undefined || refMax !== undefined)) {
+                if (refMin !== undefined && numericValue < refMin) { isAbnormal = true; abnormalFlag = 'low'; }
+                if (refMax !== undefined && numericValue > refMax) { isAbnormal = true; abnormalFlag = 'high'; }
+            }
+
+            // Create a LabResultEntry for every test
+            await base44.asServiceRole.entities.LabResultEntry.create({
+                result_id: result.id,
+                test_id: param?.id || 'external',
+                test_code: test.test_code || test.test_name?.toLowerCase().replace(/\s+/g, '_') || 'unknown',
+                test_name: test.test_name,
+                value_numeric: isNaN(numericValue) ? undefined : numericValue,
+                value_text: test.value?.toString(),
+                unit: test.unit || '',
+                reference_range_text: test.reference_range || (param ? `${refMin ?? ''}–${refMax ?? ''}` : ''),
+                is_abnormal: isAbnormal,
+                abnormal_flag: abnormalFlag || undefined,
+                entered_by: user.id,
+                entered_at: new Date().toISOString()
+            });
+
+            if (isAbnormal) {
+                abnormalTests.push(test);
+                await base44.asServiceRole.entities.ResultFlag.create({
+                    result_id: result.id,
+                    flag_type: 'abnormal',
+                    severity: 'moderate',
+                    parameter_name: test.test_name,
+                    value: test.value?.toString(),
+                    reference_range: test.reference_range || `${refMin ?? ''}–${refMax ?? ''}`,
+                    flagged_by: 'system',
+                    flagged_at: new Date().toISOString()
+                });
             }
         }
 
