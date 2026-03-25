@@ -33,6 +33,8 @@ export default function EMR() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [showClinicalSummary, setShowClinicalSummary] = useState(false);
+  const [showAddPatient, setShowAddPatient] = useState(false);
+  const queryClient = useQueryClient();
 
   // Read patient ID from URL parameter
   const urlParams = new URLSearchParams(window.location.search);
