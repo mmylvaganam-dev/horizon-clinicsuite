@@ -34,6 +34,7 @@ const statusColors = {
 
 export default function Patients() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const { orgFilter, withOrgId, selectedOrgId } = useOrgFiltered();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
