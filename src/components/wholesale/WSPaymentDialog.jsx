@@ -52,8 +52,8 @@ export default function WSPaymentDialog({ open, onOpenChange, providerId, compan
     mutationFn: async () => {
       const payment = await base44.entities.WholesalePayment.create({
         provider_id: providerId,
-        company_id: companyId,
-        company_name: companyName,
+        company_id: resolvedCompanyId,
+        company_name: resolvedCompanyName,
         order_id: orderId || undefined,
         order_number: orderNumber || undefined,
         amount: Number(form.amount),
