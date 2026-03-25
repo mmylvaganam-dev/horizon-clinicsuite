@@ -195,7 +195,7 @@ export default function WSPaymentDialog({ open, onOpenChange, providerId, compan
           <Button
             className="w-full bg-indigo-600 hover:bg-indigo-700 font-bold"
             onClick={() => saveMutation.mutate()}
-            disabled={!form.amount || saveMutation.isPending}
+            disabled={!form.amount || (!companyId && !selectedCompanyId) || saveMutation.isPending}
           >
             {saveMutation.isPending ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Saving...</> : submittedByBuyer ? '📨 Submit Payment' : '✅ Record Payment'}
           </Button>
