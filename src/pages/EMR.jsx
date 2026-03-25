@@ -24,6 +24,8 @@ import DiagnosticsTab from '../components/emr/DiagnosticsTab';
 import CPPManager from '../components/emr/CPPManager';
 import ClinicalSummaryReport from '../components/emr/ClinicalSummaryReport';
 import PatientDocumentHub from '../components/emr/PatientDocumentHub';
+import PatientForm from '../components/patients/PatientForm';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function EMR() {
   const navigate = useNavigate();
