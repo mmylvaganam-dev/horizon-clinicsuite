@@ -22,10 +22,15 @@ const BLANK = {
   notes: '',
 };
 
-export default function WSPaymentDialog({ open, onOpenChange, providerId, companyId, companyName, orderId, orderNumber, userEmail, submittedByBuyer = false, onSuccess }) {
+export default function WSPaymentDialog({ open, onOpenChange, providerId, companyId, companyName, orderId, orderNumber, userEmail, submittedByBuyer = false, connections = [], onSuccess }) {
   const queryClient = useQueryClient();
   const [form, setForm] = useState({ ...BLANK });
+  const [selectedCompanyId, setSelectedCompanyId] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
+
+  // Resolved company id/name — use prop if provided, else from dropdown selection
+  const resolvedCompanyId = companyId || selectedCompanyId;
+  const resolvedCompanyName = companyName || connections.find(c => c.buyer_company_id === selectedCompanyId)?.buyer_name || '';
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
