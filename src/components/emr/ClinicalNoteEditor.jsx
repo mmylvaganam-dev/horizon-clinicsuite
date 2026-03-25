@@ -43,7 +43,7 @@ export default function ClinicalNoteEditor({ patientId, open, onClose, editNote 
   const queryClient = useQueryClient();
   const isEditing = !!editNote;
 
-  const [noteDate, setNoteDate] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [noteDate, setNoteDate] = useState(getSLTodayISO());
   const [noteType, setNoteType] = useState('SOAP');
   const [content, setContent] = useState('');
 
