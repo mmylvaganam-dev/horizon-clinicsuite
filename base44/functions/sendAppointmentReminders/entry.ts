@@ -1,136 +1,158 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
-
-const DIALOG_LOGIN_URL = 'https://e-sms.dialog.lk/api/v2/user/login';
-const DIALOG_SEND_URL = 'https://e-sms.dialog.lk/api/v2/sms';
-
-async function getDialogToken(username, password) {
-  const res = await fetch(DIALOG_LOGIN_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password }),
-  });
-  if (!res.ok) throw new Error(`Dialog login failed: ${res.status}`);
-  const data = await res.json();
-  if (!data.token) throw new Error('No token from Dialog eSMS');
-  return data.token;
-}
-
-async function sendSms(token, mobile, message) {
-  const cleaned = mobile.replace(/\s+/g, '');
-  if (!/^7\d{8}$/.test(cleaned)) return; // skip invalid SL numbers
-  await fetch(DIALOG_SEND_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-    body: JSON.stringify({
-      msisdn: [{ mobile: cleaned }],
-      message,
-      transaction_id: Date.now(),
-    }),
-  });
-}
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    // This runs as a scheduled task — use service role
-    const payload = await req.json().catch(() => ({}));
-    const windowHours = payload.windowHours ?? 24; // 24 or 1
+    const user = await base44.auth.me();
 
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Get current time and 24-hour window
     const now = new Date();
-    // Target window: appointments whose start_time is within [windowHours - 5min, windowHours + 5min] from now
-    const windowStart = new Date(now.getTime() + (windowHours * 60 - 5) * 60 * 1000);
-    const windowEnd   = new Date(now.getTime() + (windowHours * 60 + 5) * 60 * 1000);
+    const in24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
-    // Fetch upcoming appointments in that window
-    const allAppointments = await base44.asServiceRole.entities.Appointment.list('-start_time', 500);
-    const due = allAppointments.filter(a => {
-      if (['cancelled', 'completed', 'no-show'].includes(a.status)) return false;
-      const t = new Date(a.start_time);
-      return t >= windowStart && t <= windowEnd;
+    // Fetch all appointments in the 24-hour window
+    const allAppointments = await base44.entities.Appointment.list();
+    const appointmentsToRemind = allAppointments.filter(apt => {
+      const aptStartTime = new Date(apt.start_time);
+      // Check if appointment is within 24 hour window and hasn't been reminded
+      return (
+        aptStartTime >= now &&
+        aptStartTime <= in24Hours &&
+        !apt.reminder_sent_at
+      );
     });
 
-    console.log(`[Reminders] windowHours=${windowHours}, due=${due.length}`);
+    console.log(`Found ${appointmentsToRemind.length} appointments needing reminders`);
 
-    if (due.length === 0) return Response.json({ sent: 0 });
+    let smsSent = 0;
+    let emailSent = 0;
+    let failed = 0;
 
-    // Load patients (unique ids)
-    const patientIds = [...new Set(due.map(a => a.patient_id))];
-    const patients = {};
-    await Promise.all(patientIds.map(async (pid) => {
-      const results = await base44.asServiceRole.entities.Patient.filter({ id: pid });
-      if (results[0]) patients[pid] = results[0];
-    }));
+    // Process each appointment
+    for (const appointment of appointmentsToRemind) {
+      try {
+        // Fetch patient details
+        const patient = await base44.entities.Patient.list().then(patients =>
+          patients.find(p => p.id === appointment.patient_id)
+        );
 
-    // Load orgs (for SMS credentials)
-    const orgIds = [...new Set(due.map(a => a.organization_id).filter(Boolean))];
-    const orgSmsTokens = {};
-    await Promise.all(orgIds.map(async (orgId) => {
-      const companies = await base44.asServiceRole.entities.CompanyProfile.filter({ organization_id: orgId });
-      const co = companies[0];
-      if (co?.esms_username && co?.esms_password) {
-        try {
-          orgSmsTokens[orgId] = await getDialogToken(co.esms_username, co.esms_password);
-        } catch (e) {
-          console.warn(`SMS token failed for org ${orgId}:`, e.message);
+        if (!patient) {
+          console.warn(`Patient not found for appointment ${appointment.id}`);
+          failed++;
+          continue;
         }
-      }
-    }));
 
-    let sent = 0;
+        // Fetch location for context
+        const location = await base44.entities.Location.list().then(locations =>
+          locations.find(l => l.id === appointment.location_id)
+        );
 
-    for (const appt of due) {
-      const patient = patients[appt.patient_id];
-      if (!patient) continue;
+        // Fetch provider for context
+        const provider = await base44.entities.StaffProfile.list().then(staff =>
+          staff.find(s => s.id === appointment.provider_id)
+        );
 
-      const apptTime = new Date(appt.start_time).toLocaleString('en-US', {
-        timeZone: 'Asia/Colombo',
-        weekday: 'short', month: 'short', day: 'numeric',
-        hour: 'numeric', minute: '2-digit',
-      });
+        const appointmentTime = new Date(appointment.start_time);
+        const formattedTime = appointmentTime.toLocaleString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
 
-      const label = windowHours === 24 ? 'tomorrow' : 'in 1 hour';
-      const reminderMsg = `Reminder: Your appointment is scheduled ${label} on ${apptTime}. Please arrive on time. If you need to cancel, contact us immediately.`;
+        // Send SMS reminder if patient has mobile number
+        if (patient.mobile) {
+          try {
+            const smsMessage = `Reminder: You have an appointment on ${formattedTime}${
+              provider ? ` with ${provider.full_name || provider.first_name}` : ''
+            }${location ? ` at ${location.name}` : ''}. Please arrive on time.`;
 
-      // --- Email ---
-      const email = patient.email;
-      if (email) {
-        try {
-          await base44.asServiceRole.integrations.Core.SendEmail({
-            to: email,
-            subject: `Appointment Reminder — ${apptTime}`,
-            body: `<p>Dear ${patient.first_name || 'Patient'},</p>
-<p>This is a reminder that you have an appointment scheduled <strong>${label}</strong>:</p>
-<ul>
-  <li><strong>Date & Time:</strong> ${apptTime}</li>
-  <li><strong>Type:</strong> ${appt.type || 'Consultation'}</li>
-  ${appt.reason ? `<li><strong>Reason:</strong> ${appt.reason}</li>` : ''}
-</ul>
-<p>Please arrive 10 minutes early. If you need to reschedule or cancel, please contact us as soon as possible.</p>
-<p>Thank you.</p>`,
-          });
-          sent++;
-        } catch (e) {
-          console.warn(`Email failed for patient ${patient.id}:`, e.message);
+            // Use Dialog eSMS via backend function
+            const smsResponse = await base44.functions.invoke('sendDialogSms', {
+              phone_number: patient.mobile,
+              message: smsMessage,
+            });
+
+            if (smsResponse.data.success) {
+              smsSent++;
+              // Mark reminder as sent
+              await base44.entities.Appointment.update(appointment.id, {
+                reminder_sent_at: new Date().toISOString(),
+                reminder_method: 'sms',
+              });
+              console.log(`SMS sent to ${patient.mobile} for appointment ${appointment.id}`);
+            } else {
+              failed++;
+              console.error(`Failed to send SMS for appointment ${appointment.id}`);
+            }
+          } catch (smsError) {
+            console.error(`SMS error for appointment ${appointment.id}:`, smsError);
+            failed++;
+          }
         }
-      }
 
-      // --- SMS ---
-      const mobile = patient.mobile || patient.phone;
-      const smsToken = orgSmsTokens[appt.organization_id];
-      if (mobile && smsToken) {
-        try {
-          await sendSms(smsToken, mobile, reminderMsg);
-          sent++;
-        } catch (e) {
-          console.warn(`SMS failed for patient ${patient.id}:`, e.message);
+        // Send email reminder if patient has email
+        if (patient.email) {
+          try {
+            const emailBody = `
+Hello ${patient.first_name},
+
+This is a reminder about your upcoming appointment:
+
+Date & Time: ${formattedTime}
+${provider ? `Provider: ${provider.full_name || provider.first_name}` : ''}
+${location ? `Location: ${location.name}` : ''}
+${appointment.reason ? `Reason: ${appointment.reason}` : ''}
+
+Please arrive 10 minutes early and bring any required documents.
+
+If you need to reschedule or cancel, please contact us as soon as possible.
+
+Best regards,
+${location?.name || 'Healthcare Team'}
+            `;
+
+            const emailResponse = await base44.integrations.Core.SendEmail({
+              to: patient.email,
+              subject: `Appointment Reminder - ${formattedTime}`,
+              body: emailBody,
+              from_name: location?.name || 'Healthcare Clinic',
+            });
+
+            emailSent++;
+            console.log(`Email sent to ${patient.email} for appointment ${appointment.id}`);
+          } catch (emailError) {
+            console.error(`Email error for appointment ${appointment.id}:`, emailError);
+          }
         }
+
+        // If neither SMS nor email was sent, mark as failed
+        if (!patient.mobile && !patient.email) {
+          console.warn(`No contact info for patient ${patient.id}`);
+          failed++;
+        }
+      } catch (error) {
+        console.error(`Error processing appointment ${appointment.id}:`, error);
+        failed++;
       }
     }
 
-    console.log(`[Reminders] Sent ${sent} notifications for ${due.length} appointments`);
-    return Response.json({ sent, appointments: due.length });
+    const summary = {
+      total_appointments: appointmentsToRemind.length,
+      sms_sent: smsSent,
+      email_sent: emailSent,
+      failed: failed,
+      timestamp: new Date().toISOString(),
+    };
+
+    console.log('Reminder summary:', summary);
+    return Response.json(summary);
   } catch (error) {
-    console.error('[Reminders] Error:', error);
+    console.error('Error in sendAppointmentReminders:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
