@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Package, Truck, Building2, Link, DollarSign } from 'lucide-react';
+import { Package, Truck, Building2, Link, DollarSign, MessageSquare } from 'lucide-react';
 import WSMarketplaceBrowse from '@/components/wholesale/WSMarketplaceBrowse.jsx';
 import WSMyOrders from '@/components/wholesale/WSMyOrders.jsx';
 import WSMyConnections from '@/components/wholesale/WSMyConnections.jsx';
 import WSBuyerPaymentsOverview from '@/components/wholesale/WSBuyerPaymentsOverview.jsx';
+import WSDirectRequest from '@/components/wholesale/WSDirectRequest.jsx';
 import { useOrganization } from '@/components/OrganizationProvider';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 
