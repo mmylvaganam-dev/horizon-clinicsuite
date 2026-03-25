@@ -99,6 +99,8 @@ Return as JSON with fields: interactions (array of strings), allergy_concerns (a
             new_drug: new_drug_name,
             current_medications: activeDrugs,
             allergies: patientAllergies,
+            chronic_conditions: chronicConditions,
+            has_interactions: (aiResponse.interactions?.length > 0 || aiResponse.allergy_concerns?.length > 0),
             ...aiResponse
         });
     } catch (error) {
