@@ -32,25 +32,35 @@ Deno.serve(async (req) => {
 
         const activeDrugs = prescriptions.map(p => p.drug_name).filter(Boolean);
         const patientAllergies = patient.allergies || 'None';
+        const chronicConditions = patient.chronic_conditions || 'None';
+        const bloodType = patient.blood_type || 'Unknown';
+        const age = patient.date_of_birth 
+            ? Math.floor((Date.now() - new Date(patient.date_of_birth)) / (365.25 * 24 * 3600 * 1000))
+            : null;
 
         // Use AI to check for interactions
-        const prompt = `You are a clinical pharmacist. Check for drug interactions and allergy concerns.
+        const prompt = `You are a clinical pharmacist. Check for drug interactions, allergy concerns, and contraindications based on the patient's full health profile.
 
-New Drug: ${new_drug_name}${new_drug_class ? ` (${new_drug_class})` : ''}
+New Drug to Prescribe: ${new_drug_name}${new_drug_class ? ` (${new_drug_class})` : ''}
 
-Current Medications:
-${activeDrugs.length > 0 ? activeDrugs.join(', ') : 'None'}
+Patient Profile:
+- Age: ${age ? age + ' years' : 'Unknown'}
+- Blood Type: ${bloodType}
+- Allergies: ${patientAllergies}
+- Chronic Conditions: ${chronicConditions}
 
-Patient Allergies:
-${patientAllergies}
+Current Active Medications:
+${activeDrugs.length > 0 ? activeDrugs.map((d, i) => `${i+1}. ${d}`).join('\n') : 'None'}
 
-Please provide:
-1. Any critical drug-drug interactions
-2. Any allergy concerns
-3. Severity rating (none, mild, moderate, severe, contraindicated)
-4. Clinical recommendations
+Please check:
+1. Drug-drug interactions with current medications
+2. Allergy concerns (including cross-reactivity)
+3. Contraindications based on chronic conditions (e.g., renal failure, diabetes, hypertension, liver disease)
+4. Age-related dosing concerns
+5. Severity rating: none, mild, moderate, severe, or contraindicated
+6. Clinical recommendations for the prescriber
 
-Return as JSON with fields: interactions (array), allergy_concerns (array), severity (string), recommendations (string)`;
+Return as JSON with fields: interactions (array of strings), allergy_concerns (array of strings), severity (string), recommendations (string)`;
 
         const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
             prompt: prompt,
