@@ -149,6 +149,49 @@ export default function Patients() {
         </Button>
       </div>
 
+      {/* Stats Summary */}
+      <div className="grid grid-cols-3 gap-4">
+        <button onClick={() => setStatusFilter('active')} className="text-left">
+          <Card className={`p-4 border-0 shadow-sm hover:shadow-md transition-all cursor-pointer ${statusFilter === 'active' ? 'ring-2 ring-emerald-500' : ''}`}>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                <UserCheck className="w-5 h-5 text-emerald-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-slate-900">{activeCount}</p>
+                <p className="text-xs text-slate-500">Active Patients</p>
+              </div>
+            </div>
+          </Card>
+        </button>
+        <button onClick={() => setStatusFilter('inactive')} className="text-left">
+          <Card className={`p-4 border-0 shadow-sm hover:shadow-md transition-all cursor-pointer ${statusFilter === 'inactive' ? 'ring-2 ring-slate-400' : ''}`}>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+                <UserMinus className="w-5 h-5 text-slate-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-slate-900">{inactiveCount}</p>
+                <p className="text-xs text-slate-500">Inactive Patients</p>
+              </div>
+            </div>
+          </Card>
+        </button>
+        <button onClick={() => setStatusFilter('all')} className="text-left">
+          <Card className="p-4 border-0 shadow-sm hover:shadow-md transition-all cursor-pointer">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                <Network className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-slate-900">{networkCount}</p>
+                <p className="text-xs text-slate-500">Health Network Connected</p>
+              </div>
+            </div>
+          </Card>
+        </button>
+      </div>
+
       {/* Filters */}
       <Card className="p-4 bg-white border-0 shadow-sm">
         <div className="flex flex-col sm:flex-row gap-4">
