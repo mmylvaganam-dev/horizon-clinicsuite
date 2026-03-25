@@ -413,7 +413,14 @@ export default function EMR() {
         <Card className="p-12 text-center bg-white border-0 shadow-sm">
           <Search className="w-16 h-16 mx-auto text-slate-300 mb-4" />
           <h3 className="text-xl font-semibold text-slate-900">Search for a Patient</h3>
-          <p className="text-slate-500 mt-2">Enter patient name or MRN to access their medical records</p>
+          <p className="text-slate-500 mt-2">Search by name, PHN, MRN, NIC, mobile, or email</p>
+          <Button
+            onClick={() => setShowAddPatient(true)}
+            className="mt-4 bg-teal-600 hover:bg-teal-700"
+          >
+            <UserPlus className="w-4 h-4 mr-2" />
+            Register New Patient
+          </Button>
         </Card>
       )}
 
