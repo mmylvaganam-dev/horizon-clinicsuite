@@ -31,8 +31,19 @@ import {
   Video,
   Send,
   ClipboardList,
-  BarChart2
+  BarChart2,
+  ChevronDown,
+  MoreVertical
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu';
+import VitalsHeader from '@/components/emr/VitalsHeader';
+import CPPManager from '@/components/emr/CPPManager';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import PatientForm from '../components/patients/PatientForm';
@@ -221,28 +232,11 @@ export default function PatientDetails() {
           <ArrowLeft className="w-4 h-4" />
           Back to Patients
         </Button>
-        <div className="flex gap-2 flex-wrap">
-          <Button
-            variant="outline"
-            onClick={() => navigate(`${createPageUrl('PatientHealthOverview')}?patient=${patientId}`)}
-            className="border-teal-300 text-teal-700 hover:bg-teal-50"
-          >
-            <BarChart2 className="w-4 h-4 mr-2" />
-            Health Overview
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={() => setShowClinicalSummary(true)}
-          >
-            <ClipboardList className="w-4 h-4 mr-2" />
-            Clinical Summary
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={() => setShowPHNCard(true)}
-          >
-            <CreditCard className="w-4 h-4 mr-2" />
-            PHN Card
+        <div className="flex gap-2 items-center">
+          {/* Primary actions always visible */}
+          <Button onClick={() => setFormOpen(true)} className="bg-teal-600 hover:bg-teal-700">
+            <Edit className="w-4 h-4 mr-2" />
+            Edit
           </Button>
           <Button 
             variant="outline"
@@ -251,49 +245,46 @@ export default function PatientDetails() {
             <Stethoscope className="w-4 h-4 mr-2" />
             EMR
           </Button>
-          <Button 
-            variant="outline"
-            onClick={() => navigate(`${createPageUrl('PharmacyBilling')}?patient=${patientId}`)}
-          >
-            <ShoppingBag className="w-4 h-4 mr-2" />
-            Pharmacy
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={() => navigate(`${createPageUrl('HomeCarePatients')}?patient=${patientId}`)}
-          >
-            <Home className="w-4 h-4 mr-2" />
-            Home Care
-          </Button>
-          {isTeleEnabled && (
-            <Button
-              variant="outline"
-              className="border-teal-300 text-teal-700 hover:bg-teal-50"
-              onClick={() => setShowTeleAccess(true)}
-            >
-              <Video className="w-4 h-4 mr-2" />
-              Tele Access
-            </Button>
-          )}
-          <Button
-            variant="outline"
-            className="border-teal-300 text-teal-700 hover:bg-teal-50"
-            onClick={() => setShowSendPharmacy(true)}
-          >
-            <Send className="w-4 h-4 mr-2" />
-            Send to Pharmacy
-          </Button>
-          <Button onClick={() => setFormOpen(true)} className="bg-teal-600 hover:bg-teal-700">
-            <Edit className="w-4 h-4 mr-2" />
-            Edit
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={() => setDeleteOpen(true)}
-            className="text-rose-600 hover:text-rose-700 hover:bg-rose-50"
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
+          {/* More actions dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <MoreVertical className="w-4 h-4 mr-1" />
+                More
+                <ChevronDown className="w-3 h-3 ml-1" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuItem onClick={() => navigate(`${createPageUrl('PatientHealthOverview')}?patient=${patientId}`)}>
+                <BarChart2 className="w-4 h-4 mr-2 text-teal-600" /> Health Overview
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowClinicalSummary(true)}>
+                <ClipboardList className="w-4 h-4 mr-2 text-teal-600" /> Clinical Summary
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowPHNCard(true)}>
+                <CreditCard className="w-4 h-4 mr-2" /> PHN Card
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate(`${createPageUrl('PharmacyBilling')}?patient=${patientId}`)}>
+                <ShoppingBag className="w-4 h-4 mr-2" /> Pharmacy
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate(`${createPageUrl('HomeCarePatients')}?patient=${patientId}`)}>
+                <Home className="w-4 h-4 mr-2" /> Home Care
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setShowSendPharmacy(true)}>
+                <Send className="w-4 h-4 mr-2 text-teal-600" /> Send to Pharmacy
+              </DropdownMenuItem>
+              {isTeleEnabled && (
+                <DropdownMenuItem onClick={() => setShowTeleAccess(true)}>
+                  <Video className="w-4 h-4 mr-2 text-teal-600" /> Tele Access
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setDeleteOpen(true)} className="text-rose-600 focus:text-rose-600">
+                <Trash2 className="w-4 h-4 mr-2" /> Delete Patient
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -342,18 +333,15 @@ export default function PatientDetails() {
 
       {/* Tabs Content */}
       <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList className="grid grid-cols-3 lg:grid-cols-10 w-full">
+        <TabsList className="flex flex-wrap h-auto gap-1 p-1 w-full">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="timeline" className="text-teal-600 font-medium">📋 Timeline</TabsTrigger>
-          {access.canViewAppointments && <TabsTrigger value="appointments">Appointments</TabsTrigger>}
-          {access.canViewClinicalNotes && <TabsTrigger value="records">Records</TabsTrigger>}
-          {access.canViewClinicalNotes && <TabsTrigger value="soap">SOAP Notes</TabsTrigger>}
+          {access.canViewClinicalNotes && <TabsTrigger value="clinical">Clinical</TabsTrigger>}
           {access.canViewLabResults && <TabsTrigger value="labs">Labs</TabsTrigger>}
+          {access.canViewAppointments && <TabsTrigger value="appointments">Appointments</TabsTrigger>}
           {access.canViewReferrals && <TabsTrigger value="referrals">Referrals</TabsTrigger>}
           {access.canViewTasks && <TabsTrigger value="tasks">Tasks</TabsTrigger>}
-          <TabsTrigger value="care_network" className="text-teal-600">
-            🏥 Care Network
-          </TabsTrigger>
+          <TabsTrigger value="care_network">🏥 Care Network</TabsTrigger>
           {isTeleEnabled && (
             <TabsTrigger value="tele">
               Tele
@@ -369,6 +357,7 @@ export default function PatientDetails() {
         </TabsContent>
 
         <TabsContent value="overview" className="space-y-6">
+          {access.canViewClinicalNotes && <VitalsHeader patientId={patientId} />}
           {!access.canViewFullChart && (
             <Card className="bg-blue-50 border-blue-200">
               <CardContent className="pt-6">
@@ -540,7 +529,57 @@ export default function PatientDetails() {
               </Card>
             )}
           </div>
+
+          {/* Active Problems (CPP) on Overview */}
+          {access.canViewClinicalNotes && (
+            <div>
+              <h3 className="text-base font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-rose-500" /> Active Problem List (CPP)
+              </h3>
+              <CPPManager patientId={patientId} />
+            </div>
+          )}
         </TabsContent>
+
+        {/* Merged Clinical Tab: Records + SOAP Notes */}
+        {access.canViewClinicalNotes && <TabsContent value="clinical" className="space-y-6">
+          <div>
+            <h3 className="text-base font-semibold text-slate-700 mb-3">SOAP Notes</h3>
+            <Card className="bg-white border-0 shadow-sm">
+              <CardContent className="pt-6">
+                <PatientSOAPTab patientId={patientId} />
+              </CardContent>
+            </Card>
+          </div>
+          {records.length > 0 && (
+            <div>
+              <h3 className="text-base font-semibold text-slate-700 mb-3">Medical Records</h3>
+              <div className="space-y-3">
+                {records.map((record) => (
+                  <Card key={record.id} className="p-4 bg-white border-0 shadow-sm">
+                    <div className="flex items-start gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center">
+                        <FileText className="w-6 h-6 text-violet-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium text-slate-900 capitalize">
+                          {record.record_type?.replace(/[_-]/g, ' ')}
+                        </p>
+                        <p className="text-sm text-slate-500 mt-1">
+                          {format(new Date(record.record_date), 'dd/MM/yyyy')}
+                          {record.provider && ` • Dr. ${record.provider}`}
+                        </p>
+                        {record.diagnosis && (
+                          <p className="mt-2 text-slate-700">{record.diagnosis}</p>
+                        )}
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+        </TabsContent>}
 
         {access.canViewAppointments && <TabsContent value="appointments" className="space-y-4">
           {appointments.length === 0 ? (
@@ -573,45 +612,7 @@ export default function PatientDetails() {
           )}
         </TabsContent>}
 
-        {access.canViewClinicalNotes && <TabsContent value="records" className="space-y-4">
-          {records.length === 0 ? (
-            <Card className="p-12 text-center bg-white border-0 shadow-sm">
-              <FileText className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-              <h3 className="text-lg font-medium text-slate-900">No medical records</h3>
-              <p className="text-slate-500 mt-1">No medical records for this patient</p>
-            </Card>
-          ) : (
-            records.map((record) => (
-              <Card key={record.id} className="p-4 bg-white border-0 shadow-sm">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center">
-                    <FileText className="w-6 h-6 text-violet-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-slate-900 capitalize">
-                      {record.record_type?.replace(/[_-]/g, ' ')}
-                    </p>
-                    <p className="text-sm text-slate-500 mt-1">
-                      {format(new Date(record.record_date), 'dd/MM/yyyy')}
-                      {record.provider && ` • Dr. ${record.provider}`}
-                    </p>
-                    {record.diagnosis && (
-                      <p className="mt-2 text-slate-700">{record.diagnosis}</p>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            ))
-          )}
-        </TabsContent>}
 
-        {access.canViewClinicalNotes && <TabsContent value="soap">
-          <Card className="bg-white border-0 shadow-sm">
-            <CardContent className="pt-6">
-              <PatientSOAPTab patientId={patientId} />
-            </CardContent>
-          </Card>
-        </TabsContent>}
 
         {access.canViewLabResults && <TabsContent value="labs">
           <Card className="bg-white border-0 shadow-sm">
@@ -692,13 +693,6 @@ export default function PatientDetails() {
         patient={patient}
         onSubmit={(data) => updateMutation.mutate(data)}
         isLoading={updateMutation.isPending}
-      />
-
-      {/* Telemedicine Access Dialog */}
-      <EnableTeleAccessDialog
-        patient={patient}
-        open={showTeleAccess}
-        onOpenChange={setShowTeleAccess}
       />
 
       {/* Clinical Summary */}

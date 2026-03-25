@@ -13,7 +13,8 @@ import {
   Pill,
   Stethoscope,
   Filter,
-  Calendar
+  Calendar,
+  Clock,
 } from 'lucide-react';
 import { getNoteTypeBadgeClass } from '@/components/emr/ClinicalNoteEditor';
 
@@ -22,7 +23,12 @@ function SaleEvent({ sale }) {
 
   const { data: saleItems = [] } = useQuery({
     queryKey: ['saleItems', sale.id],
-    queryFn: () => base44.entities.PharmacySaleItem.filter({ sale_id: sale.id }),
+    queryFn: async () => {
+      // Try PharmacySaleItem first (legacy PharmacySale), then PharmacySaleLine (new PharmacySaleHeader)
+      const items = await base44.entities.PharmacySaleItem.filter({ sale_id: sale.id });
+      if (items.length > 0) return items;
+      return base44.entities.PharmacySaleLine.filter({ sale_header_id: sale.id });
+    },
     enabled: expanded,
   });
 
@@ -57,22 +63,59 @@ function SaleEvent({ sale }) {
             <p className="text-xs text-slate-400 mt-0.5">#{sale.sale_number}</p>
           )}
           {expanded && (
-            <div className="mt-3 border-t pt-3 space-y-1.5">
-              {saleItems.length === 0 ? (
-                <p className="text-xs text-slate-400">Loading items...</p>
-              ) : (
-                saleItems.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-2 text-xs text-slate-600">
-                    <Pill className="w-3 h-3 text-emerald-500 flex-shrink-0" />
-                    <span className="font-medium">{item.product_name || item.display_name}</span>
-                    <span className="text-slate-400">×{item.quantity}</span>
-                    {item.unit_price && (
-                      <span className="text-slate-400 ml-auto">@ LKR {item.unit_price}</span>
-                    )}
-                  </div>
-                ))
-              )}
+          <div className="mt-3 border-t pt-3 space-y-1.5">
+            {saleItems.length === 0 ? (
+              <p className="text-xs text-slate-400">Loading items...</p>
+            ) : (
+              saleItems.map((item, idx) => (
+                <div key={idx} className="flex items-center gap-2 text-xs text-slate-600">
+                  <Pill className="w-3 h-3 text-emerald-500 flex-shrink-0" />
+                  {/* PharmacySaleItem uses item_name; PharmacySaleLine uses product_name_cache */}
+                  <span className="font-medium">{item.item_name || item.product_name_cache || item.product_name || item.display_name}</span>
+                  <span className="text-slate-400">×{item.quantity || item.qty}</span>
+                  {item.unit_price && (
+                    <span className="text-slate-400 ml-auto">@ LKR {item.unit_price}</span>
+                  )}
+                </div>
+              ))
+            )}
             </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AppointmentEvent({ appt }) {
+  const statusColors = {
+    scheduled: 'bg-blue-100 text-blue-700',
+    confirmed: 'bg-teal-100 text-teal-700',
+    completed: 'bg-emerald-100 text-emerald-700',
+    cancelled: 'bg-slate-100 text-slate-500',
+    no_show: 'bg-rose-100 text-rose-700',
+  };
+  return (
+    <div className="bg-white rounded-xl border border-blue-200 p-4">
+      <div className="flex items-start gap-3">
+        <div className="w-9 h-9 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+          <Calendar className="w-4 h-4 text-blue-600" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="font-medium text-slate-900 text-sm">Appointment</span>
+            {appt.type && (
+              <Badge variant="outline" className="text-xs capitalize">{appt.type.replace(/[_-]/g, ' ')}</Badge>
+            )}
+            <Badge className={`text-xs border-0 ${statusColors[appt.status] || 'bg-slate-100 text-slate-600'}`}>
+              {appt.status}
+            </Badge>
+          </div>
+          {appt.reason && <p className="text-xs text-slate-500 mt-0.5">{appt.reason}</p>}
+          {appt.provider && (
+            <p className="text-xs text-slate-400 mt-0.5 flex items-center gap-1">
+              <Clock className="w-3 h-3" /> {appt.time || ''} {appt.provider ? `· Dr. ${appt.provider}` : ''}
+            </p>
           )}
         </div>
       </div>
@@ -159,7 +202,7 @@ function NoteEvent({ note }) {
 }
 
 export default function PatientCareTimeline({ patientId }) {
-  const [filter, setFilter] = useState('all'); // all | sales | notes
+  const [filter, setFilter] = useState('all'); // all | sales | notes | appointments
 
   const { data: sales = [], isLoading: loadingSales } = useQuery({
     queryKey: ['patientSalesTimeline', patientId],
@@ -179,7 +222,13 @@ export default function PatientCareTimeline({ patientId }) {
     enabled: !!patientId,
   });
 
-  const isLoading = loadingSales || loadingNotes || loadingHeaders;
+  const { data: appointments = [], isLoading: loadingAppts } = useQuery({
+    queryKey: ['patientApptsTimeline', patientId],
+    queryFn: () => base44.entities.Appointment.filter({ patient_id: patientId }, '-date'),
+    enabled: !!patientId,
+  });
+
+  const isLoading = loadingSales || loadingNotes || loadingHeaders || loadingAppts;
 
   // Merge all sales sources, deduplicate by id
   const allSalesRaw = [...sales, ...saleHeaders];
@@ -205,7 +254,7 @@ export default function PatientCareTimeline({ patientId }) {
     });
   }
 
-  if (filter !== 'sales') {
+  if (filter !== 'sales' && filter !== 'appointments') {
     notes
       .filter(n => n.status !== 'archived')
       .forEach(note => {
@@ -216,6 +265,17 @@ export default function PatientCareTimeline({ patientId }) {
           data: note,
         });
       });
+  }
+
+  if (filter === 'all' || filter === 'appointments') {
+    appointments.forEach(appt => {
+      events.push({
+        id: `appt-${appt.id}`,
+        type: 'appointment',
+        date: appt.date ? new Date(appt.date) : new Date(0),
+        data: appt,
+      });
+    });
   }
 
   // Sort newest first
@@ -246,6 +306,7 @@ export default function PatientCareTimeline({ patientId }) {
           { key: 'all', label: 'All Events' },
           { key: 'notes', label: `Clinical Notes (${notes.filter(n => n.status !== 'archived').length})` },
           { key: 'sales', label: `Pharmacy Sales (${allSales.length})` },
+          { key: 'appointments', label: `Appointments (${appointments.length})` },
         ].map(({ key, label }) => (
           <Button
             key={key}
@@ -279,6 +340,8 @@ export default function PatientCareTimeline({ patientId }) {
               <div key={ev.id}>
                 {ev.type === 'sale' ? (
                   <SaleEvent sale={ev.data} />
+                ) : ev.type === 'appointment' ? (
+                  <AppointmentEvent appt={ev.data} />
                 ) : (
                   <NoteEvent note={ev.data} />
                 )}
