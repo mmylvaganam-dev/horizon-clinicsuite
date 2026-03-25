@@ -64,7 +64,7 @@ export default function ClinicalNoteEditor({ patientId, open, onClose, editNote 
     mutationFn: async () => {
       if (isEditing) {
         return base44.entities.SOAPNote.update(editNote.id, {
-          note_date: new Date(noteDate).toISOString(),
+          note_date: noteDate + 'T00:00:00+05:30',
           note_type: noteType,
           rich_content: content,
           status: editNote.status === 'signed' ? 'amended' : editNote.status,
