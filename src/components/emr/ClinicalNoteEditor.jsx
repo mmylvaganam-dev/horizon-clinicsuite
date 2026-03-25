@@ -75,7 +75,7 @@ export default function ClinicalNoteEditor({ patientId, open, onClose, editNote 
         patient_id: patientId,
         provider_id: me?.id || me?.email || 'unknown',
         provider_email: me?.email,
-        note_date: new Date(noteDate).toISOString(),
+        note_date: noteDate + 'T00:00:00+05:30',
         note_type: noteType,
         rich_content: content,
         status: 'draft',
