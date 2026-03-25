@@ -196,6 +196,15 @@ export default function Patients() {
               ? 'Try adjusting your search or filters' 
               : 'Add your first patient to get started'}
           </p>
+          {!searchTerm && statusFilter === 'all' && (
+            <Button
+              onClick={() => { setEditingPatient(null); setFormOpen(true); }}
+              className="mt-4 bg-teal-600 hover:bg-teal-700"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Patient
+            </Button>
+          )}
         </Card>
       ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
