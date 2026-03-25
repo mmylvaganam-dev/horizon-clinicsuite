@@ -42,9 +42,9 @@ export default function WSDirectRequest({ orgId, user, connections }) {
       return await base44.entities.WholesaleConnection.create({
         provider_id: providerId,
         provider_name: provider?.company_name || '',
-        buyer_organization_id: orgId,
-        buyer_company_id: org?.company_id || '',
-        buyer_name: org?.name || '',
+        buyer_organization_id: orgId || 'unknown',
+        buyer_company_id: org?.company_id || 'direct',
+        buyer_name: org?.name || 'Direct Request',
         status: 'pending',
         initiated_by: 'buyer',
         credit_limit: 0,
