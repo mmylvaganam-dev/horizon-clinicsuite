@@ -60,11 +60,15 @@ export default function WholesaleMarketplace() {
               <span className="ml-1 bg-yellow-400 text-yellow-900 text-xs font-bold rounded-full px-1.5">{pendingConnections.length}</span>
             )}
           </TabsTrigger>
+          <TabsTrigger value="payments" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white rounded-lg px-4 py-2 font-semibold flex items-center gap-2">
+            <DollarSign className="w-4 h-4" /> Payments
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="browse"><WSMarketplaceBrowse orgId={selectedOrgId} user={user} connections={myConnections} /></TabsContent>
         <TabsContent value="orders"><WSMyOrders orgId={selectedOrgId} /></TabsContent>
         <TabsContent value="connections"><WSMyConnections orgId={selectedOrgId} connections={myConnections} /></TabsContent>
+        <TabsContent value="payments"><WSBuyerPaymentsOverview orgId={selectedOrgId} connections={activeConnections} user={user} /></TabsContent>
       </Tabs>
     </div>
   );
