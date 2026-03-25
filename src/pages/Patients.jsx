@@ -61,12 +61,17 @@ export default function Patients() {
   const createMutation = useMutation({
     mutationFn: async (data) => {
       // Generate PHN for new patient
-      const phnResponse = await base44.functions.invoke('generatePHN', { organization_id: selectedOrgId });
-      const phn = phnResponse.data.phn;
-      
+      let phn;
+      try {
+        const phnResponse = await base44.functions.invoke('generatePHN', { organization_id: selectedOrgId });
+        phn = phnResponse.data?.phn;
+      } catch (err) {
+        console.error('PHN generation failed, proceeding without PHN:', err);
+      }
+
       return base44.entities.Patient.create(withOrgId({
         ...data,
-        phn: phn
+        ...(phn ? { phn } : {}),
       }));
     },
     onSuccess: (newPatient) => {
@@ -74,6 +79,13 @@ export default function Patients() {
       setFormOpen(false);
       setSelectedPatientForCard(newPatient);
       setShowPHNCard(true);
+    },
+    onError: (err) => {
+      toast({
+        title: 'Failed to add patient',
+        description: err?.message || 'An unexpected error occurred. Please try again.',
+        variant: 'destructive',
+      });
     },
   });
 
