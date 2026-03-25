@@ -58,26 +58,34 @@ Deno.serve(async (req) => {
   let totalEmailed = 0;
 
   for (const [orgId, items] of Object.entries(byOrg)) {
-    // Find admin users for this org
-    let adminEmails = [];
-    try {
-      const userRoles = await base44.asServiceRole.entities.UserRole.filter({ organization_id: orgId });
-      const adminRoleIds = userRoles
-        .filter(ur => ur.role_name === 'admin' || ur.role_code === 'admin')
-        .map(ur => ur.user_email)
-        .filter(Boolean);
-      adminEmails = [...new Set(adminRoleIds)];
-    } catch (_) {}
+    // Skip if alerts disabled for this org
+    if (!isAlertEnabled(orgId)) continue;
 
-    // Fallback: fetch platform users with role=admin
-    if (adminEmails.length === 0) {
+    // Use custom email if set, otherwise find admin users
+    let adminEmails = [];
+    const customEmail = getAlertEmail(orgId);
+    if (customEmail) {
+      adminEmails = [customEmail];
+    } else {
       try {
-        const allUsers = await base44.asServiceRole.entities.User.list();
-        adminEmails = allUsers
-          .filter(u => u.role === 'admin')
-          .map(u => u.email)
+        const userRoles = await base44.asServiceRole.entities.UserRole.filter({ organization_id: orgId });
+        const adminRoleIds = userRoles
+          .filter(ur => ur.role_name === 'admin' || ur.role_code === 'admin')
+          .map(ur => ur.user_email)
           .filter(Boolean);
+        adminEmails = [...new Set(adminRoleIds)];
       } catch (_) {}
+
+      // Fallback: fetch platform users with role=admin
+      if (adminEmails.length === 0) {
+        try {
+          const allUsers = await base44.asServiceRole.entities.User.list();
+          adminEmails = allUsers
+            .filter(u => u.role === 'admin')
+            .map(u => u.email)
+            .filter(Boolean);
+        } catch (_) {}
+      }
     }
 
     const criticalItems = items.filter(i => i.quantity === 0);
