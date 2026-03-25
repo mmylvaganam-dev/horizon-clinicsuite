@@ -99,20 +99,28 @@ export default function Prescriptions() {
     return allDrugs.filter(d => d.label.toLowerCase().includes(q)).slice(0, 40);
   }, [allDrugs, drugSearch]);
 
-  const checkInteractions = async () => {
-    if (!formData.drug_name || currentMeds.length === 0) return;
-    
+  const checkInteractions = async (drugName) => {
+    const drug = drugName || formData.drug_name;
+    if (!drug || !patientId) return;
     setCheckingInteractions(true);
+    setInteractionCheck(null);
     try {
       const response = await base44.functions.invoke('checkDrugInteractions', {
-        new_drug: formData.drug_name,
-        current_medications: currentMeds.map(m => m.drug_name)
+        patient_id: patientId,
+        new_drug_name: drug,
       });
       setInteractionCheck(response.data);
     } catch (error) {
       toast.error('Failed to check interactions');
     }
     setCheckingInteractions(false);
+  };
+
+  const selectDrug = (drug) => {
+    setFormData({ ...formData, drug_name: drug.label, strength: drug.strength || formData.strength });
+    setDrugSearch(drug.label);
+    setShowDrugDropdown(false);
+    checkInteractions(drug.label);
   };
 
   const createMutation = useMutation({
