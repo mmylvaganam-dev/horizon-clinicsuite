@@ -25,6 +25,9 @@ import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import LowStockAlerts from '@/components/pharmacy/LowStockAlerts';
 
+const ALERT_ENABLED_KEY = 'low_stock_alert_enabled';
+const ALERT_EMAIL_KEY = 'low_stock_alert_email';
+
 export default function StockMonitoring() {
   const { orgFilter, selectedOrgId } = useOrgFiltered();
   const queryClient = useQueryClient();
@@ -34,6 +37,8 @@ export default function StockMonitoring() {
   const [selectedItem, setSelectedItem] = useState(null);
   const [newMinimum, setNewMinimum] = useState('');
   const [newReorderQty, setNewReorderQty] = useState('');
+  const [alertEmail, setAlertEmail] = useState('');
+  const [savingAlertSettings, setSavingAlertSettings] = useState(false);
 
   // Fetch pharmacy stock
   const { data: pharmacyStock = [], isLoading } = useQuery({
