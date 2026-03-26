@@ -95,7 +95,9 @@ export default function DailyOps() {
     return saleDate === today && filterByOrgAndLocation(sale);
   });
 
-  const totalSalesAmount = todaySales.reduce((sum, sale) => sum + (sale.total || 0), 0);
+  // Only count completed sales (exclude void, refund, cancelled)
+  const completedSales = todaySales.filter(sale => sale.status === 'completed');
+  const totalSalesAmount = completedSales.reduce((sum, sale) => sum + (sale.total || 0), 0);
 
   // Low stock items (below 10 units)
   const lowStockItems = pharmacyStock.filter(stock => 
@@ -202,7 +204,7 @@ export default function DailyOps() {
                </div>
              </CardHeader>
              <CardContent>
-               <p className="text-3xl font-bold text-green-600 mb-2">{todaySales.length}</p>
+               <p className="text-3xl font-bold text-green-600 mb-2">{completedSales.length}</p>
                <p className="text-lg font-semibold text-slate-900">{currency} {totalSalesAmount.toFixed(2)}</p>
                <p className="text-xs text-slate-500 mt-2">transactions</p>
              </CardContent>

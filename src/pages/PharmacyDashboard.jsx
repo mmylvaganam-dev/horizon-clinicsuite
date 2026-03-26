@@ -222,7 +222,9 @@ export default function PharmacyDashboard() {
     return saleDateStr === todayStr;
   });
 
-  const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total || 0), 0);
+  const todayRevenue = todaySales
+    .filter(s => s.status === 'paid' || s.status === 'completed')
+    .reduce((sum, s) => sum + (s.total || 0), 0);
   const todayProfit = todaySales
     .filter(s => s.status === 'paid' || s.status === 'completed')
     .reduce((sum, s) => sum + getSaleProfit(s.id), 0);
