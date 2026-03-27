@@ -39,8 +39,8 @@ export default function LabReportPrint({ reportData, reportUrl, profileUrl }) {
   const panelTitle = result.test_name || result.narrative_text?.split('\n')[0] || 'LAB RESULTS';
   const hasNarrativeNotes = result.narrative_text && result.narrative_text.trim().length > 0;
 
-  // Check if any entry has ref range
-  const hasRefRange = entries.some(e => e.reference_range_text);
+  // Always show ref range column
+  const hasRefRange = true;
 
   return (
     <div
@@ -249,11 +249,52 @@ export default function LabReportPrint({ reportData, reportUrl, profileUrl }) {
         </tbody>
       </table>
 
+      {/* ═══════════ EXPECTED VALUES / REFERENCE RANGES (when structured per-test ranges exist) ═══════════ */}
+      {entries.some(e => e.reference_ranges_json || e.expected_values_text) && (
+        <div style={{ marginBottom:'8px' }}>
+          {entries.filter(e => e.reference_ranges_json || e.expected_values_text).map((entry, i) => (
+            <div key={i} style={{ marginBottom:'6px' }}>
+              <div style={{ fontWeight:'bold', fontSize:'10px', marginBottom:'3px', textDecoration:'underline' }}>
+                EXPECTED VALUES{entries.length > 1 ? ` — ${entry.test_name}` : ''}
+              </div>
+              {entry.expected_values_text ? (
+                <div style={{ fontSize:'9px', lineHeight:'1.8', paddingLeft:'8px' }}>
+                  {entry.expected_values_text.split('\n').map((line, li) => (
+                    <div key={li}>{line}</div>
+                  ))}
+                </div>
+              ) : entry.reference_ranges_json ? (
+                <table style={{ fontSize:'9px', borderCollapse:'collapse', marginLeft:'8px' }}>
+                  <tbody>
+                    {Object.entries(entry.reference_ranges_json).map(([range, label], ri) => (
+                      <tr key={ri}>
+                        <td style={{ paddingRight:'24px', width:'120px' }}>{range}</td>
+                        <td style={{ fontWeight:'bold' }}>{label}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : null}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* ═══════════ NARRATIVE NOTES (GFR-style long text) ═══════════ */}
       {hasNarrativeNotes && (
         <div style={{ border:'1px solid #aaa', padding:'6px 8px', marginBottom:'6px', fontSize:'9px', lineHeight:'1.5' }}>
           {result.narrative_text.split('\n').map((line, i) => (
             <div key={i} style={{ marginBottom: line.trim() === '' ? '4px' : '0' }}>{line || <br/>}</div>
+          ))}
+        </div>
+      )}
+
+      {/* ═══════════ PHYSICIAN / CLINICAL NOTES ═══════════ */}
+      {result.physician_notes && (
+        <div style={{ border:'1px solid #aaa', padding:'6px 8px', marginBottom:'8px', fontSize:'9px', lineHeight:'1.6', background:'#fffef0' }}>
+          <div style={{ fontWeight:'bold', marginBottom:'3px', fontSize:'10px' }}>Clinical / Physician Notes:</div>
+          {result.physician_notes.split('\n').map((line, i) => (
+            <div key={i}>{line || <br/>}</div>
           ))}
         </div>
       )}

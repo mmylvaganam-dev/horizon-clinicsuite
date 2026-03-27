@@ -1,0 +1,82 @@
+{
+  "name": "LabResultEntry",
+  "type": "object",
+  "properties": {
+    "result_id": {
+      "type": "string",
+      "description": "Reference to Result entity"
+    },
+    "test_id": {
+      "type": "string",
+      "description": "Reference to LabTestCatalog"
+    },
+    "test_code": {
+      "type": "string",
+      "description": "Test code for reference"
+    },
+    "test_name": {
+      "type": "string",
+      "description": "Test name for reference"
+    },
+    "value_numeric": {
+      "type": "number",
+      "description": "Numeric result value"
+    },
+    "value_text": {
+      "type": "string",
+      "description": "Text result value"
+    },
+    "unit": {
+      "type": "string",
+      "description": "Unit of measurement"
+    },
+    "reference_range_text": {
+      "type": "string",
+      "description": "Reference range display text (e.g. 75-109)"
+    },
+    "expected_values_text": {
+      "type": "string",
+      "description": "Multi-line expected values block (e.g. '75-109 mg/dL  Normal\\n110-125 mg/dL  Impaired\\n=>126 mg/dL  High')"
+    },
+    "reference_ranges_json": {
+      "type": "object",
+      "description": "Structured expected values map: { '75-109 mg/dL': 'Normal', '110-125 mg/dL': 'Impaired', '=>126 mg/dL': 'High' }",
+      "additionalProperties": true
+    },
+    "is_abnormal": {
+      "type": "boolean",
+      "default": false,
+      "description": "Result is abnormal"
+    },
+    "abnormal_flag": {
+      "type": "string",
+      "enum": [
+        "low",
+        "high",
+        "critical_low",
+        "critical_high",
+        "abnormal"
+      ],
+      "description": "Type of abnormality"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Result notes or comments"
+    },
+    "entered_by": {
+      "type": "string",
+      "description": "User who entered result"
+    },
+    "entered_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Entry timestamp"
+    }
+  },
+  "required": [
+    "result_id",
+    "test_id",
+    "test_code",
+    "test_name"
+  ]
+}

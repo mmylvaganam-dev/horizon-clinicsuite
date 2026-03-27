@@ -1,0 +1,107 @@
+{
+  "name": "Result",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Result location"
+    },
+    "order_id": {
+      "type": "string",
+      "description": "Reference to order"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Reference to patient"
+    },
+    "result_type": {
+      "type": "string",
+      "enum": [
+        "LAB",
+        "CARDIO",
+        "PFT",
+        "RADIOLOGY",
+        "PATHOLOGY",
+        "OTHER"
+      ],
+      "description": "Type of result"
+    },
+    "test_name": {
+      "type": "string",
+      "description": "Primary test or panel name"
+    },
+    "accession_number": {
+      "type": "string",
+      "description": "Lab accession number"
+    },
+    "specimen_type": {
+      "type": "string",
+      "description": "Specimen type (e.g. Blood, Urine)"
+    },
+    "result_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "structured_json": {
+      "type": "object",
+      "description": "Structured result data",
+      "additionalProperties": true
+    },
+    "narrative_text": {
+      "type": "string",
+      "description": "Narrative report text (GFR-style multi-line)"
+    },
+    "physician_notes": {
+      "type": "string",
+      "description": "Clinical/physician interpretation notes \u2014 printed in the report for the referring doctor"
+    },
+    "consultants": {
+      "type": "array",
+      "description": "Consultant doctors listed at bottom of report",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "qualifications": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Pending",
+        "Entered",
+        "Reviewed",
+        "Signed",
+        "Released"
+      ],
+      "default": "Pending"
+    },
+    "is_critical": {
+      "type": "boolean",
+      "default": false
+    },
+    "entered_by": {
+      "type": "string"
+    },
+    "reviewed_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "order_id",
+    "patient_id",
+    "result_type"
+  ]
+}
