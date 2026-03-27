@@ -18,6 +18,14 @@
       "type": "string",
       "description": "Test name for reference"
     },
+    "sub_group": {
+      "type": "string",
+      "description": "Sub-group heading to print as a bold row above this entry (e.g. 'DIFFERENTIAL COUNT', 'ABSOLUTE COUNT'). Leave blank for no sub-group header."
+    },
+    "sort_order": {
+      "type": "number",
+      "description": "Display order within the result. Entries with the same sub_group are grouped together."
+    },
     "value_numeric": {
       "type": "number",
       "description": "Numeric result value"
@@ -32,7 +40,7 @@
     },
     "reference_range_text": {
       "type": "string",
-      "description": "Reference range display text (e.g. 75-109)"
+      "description": "Reference range display text (e.g. 12.0-15.0)"
     },
     "expected_values_text": {
       "type": "string",
@@ -40,7 +48,7 @@
     },
     "reference_ranges_json": {
       "type": "object",
-      "description": "Structured expected values map: { '75-109 mg/dL': 'Normal', '110-125 mg/dL': 'Impaired', '=>126 mg/dL': 'High' }",
+      "description": "Structured expected values map: { '75-109 mg/dL': 'Normal', '110-125 mg/dL': 'Impaired' }",
       "additionalProperties": true
     },
     "is_abnormal": {

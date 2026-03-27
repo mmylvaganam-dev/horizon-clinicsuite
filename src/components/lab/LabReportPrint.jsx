@@ -215,36 +215,62 @@ export default function LabReportPrint({ reportData, reportUrl, profileUrl }) {
               </tr>
             ))
           ) : (
-            entries.map((entry, i) => {
-              const isAbnormal = entry.is_abnormal;
-              const resultVal = entry.value_text || (entry.value_numeric !== undefined && entry.value_numeric !== null ? String(entry.value_numeric) : '—');
-              const remarks = isAbnormal
-                ? (entry.abnormal_flag === 'high' ? 'High ↑' : entry.abnormal_flag === 'low' ? 'Low ↓' : entry.abnormal_flag === 'critical_high' ? 'Critical High ↑↑' : entry.abnormal_flag === 'critical_low' ? 'Critical Low ↓↓' : 'Abnormal')
-                : 'Normal';
-              return (
-                <tr key={i} style={{ background: isAbnormal ? '#fff3f3' : 'white' }}>
-                  <td style={{ border:'1px solid #555', padding:'3px 8px', fontWeight: isAbnormal ? 'bold' : 'normal' }}>
-                    {entry.test_name}
-                  </td>
-                  <td style={{ border:'1px solid #555', padding:'3px 8px', textAlign:'center',
-                    fontWeight:'bold', color: isAbnormal ? '#c00' : '#000' }}>
-                    {resultVal}
-                  </td>
-                  <td style={{ border:'1px solid #555', padding:'3px 8px', textAlign:'center' }}>
-                    {entry.unit || '—'}
-                  </td>
-                  {hasRefRange && (
-                    <td style={{ border:'1px solid #555', padding:'3px 8px', textAlign:'center' }}>
-                      {entry.reference_range_text || '—'}
+            (() => {
+              // Sort by sort_order if present
+              const sorted = [...entries].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+              const rows = [];
+              let lastSubGroup = null;
+              sorted.forEach((entry, i) => {
+                // Insert sub-group header row when sub_group changes
+                if (entry.sub_group && entry.sub_group !== lastSubGroup) {
+                  lastSubGroup = entry.sub_group;
+                  rows.push(
+                    <tr key={`sg-${i}`}>
+                      <td colSpan={hasRefRange ? 5 : 4} style={{
+                        border:'1px solid #555', padding:'3px 8px',
+                        fontWeight:'bold', fontStyle:'italic',
+                        textDecoration:'underline', background:'#f5f5f5',
+                        fontSize:'10px'
+                      }}>
+                        {entry.sub_group}
+                      </td>
+                    </tr>
+                  );
+                } else if (!entry.sub_group) {
+                  lastSubGroup = null;
+                }
+
+                const isAbnormal = entry.is_abnormal;
+                const resultVal = entry.value_text || (entry.value_numeric !== undefined && entry.value_numeric !== null ? String(entry.value_numeric) : '—');
+                const remarks = isAbnormal
+                  ? (entry.abnormal_flag === 'high' ? 'High' : entry.abnormal_flag === 'low' ? 'Low' : entry.abnormal_flag === 'critical_high' ? 'Critical High' : entry.abnormal_flag === 'critical_low' ? 'Critical Low' : 'Abnormal')
+                  : 'Normal';
+                rows.push(
+                  <tr key={i} style={{ background: isAbnormal ? '#fff3f3' : 'white' }}>
+                    <td style={{ border:'1px solid #555', padding:'3px 8px', fontWeight: isAbnormal ? 'bold' : 'normal' }}>
+                      {entry.test_name}
                     </td>
-                  )}
-                  <td style={{ border:'1px solid #555', padding:'3px 8px', textAlign:'center',
-                    color: isAbnormal ? '#c00' : '#060', fontWeight: isAbnormal ? 'bold' : 'normal' }}>
-                    {entry.notes || remarks}
-                  </td>
-                </tr>
-              );
-            })
+                    <td style={{ border:'1px solid #555', padding:'3px 8px', textAlign:'center',
+                      fontWeight:'bold', color: isAbnormal ? '#c00' : '#000' }}>
+                      {resultVal}
+                    </td>
+                    <td style={{ border:'1px solid #555', padding:'3px 8px', textAlign:'center' }}>
+                      {entry.unit || '—'}
+                    </td>
+                    {hasRefRange && (
+                      <td style={{ border:'1px solid #555', padding:'3px 8px', textAlign:'center' }}>
+                        {entry.reference_range_text || '—'}
+                      </td>
+                    )}
+                    <td style={{ border:'1px solid #555', padding:'3px 8px', textAlign:'center',
+                      color: isAbnormal ? '#c00' : '#060', fontWeight: isAbnormal ? 'bold' : 'normal' }}>
+                      {entry.notes || remarks}
+                    </td>
+                  </tr>
+                );
+              });
+              return rows;
+            })()
           )}
         </tbody>
       </table>
