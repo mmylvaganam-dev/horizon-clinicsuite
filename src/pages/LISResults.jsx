@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { FileText, Edit } from 'lucide-react';
+import { FileText, Edit, Printer } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { formatSL } from '@/components/utils/dateUtils';
 import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
@@ -122,6 +122,14 @@ export default function LISResults() {
                         <Badge className={statusColors[result.status] || 'bg-slate-100 text-slate-700'}>
                           {result.status}
                         </Badge>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          title="Print Lab Report"
+                          onClick={() => window.open(`/lab-report?resultId=${result.id}`, '_blank')}
+                        >
+                          <Printer className="w-4 h-4" />
+                        </Button>
                         <Button 
                           variant="ghost" 
                           size="sm"

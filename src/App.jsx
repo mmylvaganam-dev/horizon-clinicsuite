@@ -15,6 +15,7 @@ import PatientAccessRequests from './pages/PatientAccessRequests';
 import HomeCareInvoiceManager from './pages/HomeCareInvoiceManager';
 import AppointmentScheduler from './pages/AppointmentScheduler';
 import PatientSelfPortal from './pages/PatientSelfPortal';
+import LabReportView from './pages/LabReportView';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -77,6 +78,7 @@ const AuthenticatedApp = () => {
       <Route path="/HomeCareInvoiceManager" element={<LayoutWrapper currentPageName="HomeCareInvoiceManager"><HomeCareInvoiceManager /></LayoutWrapper>} />
       <Route path="/AppointmentScheduler" element={<LayoutWrapper currentPageName="AppointmentScheduler"><AppointmentScheduler /></LayoutWrapper>} />
       <Route path="/patient-portal" element={<PatientSelfPortal />} />
+      <Route path="/lab-report-view" element={<LabReportView />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
