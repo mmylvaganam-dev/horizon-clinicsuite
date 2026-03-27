@@ -83,106 +83,132 @@ function LoginScreen({ onLogin }) {
     onLogin(data);
   };
 
+  const portalStyle = {
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, #5b5fcf 0%, #7c3aed 100%)',
+    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+    padding: '20px', fontFamily: 'Arial, sans-serif',
+  };
+  const cardStyle = {
+    background: '#fff', borderRadius: '12px', padding: '32px 28px',
+    width: '100%', maxWidth: '400px', boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+  };
+  const inputRowStyle = {
+    display: 'flex', alignItems: 'center', border: '1px solid #cbd5e1',
+    borderRadius: '8px', overflow: 'hidden', background: '#f8fafc', marginBottom: '16px',
+  };
+  const inputStyle = {
+    flex: 1, padding: '12px 8px', border: 'none', background: 'transparent',
+    fontSize: '14px', outline: 'none', color: '#1e293b',
+  };
+  const primaryBtnStyle = {
+    width: '100%', padding: '13px', background: '#5b5fcf', color: '#fff',
+    border: 'none', borderRadius: '8px', fontSize: '15px', fontWeight: 'bold',
+    cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1,
+    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '10px',
+  };
+  const tealBtnStyle = {
+    ...primaryBtnStyle,
+    background: 'linear-gradient(90deg, #0ea5e9 0%, #14b8a6 100%)',
+    cursor: 'pointer', opacity: 1,
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-slate-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-teal-600 flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <Activity className="w-9 h-9 text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900">Patient Portal</h1>
-          <p className="text-slate-500 mt-1">Horizon ClinicSuite</p>
+    <div style={portalStyle}>
+      {/* Logo */}
+      <div style={{ marginBottom: '24px', textAlign: 'center' }}>
+        <div style={{
+          width: '64px', height: '64px', background: 'rgba(255,255,255,0.2)',
+          borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          margin: '0 auto 10px',
+        }}>
+          <Activity size={32} color="#fff" />
         </div>
-
-        <Card className="shadow-xl border-0">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg font-semibold text-slate-800">
-              {step === 'mobile' ? 'Sign In to Your Portal' : 'Enter Verification Code'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {step === 'mobile' ? (
-              <>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Mobile Number</label>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <Input
-                      type="tel"
-                      placeholder="e.g. 0771234567"
-                      value={mobile}
-                      onChange={e => setMobile(e.target.value)}
-                      className="pl-10"
-                      onKeyDown={e => e.key === 'Enter' && requestOtp()}
-                    />
-                  </div>
-                  <p className="text-xs text-slate-400">We'll send a one-time code to this number</p>
-                </div>
-                {error && (
-                  <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                    <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                    {error}
-                  </div>
-                )}
-                <Button onClick={requestOtp} disabled={loading} className="w-full">
-                  {loading ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : null}
-                  Send OTP
-                </Button>
-                <p className="text-xs text-center text-slate-400">
-                  Your portal must be enabled by your clinic. Contact reception if you need access.
-                </p>
-              </>
-            ) : (
-              <>
-                <div className="bg-teal-50 border border-teal-200 rounded-lg p-3 text-sm text-teal-800">
-                  Welcome, <strong>{patientName}</strong>! A 6-digit code was sent to <strong>{maskedMobile}</strong>.
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">Verification Code</label>
-                  <Input
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={6}
-                    placeholder="------"
-                    value={otp}
-                    onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                    className="text-center text-2xl tracking-[0.5em] font-mono"
-                    onKeyDown={e => e.key === 'Enter' && verifyOtp()}
-                    autoFocus
-                  />
-                </div>
-                {error && (
-                  <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                    <AlertTriangle className="w-4 h-4 flex-shrink-0" />
-                    {error}
-                  </div>
-                )}
-                <Button onClick={verifyOtp} disabled={loading} className="w-full">
-                  {loading ? <RefreshCw className="w-4 h-4 animate-spin mr-2" /> : null}
-                  Verify & Sign In
-                </Button>
-                <div className="flex items-center justify-between text-sm">
-                  <button onClick={() => { setStep('mobile'); setOtp(''); setError(''); }} className="text-slate-500 hover:text-slate-700">
-                    ← Change number
-                  </button>
-                  {resendCooldown > 0 ? (
-                    <span className="text-slate-400">Resend in {resendCooldown}s</span>
-                  ) : (
-                    <button onClick={requestOtp} className="text-teal-600 hover:text-teal-700 font-medium">
-                      Resend OTP
-                    </button>
-                  )}
-                </div>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        <p className="text-center text-xs text-slate-400 mt-6">
-          🔒 Secure patient portal — your health data is private
-        </p>
+        <div style={{ color: '#fff', fontSize: '14px', opacity: 0.85 }}>Horizon ClinicSuite</div>
       </div>
+
+      <div style={cardStyle}>
+        {step === 'mobile' ? (
+          <>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', textAlign: 'center', marginBottom: '24px', color: '#1e293b' }}>
+              Login
+            </h2>
+            <div style={inputRowStyle}>
+              <span style={{ padding: '0 12px', color: '#94a3b8' }}>👤</span>
+              <input
+                type="tel"
+                placeholder="Mobile No / Username"
+                value={mobile}
+                onChange={e => setMobile(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && requestOtp()}
+                style={inputStyle}
+              />
+            </div>
+            {error && (
+              <div style={{ padding: '10px', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '8px', color: '#dc2626', fontSize: '13px', marginBottom: '14px', textAlign: 'center' }}>
+                {error}
+              </div>
+            )}
+            <button onClick={requestOtp} disabled={loading} style={primaryBtnStyle}>
+              {loading ? <><RefreshCw size={18} style={{ animation: 'spin 1s linear infinite' }} /> Please wait...</> : 'Login'}
+            </button>
+            <button onClick={() => window.location.href = '/find-lab-report'} style={tealBtnStyle}>
+              Find Medical Report
+            </button>
+            <p style={{ textAlign: 'center', fontSize: '13px', color: '#64748b', marginTop: '8px' }}>
+              Need access? Contact your clinic reception.
+            </p>
+          </>
+        ) : (
+          <>
+            <h2 style={{ fontSize: '20px', fontWeight: 'bold', textAlign: 'center', marginBottom: '8px', color: '#1e293b' }}>
+              Enter OTP
+            </h2>
+            <div style={{ padding: '10px 14px', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '8px', marginBottom: '16px', fontSize: '13px', color: '#166534', textAlign: 'center' }}>
+              Welcome, <strong>{patientName}</strong>! Code sent to <strong>{maskedMobile}</strong>
+            </div>
+            <div style={inputRowStyle}>
+              <span style={{ padding: '0 12px', color: '#94a3b8' }}>🔒</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                placeholder="6-digit code"
+                value={otp}
+                onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                onKeyDown={e => e.key === 'Enter' && verifyOtp()}
+                autoFocus
+                style={{ ...inputStyle, textAlign: 'center', fontSize: '20px', letterSpacing: '0.4em', fontFamily: 'monospace' }}
+              />
+            </div>
+            {error && (
+              <div style={{ padding: '10px', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: '8px', color: '#dc2626', fontSize: '13px', marginBottom: '14px', textAlign: 'center' }}>
+                {error}
+              </div>
+            )}
+            <button onClick={verifyOtp} disabled={loading} style={primaryBtnStyle}>
+              {loading ? <><RefreshCw size={18} style={{ animation: 'spin 1s linear infinite' }} /> Please wait...</> : 'Verify & Sign In'}
+            </button>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#64748b' }}>
+              <button onClick={() => { setStep('mobile'); setOtp(''); setError(''); }} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}>
+                ← Change number
+              </button>
+              {resendCooldown > 0 ? (
+                <span>Resend in {resendCooldown}s</span>
+              ) : (
+                <button onClick={requestOtp} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#5b5fcf', fontWeight: 'bold' }}>
+                  Resend OTP
+                </button>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+
+      <div style={{ marginTop: '20px', color: 'rgba(255,255,255,0.6)', fontSize: '12px' }}>
+        Horizon ClinicSuite · Medical Laboratory System
+      </div>
+      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
