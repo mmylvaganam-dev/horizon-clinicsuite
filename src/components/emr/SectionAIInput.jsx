@@ -144,7 +144,10 @@ export default function SectionAIInput({ label = 'AI Input', onGenerate, placeho
       )}
 
       {mode === 'upload' && (
-        <div>
+        <div className="space-y-2">
+          <p className="text-xs text-purple-700 bg-purple-100 rounded px-2 py-1">
+            📄 For multi-page reports, upload <strong>one page / one file at a time</strong> — each upload creates a separate record.
+          </p>
           <input ref={fileRef} type="file" accept=".pdf,image/*" className="hidden" onChange={e => handleFile(e.target.files[0])} />
           {fileUrl ? (
             <div className="flex items-center gap-2 p-3 bg-white border border-emerald-200 rounded-lg text-sm text-emerald-700">

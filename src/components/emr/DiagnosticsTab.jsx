@@ -1,16 +1,24 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { FileText, TestTube, Scan, ExternalLink, Activity } from 'lucide-react';
 import { format } from 'date-fns';
+import toast from 'react-hot-toast';
 import UploadDocument from './UploadDocument';
+import SectionAIInput from './SectionAIInput';
 
 export default function DiagnosticsTab({ patientId }) {
-  const [selectedDoc, setSelectedDoc] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+  const queryClient = useQueryClient();
+
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
 
   const { data: documents = [] } = useQuery({
     queryKey: ['patientDocuments', patientId],
@@ -18,27 +26,57 @@ export default function DiagnosticsTab({ patientId }) {
     enabled: !!patientId
   });
 
-  const { data: labReports = [] } = useQuery({
-    queryKey: ['externalLabReports', patientId],
-    queryFn: () => base44.entities.ExternalLabReport.filter({ patient_ref: patientId }),
-    enabled: !!patientId
-  });
-
-  const { data: diagnosticTests = [] } = useQuery({
-    queryKey: ['diagnosticTests', patientId],
-    queryFn: () => base44.entities.DiagnosticTest.filter({ patient_ref: patientId }),
-    enabled: !!patientId
-  });
-
-  const { data: imagingStudies = [] } = useQuery({
-    queryKey: ['imagingStudies', patientId],
-    queryFn: () => base44.entities.ImagingStudy.filter({ patient_ref: patientId }),
-    enabled: !!patientId
-  });
-
   const labDocs = documents.filter(d => d.doc_category === 'LAB');
   const testDocs = documents.filter(d => d.doc_category === 'TEST');
   const imagingDocs = documents.filter(d => d.doc_category === 'IMAGING');
+
+  // For Lab: upload is one-to-one (each uploaded file = one doc record). 
+  // AI handler: extract title/notes from voice or image/PDF and auto-create a document record.
+  const handleDocAI = async ({ text, fileUrl }, category) => {
+    setAiLoading(true);
+    try {
+      const catLabel = category === 'LAB' ? 'laboratory report' : category === 'TEST' ? 'diagnostic test result' : 'imaging study report';
+      const prompt = `Extract key details from this ${catLabel}. Return JSON: { doc_title, notes, doc_date (YYYY-MM-DD, today if unknown) }
+Text: ${text || '(see uploaded file)'}`;
+      const res = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        ...(fileUrl ? { file_urls: [fileUrl] } : {}),
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            doc_title: { type: 'string' },
+            notes: { type: 'string' },
+            doc_date: { type: 'string' },
+          }
+        }
+      });
+
+      const today = new Date().toISOString().split('T')[0];
+      await base44.entities.PatientDocument.create({
+        organization_id: '',
+        location_id: '',
+        patient_ref: patientId,
+        doc_category: category,
+        doc_type: fileUrl ? 'PDF' : 'IMAGE',
+        doc_title: res.doc_title || `${catLabel} (AI imported)`,
+        doc_date: res.doc_date || today,
+        source: 'patient_brought',
+        uploaded_by: user?.id || '',
+        uploaded_by_email: user?.email || '',
+        file_ref: fileUrl || '',
+        notes: res.notes || (text ? text.substring(0, 300) : ''),
+        visibility: 'internal',
+        status: 'active'
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['patientDocuments', patientId] });
+      toast.success('Document saved from AI input');
+    } catch {
+      toast.error('AI extraction failed');
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const renderDocumentCard = (doc) => (
     <Card key={doc.id} className="p-4 hover:shadow-md transition-all">
@@ -86,7 +124,13 @@ export default function DiagnosticsTab({ patientId }) {
         </TabsList>
 
         <TabsContent value="lab" className="space-y-3">
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2 flex-wrap">
+            <SectionAIInput
+              label="AI: Add from Voice/Upload"
+              placeholder="Paste lab report text or dictate findings — AI extracts title, date, notes. For multi-page reports, upload one page at a time."
+              onGenerate={(args) => handleDocAI(args, 'LAB')}
+              disabled={aiLoading}
+            />
             <UploadDocument patientId={patientId} defaultCategory="LAB" />
           </div>
           {labDocs.length === 0 ? (
@@ -102,7 +146,13 @@ export default function DiagnosticsTab({ patientId }) {
         </TabsContent>
 
         <TabsContent value="tests" className="space-y-3">
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2 flex-wrap">
+            <SectionAIInput
+              label="AI: Add from Voice/Upload"
+              placeholder="Dictate or paste ECG, PFT, or other test results…"
+              onGenerate={(args) => handleDocAI(args, 'TEST')}
+              disabled={aiLoading}
+            />
             <UploadDocument patientId={patientId} defaultCategory="TEST" />
           </div>
           {testDocs.length === 0 ? (
@@ -118,7 +168,13 @@ export default function DiagnosticsTab({ patientId }) {
         </TabsContent>
 
         <TabsContent value="imaging" className="space-y-3">
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2 flex-wrap">
+            <SectionAIInput
+              label="AI: Add from Voice/Upload"
+              placeholder="Paste or dictate the radiology/ultrasound report…"
+              onGenerate={(args) => handleDocAI(args, 'IMAGING')}
+              disabled={aiLoading}
+            />
             <UploadDocument patientId={patientId} defaultCategory="IMAGING" />
           </div>
           {imagingDocs.length === 0 ? (
