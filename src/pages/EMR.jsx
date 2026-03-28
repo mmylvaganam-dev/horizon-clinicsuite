@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Search, FileText, User, Activity, TestTube, UserCheck, Calendar, Pill, Lock, ClipboardList, UserPlus, X } from 'lucide-react';
+import { Search, FileText, User, Activity, TestTube, UserCheck, Calendar, Pill, Lock, ClipboardList, UserPlus, X, MessageSquare } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
 import { Link, useNavigate } from 'react-router-dom';
@@ -24,6 +24,7 @@ import DiagnosticsTab from '../components/emr/DiagnosticsTab';
 import CPPManager from '../components/emr/CPPManager';
 import ClinicalSummaryReport from '../components/emr/ClinicalSummaryReport';
 import PatientDocumentHub from '../components/emr/PatientDocumentHub';
+import PatientCaseChat from '../components/emr/PatientCaseChat';
 import PatientForm from '../components/patients/PatientForm';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 
@@ -257,7 +258,7 @@ export default function EMR() {
           <SmartBox patientId={selectedPatient.id} />
 
           <Tabs defaultValue="cpp" className="space-y-6">
-            <TabsList className="grid grid-cols-3 lg:grid-cols-9 w-full">
+            <TabsList className="grid grid-cols-3 lg:grid-cols-10 w-full">
               <TabsTrigger value="cpp">CPP</TabsTrigger>
               <TabsTrigger value="medications">Medications</TabsTrigger>
               <TabsTrigger value="history">History</TabsTrigger>
@@ -267,6 +268,9 @@ export default function EMR() {
               <TabsTrigger value="referrals">Specialists</TabsTrigger>
               <TabsTrigger value="records">Records</TabsTrigger>
               <TabsTrigger value="documents" className="text-teal-600 font-semibold">📎 AI Docs</TabsTrigger>
+              <TabsTrigger value="casechat" className="text-blue-600 font-semibold flex items-center gap-1">
+                <MessageSquare className="w-3.5 h-3.5" /> Chat
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="cpp">
@@ -368,6 +372,23 @@ export default function EMR() {
               <Card className="bg-white border-0 shadow-sm">
                 <CardContent className="pt-6">
                   <PatientDocumentHub
+                    patientId={selectedPatient.id}
+                    patientName={`${selectedPatient.first_name} ${selectedPatient.last_name}`}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="casechat">
+              <Card className="bg-white border-0 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <MessageSquare className="w-5 h-5 text-blue-600" />
+                    Case Discussion — {selectedPatient.first_name} {selectedPatient.last_name}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <PatientCaseChat
                     patientId={selectedPatient.id}
                     patientName={`${selectedPatient.first_name} ${selectedPatient.last_name}`}
                   />
