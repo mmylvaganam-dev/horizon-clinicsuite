@@ -60,6 +60,7 @@ import ClinicalSummaryReport from '@/components/emr/ClinicalSummaryReport';
 import AppointmentCard from '@/components/telemedicine/AppointmentCard';
 import PatientCareAccessManager from '@/components/patients/PatientCareAccessManager';
 import PatientCareTimeline from '@/components/patient/PatientCareTimeline';
+import HealthMetricsDashboard from '@/components/patient/HealthMetricsDashboard';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -336,6 +337,7 @@ export default function PatientDetails() {
         <TabsList className="flex flex-wrap h-auto gap-1 p-1 w-full">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="timeline" className="text-teal-600 font-medium">📋 Timeline</TabsTrigger>
+          {access.canViewClinicalNotes && <TabsTrigger value="trends" className="text-indigo-600 font-medium">📈 Trends</TabsTrigger>}
           {access.canViewClinicalNotes && <TabsTrigger value="clinical">Clinical</TabsTrigger>}
           {access.canViewLabResults && <TabsTrigger value="labs">Labs</TabsTrigger>}
           {access.canViewAppointments && <TabsTrigger value="appointments">Appointments</TabsTrigger>}
@@ -355,6 +357,13 @@ export default function PatientDetails() {
         <TabsContent value="timeline">
           <PatientCareTimeline patientId={patientId} />
         </TabsContent>
+
+        {access.canViewClinicalNotes && (
+          <TabsContent value="trends">
+            <HealthMetricsDashboard patientId={patientId} />
+          </TabsContent>
+        )}
+
 
         <TabsContent value="overview" className="space-y-6">
           {access.canViewClinicalNotes && <VitalsHeader patientId={patientId} />}
