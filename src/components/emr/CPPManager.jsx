@@ -9,14 +9,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { AlertCircle, Plus, Check, X, Sparkles } from 'lucide-react';
+import { AlertCircle, Plus, Check, X, Sparkles, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
+import SectionAIInput from './SectionAIInput';
 
 export default function CPPManager({ patientId }) {
   const queryClient = useQueryClient();
   const [showAdd, setShowAdd] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
   const [formData, setFormData] = useState({
     problem_name: '', status: 'active', onset_date: '', notes: ''
   });
@@ -124,6 +126,50 @@ export default function CPPManager({ patientId }) {
     }
   });
 
+  const handleCPPAI = async ({ text, fileUrl }) => {
+    setAiLoading(true);
+    try {
+      const prompt = `Extract a list of medical problems/diagnoses from the following clinical text or document.
+Return JSON: { problems: [ { name, notes } ] }
+Text: ${text || '(see uploaded file)'}`;
+      const res = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        ...(fileUrl ? { file_urls: [fileUrl] } : {}),
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            problems: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: { name: { type: 'string' }, notes: { type: 'string' } }
+              }
+            }
+          }
+        }
+      });
+      if (!res.problems?.length) { toast.error('No problems found'); return; }
+      for (const prob of res.problems) {
+        await base44.entities.CPPItem.create({
+          organization_id: '',
+          patient_ref: patientId,
+          problem_name: prob.name,
+          status: 'active',
+          notes: prob.notes || '',
+          last_reviewed_at: new Date().toISOString(),
+          last_reviewed_by: user?.id,
+          last_reviewed_by_email: user?.email
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: ['cppItems', patientId] });
+      toast.success(`Added ${res.problems.length} problem(s) to CPP`);
+    } catch {
+      toast.error('AI extraction failed');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   const activeProblems = cppItems.filter(i => i.status === 'active');
   const inactiveProblems = cppItems.filter(i => i.status !== 'active');
 
@@ -147,15 +193,23 @@ export default function CPPManager({ patientId }) {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <CardTitle className="flex items-center gap-2">
               <AlertCircle className="w-5 h-5 text-rose-600" />
               Active Problems ({activeProblems.length})
             </CardTitle>
-            <Button size="sm" onClick={() => setShowAdd(true)}>
-              <Plus className="w-4 h-4 mr-1" />
-              Add Problem
-            </Button>
+            <div className="flex gap-2 flex-wrap">
+              <SectionAIInput
+                label="AI: Add from Voice/Upload"
+                placeholder="Dictate or paste clinical text — AI will extract the problem list…"
+                onGenerate={handleCPPAI}
+                disabled={aiLoading || !user}
+              />
+              <Button size="sm" onClick={() => setShowAdd(true)}>
+                <Plus className="w-4 h-4 mr-1" />
+                Add Problem
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-2">

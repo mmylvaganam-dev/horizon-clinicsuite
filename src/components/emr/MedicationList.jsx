@@ -11,12 +11,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Pill, Check, X, Sparkles, Pencil, BanIcon, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
+import SectionAIInput from './SectionAIInput';
 
 export default function MedicationList({ patientId }) {
   const queryClient = useQueryClient();
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [editRx, setEditRx] = useState(null);
   const [editForm, setEditForm] = useState({});
+  const [aiLoading, setAiLoading] = useState(false);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -110,10 +112,69 @@ export default function MedicationList({ patientId }) {
     });
   };
 
+  const handleMedAI = async ({ text, fileUrl }) => {
+    setAiLoading(true);
+    try {
+      const prompt = `Extract the medication list from the following clinical text or document.
+For each medication return: drug_name, strength (dose), directions (frequency/instructions), quantity (number).
+Return JSON: { medications: [ { drug_name, strength, directions, quantity } ] }
+Text: ${text || '(see uploaded file)'}`;
+      const res = await base44.integrations.Core.InvokeLLM({
+        prompt,
+        ...(fileUrl ? { file_urls: [fileUrl] } : {}),
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            medications: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  drug_name: { type: 'string' },
+                  strength: { type: 'string' },
+                  directions: { type: 'string' },
+                  quantity: { type: 'number' },
+                }
+              }
+            }
+          }
+        }
+      });
+      if (!res.medications?.length) { toast.error('No medications found'); return; }
+      for (const med of res.medications) {
+        await base44.entities.Prescription.create({
+          patient_id: patientId,
+          prescriber_id: user?.id || '',
+          drug_name: med.drug_name,
+          strength: med.strength || '',
+          directions: med.directions || '',
+          quantity: med.quantity || 1,
+          status: 'New',
+          prescribed_date: new Date().toISOString(),
+          notes: 'Imported via AI'
+        });
+      }
+      queryClient.invalidateQueries({ queryKey: ['patientPrescriptions', patientId] });
+      toast.success(`Added ${res.medications.length} medication(s)`);
+    } catch {
+      toast.error('AI extraction failed');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   const activeMeds = prescriptions;
 
   return (
     <div className="space-y-4">
+      <div className="flex justify-end">
+        <SectionAIInput
+          label="AI: Import from Discharge/Prescription Doc"
+          placeholder="Paste or dictate the medication list…"
+          onGenerate={handleMedAI}
+          disabled={aiLoading}
+        />
+      </div>
       {medSuggestions.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
