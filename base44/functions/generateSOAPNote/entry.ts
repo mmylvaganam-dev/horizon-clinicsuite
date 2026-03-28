@@ -1,4 +1,7 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
+import OpenAI from 'npm:openai@4.77.0';
+
+const openai = new OpenAI({ apiKey: Deno.env.get("OPENAI_API_KEY") });
 
 Deno.serve(async (req) => {
     try {
@@ -10,7 +13,7 @@ Deno.serve(async (req) => {
         }
 
         const payload = await req.json();
-        const { patient_id, encounter_id, voice_transcript, note_date } = payload;
+        const { patient_id, encounter_id, voice_transcript, note_date, file_url } = payload;
 
         if (!patient_id || !voice_transcript) {
             return Response.json({ error: 'patient_id and voice_transcript are required' }, { status: 400 });
@@ -39,19 +42,16 @@ Please structure the response as a JSON object with the following fields:
 
 Be concise but comprehensive. Use medical terminology appropriately.`;
 
-        const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
-            prompt: prompt,
-            response_json_schema: {
-                type: "object",
-                properties: {
-                    subjective: { type: "string" },
-                    objective: { type: "string" },
-                    assessment: { type: "string" },
-                    plan: { type: "string" },
-                    icd10_codes: { type: "array", items: { type: "string" } }
-                }
-            }
+        const userContent = file_url
+            ? [{ type: "text", text: prompt }, { type: "image_url", image_url: { url: file_url } }]
+            : prompt;
+
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o",
+            messages: [{ role: "user", content: userContent }],
+            response_format: { type: "json_object" },
         });
+        const aiResponse = JSON.parse(completion.choices[0].message.content);
 
         // Create SOAP note
         const soapNote = await base44.asServiceRole.entities.SOAPNote.create({

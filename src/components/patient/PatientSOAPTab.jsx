@@ -205,25 +205,11 @@ export default function PatientSOAPTab({ patientId }) {
       // Use AI to extract text from PDF and generate SOAP note
       const prompt = `Extract clinical information from this uploaded PDF and structure it as a SOAP note. Return JSON with fields: subjective, objective, assessment, plan, icd10_codes (array)`;
       
-      const aiResponse = await base44.integrations.Core.InvokeLLM({
-        prompt: prompt,
-        file_urls: [uploadedFile],
-        response_json_schema: {
-          type: "object",
-          properties: {
-            subjective: { type: "string" },
-            objective: { type: "string" },
-            assessment: { type: "string" },
-            plan: { type: "string" },
-            icd10_codes: { type: "array", items: { type: "string" } }
-          }
-        }
-      });
-
       const response = await base44.functions.invoke('generateSOAPNote', {
         patient_id: patientId,
-        voice_transcript: `PDF extracted: ${JSON.stringify(aiResponse)}`,
-        note_date: noteDate
+        voice_transcript: `PDF uploaded for analysis. File URL: ${uploadedFile}`,
+        note_date: noteDate,
+        file_url: uploadedFile
       });
 
       return response.data;

@@ -1,4 +1,7 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
+import OpenAI from 'npm:openai@4.77.0';
+
+const openai = new OpenAI({ apiKey: Deno.env.get("OPENAI_API_KEY") });
 
 Deno.serve(async (req) => {
   try {
@@ -31,15 +34,20 @@ Deno.serve(async (req) => {
         prompt = 'Analyze this document and provide a summary.';
     }
 
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt,
-      add_context_from_internet: false,
-      file_urls: [file_url]
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [{
+        role: "user",
+        content: [
+          { type: "text", text: prompt },
+          { type: "image_url", image_url: { url: file_url } }
+        ]
+      }]
     });
 
     return Response.json({ 
-      analysis: result,
-      tokens_used: 0
+      analysis: response.choices[0].message.content,
+      tokens_used: response.usage?.total_tokens || 0
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
