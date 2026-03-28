@@ -119,9 +119,9 @@ export default function MedicationList({ patientId }) {
 For each medication return: drug_name, strength (dose), directions (frequency/instructions), quantity (number).
 Return JSON: { medications: [ { drug_name, strength, directions, quantity } ] }
 Text: ${text || '(see uploaded file)'}`;
-      const res = await base44.integrations.Core.InvokeLLM({
+      const { data: res } = await base44.functions.invoke('invokeAI', {
         prompt,
-        ...(fileUrl ? { file_urls: [fileUrl] } : {}),
+        file_url: fileUrl || null,
         response_json_schema: {
           type: 'object',
           properties: {

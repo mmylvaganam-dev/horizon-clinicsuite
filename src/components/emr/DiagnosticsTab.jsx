@@ -38,9 +38,9 @@ export default function DiagnosticsTab({ patientId }) {
       const catLabel = category === 'LAB' ? 'laboratory report' : category === 'TEST' ? 'diagnostic test result' : 'imaging study report';
       const prompt = `Extract key details from this ${catLabel}. Return JSON: { doc_title, notes, doc_date (YYYY-MM-DD, today if unknown) }
 Text: ${text || '(see uploaded file)'}`;
-      const res = await base44.integrations.Core.InvokeLLM({
+      const { data: res } = await base44.functions.invoke('invokeAI', {
         prompt,
-        ...(fileUrl ? { file_urls: [fileUrl] } : {}),
+        file_url: fileUrl || null,
         response_json_schema: {
           type: 'object',
           properties: {

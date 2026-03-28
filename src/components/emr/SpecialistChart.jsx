@@ -68,9 +68,9 @@ export default function SpecialistChart({ patientId }) {
       const prompt = `Extract specialist referral details from the following clinical text or document.
 Return JSON: { specialty, specialist_name, referral_reason }
 Text: ${text || '(see uploaded file)'}`;
-      const res = await base44.integrations.Core.InvokeLLM({
+      const { data: res } = await base44.functions.invoke('invokeAI', {
         prompt,
-        ...(fileUrl ? { file_urls: [fileUrl] } : {}),
+        file_url: fileUrl || null,
         response_json_schema: {
           type: 'object',
           properties: {
@@ -102,9 +102,9 @@ Text: ${text || '(see uploaded file)'}`;
       const prompt = `Extract the specialist consultation report/findings from this clinical document or text.
 Return JSON: { consult_note_text, recommendations }
 Text: ${text || '(see uploaded file)'}`;
-      const res = await base44.integrations.Core.InvokeLLM({
+      const { data: res } = await base44.functions.invoke('invokeAI', {
         prompt,
-        ...(fileUrl ? { file_urls: [fileUrl] } : {}),
+        file_url: fileUrl || null,
         response_json_schema: {
           type: 'object',
           properties: {
