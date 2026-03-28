@@ -8,10 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Pill, Search, Edit2, XCircle, Send, CheckCircle, Clock, RefreshCw,
-  Building2, AlertTriangle, ChevronDown, ChevronUp
+  Building2, AlertTriangle, ChevronDown, ChevronUp, Printer
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 const STATUS_COLORS = {
   New: 'bg-slate-100 text-slate-700',
@@ -30,6 +31,7 @@ const DELIVERY_COLORS = {
 
 export default function PrescriptionList({ patientId, patient, onEdit }) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [expandedId, setExpandedId] = useState(null);
@@ -147,6 +149,13 @@ export default function PrescriptionList({ patientId, patient, onEdit }) {
                       <RefreshCw className="w-4 h-4" />
                     </button>
                   )}
+                  <button
+                    onClick={() => navigate(`/PrescriptionPrint?id=${rx.id}`)}
+                    className="p-1.5 rounded hover:bg-teal-50 text-slate-400 hover:text-teal-600"
+                    title="Print prescription"
+                  >
+                    <Printer className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
 
