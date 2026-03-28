@@ -288,6 +288,7 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'EMR', page: 'EMR', icon: FileText, description: 'Electronic Medical Records - Clinical documentation, diagnoses, prescriptions, vitals' },
         { name: 'Medical Records', page: 'MedicalRecords', icon: FileText, description: 'Records archive - View historical medical records and documents' },
         { name: 'Task Management', page: 'TaskManagement', icon: CheckSquare, description: 'Clinical tasks - Patient follow-ups, referrals, and action items' },
+        { name: 'Consultation Transcriber', page: 'ConsultationTranscriber', icon: Mic, description: 'Voice-to-SOAP — speak during consultation, AI structures the clinical note automatically' },
       ]
     },
     {

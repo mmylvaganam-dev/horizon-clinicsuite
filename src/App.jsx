@@ -17,6 +17,7 @@ import AppointmentScheduler from './pages/AppointmentScheduler';
 import PatientSelfPortal from './pages/PatientSelfPortal';
 import LabReportView from './pages/LabReportView';
 import FindLabReport from './pages/FindLabReport';
+import ConsultationTranscriber from './pages/ConsultationTranscriber';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -81,6 +82,7 @@ const AuthenticatedApp = () => {
       <Route path="/patient-portal" element={<PatientSelfPortal />} />
       <Route path="/lab-report-view" element={<LabReportView />} />
       <Route path="/find-lab-report" element={<FindLabReport />} />
+      <Route path="/ConsultationTranscriber" element={<LayoutWrapper currentPageName="ConsultationTranscriber"><ConsultationTranscriber /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
