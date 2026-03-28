@@ -40,7 +40,9 @@ import {
   Ticket,
   LayoutGrid,
   Play,
-  Network
+  Network,
+  Pill,
+  Mic
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
@@ -287,6 +289,7 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Patients', page: 'Patients', icon: Users, description: 'Patient registry - Register new patients, search and view patient records' },
         { name: 'EMR', page: 'EMR', icon: FileText, description: 'Electronic Medical Records - Clinical documentation, diagnoses, prescriptions, vitals' },
         { name: 'Medical Records', page: 'MedicalRecords', icon: FileText, description: 'Records archive - View historical medical records and documents' },
+        { name: 'Prescriptions', page: 'PrescriptionManager', icon: Pill, description: 'Draft, sign & send prescriptions — drug interaction checker, refill tracking' },
         { name: 'Task Management', page: 'TaskManagement', icon: CheckSquare, description: 'Clinical tasks - Patient follow-ups, referrals, and action items' },
         { name: 'Consultation Transcriber', page: 'ConsultationTranscriber', icon: Mic, description: 'Voice-to-SOAP — speak during consultation, AI structures the clinical note automatically' },
       ]
