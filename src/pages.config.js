@@ -205,6 +205,7 @@ import TeleAppointments from './pages/TeleAppointments';
 import TeleLogin from './pages/TeleLogin';
 import TeleReports from './pages/TeleReports';
 import TelemedicineAdmin from './pages/TelemedicineAdmin';
+import TelemedicineDoctors from './pages/TelemedicineDoctors';
 import TelemedicineBilling from './pages/TelemedicineBilling';
 import TelemedicineCorporates from './pages/TelemedicineCorporates';
 import TelemedicinePatientPortal from './pages/TelemedicinePatientPortal';
@@ -389,6 +390,7 @@ export const PAGES = {
     "TeleLogin": TeleLogin,
     "TeleReports": TeleReports,
     "TelemedicineAdmin": TelemedicineAdmin,
+    "TelemedicineDoctors": TelemedicineDoctors,
     "TelemedicineBilling": TelemedicineBilling,
     "TelemedicineCorporates": TelemedicineCorporates,
     "TelemedicinePatientPortal": TelemedicinePatientPortal,
