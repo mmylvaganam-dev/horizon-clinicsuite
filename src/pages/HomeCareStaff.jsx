@@ -15,8 +15,12 @@ import {
   Search,
   Activity,
   Stethoscope,
-  Heart
+  Heart,
+  FileText,
+  AlertTriangle
 } from 'lucide-react';
+import { differenceInDays, parseISO } from 'date-fns';
+import StaffCredentialManager from '@/components/homecare/StaffCredentialManager';
 import {
   Dialog,
   DialogContent,
@@ -54,12 +58,33 @@ export default function HomeCareStaff() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [staffForm, setStaffForm] = useState(emptyForm);
+  const [selectedStaffForDocs, setSelectedStaffForDocs] = useState(null);
 
   const { data: staff = [] } = useQuery({
     queryKey: ['homeCareStaff', selectedOrgId],
     queryFn: () => base44.entities.StaffProfile.filter({ organization_id: selectedOrgId, staff_type: 'NURSE' }),
     enabled: !!selectedOrgId,
   });
+
+  const { data: allCredentials = [] } = useQuery({
+    queryKey: ['allStaffCredentials', selectedOrgId],
+    queryFn: () => base44.entities.StaffCredentialDocument.filter({ organization_id: selectedOrgId }),
+    enabled: !!selectedOrgId,
+  });
+
+  const getStaffExpiryAlerts = (staffId) => {
+    return allCredentials.filter(doc => {
+      if (!doc.expiry_date || doc.staff_ref !== staffId) return false;
+      const daysLeft = differenceInDays(parseISO(doc.expiry_date), new Date());
+      return daysLeft <= (doc.alert_days_before || 30);
+    });
+  };
+
+  const totalExpiryAlerts = allCredentials.filter(doc => {
+    if (!doc.expiry_date) return false;
+    const daysLeft = differenceInDays(parseISO(doc.expiry_date), new Date());
+    return daysLeft <= (doc.alert_days_before || 30);
+  }).length;
 
   const divisions = ['North', 'South', 'East', 'West', 'Central'];
 
@@ -168,6 +193,18 @@ export default function HomeCareStaff() {
             </div>
           </CardContent>
         </Card>
+        {totalExpiryAlerts > 0 && (
+          <Card className="border-orange-300 bg-orange-50 col-span-2 md:col-span-1">
+            <CardContent className="p-4 flex items-center gap-3">
+              <AlertTriangle className="w-8 h-8 text-orange-500" />
+              <div>
+                <p className="text-xs text-orange-600">Credential Alerts</p>
+                <p className="text-2xl font-bold text-orange-700">{totalExpiryAlerts}</p>
+                <p className="text-xs text-orange-500">expiring / expired</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Filter Tabs + Search */}
@@ -244,14 +281,37 @@ export default function HomeCareStaff() {
                       {member.notes}
                     </div>
                   )}
+                {/* Credential alert indicator */}
+                {(() => {
+                  const alerts = getStaffExpiryAlerts(member.id);
+                  return alerts.length > 0 ? (
+                    <div className="flex items-center gap-1 text-xs text-orange-600 bg-orange-50 border border-orange-200 rounded px-2 py-1 mt-2">
+                      <AlertTriangle className="w-3 h-3" />
+                      {alerts.length} credential{alerts.length > 1 ? 's' : ''} expiring/expired
+                    </div>
+                  ) : null;
+                })()}
+                <Button size="sm" variant="outline" className="w-full mt-3 gap-2"
+                  onClick={() => setSelectedStaffForDocs(member)}>
+                  <FileText className="w-4 h-4" /> Documents
+                </Button>
                 </CardContent>
-              </Card>
-            );
-          })
-        )}
-      </div>
+                </Card>
+                );
+                })
+                )}
+                </div>
 
-      {/* Add Staff Dialog */}
+                {/* Credential Manager */}
+                {selectedStaffForDocs && (
+                <StaffCredentialManager
+                staffMember={selectedStaffForDocs}
+                organizationId={selectedOrgId}
+                onClose={() => setSelectedStaffForDocs(null)}
+                />
+                )}
+
+                {/* Add Staff Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
         <DialogContent className="max-w-xl">
           <DialogHeader>
