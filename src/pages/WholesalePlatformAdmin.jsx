@@ -43,16 +43,6 @@ export default function WholesalePlatformAdmin() {
     queryFn: () => base44.entities.Organization.filter({ status: 'active' }),
   });
 
-  if (user && !isAdmin) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <Lock className="w-16 h-16 text-red-500" />
-        <h2 className="text-2xl font-bold text-slate-900">Platform Owner Only</h2>
-        <p className="text-slate-500">Only platform owners and admins can manage wholesale suppliers.</p>
-      </div>
-    );
-  }
-
   const createProviderMutation = useMutation({
     mutationFn: async () => {
       if (!form.company_name || !form.company_code) throw new Error('Company name and code are required');
@@ -112,6 +102,16 @@ export default function WholesalePlatformAdmin() {
 
   const pendingConnections = connections.filter(c => c.status === 'pending');
   const activeConnections = connections.filter(c => c.status === 'active');
+
+  if (user && !isAdmin) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Lock className="w-16 h-16 text-red-500" />
+        <h2 className="text-2xl font-bold text-slate-900">Platform Owner Only</h2>
+        <p className="text-slate-500">Only platform owners and admins can manage wholesale suppliers.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

@@ -27,6 +27,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import toast from 'react-hot-toast';
+import { useOrganization } from '@/components/OrganizationProvider';
 
 const STAFF_TYPES = [
   { value: 'nursing_officer', label: 'Nursing Officer', description: 'Home nursing clinical procedures', color: 'bg-blue-100 text-blue-700' },
@@ -34,27 +35,30 @@ const STAFF_TYPES = [
 ];
 
 const emptyForm = {
-  full_name: '',
+  first_name: '',
+  last_name: '',
   phone: '',
   email: '',
-  role: 'home_nurse',
-  staff_type: 'nursing_officer',
+  staff_type: 'NURSE',
+  hc_staff_type: 'nursing_officer',
   division: '',
-  address: '',
-  qualifications: '',
+  home_address: '',
+  notes: '',
   status: 'active'
 };
 
 export default function HomeCareStaff() {
   const queryClient = useQueryClient();
+  const { selectedOrgId } = useOrganization();
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [staffForm, setStaffForm] = useState(emptyForm);
 
   const { data: staff = [] } = useQuery({
-    queryKey: ['homeCareStaff'],
-    queryFn: () => base44.entities.StaffProfile.filter({ role: 'home_nurse' }),
+    queryKey: ['homeCareStaff', selectedOrgId],
+    queryFn: () => base44.entities.StaffProfile.filter({ organization_id: selectedOrgId, staff_type: 'NURSE' }),
+    enabled: !!selectedOrgId,
   });
 
   const divisions = ['North', 'South', 'East', 'West', 'Central'];
@@ -73,31 +77,44 @@ export default function HomeCareStaff() {
   });
 
   const handleSubmit = () => {
-    if (!staffForm.full_name || !staffForm.phone || !staffForm.division) {
-      toast.error('Please fill required fields');
+    if (!staffForm.first_name || !staffForm.phone || !staffForm.division) {
+      toast.error('Please fill required fields (name, phone, division)');
       return;
     }
-    createStaffMutation.mutate(staffForm);
+    createStaffMutation.mutate({
+      organization_id: selectedOrgId,
+      first_name: staffForm.first_name,
+      last_name: staffForm.last_name || '',
+      phone: staffForm.phone,
+      email: staffForm.email,
+      staff_type: 'NURSE',
+      hc_staff_type: staffForm.hc_staff_type,
+      division: staffForm.division,
+      home_address: staffForm.home_address,
+      notes: staffForm.notes,
+      status: 'active',
+    });
   };
 
-  const nursingCount = staff.filter(s => s.staff_type === 'nursing_officer' || !s.staff_type).length;
-  const homeCareCount = staff.filter(s => s.staff_type === 'home_care_worker').length;
+  const nursingCount = staff.filter(s => s.hc_staff_type === 'nursing_officer' || !s.hc_staff_type).length;
+  const homeCareCount = staff.filter(s => s.hc_staff_type === 'home_care_worker').length;
 
   const filteredStaff = staff.filter(s => {
+    const fullName = `${s.first_name || ''} ${s.last_name || ''}`.toLowerCase();
     const searchLower = searchQuery.toLowerCase();
     const matchesSearch =
-      s.full_name?.toLowerCase().includes(searchLower) ||
+      fullName.includes(searchLower) ||
       s.phone?.includes(searchQuery) ||
       s.division?.toLowerCase().includes(searchLower);
     const matchesTab =
       activeTab === 'all' ||
-      (activeTab === 'nursing_officer' && (s.staff_type === 'nursing_officer' || !s.staff_type)) ||
-      (activeTab === 'home_care_worker' && s.staff_type === 'home_care_worker');
+      (activeTab === 'nursing_officer' && (s.hc_staff_type === 'nursing_officer' || !s.hc_staff_type)) ||
+      (activeTab === 'home_care_worker' && s.hc_staff_type === 'home_care_worker');
     return matchesSearch && matchesTab;
   });
 
-  const getTypeInfo = (staffType) => {
-    return STAFF_TYPES.find(t => t.value === staffType) || STAFF_TYPES[0];
+  const getTypeInfo = (hcStaffType) => {
+    return STAFF_TYPES.find(t => t.value === hcStaffType) || STAFF_TYPES[0];
   };
 
   return (
@@ -184,13 +201,13 @@ export default function HomeCareStaff() {
           </Card>
         ) : (
           filteredStaff.map((member) => {
-            const typeInfo = getTypeInfo(member.staff_type);
-            return (
-              <Card key={member.id} className="hover:shadow-lg transition-all">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="text-base">{member.full_name}</CardTitle>
+            const typeInfo = getTypeInfo(member.hc_staff_type);
+             return (
+               <Card key={member.id} className="hover:shadow-lg transition-all">
+                 <CardHeader>
+                   <div className="flex items-start justify-between">
+                     <div>
+                       <CardTitle className="text-base">{member.first_name} {member.last_name}</CardTitle>
                       <div className="flex flex-wrap gap-2 mt-2">
                         <Badge className={typeInfo.color}>
                           {typeInfo.label}
@@ -216,15 +233,15 @@ export default function HomeCareStaff() {
                       <span className="text-slate-600">{member.email}</span>
                     </div>
                   )}
-                  {member.address && (
+                  {member.home_address && (
                     <div className="flex items-center gap-2 text-sm">
                       <MapPin className="w-4 h-4 text-slate-400" />
-                      <span className="text-slate-600 line-clamp-1">{member.address}</span>
+                      <span className="text-slate-600 line-clamp-1">{member.home_address}</span>
                     </div>
                   )}
-                  {member.qualifications && (
+                  {member.notes && (
                     <div className="text-xs text-blue-600 bg-blue-50 p-2 rounded mt-2">
-                      {member.qualifications}
+                      {member.notes}
                     </div>
                   )}
                 </CardContent>
@@ -250,9 +267,9 @@ export default function HomeCareStaff() {
                   <button
                     key={type.value}
                     type="button"
-                    onClick={() => setStaffForm({...staffForm, staff_type: type.value})}
+                    onClick={() => setStaffForm({...staffForm, hc_staff_type: type.value})}
                     className={`p-3 rounded-lg border-2 text-left transition-all ${
-                      staffForm.staff_type === type.value
+                      staffForm.hc_staff_type === type.value
                         ? 'border-teal-600 bg-teal-50'
                         : 'border-slate-200 hover:border-slate-300'
                     }`}
@@ -264,14 +281,24 @@ export default function HomeCareStaff() {
               </div>
             </div>
 
-            <div>
-              <Label>Full Name *</Label>
-              <Input
-                value={staffForm.full_name}
-                onChange={(e) => setStaffForm({...staffForm, full_name: e.target.value})}
-                placeholder="Staff member name"
-              />
-            </div>
+            <div className="grid grid-cols-2 gap-4">
+               <div>
+                 <Label>First Name *</Label>
+                 <Input
+                   value={staffForm.first_name}
+                   onChange={(e) => setStaffForm({...staffForm, first_name: e.target.value})}
+                   placeholder="First name"
+                 />
+               </div>
+               <div>
+                 <Label>Last Name</Label>
+                 <Input
+                   value={staffForm.last_name}
+                   onChange={(e) => setStaffForm({...staffForm, last_name: e.target.value})}
+                   placeholder="Last name"
+                 />
+               </div>
+             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -310,8 +337,8 @@ export default function HomeCareStaff() {
             <div>
               <Label>Address</Label>
               <Textarea
-                value={staffForm.address}
-                onChange={(e) => setStaffForm({...staffForm, address: e.target.value})}
+                value={staffForm.home_address}
+                onChange={(e) => setStaffForm({...staffForm, home_address: e.target.value})}
                 placeholder="Home address"
                 rows={2}
               />
@@ -320,9 +347,9 @@ export default function HomeCareStaff() {
             <div>
               <Label>Qualifications / Experience</Label>
               <Textarea
-                value={staffForm.qualifications}
-                onChange={(e) => setStaffForm({...staffForm, qualifications: e.target.value})}
-                placeholder={staffForm.staff_type === 'nursing_officer' 
+                value={staffForm.notes}
+                onChange={(e) => setStaffForm({...staffForm, notes: e.target.value})}
+                placeholder={staffForm.hc_staff_type === 'nursing_officer' 
                   ? "e.g. Registered Nurse, IV Therapy certified..." 
                   : "e.g. ADL support, wound care assist, housekeeping..."}
                 rows={2}

@@ -76,18 +76,6 @@ export default function CompanyModuleManagement() {
     },
   });
 
-  if (user && !isPlatformOwner) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh]">
-        <Card className="p-8 text-center max-w-md">
-          <Lock className="w-16 h-16 text-rose-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Platform Owner Only</h2>
-          <p className="text-slate-600">Company module management is restricted to platform owners only.</p>
-        </Card>
-      </div>
-    );
-  }
-
   const toggleOrgModuleMutation = useMutation({
     mutationFn: async ({ orgId, moduleCode, isEnabled }) => {
       const existing = orgModuleAccess.find(
@@ -143,6 +131,18 @@ export default function CompanyModuleManagement() {
 
   // Business modules that can be toggled (all non-core modules regardless of status field)
   const businessModules = modules.filter(m => !m.is_core);
+
+  if (user && !isPlatformOwner) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Card className="p-8 text-center max-w-md">
+          <Lock className="w-16 h-16 text-rose-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Platform Owner Only</h2>
+          <p className="text-slate-600">Company module management is restricted to platform owners only.</p>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
