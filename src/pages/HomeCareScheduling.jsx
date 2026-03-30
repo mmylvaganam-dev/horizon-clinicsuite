@@ -48,7 +48,7 @@ export default function HomeCareScheduling() {
 
   const { data: staff = [] } = useQuery({
     queryKey: ['homeCareStaff'],
-    queryFn: () => base44.entities.StaffProfile.filter({ role: 'home_nurse', status: 'active' }),
+    queryFn: () => base44.entities.StaffProfile.filter({ staff_type: 'NURSE', status: 'active' }),
   });
 
   const { data: schedules = [] } = useQuery({
@@ -95,7 +95,7 @@ export default function HomeCareScheduling() {
 
   const getStaffName = (staffId) => {
     const staffMember = staff.find(s => s.id === staffId);
-    return staffMember?.full_name || 'Unknown';
+    return staffMember ? `${staffMember.first_name || ''} ${staffMember.last_name || ''}`.trim() : 'Unknown';
   };
 
   const filteredSchedules = schedules.filter(s => s.schedule_date === dateFilter);
@@ -234,7 +234,7 @@ export default function HomeCareScheduling() {
                 <SelectContent>
                   {staff.map(s => (
                     <SelectItem key={s.id} value={s.id}>
-                      {s.full_name} - {s.division}
+                      {s.first_name} {s.last_name} - {s.division}
                     </SelectItem>
                   ))}
                 </SelectContent>
