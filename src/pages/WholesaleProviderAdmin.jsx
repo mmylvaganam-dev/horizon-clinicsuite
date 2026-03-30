@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BarChart3, Package, ShoppingCart, CreditCard, TrendingUp, Users, Lock, AlertTriangle, ChevronDown, Building2 } from 'lucide-react';
+import { BarChart3, Package, ShoppingCart, CreditCard, TrendingUp, Users, Lock, AlertTriangle, ChevronDown, Building2, PackageCheck, RotateCcw, Truck } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import WSProviderDashboard from '@/components/wholesale/WSProviderDashboard.jsx';
 import WSProviderProducts from '@/components/wholesale/WSProviderProducts.jsx';
@@ -12,6 +12,9 @@ import WSProviderConnections from '@/components/wholesale/WSProviderConnections.
 import WSProviderCreditAccounts from '@/components/wholesale/WSProviderCreditAccounts.jsx';
 import WSProviderPayments from '@/components/wholesale/WSProviderPayments.jsx';
 import WSStockAlerts from '@/components/wholesale/WSStockAlerts.jsx';
+import WSGoodsReceiving from '@/components/wholesale/WSGoodsReceiving.jsx';
+import WSReturns from '@/components/wholesale/WSReturns.jsx';
+import WSDeliveryManager from '@/components/wholesale/WSDeliveryManager.jsx';
 import { useOrganization } from '@/components/OrganizationProvider';
 
 export default function WholesaleProviderAdmin() {
@@ -157,6 +160,15 @@ export default function WholesaleProviderAdmin() {
             <TabsTrigger value="stock_alerts" className="data-[state=active]:bg-red-600 data-[state=active]:text-white rounded-lg px-4 py-2 font-semibold flex items-center gap-2">
               <AlertTriangle className="w-4 h-4" /> Stock Alerts
             </TabsTrigger>
+            <TabsTrigger value="grn" className="data-[state=active]:bg-teal-600 data-[state=active]:text-white rounded-lg px-4 py-2 font-semibold flex items-center gap-2">
+              <PackageCheck className="w-4 h-4" /> Goods Receiving
+            </TabsTrigger>
+            <TabsTrigger value="delivery" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white rounded-lg px-4 py-2 font-semibold flex items-center gap-2">
+              <Truck className="w-4 h-4" /> Deliveries
+            </TabsTrigger>
+            <TabsTrigger value="returns" className="data-[state=active]:bg-orange-600 data-[state=active]:text-white rounded-lg px-4 py-2 font-semibold flex items-center gap-2">
+              <RotateCcw className="w-4 h-4" /> Returns
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard"><WSProviderDashboard provider={myProvider} /></TabsContent>
@@ -166,6 +178,9 @@ export default function WholesaleProviderAdmin() {
           <TabsContent value="credit"><WSProviderCreditAccounts provider={myProvider} /></TabsContent>
           <TabsContent value="payments"><WSProviderPayments provider={myProvider} /></TabsContent>
           <TabsContent value="stock_alerts"><WSStockAlerts provider={myProvider} /></TabsContent>
+          <TabsContent value="grn"><WSGoodsReceiving provider={myProvider} /></TabsContent>
+          <TabsContent value="delivery"><WSDeliveryManager provider={myProvider} /></TabsContent>
+          <TabsContent value="returns"><WSReturns provider={myProvider} /></TabsContent>
         </Tabs>
       )}
     </div>

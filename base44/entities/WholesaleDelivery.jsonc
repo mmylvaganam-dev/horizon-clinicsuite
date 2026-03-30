@@ -1,0 +1,74 @@
+{
+  "name": "WholesaleDelivery",
+  "type": "object",
+  "properties": {
+    "provider_id": {
+      "type": "string"
+    },
+    "order_id": {
+      "type": "string",
+      "description": "WholesaleOrder ID"
+    },
+    "order_number": {
+      "type": "string",
+      "description": "Cached order number"
+    },
+    "buyer_name": {
+      "type": "string"
+    },
+    "delivery_number": {
+      "type": "string",
+      "description": "e.g. DEL-20260330-0001"
+    },
+    "driver_name": {
+      "type": "string"
+    },
+    "driver_phone": {
+      "type": "string"
+    },
+    "vehicle_number": {
+      "type": "string"
+    },
+    "dispatched_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "delivered_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "delivery_address": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "preparing",
+        "dispatched",
+        "delivered",
+        "failed"
+      ],
+      "default": "preparing"
+    },
+    "proof_of_delivery_url": {
+      "type": "string",
+      "description": "Photo of signed delivery receipt"
+    },
+    "recipient_name": {
+      "type": "string",
+      "description": "Name of person who received goods"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "dispatched_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "provider_id",
+    "order_id",
+    "order_number",
+    "buyer_name"
+  ]
+}

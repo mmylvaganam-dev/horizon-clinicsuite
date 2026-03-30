@@ -1,0 +1,85 @@
+{
+  "name": "WholesaleReturn",
+  "type": "object",
+  "properties": {
+    "provider_id": {
+      "type": "string",
+      "description": "WholesaleProvider ID"
+    },
+    "return_number": {
+      "type": "string",
+      "description": "Unique return reference e.g. RTN-20260330-0001"
+    },
+    "order_id": {
+      "type": "string",
+      "description": "Original WholesaleOrder ID (optional)"
+    },
+    "order_number": {
+      "type": "string",
+      "description": "Cached original order number"
+    },
+    "buyer_company_id": {
+      "type": "string"
+    },
+    "buyer_organization_id": {
+      "type": "string"
+    },
+    "buyer_name": {
+      "type": "string",
+      "description": "Cached buyer pharmacy name"
+    },
+    "return_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "damaged",
+        "expired",
+        "wrong_item",
+        "excess",
+        "other"
+      ],
+      "default": "other"
+    },
+    "reason_notes": {
+      "type": "string"
+    },
+    "total_credit": {
+      "type": "number",
+      "description": "Total credit value of returned goods"
+    },
+    "credit_note_issued": {
+      "type": "boolean",
+      "default": false
+    },
+    "credit_note_number": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected",
+        "credit_issued"
+      ],
+      "default": "pending"
+    },
+    "stock_restocked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether returned stock was added back to inventory"
+    },
+    "processed_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "provider_id",
+    "buyer_name",
+    "return_date",
+    "reason"
+  ]
+}

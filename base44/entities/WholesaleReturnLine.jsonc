@@ -1,0 +1,51 @@
+{
+  "name": "WholesaleReturnLine",
+  "type": "object",
+  "properties": {
+    "return_id": {
+      "type": "string",
+      "description": "Parent WholesaleReturn ID"
+    },
+    "provider_id": {
+      "type": "string"
+    },
+    "product_id": {
+      "type": "string"
+    },
+    "product_name": {
+      "type": "string"
+    },
+    "sku": {
+      "type": "string"
+    },
+    "qty_returned": {
+      "type": "number"
+    },
+    "unit": {
+      "type": "string"
+    },
+    "unit_price": {
+      "type": "number",
+      "description": "Original sale price"
+    },
+    "line_credit": {
+      "type": "number",
+      "description": "qty_returned \u00d7 unit_price"
+    },
+    "condition": {
+      "type": "string",
+      "enum": [
+        "resaleable",
+        "damaged",
+        "expired"
+      ],
+      "default": "resaleable"
+    }
+  },
+  "required": [
+    "return_id",
+    "provider_id",
+    "product_name",
+    "qty_returned"
+  ]
+}

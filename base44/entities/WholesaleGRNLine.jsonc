@@ -1,0 +1,56 @@
+{
+  "name": "WholesaleGRNLine",
+  "type": "object",
+  "properties": {
+    "grn_id": {
+      "type": "string",
+      "description": "Parent WholesaleGRN ID"
+    },
+    "provider_id": {
+      "type": "string",
+      "description": "WholesaleProvider ID"
+    },
+    "product_id": {
+      "type": "string",
+      "description": "WholesaleProduct ID"
+    },
+    "product_name": {
+      "type": "string",
+      "description": "Cached product name"
+    },
+    "sku": {
+      "type": "string"
+    },
+    "batch_number": {
+      "type": "string",
+      "description": "Batch/lot number from manufacturer"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Expiry date of this batch"
+    },
+    "qty_received": {
+      "type": "number",
+      "description": "Quantity received in this delivery"
+    },
+    "unit": {
+      "type": "string"
+    },
+    "cost_price": {
+      "type": "number",
+      "description": "Cost price per unit paid to supplier"
+    },
+    "line_total": {
+      "type": "number",
+      "description": "qty_received \u00d7 cost_price"
+    }
+  },
+  "required": [
+    "grn_id",
+    "provider_id",
+    "product_id",
+    "product_name",
+    "qty_received"
+  ]
+}

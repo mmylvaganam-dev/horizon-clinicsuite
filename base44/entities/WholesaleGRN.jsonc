@@ -1,0 +1,51 @@
+{
+  "name": "WholesaleGRN",
+  "type": "object",
+  "properties": {
+    "provider_id": {
+      "type": "string",
+      "description": "WholesaleProvider ID"
+    },
+    "grn_number": {
+      "type": "string",
+      "description": "Unique GRN reference e.g. GRN-20260330-0001"
+    },
+    "supplier_name": {
+      "type": "string",
+      "description": "Name of manufacturer/importer supplying stock"
+    },
+    "supplier_invoice_number": {
+      "type": "string",
+      "description": "Supplier's invoice number"
+    },
+    "received_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date goods were received"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "posted"
+      ],
+      "default": "draft",
+      "description": "draft = not yet committed to stock; posted = stock updated"
+    },
+    "total_cost": {
+      "type": "number",
+      "description": "Total cost of this receipt"
+    },
+    "received_by": {
+      "type": "string",
+      "description": "User email who received"
+    }
+  },
+  "required": [
+    "provider_id",
+    "received_date"
+  ]
+}

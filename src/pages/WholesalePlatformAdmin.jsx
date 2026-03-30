@@ -9,7 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Building2, Plus, Users, CheckCircle, XCircle, Lock, Package, Link, Truck, CreditCard, AlertTriangle } from 'lucide-react';
+import { Building2, Plus, Users, CheckCircle, XCircle, Lock, Package, Link, Truck, CreditCard, AlertTriangle, Star } from 'lucide-react';
+import WSSubscriptionManager from '@/components/wholesale/WSSubscriptionManager.jsx';
 import toast from 'react-hot-toast';
 import { useOrganization } from '@/components/OrganizationProvider';
 
@@ -160,6 +161,9 @@ export default function WholesalePlatformAdmin() {
             <Users className="w-4 h-4" /> Pending Approvals
             {pendingConnections.length > 0 && <Badge className="bg-yellow-500 text-white ml-1">{pendingConnections.length}</Badge>}
           </TabsTrigger>
+          <TabsTrigger value="subscriptions" className="data-[state=active]:bg-slate-800 data-[state=active]:text-white rounded-lg px-4 py-2 font-semibold flex items-center gap-2">
+            <Star className="w-4 h-4" /> Subscriptions
+          </TabsTrigger>
         </TabsList>
 
         {/* All Suppliers */}
@@ -307,6 +311,11 @@ export default function WholesalePlatformAdmin() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        {/* Subscriptions */}
+        <TabsContent value="subscriptions" className="mt-4">
+          <WSSubscriptionManager />
         </TabsContent>
 
         {/* Pending Approvals */}

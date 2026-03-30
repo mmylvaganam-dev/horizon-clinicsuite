@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Package, Truck, Building2, Link, DollarSign, MessageSquare } from 'lucide-react';
 import WSMarketplaceBrowse from '@/components/wholesale/WSMarketplaceBrowse.jsx';
-import WSMyOrders from '@/components/wholesale/WSMyOrders.jsx';
+import WSBuyerOrderDetails from '@/components/wholesale/WSBuyerOrderDetails.jsx';
 import WSMyConnections from '@/components/wholesale/WSMyConnections.jsx';
 import WSBuyerPaymentsOverview from '@/components/wholesale/WSBuyerPaymentsOverview.jsx';
 import WSDirectRequest from '@/components/wholesale/WSDirectRequest.jsx';
@@ -90,7 +90,7 @@ export default function WholesaleMarketplace() {
         </TabsList>
 
         <TabsContent value="browse"><WSMarketplaceBrowse orgId={selectedOrgId} user={user} connections={myConnections} /></TabsContent>
-        <TabsContent value="orders"><WSMyOrders orgId={selectedOrgId} /></TabsContent>
+        <TabsContent value="orders"><WSBuyerOrderDetails orgId={selectedOrgId} /></TabsContent>
         <TabsContent value="connections"><WSMyConnections orgId={selectedOrgId} connections={myConnections} /></TabsContent>
         <TabsContent value="payments"><WSBuyerPaymentsOverview orgId={selectedOrgId} connections={activeConnections} user={user} /></TabsContent>
         <TabsContent value="request"><WSDirectRequest orgId={selectedOrgId} user={user} connections={myConnections} /></TabsContent>

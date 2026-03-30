@@ -1,0 +1,77 @@
+{
+  "name": "WholesaleSubscription",
+  "type": "object",
+  "properties": {
+    "provider_id": {
+      "type": "string",
+      "description": "WholesaleProvider ID"
+    },
+    "provider_name": {
+      "type": "string",
+      "description": "Cached provider name"
+    },
+    "plan_name": {
+      "type": "string",
+      "enum": [
+        "starter",
+        "professional",
+        "enterprise"
+      ],
+      "default": "professional"
+    },
+    "billing_cycle": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "annual"
+      ],
+      "default": "monthly"
+    },
+    "monthly_fee": {
+      "type": "number",
+      "description": "Monthly fee in LKR"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "next_billing_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "suspended",
+        "cancelled",
+        "trial"
+      ],
+      "default": "trial"
+    },
+    "trial_ends_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "max_products": {
+      "type": "number",
+      "description": "Product catalog limit for this plan"
+    },
+    "max_buyers": {
+      "type": "number",
+      "description": "Max connected buyers for this plan"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "created_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "provider_id",
+    "provider_name",
+    "plan_name",
+    "start_date"
+  ]
+}
