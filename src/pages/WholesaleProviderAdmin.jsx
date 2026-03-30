@@ -24,10 +24,14 @@ export default function WholesaleProviderAdmin() {
     queryFn: () => base44.auth.me(),
   });
 
-  // Load ALL providers (platform owner sees all, others only see theirs)
+  // Load ONLY WholesaleProvider records (not Organizations)
   const { data: allProviders = [], isLoading: providerLoading } = useQuery({
     queryKey: ['allWholesaleProviders'],
-    queryFn: () => base44.entities.WholesaleProvider.list(),
+    queryFn: async () => {
+      const all = await base44.entities.WholesaleProvider.list();
+      // Strictly filter: must have company_code (required field) — excludes any cross-contaminated data
+      return all.filter(p => p.company_code && p.company_name);
+    },
     enabled: !!user,
   });
 

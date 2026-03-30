@@ -35,7 +35,11 @@ export default function WholesalePlatformAdmin() {
 
   const { data: providers = [] } = useQuery({
     queryKey: ['wholesaleProviders'],
-    queryFn: () => base44.entities.WholesaleProvider.list(),
+    queryFn: async () => {
+      const all = await base44.entities.WholesaleProvider.list();
+      // Only show genuine wholesale providers (must have company_code)
+      return all.filter(p => p.company_code && p.company_name);
+    },
   });
 
   const { data: connections = [] } = useQuery({
