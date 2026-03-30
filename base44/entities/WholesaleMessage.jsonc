@@ -1,0 +1,74 @@
+{
+  "name": "WholesaleMessage",
+  "type": "object",
+  "properties": {
+    "connection_id": {
+      "type": "string",
+      "description": "WholesaleConnection ID \u2014 identifies the buyer-supplier pair"
+    },
+    "provider_id": {
+      "type": "string",
+      "description": "WholesaleProvider ID"
+    },
+    "buyer_organization_id": {
+      "type": "string",
+      "description": "Buyer organization ID"
+    },
+    "sender_email": {
+      "type": "string",
+      "description": "Email of message sender"
+    },
+    "sender_name": {
+      "type": "string",
+      "description": "Display name of sender"
+    },
+    "sender_role": {
+      "type": "string",
+      "enum": [
+        "buyer",
+        "supplier"
+      ],
+      "description": "Whether sender is buyer pharmacy or wholesale supplier"
+    },
+    "message": {
+      "type": "string",
+      "description": "Message text"
+    },
+    "order_id": {
+      "type": "string",
+      "description": "Optional: link to a specific order being discussed"
+    },
+    "order_number": {
+      "type": "string",
+      "description": "Cached order number for display"
+    },
+    "topic": {
+      "type": "string",
+      "enum": [
+        "general",
+        "order_amendment",
+        "stock_enquiry",
+        "delivery_query",
+        "payment_query"
+      ],
+      "default": "general",
+      "description": "Message topic/category"
+    },
+    "is_read_by_buyer": {
+      "type": "boolean",
+      "default": false
+    },
+    "is_read_by_supplier": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "connection_id",
+    "provider_id",
+    "buyer_organization_id",
+    "sender_email",
+    "sender_role",
+    "message"
+  ]
+}

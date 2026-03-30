@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { BarChart3, Package, ShoppingCart, CreditCard, TrendingUp, Users, Lock, AlertTriangle, ChevronDown, Building2, PackageCheck, RotateCcw, Truck } from 'lucide-react';
+import { BarChart3, Package, ShoppingCart, CreditCard, TrendingUp, Users, Lock, AlertTriangle, ChevronDown, Building2, PackageCheck, RotateCcw, Truck, MessageSquare } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import WSProviderDashboard from '@/components/wholesale/WSProviderDashboard.jsx';
 import WSProviderProducts from '@/components/wholesale/WSProviderProducts.jsx';
@@ -15,6 +15,7 @@ import WSStockAlerts from '@/components/wholesale/WSStockAlerts.jsx';
 import WSGoodsReceiving from '@/components/wholesale/WSGoodsReceiving.jsx';
 import WSReturns from '@/components/wholesale/WSReturns.jsx';
 import WSDeliveryManager from '@/components/wholesale/WSDeliveryManager.jsx';
+import WSSupplierMessages from '@/components/wholesale/WSSupplierMessages.jsx';
 import { useOrganization } from '@/components/OrganizationProvider';
 
 export default function WholesaleProviderAdmin() {
@@ -169,6 +170,9 @@ export default function WholesaleProviderAdmin() {
             <TabsTrigger value="returns" className="data-[state=active]:bg-orange-600 data-[state=active]:text-white rounded-lg px-4 py-2 font-semibold flex items-center gap-2">
               <RotateCcw className="w-4 h-4" /> Returns
             </TabsTrigger>
+            <TabsTrigger value="messages" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white rounded-lg px-4 py-2 font-semibold flex items-center gap-2">
+              <MessageSquare className="w-4 h-4" /> Buyer Messages
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard"><WSProviderDashboard provider={myProvider} /></TabsContent>
@@ -181,6 +185,7 @@ export default function WholesaleProviderAdmin() {
           <TabsContent value="grn"><WSGoodsReceiving provider={myProvider} /></TabsContent>
           <TabsContent value="delivery"><WSDeliveryManager provider={myProvider} /></TabsContent>
           <TabsContent value="returns"><WSReturns provider={myProvider} /></TabsContent>
+          <TabsContent value="messages"><WSSupplierMessages providerId={myProvider?.id} user={user} /></TabsContent>
         </Tabs>
       )}
     </div>

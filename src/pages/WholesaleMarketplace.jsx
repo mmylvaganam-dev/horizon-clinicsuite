@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Package, Truck, Building2, Link, DollarSign, MessageSquare } from 'lucide-react';
+import { Package, Truck, Building2, Link, DollarSign, MessageSquare, Bell } from 'lucide-react';
 import WSMarketplaceBrowse from '@/components/wholesale/WSMarketplaceBrowse.jsx';
 import WSBuyerOrderDetails from '@/components/wholesale/WSBuyerOrderDetails.jsx';
 import WSMyConnections from '@/components/wholesale/WSMyConnections.jsx';
 import WSBuyerPaymentsOverview from '@/components/wholesale/WSBuyerPaymentsOverview.jsx';
 import WSDirectRequest from '@/components/wholesale/WSDirectRequest.jsx';
+import WSBuyerMessages from '@/components/wholesale/WSBuyerMessages.jsx';
 import { useOrganization } from '@/components/OrganizationProvider';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 
@@ -26,6 +27,21 @@ export default function WholesaleMarketplace() {
 
   const activeConnections = myConnections.filter(c => c.status === 'active');
   const pendingConnections = myConnections.filter(c => c.status === 'pending');
+
+  // Unread messages count for badge
+  const { data: unreadMessages = [] } = useQuery({
+    queryKey: ['wsBuyerUnreadMsgs', selectedOrgId],
+    queryFn: async () => {
+      if (activeConnections.length === 0) return [];
+      const results = await Promise.all(
+        activeConnections.map(c => base44.entities.WholesaleMessage.filter({ connection_id: c.id, is_read_by_buyer: false, sender_role: 'supplier' }))
+      );
+      return results.flat();
+    },
+    enabled: activeConnections.length > 0,
+    refetchInterval: 10000,
+  });
+  const unreadCount = unreadMessages.length;
 
   return (
     <div className="space-y-6">
@@ -87,6 +103,12 @@ export default function WholesaleMarketplace() {
           <TabsTrigger value="request" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white rounded-lg px-4 py-2 font-semibold flex items-center gap-2">
             <MessageSquare className="w-4 h-4" /> Request Stock
           </TabsTrigger>
+          <TabsTrigger value="messages" className="data-[state=active]:bg-indigo-600 data-[state=active]:text-white rounded-lg px-4 py-2 font-semibold flex items-center gap-2">
+            <MessageSquare className="w-4 h-4" /> Messages
+            {unreadCount > 0 && (
+              <span className="ml-1 bg-red-500 text-white text-xs font-bold rounded-full px-1.5">{unreadCount}</span>
+            )}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="browse"><WSMarketplaceBrowse orgId={selectedOrgId} user={user} connections={myConnections} /></TabsContent>
@@ -94,6 +116,7 @@ export default function WholesaleMarketplace() {
         <TabsContent value="connections"><WSMyConnections orgId={selectedOrgId} connections={myConnections} /></TabsContent>
         <TabsContent value="payments"><WSBuyerPaymentsOverview orgId={selectedOrgId} connections={activeConnections} user={user} /></TabsContent>
         <TabsContent value="request"><WSDirectRequest orgId={selectedOrgId} user={user} connections={myConnections} /></TabsContent>
+        <TabsContent value="messages"><WSBuyerMessages orgId={selectedOrgId} connections={myConnections} user={user} /></TabsContent>
       </Tabs>
     </div>
   );
