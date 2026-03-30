@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
-  Calendar, Plus, Clock, User, CheckCircle, XCircle, LayoutGrid, List
+  Calendar, Plus, Clock, User, CheckCircle, XCircle, LayoutGrid, List, BarChart2
 } from 'lucide-react';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
@@ -19,6 +19,7 @@ import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 import { useOrganization } from '@/components/OrganizationProvider';
 import HomeCareScheduleBoard from '@/components/homecare/HomeCareScheduleBoard';
+import HomeCareAnalyticsDashboard from '@/components/homecare/HomeCareAnalyticsDashboard';
 
 export default function HomeCareScheduling() {
   const queryClient = useQueryClient();
@@ -112,38 +113,42 @@ export default function HomeCareScheduling() {
         </Button>
       </div>
 
-      {/* Date + View Toggle */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-        <div className="flex items-center gap-3">
-          <Label className="text-sm font-medium whitespace-nowrap">Date:</Label>
-          <Input
-            type="date"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
-            className="w-44"
-          />
-        </div>
-        <Tabs value={viewTab} onValueChange={setViewTab} className="sm:ml-auto">
-          <TabsList>
+      {/* View Tabs */}
+      <Tabs value={viewTab} onValueChange={setViewTab}>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          {viewTab !== 'analytics' && (
+            <div className="flex items-center gap-3">
+              <Label className="text-sm font-medium whitespace-nowrap">Date:</Label>
+              <Input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+                className="w-44"
+              />
+            </div>
+          )}
+          <TabsList className="sm:ml-auto">
             <TabsTrigger value="board" className="gap-2"><LayoutGrid className="w-4 h-4" />Board</TabsTrigger>
             <TabsTrigger value="list" className="gap-2"><List className="w-4 h-4" />List</TabsTrigger>
+            <TabsTrigger value="analytics" className="gap-2"><BarChart2 className="w-4 h-4" />Analytics</TabsTrigger>
           </TabsList>
-        </Tabs>
-      </div>
+        </div>
 
-      {/* Board View */}
-      {viewTab === 'board' && (
-        <HomeCareScheduleBoard
-          patients={patients}
-          staff={staff}
-          schedules={schedules}
-          selectedDate={dateFilter}
-          onScheduleCreated={() => queryClient.invalidateQueries({ queryKey: ['homeCareSchedules'] })}
-        />
-      )}
+        <TabsContent value="board" className="mt-4">
+          <HomeCareScheduleBoard
+            patients={patients}
+            staff={staff}
+            schedules={schedules}
+            selectedDate={dateFilter}
+            onScheduleCreated={() => queryClient.invalidateQueries({ queryKey: ['homeCareSchedules'] })}
+          />
+        </TabsContent>
 
-      {/* List View */}
-      {viewTab === 'list' && (
+        <TabsContent value="analytics" className="mt-4">
+          <HomeCareAnalyticsDashboard schedules={schedules} staff={staff} />
+        </TabsContent>
+
+        <TabsContent value="list" className="mt-4">
         <div className="space-y-3">
           {filteredSchedules.length === 0 ? (
             <Card className="p-12 text-center">
@@ -194,7 +199,8 @@ export default function HomeCareScheduling() {
             ))
           )}
         </div>
-      )}
+        </TabsContent>
+      </Tabs>
 
       {/* Add Schedule Dialog */}
       <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
