@@ -40,18 +40,6 @@ export default function PlatformBilling() {
     user?.email === 'mylvaganam@premierhealthcanada.ca' ||
     user?.is_platform_owner === true;
 
-  if (user && !isPlatformOwner) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Card className="p-8 text-center max-w-md">
-          <Lock className="w-16 h-16 text-rose-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Platform Owner Only</h2>
-          <p className="text-slate-600">This billing system is only accessible to platform owners.</p>
-        </Card>
-      </div>
-    );
-  }
-
   const { data: companies = [] } = useQuery({
     queryKey: ['companies'],
     queryFn: () => base44.entities.CompanyProfile.list(),
@@ -93,6 +81,18 @@ export default function PlatformBilling() {
     queryFn: () => base44.entities.PlatformUsageLog.list('-log_date', 1000),
     enabled: isPlatformOwner,
   });
+
+  if (user && !isPlatformOwner) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="p-8 text-center max-w-md">
+          <Lock className="w-16 h-16 text-rose-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Platform Owner Only</h2>
+          <p className="text-slate-600">This billing system is only accessible to platform owners.</p>
+        </Card>
+      </div>
+    );
+  }
 
   const generateInvoiceMutation = useMutation({
     mutationFn: async (subscription) => {

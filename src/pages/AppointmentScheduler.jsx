@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useOrganization } from '@/components/OrganizationProvider';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Calendar, Clock, MapPin, User, FileText, AlertCircle, CheckCircle } from 'lucide-react';
@@ -39,7 +40,7 @@ export default function AppointmentScheduler() {
   });
 
   const queryClient = useQueryClient();
-  const { selectedOrgId } = require('@/components/OrganizationProvider').useOrganization?.() || {};
+  const { selectedOrgId } = useOrganization();
 
   // Fetch required data
   const { data: patients = [] } = useQuery({

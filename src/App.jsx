@@ -18,6 +18,7 @@ import PatientSelfPortal from './pages/PatientSelfPortal';
 import LabReportView from './pages/LabReportView';
 import FindLabReport from './pages/FindLabReport';
 import ConsultationTranscriber from './pages/ConsultationTranscriber';
+import DriverDeliveryApp from './pages/DriverDeliveryApp';
 import PrescriptionManager from './pages/PrescriptionManager';
 import PrescriptionPrint from './pages/PrescriptionPrint';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
@@ -87,6 +88,7 @@ const AuthenticatedApp = () => {
       <Route path="/ConsultationTranscriber" element={<LayoutWrapper currentPageName="ConsultationTranscriber"><ConsultationTranscriber /></LayoutWrapper>} />
       <Route path="/PrescriptionManager" element={<LayoutWrapper currentPageName="PrescriptionManager"><PrescriptionManager /></LayoutWrapper>} />
       <Route path="/PrescriptionPrint" element={<PrescriptionPrint />} />
+      <Route path="/driver" element={<DriverDeliveryApp />} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

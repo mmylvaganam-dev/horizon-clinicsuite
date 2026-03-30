@@ -69,18 +69,6 @@ export default function AdminModuleToggles() {
 
   const canAccess = isPlatformOwner || isOrgSuperUser;
 
-  if (currentUser && !canAccess) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Card className="p-8 text-center max-w-md">
-          <Lock className="w-16 h-16 text-rose-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
-          <p className="text-slate-600">PLATFORM_OWNER or ORG_SUPER_USER role required</p>
-        </Card>
-      </div>
-    );
-  }
-
   const { data: organizations = [] } = useQuery({
     queryKey: ['organizations'],
     queryFn: () => base44.entities.Organization.list(),
@@ -133,12 +121,6 @@ export default function AdminModuleToggles() {
     queryFn: () => base44.entities.CompanyModuleAccess.filter({ company_id: myCompanyId }),
     enabled: !!myCompanyId,
   });
-
-  const isEnabledAtCompanyLevel = (module_code) => {
-    if (isPlatformOwner) return true; // platform owner bypasses company gate
-    const access = companyModuleAccess.find(c => c.module_code === module_code);
-    return access?.is_enabled === true;
-  };
 
   const toggleGlobalMutation = useMutation({
     mutationFn: async ({ module_code, enabled }) => {
@@ -213,7 +195,6 @@ export default function AdminModuleToggles() {
         result = await base44.entities.OrganizationModuleAccess.create(data);
       }
 
-      // Fire-and-forget audit log — don't block the mutation
       base44.entities.AuditLog.create({
         timestamp: new Date().toISOString(),
         user_id: currentUser.id,
@@ -230,7 +211,6 @@ export default function AdminModuleToggles() {
       return result;
     },
     onMutate: async ({ module_code, enabled }) => {
-      // Optimistic update: immediately reflect the change in the UI
       await queryClient.cancelQueries({ queryKey: ['orgModuleAccess', selectedOrg] });
       const previous = queryClient.getQueryData(['orgModuleAccess', selectedOrg]);
       queryClient.setQueryData(['orgModuleAccess', selectedOrg], (old = []) => {
@@ -243,7 +223,6 @@ export default function AdminModuleToggles() {
       return { previous };
     },
     onError: (_err, _vars, context) => {
-      // Rollback on error
       if (context?.previous) {
         queryClient.setQueryData(['orgModuleAccess', selectedOrg], context.previous);
       }
@@ -254,6 +233,24 @@ export default function AdminModuleToggles() {
       toast.success('Module updated');
     },
   });
+
+  if (currentUser && !canAccess) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="p-8 text-center max-w-md">
+          <Lock className="w-16 h-16 text-rose-500 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Access Denied</h2>
+          <p className="text-slate-600">PLATFORM_OWNER or ORG_SUPER_USER role required</p>
+        </Card>
+      </div>
+    );
+  }
+
+  const isEnabledAtCompanyLevel = (module_code) => {
+    if (isPlatformOwner) return true; // platform owner bypasses company gate
+    const access = companyModuleAccess.find(c => c.module_code === module_code);
+    return access?.is_enabled === true;
+  };
 
   const getModuleStatus = (module_code) => {
     const global = globalAvailability.find(g => g.module_code === module_code);
