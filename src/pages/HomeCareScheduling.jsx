@@ -40,13 +40,18 @@ export default function HomeCareScheduling() {
   });
 
   const { data: patients = [] } = useQuery({
-    queryKey: ['patients'],
-    queryFn: () => base44.entities.Patient.filter({ status: 'active' }),
+    queryKey: ['homeCarePatients', selectedOrgId],
+    queryFn: () => base44.entities.Patient.filter({ organization_id: selectedOrgId, status: 'active' }),
+    enabled: !!selectedOrgId,
   });
 
   const { data: staff = [] } = useQuery({
-    queryKey: ['homeCareStaff'],
-    queryFn: () => base44.entities.StaffProfile.filter({ staff_type: 'NURSE', status: 'active' }),
+    queryKey: ['homeCareStaff', selectedOrgId],
+    queryFn: async () => {
+      const allStaff = await base44.entities.StaffProfile.filter({ organization_id: selectedOrgId, status: 'active' });
+      return allStaff.filter(s => s.hc_staff_type === 'nursing_officer' || s.hc_staff_type === 'home_care_worker');
+    },
+    enabled: !!selectedOrgId,
   });
 
   const { data: schedules = [] } = useQuery({
@@ -221,7 +226,7 @@ export default function HomeCareScheduling() {
               </Select>
             </div>
             <div>
-              <Label>Staff Member (Nurse) *</Label>
+              <Label>Staff Member (Nurse or Home Care Worker) *</Label>
               <Select value={scheduleForm.staff_id} onValueChange={val => setScheduleForm({...scheduleForm, staff_id: val})}>
                 <SelectTrigger><SelectValue placeholder="Select staff" /></SelectTrigger>
                 <SelectContent>
