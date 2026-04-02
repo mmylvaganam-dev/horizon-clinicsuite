@@ -129,7 +129,7 @@ export default function HomeCareStaff() {
     });
   };
 
-  const nursingCount = staff.filter(s => s.hc_staff_type === 'nursing_officer').length;
+  const nursingCount = staff.filter(s => s.hc_staff_type === 'nursing_officer' || !s.hc_staff_type).length;
   const homeCareCount = staff.filter(s => s.hc_staff_type === 'home_care_worker').length;
 
   const filteredStaff = staff.filter(s => {
@@ -141,13 +141,15 @@ export default function HomeCareStaff() {
       s.division?.toLowerCase().includes(searchLower);
     const matchesTab =
       activeTab === 'all' ||
-      (activeTab === 'nursing_officer' && s.hc_staff_type === 'nursing_officer') ||
+      (activeTab === 'nursing_officer' && (s.hc_staff_type === 'nursing_officer' || !s.hc_staff_type)) ||
       (activeTab === 'home_care_worker' && s.hc_staff_type === 'home_care_worker');
     return matchesSearch && matchesTab;
   });
 
   const getTypeInfo = (hcStaffType) => {
-    return STAFF_TYPES.find(t => t.value === hcStaffType) || STAFF_TYPES[0];
+    // Default to nursing_officer if not set (backward compatibility)
+    const type = hcStaffType || 'nursing_officer';
+    return STAFF_TYPES.find(t => t.value === type) || STAFF_TYPES[0];
   };
 
   return (
