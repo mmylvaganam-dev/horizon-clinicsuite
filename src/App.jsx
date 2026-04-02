@@ -13,6 +13,7 @@ import InstitutionManagement from './pages/InstitutionManagement';
 import LandingPage from './pages/LandingPage';
 import PatientAccessRequests from './pages/PatientAccessRequests';
 import HomeCareInvoiceManager from './pages/HomeCareInvoiceManager';
+import HomeCareWorkers from './pages/HomeCareWorkers';
 import AppointmentScheduler from './pages/AppointmentScheduler';
 import PatientSelfPortal from './pages/PatientSelfPortal';
 import LabReportView from './pages/LabReportView';
@@ -81,6 +82,7 @@ const AuthenticatedApp = () => {
       <Route path="/InstitutionManagement" element={<LayoutWrapper currentPageName="InstitutionManagement"><InstitutionManagement /></LayoutWrapper>} />
       <Route path="/PatientAccessRequests" element={<LayoutWrapper currentPageName="PatientAccessRequests"><PatientAccessRequests /></LayoutWrapper>} />
       <Route path="/HomeCareInvoiceManager" element={<LayoutWrapper currentPageName="HomeCareInvoiceManager"><HomeCareInvoiceManager /></LayoutWrapper>} />
+      <Route path="/HomeCareWorkers" element={<LayoutWrapper currentPageName="HomeCareWorkers"><HomeCareWorkers /></LayoutWrapper>} />
       <Route path="/AppointmentScheduler" element={<LayoutWrapper currentPageName="AppointmentScheduler"><AppointmentScheduler /></LayoutWrapper>} />
       <Route path="/patient-portal" element={<PatientSelfPortal />} />
       <Route path="/lab-report-view" element={<LabReportView />} />
