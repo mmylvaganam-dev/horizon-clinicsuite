@@ -97,26 +97,34 @@ export default function HomeCareStaff() {
       toast.success('Staff member added successfully!');
     },
     onError: (error) => {
-      toast.error(error.message || 'Failed to add staff');
+      toast.error('Failed to add staff: ' + (error?.response?.data?.message || error?.message || 'Unknown error'));
     }
   });
 
   const handleSubmit = () => {
-    if (!staffForm.first_name || !staffForm.phone || !staffForm.division) {
-      toast.error('Please fill required fields (name, phone, division)');
+    if (!staffForm.first_name?.trim() || !staffForm.phone?.trim() || !staffForm.division) {
+      toast.error('Please fill required fields (first name, phone, division)');
       return;
     }
+    // Split full name if user pasted a full name into first_name field
+    let firstName = staffForm.first_name.trim();
+    let lastName = staffForm.last_name?.trim() || '';
+    if (!lastName && firstName.includes(' ')) {
+      const parts = firstName.split(' ');
+      firstName = parts[0];
+      lastName = parts.slice(1).join(' ');
+    }
     createStaffMutation.mutate({
-      organization_id: selectedOrgId,
-      first_name: staffForm.first_name,
-      last_name: staffForm.last_name || '',
-      phone: staffForm.phone,
-      email: staffForm.email,
+      ...(selectedOrgId ? { organization_id: selectedOrgId } : {}),
+      first_name: firstName,
+      last_name: lastName,
+      phone: staffForm.phone.trim(),
+      email: staffForm.email?.trim() || '',
       staff_type: 'NURSE',
       hc_staff_type: staffForm.hc_staff_type,
       division: staffForm.division,
-      home_address: staffForm.home_address,
-      notes: staffForm.notes,
+      home_address: staffForm.home_address || '',
+      notes: staffForm.notes || '',
       status: 'active',
     });
   };
@@ -341,24 +349,17 @@ export default function HomeCareStaff() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-               <div>
-                 <Label>First Name *</Label>
-                 <Input
-                   value={staffForm.first_name}
-                   onChange={(e) => setStaffForm({...staffForm, first_name: e.target.value})}
-                   placeholder="First name"
-                 />
-               </div>
-               <div>
-                 <Label>Last Name</Label>
-                 <Input
-                   value={staffForm.last_name}
-                   onChange={(e) => setStaffForm({...staffForm, last_name: e.target.value})}
-                   placeholder="Last name"
-                 />
-               </div>
-             </div>
+            <div>
+              <Label>Full Name *</Label>
+              <Input
+                value={staffForm.first_name + (staffForm.last_name ? ' ' + staffForm.last_name : '')}
+                onChange={(e) => {
+                  const parts = e.target.value.split(' ');
+                  setStaffForm({...staffForm, first_name: parts[0] || '', last_name: parts.slice(1).join(' ')});
+                }}
+                placeholder="Full name"
+              />
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
