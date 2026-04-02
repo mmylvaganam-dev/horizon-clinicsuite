@@ -18,24 +18,32 @@ import {
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
+import { useOrganization } from '@/components/OrganizationProvider';
 
 export default function HomeCareDashboard() {
   const navigate = useNavigate();
+  const { selectedOrgId } = useOrganization();
   const [dateFilter, setDateFilter] = useState(format(new Date(), 'yyyy-MM-dd'));
 
   const { data: patients = [] } = useQuery({
-    queryKey: ['homeCarePatients'],
+    queryKey: ['homeCarePatients', selectedOrgId],
     queryFn: () => base44.entities.Patient.filter({ 
+      organization_id: selectedOrgId,
       status: 'active'
     }),
+    enabled: !!selectedOrgId,
   });
 
   const { data: staff = [] } = useQuery({
-    queryKey: ['homeCareStaff'],
-    queryFn: () => base44.entities.StaffProfile.filter({ 
-      role: 'home_nurse',
-      status: 'active'
-    }),
+    queryKey: ['homeCareStaff', selectedOrgId],
+    queryFn: async () => {
+      const allStaff = await base44.entities.StaffProfile.filter({ 
+        organization_id: selectedOrgId,
+        status: 'active'
+      });
+      return allStaff.filter(s => s.hc_staff_type === 'home_care_worker');
+    },
+    enabled: !!selectedOrgId,
   });
 
   const { data: schedules = [] } = useQuery({
@@ -92,7 +100,7 @@ export default function HomeCareDashboard() {
 
         <Card 
           className="bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-0 shadow-lg cursor-pointer hover:scale-105 transition-transform"
-          onClick={() => navigate(createPageUrl('HomeCareStaff'))}
+          onClick={() => navigate(createPageUrl('HomeCareWorkers'))}
         >
           <CardContent className="p-6">
             <Activity className="w-8 h-8 mb-2 opacity-80" />
@@ -132,11 +140,11 @@ export default function HomeCareDashboard() {
 
         <Card 
           className="p-6 cursor-pointer hover:shadow-lg transition-all border-2 border-emerald-200 bg-emerald-50"
-          onClick={() => navigate(createPageUrl('HomeCareStaff'))}
+          onClick={() => navigate(createPageUrl('HomeCareWorkers'))}
         >
           <Activity className="w-8 h-8 text-emerald-600 mb-3" />
           <h3 className="font-bold text-slate-900 mb-1">Staff</h3>
-          <p className="text-sm text-slate-600">Manage nursing staff</p>
+          <p className="text-sm text-slate-600">Manage home care workers</p>
         </Card>
 
         <Card 
