@@ -127,18 +127,17 @@ export default function HomeCareStaff() {
       lastName = parts.slice(1).join(' ');
     }
     createStaffMutation.mutate({
-      ...(selectedOrgId ? { organization_id: selectedOrgId } : {}),
-      first_name: firstName,
-      last_name: lastName,
-      phone: staffForm.phone.trim(),
-      email: staffForm.email?.trim() || '',
-      staff_type: 'NURSE',
-      hc_staff_type: staffForm.hc_staff_type,
-      division: staffForm.division,
-      home_address: staffForm.home_address || '',
-      notes: staffForm.notes || '',
-      status: 'active',
-    });
+       ...(selectedOrgId ? { organization_id: selectedOrgId } : {}),
+       first_name: firstName,
+       last_name: lastName,
+       phone: staffForm.phone.trim(),
+       email: staffForm.email?.trim() || '',
+       hc_staff_type: staffForm.hc_staff_type,
+       division: staffForm.division,
+       home_address: staffForm.home_address || '',
+       notes: staffForm.notes || '',
+       status: 'active',
+     });
   };
 
   const nursingCount = staff.filter(s => s.hc_staff_type === 'nursing_officer' || !s.hc_staff_type).length;
