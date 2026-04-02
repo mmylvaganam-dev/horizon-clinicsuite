@@ -17,7 +17,8 @@ import {
   Stethoscope,
   Heart,
   FileText,
-  AlertTriangle
+  AlertTriangle,
+  Trash2
 } from 'lucide-react';
 import { differenceInDays, parseISO } from 'date-fns';
 import StaffCredentialManager from '@/components/homecare/StaffCredentialManager';
@@ -98,6 +99,17 @@ export default function HomeCareStaff() {
     },
     onError: (error) => {
       toast.error('Failed to add staff: ' + (error?.response?.data?.message || error?.message || 'Unknown error'));
+    }
+  });
+
+  const deleteStaffMutation = useMutation({
+    mutationFn: async (staffId) => base44.entities.StaffProfile.delete(staffId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['homeCareStaff'] });
+      toast.success('Staff member deleted successfully!');
+    },
+    onError: (error) => {
+      toast.error('Failed to delete staff: ' + (error?.message || 'Unknown error'));
     }
   });
 
@@ -293,18 +305,25 @@ export default function HomeCareStaff() {
                   )}
                 {/* Credential alert indicator */}
                 {(() => {
-                  const alerts = getStaffExpiryAlerts(member.id);
-                  return alerts.length > 0 ? (
-                    <div className="flex items-center gap-1 text-xs text-orange-600 bg-orange-50 border border-orange-200 rounded px-2 py-1 mt-2">
-                      <AlertTriangle className="w-3 h-3" />
-                      {alerts.length} credential{alerts.length > 1 ? 's' : ''} expiring/expired
-                    </div>
-                  ) : null;
-                })()}
-                <Button size="sm" variant="outline" className="w-full mt-3 gap-2"
-                  onClick={() => setSelectedStaffForDocs(member)}>
-                  <FileText className="w-4 h-4" /> Documents
-                </Button>
+                   const alerts = getStaffExpiryAlerts(member.id);
+                   return alerts.length > 0 ? (
+                     <div className="flex items-center gap-1 text-xs text-orange-600 bg-orange-50 border border-orange-200 rounded px-2 py-1 mt-2">
+                       <AlertTriangle className="w-3 h-3" />
+                       {alerts.length} credential{alerts.length > 1 ? 's' : ''} expiring/expired
+                     </div>
+                   ) : null;
+                 })()}
+                 <div className="flex gap-2 mt-3">
+                   <Button size="sm" variant="outline" className="flex-1 gap-2"
+                     onClick={() => setSelectedStaffForDocs(member)}>
+                     <FileText className="w-4 h-4" /> Documents
+                   </Button>
+                   <Button size="sm" variant="destructive" className="gap-2"
+                     onClick={() => deleteStaffMutation.mutate(member.id)}
+                     disabled={deleteStaffMutation.isPending}>
+                     <Trash2 className="w-4 h-4" />
+                   </Button>
+                 </div>
                 </CardContent>
                 </Card>
                 );
