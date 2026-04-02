@@ -1,0 +1,104 @@
+{
+  "name": "StaffProfile",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Primary location (optional)"
+    },
+    "staff_type": {
+      "type": "string",
+      "enum": [
+        "PHYSICIAN_GP",
+        "CONSULT_SPECIALIST",
+        "RADIOLOGIST",
+        "SONOGRAPHER",
+        "LAB_TECH",
+        "PHARMACIST",
+        "PHARMACY_ASSISTANT",
+        "NURSE",
+        "RECEPTION",
+        "ADMIN",
+        "OTHER"
+      ],
+      "description": "Staff type"
+    },
+    "hc_staff_type": {
+      "type": "string",
+      "enum": [
+        "nursing_officer",
+        "home_care_worker"
+      ],
+      "description": "Home care staff type classification"
+    },
+    "first_name": {
+      "type": "string",
+      "description": "First name"
+    },
+    "last_name": {
+      "type": "string",
+      "description": "Last name"
+    },
+    "credentials_text": {
+      "type": "string",
+      "description": "Credentials (MD, MBBS, etc)"
+    },
+    "registration_body": {
+      "type": "string",
+      "description": "Registration body (SLMC, etc)"
+    },
+    "registration_number": {
+      "type": "string",
+      "description": "Registration number"
+    },
+    "email": {
+      "type": "string",
+      "description": "Email address"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number"
+    },
+    "home_address": {
+      "type": "string",
+      "description": "Home address"
+    },
+    "division": {
+      "type": "string",
+      "description": "Division or area of operation (North, South, East, West, Central)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active",
+      "description": "Employment status"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Start date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "End date"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "organization_id",
+    "first_name",
+    "last_name",
+    "status"
+  ]
+}
