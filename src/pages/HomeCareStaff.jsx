@@ -62,7 +62,7 @@ export default function HomeCareStaff() {
 
   const { data: staff = [] } = useQuery({
     queryKey: ['homeCareStaff', selectedOrgId],
-    queryFn: () => base44.entities.StaffProfile.filter({ organization_id: selectedOrgId, staff_type: 'NURSE' }),
+    queryFn: () => base44.entities.StaffProfile.filter({ organization_id: selectedOrgId }),
     enabled: !!selectedOrgId,
   });
 
@@ -129,7 +129,7 @@ export default function HomeCareStaff() {
     });
   };
 
-  const nursingCount = staff.filter(s => s.hc_staff_type === 'nursing_officer' || !s.hc_staff_type).length;
+  const nursingCount = staff.filter(s => s.hc_staff_type === 'nursing_officer').length;
   const homeCareCount = staff.filter(s => s.hc_staff_type === 'home_care_worker').length;
 
   const filteredStaff = staff.filter(s => {
@@ -141,7 +141,7 @@ export default function HomeCareStaff() {
       s.division?.toLowerCase().includes(searchLower);
     const matchesTab =
       activeTab === 'all' ||
-      (activeTab === 'nursing_officer' && (s.hc_staff_type === 'nursing_officer' || !s.hc_staff_type)) ||
+      (activeTab === 'nursing_officer' && s.hc_staff_type === 'nursing_officer') ||
       (activeTab === 'home_care_worker' && s.hc_staff_type === 'home_care_worker');
     return matchesSearch && matchesTab;
   });
