@@ -114,6 +114,10 @@ export default function HomeCareStaff() {
   });
 
   const handleSubmit = () => {
+    if (!selectedOrgId) {
+      toast.error('No organization selected. Please switch to an organization first.');
+      return;
+    }
     if (!staffForm.first_name?.trim() || !staffForm.phone?.trim() || !staffForm.division) {
       toast.error('Please fill required fields (first name, phone, division)');
       return;
@@ -127,7 +131,7 @@ export default function HomeCareStaff() {
       lastName = parts.slice(1).join(' ');
     }
     createStaffMutation.mutate({
-       ...(selectedOrgId ? { organization_id: selectedOrgId } : {}),
+       organization_id: selectedOrgId,
        first_name: firstName,
        last_name: lastName,
        phone: staffForm.phone.trim(),
