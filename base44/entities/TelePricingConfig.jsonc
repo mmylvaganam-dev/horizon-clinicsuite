@@ -15,7 +15,8 @@
         "MENTAL_HEALTH",
         "PAEDIATRICS",
         "DERMATOLOGY",
-        "NUTRITION"
+        "NUTRITION",
+        "ABDOMINAL_ULTRASOUND"
       ],
       "description": "Type of service"
     },
@@ -29,7 +30,11 @@
     },
     "amount_usd": {
       "type": "number",
-      "description": "Price in USD for overseas patients"
+      "description": "Price in USD for overseas patients (min/standard)"
+    },
+    "amount_usd_max": {
+      "type": "number",
+      "description": "Max USD price if range applies (e.g. 25\u201350 USD)"
     },
     "duration_minutes": {
       "type": "number",

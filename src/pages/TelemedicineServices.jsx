@@ -21,6 +21,7 @@ const SERVICE_LABELS = {
   PAEDIATRICS: 'Paediatrics',
   DERMATOLOGY: 'Dermatology',
   NUTRITION: 'Nutrition / Dietitian',
+  ABDOMINAL_ULTRASOUND: 'Abdominal Ultrasound',
 };
 
 const SERVICE_ICONS = {
@@ -32,6 +33,7 @@ const SERVICE_ICONS = {
   PAEDIATRICS: '👶',
   DERMATOLOGY: '🧴',
   NUTRITION: '🥗',
+  ABDOMINAL_ULTRASOUND: '🔬',
 };
 
 // Exchange rate reference (admin can update)
@@ -139,7 +141,7 @@ export default function TelemedicineServices() {
                           Rs. {(svc.amount_lkr || 0).toLocaleString()}
                         </Badge>
                         <Badge className="bg-blue-100 text-blue-800 border-0">
-                          USD {svc.amount_usd || '—'}
+                          USD {svc.amount_usd_max ? `${svc.amount_usd}–${svc.amount_usd_max}` : (svc.amount_usd || '—')}
                         </Badge>
                         <span className="flex items-center gap-1 text-xs text-slate-400">
                           <Clock className="w-3 h-3" /> {svc.duration_minutes} min
@@ -183,9 +185,13 @@ export default function TelemedicineServices() {
                 <Input className="mt-1" type="number" value={form.amount_lkr || ''} onChange={e => setForm(f => ({ ...f, amount_lkr: Number(e.target.value) }))} />
               </div>
               <div>
-                <Label>Price (USD)</Label>
+                <Label>Price (USD) — Min</Label>
                 <Input className="mt-1" type="number" step="0.5" value={form.amount_usd || ''} onChange={e => setForm(f => ({ ...f, amount_usd: Number(e.target.value) }))} />
               </div>
+            </div>
+            <div>
+              <Label>Price (USD) — Max <span className="text-slate-400 font-normal">(optional, for range e.g. $25–$50)</span></Label>
+              <Input className="mt-1" type="number" step="0.5" placeholder="Leave blank if fixed price" value={form.amount_usd_max || ''} onChange={e => setForm(f => ({ ...f, amount_usd_max: e.target.value ? Number(e.target.value) : null }))} />
             </div>
             <div>
               <Label>Duration (minutes)</Label>
