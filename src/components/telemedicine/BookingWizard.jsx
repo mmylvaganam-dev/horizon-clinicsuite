@@ -7,28 +7,15 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { CheckCircle, Video, Mic, MessageSquare, ChevronRight, ChevronLeft, Upload, X, User, Calendar, Clock } from 'lucide-react';
-import { format, addDays, setHours, setMinutes } from 'date-fns';
+import { CheckCircle, Video, Mic, MessageSquare, ChevronRight, ChevronLeft, Upload, X, User, Calendar, Clock, AlertCircle } from 'lucide-react';
+import { format, addDays } from 'date-fns';
+import { generateAvailableSlots, isProviderAvailableOnDate } from '@/lib/teleAvailability';
 
 const VISIT_TYPES = [
   { value: 'VIDEO', label: 'Video Call', icon: Video, desc: 'Face-to-face virtual consultation' },
   { value: 'AUDIO', label: 'Audio Call', icon: Mic, desc: 'Voice-only consultation' },
   { value: 'CHAT', label: 'Chat', icon: MessageSquare, desc: 'Text-based consultation' },
 ];
-
-// Generate sample time slots for a given date
-function generateSlots(date) {
-  const slots = [];
-  const hours = [9, 9.5, 10, 10.5, 11, 11.5, 14, 14.5, 15, 15.5, 16, 16.5];
-  hours.forEach(h => {
-    const hour = Math.floor(h);
-    const min = h % 1 === 0.5 ? 30 : 0;
-    const d = new Date(date);
-    d.setHours(hour, min, 0, 0);
-    slots.push(d);
-  });
-  return slots;
-}
 
 const STEP_LABELS = ['Provider', 'Date & Time', 'Visit Type', 'Files & Notes', 'Confirm'];
 
@@ -50,31 +37,29 @@ export default function BookingWizard({ patient, onBookingComplete }) {
     queryFn: () => base44.entities.TeleProvider.filter({ is_active: true, verification_status: 'VERIFIED' }),
   });
 
-  // Fetch existing bookings for selected provider+date to grey out taken slots
-  const { data: existingBookings = [] } = useQuery({
-    queryKey: ['existingBookings', selectedProvider?.id, format(selectedDate, 'yyyy-MM-dd')],
-    queryFn: () => base44.entities.TeleAppointment.filter({
-      provider_id: selectedProvider.id,
-    }),
+  // Fetch provider availability schedule
+  const { data: providerAvailability = [] } = useQuery({
+    queryKey: ['teleAvailability', selectedProvider?.id],
+    queryFn: () => base44.entities.TeleProviderAvailability.filter({ provider_id: selectedProvider.id }),
     enabled: !!selectedProvider,
   });
 
-  const bookedSlotTimes = new Set(
-    existingBookings
-      .filter(b => ['BOOKED', 'CONFIRMED', 'IN_PROGRESS'].includes(b.status) && b.scheduled_time)
-      .map(b => {
-        const d = new Date(b.scheduled_time);
-        return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}-${d.getHours()}-${d.getMinutes()}`;
-      })
-  );
+  // Fetch provider time-off
+  const { data: providerTimeOff = [] } = useQuery({
+    queryKey: ['teleTimeOff', selectedProvider?.id],
+    queryFn: () => base44.entities.TeleProviderTimeOff.filter({ provider_id: selectedProvider.id }),
+    enabled: !!selectedProvider,
+  });
 
-  const isSlotBooked = (slot) => {
-    const key = `${slot.getFullYear()}-${slot.getMonth()}-${slot.getDate()}-${slot.getHours()}-${slot.getMinutes()}`;
-    return bookedSlotTimes.has(key);
-  };
+  // Fetch existing bookings for selected provider to grey out taken slots
+  const { data: existingBookings = [] } = useQuery({
+    queryKey: ['existingBookings', selectedProvider?.id],
+    queryFn: () => base44.entities.TeleAppointment.filter({ provider_id: selectedProvider.id }),
+    enabled: !!selectedProvider,
+  });
 
-  const allSlots = generateSlots(selectedDate);
-  const slots = allSlots; // show all, mark booked ones
+  // Generate available slots using the shared utility
+  const slots = generateAvailableSlots(selectedDate, providerAvailability, providerTimeOff, existingBookings);
 
   const today = new Date();
   const dates = Array.from({ length: 7 }, (_, i) => addDays(today, i));
@@ -195,46 +180,54 @@ export default function BookingWizard({ patient, onBookingComplete }) {
         <div className="space-y-4">
           <h2 className="text-lg font-semibold text-slate-800">Select Date & Time</h2>
           <div className="flex gap-2 overflow-x-auto pb-2">
-            {dates.map((d, i) => (
-              <button
-                key={i}
-                onClick={() => { setSelectedDate(d); setSelectedSlot(null); }}
-                className={`flex-shrink-0 flex flex-col items-center px-4 py-3 rounded-xl border text-sm font-medium transition-all ${
-                  format(d, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd')
-                    ? 'bg-teal-600 text-white border-teal-600'
-                    : 'bg-white text-slate-700 border-slate-200 hover:border-teal-300'
-                }`}
-              >
-                <span className="text-xs uppercase">{format(d, 'EEE')}</span>
-                <span className="text-lg font-bold">{format(d, 'd')}</span>
-                <span className="text-xs">{format(d, 'MMM')}</span>
-              </button>
-            ))}
-          </div>
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-            {slots.map((slot, i) => {
-              const booked = isSlotBooked(slot);
-              const isPastSlot = slot < new Date();
-              const disabled = booked || isPastSlot;
+            {dates.map((d, i) => {
+              const isSelected = format(d, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd');
+              const hasAvail = isProviderAvailableOnDate(d, providerAvailability, providerTimeOff);
               return (
                 <button
                   key={i}
-                  disabled={disabled}
-                  onClick={() => !disabled && setSelectedSlot(slot)}
-                  className={`py-2 px-3 rounded-lg border text-sm font-medium transition-all ${
-                    disabled
-                      ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed line-through'
-                      : selectedSlot?.getTime() === slot.getTime()
-                        ? 'bg-teal-600 text-white border-teal-600'
-                        : 'bg-white text-slate-700 border-slate-200 hover:border-teal-300'
+                  onClick={() => { setSelectedDate(d); setSelectedSlot(null); }}
+                  className={`flex-shrink-0 flex flex-col items-center px-4 py-3 rounded-xl border text-sm font-medium transition-all ${
+                    isSelected
+                      ? 'bg-teal-600 text-white border-teal-600'
+                      : hasAvail
+                        ? 'bg-white text-slate-700 border-slate-200 hover:border-teal-300'
+                        : 'bg-slate-50 text-slate-400 border-slate-200 opacity-60'
                   }`}
                 >
-                  {format(slot, 'h:mm a')}
-                  {booked && <span className="block text-xs">Taken</span>}
+                  <span className="text-xs uppercase">{format(d, 'EEE')}</span>
+                  <span className="text-lg font-bold">{format(d, 'd')}</span>
+                  <span className="text-xs">{format(d, 'MMM')}</span>
+                  {!isSelected && (
+                    <span className={`w-1.5 h-1.5 rounded-full mt-1 ${hasAvail ? 'bg-teal-400' : 'bg-transparent'}`} />
+                  )}
                 </button>
               );
             })}
           </div>
+          {slots.length === 0 ? (
+            <div className="text-center py-8 text-slate-400">
+              <AlertCircle className="w-8 h-8 mx-auto mb-2 opacity-40" />
+              <p className="text-sm">No available slots on this day.</p>
+              <p className="text-xs mt-1">Try another date or check with your provider.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+              {slots.map((slot, i) => (
+                <button
+                  key={i}
+                  onClick={() => setSelectedSlot(slot)}
+                  className={`py-2 px-3 rounded-lg border text-sm font-medium transition-all ${
+                    selectedSlot?.getTime() === slot.getTime()
+                      ? 'bg-teal-600 text-white border-teal-600'
+                      : 'bg-white text-slate-700 border-slate-200 hover:border-teal-300'
+                  }`}
+                >
+                  {format(slot, 'h:mm a')}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

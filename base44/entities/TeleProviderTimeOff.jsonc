@@ -1,0 +1,42 @@
+{
+  "name": "TeleProviderTimeOff",
+  "type": "object",
+  "properties": {
+    "provider_id": {
+      "type": "string",
+      "description": "FK to TeleProvider"
+    },
+    "date_from": {
+      "type": "string",
+      "format": "date",
+      "description": "Start date of time off (YYYY-MM-DD)"
+    },
+    "date_to": {
+      "type": "string",
+      "format": "date",
+      "description": "End date of time off inclusive (YYYY-MM-DD)"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason (Leave, Conference, Holiday, etc.)"
+    },
+    "is_partial_day": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, blocked_from and blocked_to apply"
+    },
+    "blocked_from": {
+      "type": "string",
+      "description": "Partial day block start HH:MM"
+    },
+    "blocked_to": {
+      "type": "string",
+      "description": "Partial day block end HH:MM"
+    }
+  },
+  "required": [
+    "provider_id",
+    "date_from",
+    "date_to"
+  ]
+}

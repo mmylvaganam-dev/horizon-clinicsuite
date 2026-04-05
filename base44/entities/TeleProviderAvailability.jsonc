@@ -1,0 +1,39 @@
+{
+  "name": "TeleProviderAvailability",
+  "type": "object",
+  "properties": {
+    "provider_id": {
+      "type": "string",
+      "description": "FK to TeleProvider"
+    },
+    "day_of_week": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 6,
+      "description": "0=Sunday, 1=Monday, ..., 6=Saturday"
+    },
+    "start_time": {
+      "type": "string",
+      "description": "Start time HH:MM (e.g. 09:00)"
+    },
+    "end_time": {
+      "type": "string",
+      "description": "End time HH:MM (e.g. 17:00)"
+    },
+    "slot_duration_minutes": {
+      "type": "number",
+      "default": 30,
+      "description": "Duration of each consultation slot in minutes"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "provider_id",
+    "day_of_week",
+    "start_time",
+    "end_time"
+  ]
+}
