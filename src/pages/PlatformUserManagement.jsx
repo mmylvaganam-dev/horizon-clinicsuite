@@ -345,53 +345,6 @@ export default function PlatformUserManagement() {
         </Card>
       </div>
 
-      {/* Pending Invitations */}
-      {pendingInvitations.length > 0 && (
-        <Card className="border-l-4 border-blue-500">
-          <CardHeader className="bg-blue-50">
-            <CardTitle className="flex items-center gap-3">
-              <UserPlus className="w-5 h-5 text-blue-600" />
-              Pending Invitations
-              <Badge className="bg-blue-500">{pendingInvitations.length} awaiting acceptance</Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="space-y-2">
-              {pendingInvitations.map(invite => (
-                <div key={invite.id} className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-semibold text-sm">
-                      {invite.email?.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="font-medium text-slate-900">{invite.email}</p>
-                      <p className="text-xs text-slate-500">
-                        → {invite.organization_name} · Role: <span className="font-medium">{invite.role}</span> · Invited by {invite.invited_by}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-blue-600 border-blue-300">
-                      <Clock className="w-3 h-3 mr-1" />
-                      Pending
-                    </Badge>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-red-500 hover:bg-red-50"
-                      onClick={() => cancelInviteMutation.mutate(invite.id)}
-                      disabled={cancelInviteMutation.isPending}
-                    >
-                      <Ban className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Users by Organization */}
       {usersByOrg.map(({ org, users, pendingApprovals }) => (
         <Card key={org.id} className="border-l-4 border-teal-600">
