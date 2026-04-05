@@ -94,6 +94,13 @@ export default function TelemedicineAdmin() {
       detail: '8 services configured · GP Rs.800 · Specialist Rs.2,500 · Family subscription Rs.3,500/mo',
     },
     {
+      label: 'Payment gateways configured',
+      ok: true,
+      action: createPageUrl('TelePaymentGateways'),
+      actionLabel: 'Setup Gateways',
+      detail: 'Configure Stripe/PayPal for international patients · PayHere/WebXPay for Sri Lanka LKR payments',
+    },
+    {
       label: 'Subscription plans available',
       ok: true,
       action: createPageUrl('TelemedicineSubscriptions'),

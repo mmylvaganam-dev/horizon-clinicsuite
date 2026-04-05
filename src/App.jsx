@@ -15,6 +15,7 @@ import PatientAccessRequests from './pages/PatientAccessRequests';
 import HomeCareInvoiceManager from './pages/HomeCareInvoiceManager';
 import HomeCareWorkers from './pages/HomeCareWorkers';
 import AppointmentScheduler from './pages/AppointmentScheduler';
+import TelePaymentGateways from './pages/TelePaymentGateways';
 import PatientSelfPortal from './pages/PatientSelfPortal';
 import LabReportView from './pages/LabReportView';
 import FindLabReport from './pages/FindLabReport';
@@ -91,6 +92,7 @@ const AuthenticatedApp = () => {
       <Route path="/PrescriptionManager" element={<LayoutWrapper currentPageName="PrescriptionManager"><PrescriptionManager /></LayoutWrapper>} />
       <Route path="/PrescriptionPrint" element={<PrescriptionPrint />} />
       <Route path="/driver" element={<DriverDeliveryApp />} />
+      <Route path="/TelePaymentGateways" element={<LayoutWrapper currentPageName="TelePaymentGateways"><TelePaymentGateways /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

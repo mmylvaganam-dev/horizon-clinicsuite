@@ -1,0 +1,118 @@
+{
+  "name": "TelePaymentGatewayConfig",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization (virtual hospital) this config belongs to"
+    },
+    "gateway_code": {
+      "type": "string",
+      "enum": [
+        "stripe",
+        "paypal",
+        "payhere",
+        "genie",
+        "webxpay",
+        "ipg_cargills",
+        "ipg_sampath",
+        "ipg_hns",
+        "manual_bank"
+      ],
+      "description": "Payment gateway identifier"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Human-readable name, e.g. 'Stripe (USD/EUR/GBP)'"
+    },
+    "region": {
+      "type": "string",
+      "enum": [
+        "international",
+        "srilanka",
+        "both"
+      ],
+      "default": "international",
+      "description": "Where this gateway is used"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this gateway is enabled and accepting payments"
+    },
+    "is_default_international": {
+      "type": "boolean",
+      "default": false,
+      "description": "Default gateway for international (USD/EUR) patients"
+    },
+    "is_default_local": {
+      "type": "boolean",
+      "default": false,
+      "description": "Default gateway for Sri Lanka (LKR) patients"
+    },
+    "supported_currencies": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "e.g. ['USD','EUR','GBP','CAD','AUD']"
+    },
+    "public_key": {
+      "type": "string",
+      "description": "Public / publishable key (safe to store)"
+    },
+    "secret_key_hint": {
+      "type": "string",
+      "description": "Last 4 chars of secret key for display only \u2014 never store full secret here"
+    },
+    "webhook_secret_hint": {
+      "type": "string",
+      "description": "Last 4 chars of webhook secret for display only"
+    },
+    "merchant_id": {
+      "type": "string",
+      "description": "Merchant ID (PayHere, WebXPay, etc.)"
+    },
+    "environment": {
+      "type": "string",
+      "enum": [
+        "sandbox",
+        "live"
+      ],
+      "default": "sandbox",
+      "description": "Sandbox or live mode"
+    },
+    "bank_name": {
+      "type": "string",
+      "description": "For manual bank transfer \u2014 bank name"
+    },
+    "bank_account_name": {
+      "type": "string",
+      "description": "Account holder name"
+    },
+    "bank_account_number": {
+      "type": "string",
+      "description": "Account number"
+    },
+    "bank_swift_code": {
+      "type": "string",
+      "description": "SWIFT/BIC for international wire"
+    },
+    "bank_branch": {
+      "type": "string",
+      "description": "Branch name/code"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Internal admin notes"
+    },
+    "configured_by": {
+      "type": "string",
+      "description": "Email of admin who last configured this"
+    }
+  },
+  "required": [
+    "organization_id",
+    "gateway_code"
+  ]
+}
