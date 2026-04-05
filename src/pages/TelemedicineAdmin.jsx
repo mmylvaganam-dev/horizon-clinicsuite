@@ -87,10 +87,18 @@ export default function TelemedicineAdmin() {
       detail: 'Rooms are auto-created when a provider joins a call',
     },
     {
-      label: 'Auto-billing on consultation complete',
+      label: 'Consultation pricing configured (LKR + USD)',
       ok: true,
-      detail: 'teleAutoCompleteBilling entity automation should be enabled in Automations',
-      action: null,
+      action: createPageUrl('TelemedicineServices'),
+      actionLabel: 'View Pricing',
+      detail: '8 services configured · GP Rs.800 · Specialist Rs.2,500 · Family subscription Rs.3,500/mo',
+    },
+    {
+      label: 'Subscription plans available',
+      ok: true,
+      action: createPageUrl('TelemedicineSubscriptions'),
+      actionLabel: 'Manage Plans',
+      detail: 'GP Monthly, Family, Specialist Plus, Annual Saver, Corporate — dual LKR/USD pricing',
     },
     {
       label: 'Patient portal login page (TeleLogin)',
@@ -194,12 +202,12 @@ export default function TelemedicineAdmin() {
             <span className="text-slate-700">Virtual rooms created — <strong>{rooms.length}</strong></span>
           </div>
           <div className="flex items-center gap-2 text-sm">
-            <AlertCircle className="w-4 h-4 text-yellow-500" />
-            <span className="text-slate-700">Payment model — <strong>FREE</strong> (billing not yet configured)</span>
+            <CheckCircle className="w-4 h-4 text-green-500" />
+            <span className="text-slate-700">Payment model — <strong>Pay-per-visit (LKR/USD)</strong> · Subscriptions: GP, Family, Specialist, Corporate</span>
           </div>
           <div className="flex items-center gap-2 text-sm">
-            <AlertCircle className="w-4 h-4 text-yellow-500" />
-            <span className="text-slate-700">Patient login — currently uses name/email entry (no separate auth yet)</span>
+            <CheckCircle className="w-4 h-4 text-green-500" />
+            <span className="text-slate-700">Patient login — OTP email-based authentication (TeleLogin page)</span>
           </div>
         </CardContent>
       </Card>

@@ -1,0 +1,144 @@
+{
+  "name": "TeleConsultationBilling",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization (virtual hospital)"
+    },
+    "tele_appointment_id": {
+      "type": "string",
+      "description": "FK to TeleAppointment"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "FK to TelePatient"
+    },
+    "patient_name": {
+      "type": "string"
+    },
+    "patient_email": {
+      "type": "string"
+    },
+    "patient_region": {
+      "type": "string",
+      "enum": [
+        "EU",
+        "USA",
+        "CANADA",
+        "SRI_LANKA",
+        "OTHER"
+      ]
+    },
+    "provider_id": {
+      "type": "string"
+    },
+    "provider_name": {
+      "type": "string"
+    },
+    "consultation_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "consultation_started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "consultation_ended_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "duration_minutes": {
+      "type": "number"
+    },
+    "appointment_type": {
+      "type": "string",
+      "enum": [
+        "CONSULTATION",
+        "SECOND_OPINION",
+        "FOLLOW_UP",
+        "MEDICAL_TOURISM_PREP"
+      ]
+    },
+    "billing_mode": {
+      "type": "string",
+      "enum": [
+        "FREE",
+        "PAY_PER_VISIT",
+        "SUBSCRIPTION",
+        "CORPORATE"
+      ],
+      "default": "PAY_PER_VISIT"
+    },
+    "subscription_id": {
+      "type": "string",
+      "description": "FK to TeleSubscription if billed under a plan"
+    },
+    "amount_lkr": {
+      "type": "number",
+      "description": "Amount in LKR (primary currency for SL patients)"
+    },
+    "amount_usd": {
+      "type": "number",
+      "description": "Amount in USD (overseas patients)"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "LKR",
+        "USD",
+        "EUR",
+        "GBP",
+        "CAD",
+        "AUD"
+      ],
+      "default": "LKR"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "invoiced",
+        "paid",
+        "waived",
+        "refunded"
+      ],
+      "default": "pending"
+    },
+    "invoice_number": {
+      "type": "string"
+    },
+    "invoice_sent_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "paid_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "card",
+        "bank_transfer",
+        "ipg_lk",
+        "paypal",
+        "cash",
+        "other"
+      ]
+    },
+    "discount_pct": {
+      "type": "number",
+      "default": 0,
+      "description": "Discount percentage applied (e.g. 15 for 15% off)"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "tele_appointment_id",
+    "patient_id",
+    "consultation_date"
+  ]
+}

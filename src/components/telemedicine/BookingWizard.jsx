@@ -102,7 +102,7 @@ export default function BookingWizard({ patient, onBookingComplete }) {
         visit_type: visitType,
         status: 'BOOKED',
         scheduled_time: selectedSlot.toISOString(),
-        billing_mode: 'FREE',
+        billing_mode: 'PAY_PER_VISIT',
         pre_consult_files: files,
         patient_notes: notes,
         reminder_sent: false,
@@ -341,8 +341,20 @@ export default function BookingWizard({ patient, onBookingComplete }) {
               {files.length > 0 && (
                 <p className="text-xs text-slate-500">{files.length} file(s) attached</p>
               )}
-              <div className="pt-2 border-t">
-                <Badge className="bg-green-100 text-green-700 border-0">No payment required</Badge>
+              <div className="pt-2 border-t space-y-2">
+                <p className="text-xs text-slate-500 font-medium">Consultation Fee</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-slate-700">
+                    {visitType === 'VIDEO' ? 'Video Consultation' : visitType === 'AUDIO' ? 'Audio Consultation' : 'Chat Consultation'}
+                  </span>
+                  <div className="text-right">
+                    <p className="font-bold text-teal-700">Rs. 800 – 2,500</p>
+                    <p className="text-xs text-slate-400">depending on specialty</p>
+                  </div>
+                </div>
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 text-xs text-blue-800">
+                  💳 Payment confirmed by admin after bank transfer / cash. Online card payment coming soon.
+                </div>
               </div>
             </CardContent>
           </Card>

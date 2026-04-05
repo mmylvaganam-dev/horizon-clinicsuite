@@ -1,0 +1,104 @@
+{
+  "name": "TeleSubscription",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "FK to TelePatient (subscriber)"
+    },
+    "patient_name": {
+      "type": "string"
+    },
+    "patient_email": {
+      "type": "string"
+    },
+    "plan_code": {
+      "type": "string",
+      "enum": [
+        "GP_MONTHLY",
+        "GP_ANNUAL",
+        "SPECIALIST_MONTHLY",
+        "FAMILY_MONTHLY",
+        "FAMILY_ANNUAL",
+        "CORPORATE"
+      ],
+      "description": "Subscription plan code"
+    },
+    "plan_name": {
+      "type": "string",
+      "description": "Display name of plan"
+    },
+    "billing_cycle": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "annual"
+      ],
+      "default": "monthly"
+    },
+    "amount_lkr": {
+      "type": "number",
+      "description": "Amount charged in LKR"
+    },
+    "amount_usd": {
+      "type": "number",
+      "description": "Amount charged in USD (for overseas)"
+    },
+    "currency": {
+      "type": "string",
+      "enum": [
+        "LKR",
+        "USD"
+      ],
+      "default": "LKR"
+    },
+    "covered_members": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Patient IDs covered under this plan"
+    },
+    "max_members": {
+      "type": "number",
+      "default": 1
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "next_billing_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "expired",
+        "cancelled",
+        "pending_payment"
+      ],
+      "default": "pending_payment"
+    },
+    "corporate_account_id": {
+      "type": "string",
+      "description": "FK to corporate account if corporate plan"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "patient_id",
+    "plan_code",
+    "start_date"
+  ]
+}

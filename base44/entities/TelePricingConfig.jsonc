@@ -1,0 +1,53 @@
+{
+  "name": "TelePricingConfig",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string"
+    },
+    "service_type": {
+      "type": "string",
+      "enum": [
+        "GP_CONSULTATION",
+        "SPECIALIST_CONSULTATION",
+        "SECOND_OPINION",
+        "FOLLOW_UP",
+        "MENTAL_HEALTH",
+        "PAEDIATRICS",
+        "DERMATOLOGY",
+        "NUTRITION"
+      ],
+      "description": "Type of service"
+    },
+    "label": {
+      "type": "string",
+      "description": "Display name e.g. 'GP Video Consultation'"
+    },
+    "amount_lkr": {
+      "type": "number",
+      "description": "Price in LKR for local patients"
+    },
+    "amount_usd": {
+      "type": "number",
+      "description": "Price in USD for overseas patients"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "default": 15,
+      "description": "Standard consultation duration"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "notes": {
+      "type": "string",
+      "description": "Admin notes"
+    }
+  },
+  "required": [
+    "service_type",
+    "label",
+    "amount_lkr"
+  ]
+}
