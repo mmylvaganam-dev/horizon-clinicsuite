@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar, CheckCircle, XCircle, Clock, User, Stethoscope } from 'lucide-react';
+import { Calendar, CheckCircle, XCircle, Clock, User, Stethoscope, Video, Plus } from 'lucide-react';
 import AppointmentCard from '@/components/telemedicine/AppointmentCard';
 import ProviderStatsBar from '@/components/telemedicine/ProviderStatsBar';
 import TodaySchedule from '@/components/telemedicine/TodaySchedule';
@@ -30,11 +30,18 @@ export default function TelemedicineProviderPortal() {
     queryFn: () => base44.entities.TeleProvider.filter({ is_active: true }),
   });
 
+  // Auto-select the first (and usually only) provider on load
+  useEffect(() => {
+    if (providers.length === 1 && !selectedProvider) {
+      setSelectedProvider(providers[0].id);
+    }
+  }, [providers, selectedProvider]);
+
   const { data: appointments = [], isLoading } = useQuery({
     queryKey: ['teleAppointmentsProvider', selectedProvider],
-    queryFn: () => base44.entities.TeleAppointment.filter({ provider_id: selectedProvider }),
+    queryFn: () => base44.entities.TeleAppointment.filter({ provider_id: selectedProvider }, '-scheduled_time', 100),
     enabled: !!selectedProvider,
-    refetchInterval: 30000, // auto-refresh every 30s for real-time feel
+    refetchInterval: 30000,
   });
 
   const updateStatus = useMutation({
@@ -44,6 +51,8 @@ export default function TelemedicineProviderPortal() {
 
   const upcoming = appointments.filter(a => ['BOOKED', 'CONFIRMED', 'IN_PROGRESS'].includes(a.status));
   const past = appointments.filter(a => ['COMPLETED', 'CANCELLED', 'NO_SHOW'].includes(a.status));
+
+  const selectedProviderData = providers.find(p => p.id === selectedProvider);
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
@@ -58,35 +67,61 @@ export default function TelemedicineProviderPortal() {
         </div>
       </div>
 
-      <div>
-        <Select value={selectedProvider} onValueChange={(v) => { setSelectedProvider(v); setTab('dashboard'); }}>
-          <SelectTrigger className="w-full max-w-sm">
-            <SelectValue placeholder="Select your provider profile..." />
-          </SelectTrigger>
-          <SelectContent>
-            {providers.map(p => (
-              <SelectItem key={p.id} value={p.id}>
-                {p.name} — {p.specialty}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Provider selector — only shows if multiple providers */}
+      {providers.length > 1 && (
+        <div>
+          <Select value={selectedProvider} onValueChange={(v) => { setSelectedProvider(v); setTab('dashboard'); }}>
+            <SelectTrigger className="w-full max-w-sm">
+              <SelectValue placeholder="Select your provider profile..." />
+            </SelectTrigger>
+            <SelectContent>
+              {providers.map(p => (
+                <SelectItem key={p.id} value={p.id}>
+                  {p.name} — {p.specialty}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       {!selectedProvider ? (
         <div className="text-center py-16 text-slate-400">
           <User className="w-12 h-12 mx-auto mb-3 text-slate-200" />
-          <p>Select a provider profile to view your dashboard.</p>
+          <p>No active provider profiles found.</p>
+          <p className="text-sm mt-1">Ask an admin to add your doctor profile in Telemedicine Doctors.</p>
         </div>
       ) : (
         <>
+          {/* Provider badge */}
+          {selectedProviderData && (
+            <div className="flex items-center gap-3 bg-teal-50 border border-teal-200 rounded-xl px-4 py-3">
+              <div className="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                {selectedProviderData.name?.charAt(0)}
+              </div>
+              <div>
+                <p className="font-semibold text-slate-900">{selectedProviderData.name}</p>
+                <p className="text-sm text-teal-700">{selectedProviderData.specialty} · {selectedProviderData.qualifications}</p>
+              </div>
+              {upcoming.filter(a => a.status === 'IN_PROGRESS').length > 0 && (
+                <div className="ml-auto flex items-center gap-2 bg-yellow-100 text-yellow-800 rounded-lg px-3 py-1.5 text-sm font-medium">
+                  <Video className="w-4 h-4" />
+                  Active Call in Progress
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Stats Bar */}
           <ProviderStatsBar appointments={appointments} />
 
           <Tabs value={tab} onValueChange={setTab}>
             <TabsList>
               <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-              <TabsTrigger value="upcoming">Upcoming ({upcoming.length})</TabsTrigger>
+              <TabsTrigger value="upcoming">
+                Upcoming
+                {upcoming.length > 0 && <span className="ml-1.5 bg-teal-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">{upcoming.length}</span>}
+              </TabsTrigger>
               <TabsTrigger value="past">Past ({past.length})</TabsTrigger>
             </TabsList>
 
@@ -108,12 +143,17 @@ export default function TelemedicineProviderPortal() {
                   .sort((a, b) => new Date(a.scheduled_time) - new Date(b.scheduled_time))
                   .map(appt => (
                     <div key={appt.id} className="space-y-2">
-                      <AppointmentCard appt={appt} role="staff" onRefresh={() => queryClient.invalidateQueries({ queryKey: ['teleAppointmentsProvider'] })} />
+                      <AppointmentCard
+                        appt={appt}
+                        role="staff"
+                        onRefresh={() => queryClient.invalidateQueries({ queryKey: ['teleAppointmentsProvider'] })}
+                      />
                       <div className="flex gap-2 px-1">
-                        {NEXT_STATUS[appt.status] && (
+                        {NEXT_STATUS[appt.status] && appt.status !== 'IN_PROGRESS' && (
                           <Button
                             size="sm"
-                            className="bg-teal-600 hover:bg-teal-700"
+                            variant="outline"
+                            className="text-teal-700 border-teal-300 hover:bg-teal-50"
                             onClick={() => updateStatus.mutate({ id: appt.id, status: NEXT_STATUS[appt.status] })}
                             disabled={updateStatus.isPending}
                           >

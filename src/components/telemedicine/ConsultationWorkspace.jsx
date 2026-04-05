@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Save, User, Calendar, Stethoscope, FileText, Pill, CheckCircle, Clock } from 'lucide-react';
+import { Save, Stethoscope, CheckCircle, Video, Circle, ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 
@@ -19,6 +19,8 @@ export default function ConsultationWorkspace({ appt, open, onClose, onSaved }) 
   const [diagnosis, setDiagnosis] = useState('');
   const [prescriptionNotes, setPrescriptionNotes] = useState('');
   const [activeTab, setActiveTab] = useState('soap');
+  const [recordingUrl, setRecordingUrl] = useState('');
+  const [recordingLoading, setRecordingLoading] = useState(false);
 
   useEffect(() => {
     if (appt) {
@@ -34,6 +36,7 @@ export default function ConsultationWorkspace({ appt, open, onClose, onSaved }) 
       }
       setDiagnosis(appt.diagnosis || '');
       setPrescriptionNotes(appt.prescription_notes || '');
+      setRecordingUrl(appt.recording_url || '');
     }
   }, [appt]);
 
@@ -50,11 +53,24 @@ export default function ConsultationWorkspace({ appt, open, onClose, onSaved }) 
     },
   });
 
+  const saveRecordingUrl = async (url) => {
+    setRecordingLoading(true);
+    try {
+      await base44.entities.TeleAppointment.update(appt.id, { recording_url: url });
+      toast.success('Recording link saved');
+      qc.invalidateQueries({ queryKey: ['teleAppointmentsProvider'] });
+      onSaved?.();
+    } finally {
+      setRecordingLoading(false);
+    }
+  };
+
   const completeMutation = useMutation({
     mutationFn: () => base44.entities.TeleAppointment.update(appt.id, {
       soap_note: JSON.stringify(soap),
       diagnosis,
       prescription_notes: prescriptionNotes,
+      recording_url: recordingUrl,
       status: 'COMPLETED',
     }),
     onSuccess: () => {
@@ -180,6 +196,46 @@ export default function ConsultationWorkspace({ appt, open, onClose, onSaved }) 
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Recording Panel */}
+        <div className="border border-slate-200 rounded-xl p-4 space-y-3 bg-slate-50">
+          <div className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+            <Circle className="w-4 h-4 text-red-500 fill-red-500" />
+            Session Recording
+          </div>
+          {appt.status === 'IN_PROGRESS' && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg px-3 py-2 text-xs text-blue-800">
+              Recording is enabled for this room. Use the <strong>Whereby room controls</strong> during the call to start/stop cloud recording. Once complete, paste the recording link below.
+            </div>
+          )}
+          <div className="flex gap-2">
+            <Input
+              placeholder="Paste recording URL here (e.g. Whereby cloud recording link)..."
+              value={recordingUrl}
+              onChange={e => setRecordingUrl(e.target.value)}
+              className="flex-1 text-sm"
+            />
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={!recordingUrl || recordingLoading}
+              onClick={() => saveRecordingUrl(recordingUrl)}
+            >
+              {recordingLoading ? 'Saving...' : 'Save'}
+            </Button>
+          </div>
+          {recordingUrl && (
+            <a
+              href={recordingUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-xs text-teal-700 hover:text-teal-900 font-medium"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              View Recording
+            </a>
+          )}
+        </div>
 
         {/* Actions */}
         <div className="flex gap-3 pt-2 border-t">

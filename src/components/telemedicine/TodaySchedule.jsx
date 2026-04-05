@@ -31,15 +31,15 @@ export default function TodaySchedule({ appointments }) {
   });
 
   const startVideoCall = async (appt) => {
-    // First advance to IN_PROGRESS if needed
-    if (appt.status === 'CONFIRMED' || appt.status === 'BOOKED') {
-      await base44.entities.TeleAppointment.update(appt.id, { status: 'IN_PROGRESS' });
+    // joinTeleRoom handles room creation + IN_PROGRESS transition + returns correct URL
+    const res = await base44.functions.invoke('joinTeleRoom', {
+      appointment_id: appt.id,
+      role: 'provider',
+    });
+    const url = res?.data?.url;
+    if (url) {
+      window.open(url, '_blank');
       queryClient.invalidateQueries({ queryKey: ['teleAppointmentsProvider'] });
-    }
-    // Then create/open the Whereby room
-    const res = await base44.functions.invoke('createWherebyRoom', { appointment_id: appt.id });
-    if (res?.data?.room?.join_url) {
-      window.open(res.data.room.join_url, '_blank');
     }
   };
 

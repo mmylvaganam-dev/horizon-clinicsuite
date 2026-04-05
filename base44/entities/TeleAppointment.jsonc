@@ -1,0 +1,190 @@
+{
+  "name": "TeleAppointment",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization this appointment belongs to"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Reference to TelePatient"
+    },
+    "emr_patient_id": {
+      "type": "string",
+      "description": "Reference to main EMR Patient record"
+    },
+    "patient_name": {
+      "type": "string",
+      "description": "Cached patient name"
+    },
+    "patient_email": {
+      "type": "string",
+      "description": "Cached patient email for notifications"
+    },
+    "provider_id": {
+      "type": "string",
+      "description": "Reference to TeleProvider"
+    },
+    "provider_name": {
+      "type": "string",
+      "description": "Cached provider name"
+    },
+    "visit_type": {
+      "type": "string",
+      "enum": [
+        "VIDEO",
+        "AUDIO",
+        "CHAT"
+      ],
+      "default": "VIDEO",
+      "description": "Type of virtual visit"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "BOOKED",
+        "CONFIRMED",
+        "IN_PROGRESS",
+        "COMPLETED",
+        "CANCELLED",
+        "NO_SHOW"
+      ],
+      "default": "BOOKED"
+    },
+    "scheduled_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Scheduled date and time"
+    },
+    "reminder_sent": {
+      "type": "boolean",
+      "default": false
+    },
+    "billing_mode": {
+      "type": "string",
+      "enum": [
+        "FREE",
+        "PAY_PER_VISIT",
+        "SUBSCRIPTION",
+        "CORPORATE"
+      ],
+      "default": "FREE"
+    },
+    "pre_consult_files": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs of pre-consult files"
+    },
+    "patient_notes": {
+      "type": "string",
+      "description": "Patient notes / reason for visit"
+    },
+    "soap_note": {
+      "type": "string",
+      "description": "Post-visit SOAP note by provider"
+    },
+    "diagnosis": {
+      "type": "string",
+      "description": "Diagnosis from the consultation"
+    },
+    "prescription_notes": {
+      "type": "string",
+      "description": "Prescription/medication notes"
+    },
+    "recording_url": {
+      "type": "string",
+      "description": "URL to the cloud recording of the session (Whereby or other)"
+    },
+    "patient_region": {
+      "type": "string",
+      "enum": [
+        "EU",
+        "USA",
+        "CANADA",
+        "SRI_LANKA",
+        "OTHER"
+      ],
+      "default": "OTHER",
+      "description": "Patient's residence region for compliance"
+    },
+    "gdpr_consent_obtained": {
+      "type": "boolean",
+      "default": false,
+      "description": "GDPR consent (EU patients)"
+    },
+    "hipaa_acknowledged": {
+      "type": "boolean",
+      "default": false,
+      "description": "HIPAA notice acknowledged (USA patients)"
+    },
+    "pipeda_consent_obtained": {
+      "type": "boolean",
+      "default": false,
+      "description": "PIPEDA consent (Canada patients)"
+    },
+    "general_consent_obtained": {
+      "type": "boolean",
+      "default": false,
+      "description": "General telemedicine consent"
+    },
+    "consultation_started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When video call actually started"
+    },
+    "consultation_ended_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When video call ended"
+    },
+    "billing_amount_usd": {
+      "type": "number",
+      "default": 50,
+      "description": "Billable amount in USD"
+    },
+    "billing_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "invoiced",
+        "paid",
+        "waived"
+      ],
+      "default": "pending"
+    },
+    "billing_invoice_id": {
+      "type": "string",
+      "description": "Reference to generated invoice"
+    },
+    "appointment_type": {
+      "type": "string",
+      "enum": [
+        "CONSULTATION",
+        "SECOND_OPINION",
+        "FOLLOW_UP",
+        "MEDICAL_TOURISM_PREP"
+      ],
+      "default": "CONSULTATION"
+    },
+    "second_opinion_request_id": {
+      "type": "string",
+      "description": "Linked SecondOpinionRequest if applicable"
+    },
+    "linked_emr_patient_id": {
+      "type": "string",
+      "description": "If patient continues care at physical clinic, linked EMR patient ID"
+    },
+    "linked_clinic_org_id": {
+      "type": "string",
+      "description": "Clinic org where patient is continuing care"
+    }
+  },
+  "required": [
+    "patient_id",
+    "provider_id",
+    "scheduled_time"
+  ]
+}

@@ -50,7 +50,31 @@ export default function BookingWizard({ patient, onBookingComplete }) {
     queryFn: () => base44.entities.TeleProvider.filter({ is_active: true, verification_status: 'VERIFIED' }),
   });
 
-  const slots = generateSlots(selectedDate);
+  // Fetch existing bookings for selected provider+date to grey out taken slots
+  const { data: existingBookings = [] } = useQuery({
+    queryKey: ['existingBookings', selectedProvider?.id, format(selectedDate, 'yyyy-MM-dd')],
+    queryFn: () => base44.entities.TeleAppointment.filter({
+      provider_id: selectedProvider.id,
+    }),
+    enabled: !!selectedProvider,
+  });
+
+  const bookedSlotTimes = new Set(
+    existingBookings
+      .filter(b => ['BOOKED', 'CONFIRMED', 'IN_PROGRESS'].includes(b.status) && b.scheduled_time)
+      .map(b => {
+        const d = new Date(b.scheduled_time);
+        return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}-${d.getHours()}-${d.getMinutes()}`;
+      })
+  );
+
+  const isSlotBooked = (slot) => {
+    const key = `${slot.getFullYear()}-${slot.getMonth()}-${slot.getDate()}-${slot.getHours()}-${slot.getMinutes()}`;
+    return bookedSlotTimes.has(key);
+  };
+
+  const allSlots = generateSlots(selectedDate);
+  const slots = allSlots; // show all, mark booked ones
 
   const today = new Date();
   const dates = Array.from({ length: 7 }, (_, i) => addDays(today, i));
@@ -188,19 +212,28 @@ export default function BookingWizard({ patient, onBookingComplete }) {
             ))}
           </div>
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-            {slots.map((slot, i) => (
-              <button
-                key={i}
-                onClick={() => setSelectedSlot(slot)}
-                className={`py-2 px-3 rounded-lg border text-sm font-medium transition-all ${
-                  selectedSlot?.getTime() === slot.getTime()
-                    ? 'bg-teal-600 text-white border-teal-600'
-                    : 'bg-white text-slate-700 border-slate-200 hover:border-teal-300'
-                }`}
-              >
-                {format(slot, 'h:mm a')}
-              </button>
-            ))}
+            {slots.map((slot, i) => {
+              const booked = isSlotBooked(slot);
+              const isPastSlot = slot < new Date();
+              const disabled = booked || isPastSlot;
+              return (
+                <button
+                  key={i}
+                  disabled={disabled}
+                  onClick={() => !disabled && setSelectedSlot(slot)}
+                  className={`py-2 px-3 rounded-lg border text-sm font-medium transition-all ${
+                    disabled
+                      ? 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed line-through'
+                      : selectedSlot?.getTime() === slot.getTime()
+                        ? 'bg-teal-600 text-white border-teal-600'
+                        : 'bg-white text-slate-700 border-slate-200 hover:border-teal-300'
+                  }`}
+                >
+                  {format(slot, 'h:mm a')}
+                  {booked && <span className="block text-xs">Taken</span>}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}

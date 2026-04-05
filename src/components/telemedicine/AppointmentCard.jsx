@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar, Clock, Video, Mic, MessageSquare, User, Paperclip, ExternalLink, X, RefreshCw } from 'lucide-react';
+import { Calendar, Clock, Video, Mic, MessageSquare, User, Paperclip, X, RefreshCw, ExternalLink } from 'lucide-react';
 import { format, differenceInHours } from 'date-fns';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import RescheduleAppointmentDialog from './RescheduleAppointmentDialog';
 
@@ -26,63 +26,58 @@ const VISIT_ICONS = {
 export default function AppointmentCard({ appt, role = 'patient', onRefresh }) {
   const VisitIcon = VISIT_ICONS[appt.visit_type] || Video;
   const scheduledTime = appt.scheduled_time ? new Date(appt.scheduled_time) : null;
+  const isActive = ['BOOKED', 'CONFIRMED', 'IN_PROGRESS'].includes(appt.status);
   const isInProgress = appt.status === 'IN_PROGRESS';
   const isUpcoming = ['BOOKED', 'CONFIRMED'].includes(appt.status);
+  const isVideoCall = appt.visit_type === 'VIDEO' || !appt.visit_type;
   const [joining, setJoining] = useState(false);
   const [showReschedule, setShowReschedule] = useState(false);
   const qc = useQueryClient();
 
-  // Can cancel: upcoming appointment AND more than 24 hours away
-  const canCancel = role === 'patient' && isUpcoming && scheduledTime &&
+  const isProvider = role === 'provider' || role === 'staff';
+
+  // Patient can cancel if >24h away
+  const canCancel = !isProvider && isActive && scheduledTime &&
     differenceInHours(scheduledTime, new Date()) >= 24;
 
   const cancelMutation = useMutation({
     mutationFn: () => base44.entities.TeleAppointment.update(appt.id, { status: 'CANCELLED' }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['teleAppointments'] });
+      qc.invalidateQueries({ queryKey: ['teleAppointmentsProvider'] });
       onRefresh?.();
     },
   });
 
-  const { data: rooms = [] } = useQuery({
-    queryKey: ['virtualRoom', appt.id],
-    queryFn: () => base44.entities.VirtualRoom.filter({ appointment_id: appt.id }),
-    enabled: isInProgress,
-  });
-
-  const room = rooms[0];
-
-  const createRoomMutation = useMutation({
-    mutationFn: async () => {
-      setJoining(true);
-      const res = await base44.functions.invoke('createWherebyRoom', { appointment_id: appt.id });
-      return res.data.room;
-    },
-    onSuccess: (newRoom) => {
-      handleJoinFromNew(newRoom);
+  // Universal join handler — uses the new joinTeleRoom backend function
+  const handleJoin = async () => {
+    setJoining(true);
+    try {
+      const res = await base44.functions.invoke('joinTeleRoom', {
+        appointment_id: appt.id,
+        role: isProvider ? 'provider' : 'patient',
+      });
+      const url = res?.data?.url;
+      if (url) {
+        window.open(url, '_blank');
+        // Refresh so status change (IN_PROGRESS) is reflected
+        qc.invalidateQueries({ queryKey: ['teleAppointments'] });
+        qc.invalidateQueries({ queryKey: ['teleAppointmentsProvider'] });
+        onRefresh?.();
+      } else {
+        alert(res?.data?.error || 'Could not get video room URL. Please try again.');
+      }
+    } catch (e) {
+      alert('Failed to join: ' + e.message);
+    } finally {
       setJoining(false);
-    },
-    onError: () => setJoining(false),
-  });
-
-  const handleJoin = () => {
-    if (room) {
-      // Providers get host URL with full controls; patients get regular join URL
-      const url = (role === 'provider' || role === 'staff') && room.host_url
-        ? room.host_url
-        : room.join_url;
-      window.open(url, '_blank');
-    } else {
-      createRoomMutation.mutate();
     }
   };
 
-  const handleJoinFromNew = (newRoom) => {
-    const url = (role === 'provider' || role === 'staff') && newRoom.host_url
-      ? newRoom.host_url
-      : newRoom.join_url;
-    window.open(url, '_blank');
-  };
+  // Can join: provider can always join active appts; patient can join when IN_PROGRESS
+  const canJoin = isVideoCall && (
+    isProvider ? isActive : isInProgress
+  );
 
   return (
     <Card className="hover:shadow-md transition-shadow">
@@ -90,14 +85,14 @@ export default function AppointmentCard({ appt, role = 'patient', onRefresh }) {
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2">
             <VisitIcon className="w-4 h-4 text-teal-600" />
-            <span className="text-sm font-medium text-slate-700">{appt.visit_type}</span>
+            <span className="text-sm font-medium text-slate-700">{appt.visit_type || 'VIDEO'}</span>
           </div>
           <Badge className={`${STATUS_COLORS[appt.status]} border-0 text-xs`}>{appt.status}</Badge>
         </div>
 
         <div className="flex items-center gap-2 text-sm text-slate-700">
           <User className="w-4 h-4 text-slate-400" />
-          {role === 'patient' ? (
+          {!isProvider ? (
             <span><span className="text-slate-400">Provider:</span> {appt.provider_name || '—'}</span>
           ) : (
             <span><span className="text-slate-400">Patient:</span> {appt.patient_name || '—'}</span>
@@ -112,7 +107,7 @@ export default function AppointmentCard({ appt, role = 'patient', onRefresh }) {
         )}
 
         {appt.patient_notes && (
-          <p className="text-xs text-slate-500 italic">"{appt.patient_notes}"</p>
+          <p className="text-xs text-slate-500 italic bg-slate-50 rounded px-2 py-1">"{appt.patient_notes}"</p>
         )}
 
         {appt.pre_consult_files?.length > 0 && (
@@ -125,8 +120,8 @@ export default function AppointmentCard({ appt, role = 'patient', onRefresh }) {
         <div className="flex items-center justify-between pt-1 border-t">
           <Badge className="bg-slate-100 text-slate-600 border-0 text-xs">{appt.billing_mode || 'FREE'}</Badge>
           <div className="flex items-center gap-2">
-            {/* Staff reschedule */}
-            {role === 'staff' && isUpcoming && (
+            {/* Provider reschedule */}
+            {isProvider && isUpcoming && (
               <Button
                 size="sm"
                 variant="outline"
@@ -137,7 +132,7 @@ export default function AppointmentCard({ appt, role = 'patient', onRefresh }) {
                 Reschedule
               </Button>
             )}
-            {/* Patient cancel (24h+ in advance) */}
+            {/* Patient cancel */}
             {canCancel && (
               <Button
                 size="sm"
@@ -150,15 +145,16 @@ export default function AppointmentCard({ appt, role = 'patient', onRefresh }) {
                 {cancelMutation.isPending ? 'Cancelling...' : 'Cancel'}
               </Button>
             )}
-            {isInProgress && (
+            {/* JOIN BUTTON — always visible for video when eligible */}
+            {canJoin && (
               <Button
                 size="sm"
                 className="bg-teal-600 hover:bg-teal-700 gap-1.5"
                 onClick={handleJoin}
-                disabled={joining || createRoomMutation.isPending}
+                disabled={joining}
               >
                 <ExternalLink className="w-3.5 h-3.5" />
-                {joining || createRoomMutation.isPending ? 'Connecting...' : 'Join Visit'}
+                {joining ? 'Connecting...' : isProvider ? 'Start / Join Call' : 'Join Call'}
               </Button>
             )}
           </div>
