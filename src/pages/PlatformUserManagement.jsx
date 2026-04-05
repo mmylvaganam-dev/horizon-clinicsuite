@@ -14,7 +14,9 @@ import {
   Mail,
   CheckCircle,
   XCircle,
-  Clock
+  Clock,
+  UserPlus,
+  Ban
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -50,6 +52,11 @@ export default function PlatformUserManagement() {
     queryFn: () => base44.entities.UserApproval.list(),
   });
 
+  const { data: pendingInvitations = [] } = useQuery({
+    queryKey: ['pendingInvitations'],
+    queryFn: () => base44.entities.PendingInvitation.filter({ status: 'pending' }, '-created_date'),
+  });
+
   const isPlatformOwner = user?.email === 'mmylvaganam@premierhealthcanada.ca' || 
                           user?.email === 'mylvaganam@premierhealthcanada.ca';
 
@@ -77,15 +84,28 @@ export default function PlatformUserManagement() {
     mutationFn: async ({ email, role, orgId }) => {
       toast.loading('Sending invitation...', { id: 'invite-toast' });
 
+      const org = organizations.find(o => o.id === orgId);
+
       // Send invitation
       await base44.users.inviteUser(email, role);
+
+      // Record the invitation
+      await base44.entities.PendingInvitation.create({
+        email,
+        role,
+        organization_id: orgId,
+        organization_name: org?.name || '',
+        invited_by: user?.email || '',
+        status: 'pending'
+      });
+
       toast.loading('Email sent! Assigning to organization...', { id: 'invite-toast' });
 
       // Wait for user creation
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       // Assign to organization
-      const assignResponse = await base44.functions.invoke('assignUserToOrganization', {
+      await base44.functions.invoke('assignUserToOrganization', {
         userEmail: email,
         organizationId: orgId
       });
@@ -95,6 +115,7 @@ export default function PlatformUserManagement() {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries(['allUsers']);
+      await queryClient.invalidateQueries(['pendingInvitations']);
       setInviteDialogOpen(false);
       setInviteEmail('');
       setInviteRole('user');
@@ -102,6 +123,16 @@ export default function PlatformUserManagement() {
     },
     onError: (error) => {
       toast.error(`❌ ${error.message}`, { id: 'invite-toast', duration: 8000 });
+    }
+  });
+
+  const cancelInviteMutation = useMutation({
+    mutationFn: async (inviteId) => {
+      await base44.entities.PendingInvitation.update(inviteId, { status: 'cancelled' });
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries(['pendingInvitations']);
+      toast.success('Invitation cancelled');
     }
   });
 
@@ -294,12 +325,10 @@ export default function PlatformUserManagement() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-slate-600">Pending Approvals</p>
-                <p className="text-2xl font-bold text-slate-900">
-                  {allApprovals.filter(a => a.final_status === 'pending_platform').length}
-                </p>
+                <p className="text-sm text-slate-600">Invited (Pending)</p>
+                <p className="text-2xl font-bold text-slate-900">{pendingInvitations.length}</p>
               </div>
-              <Clock className="w-8 h-8 text-yellow-600" />
+              <UserPlus className="w-8 h-8 text-blue-600" />
             </div>
           </CardContent>
         </Card>
@@ -315,6 +344,53 @@ export default function PlatformUserManagement() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Pending Invitations */}
+      {pendingInvitations.length > 0 && (
+        <Card className="border-l-4 border-blue-500">
+          <CardHeader className="bg-blue-50">
+            <CardTitle className="flex items-center gap-3">
+              <UserPlus className="w-5 h-5 text-blue-600" />
+              Pending Invitations
+              <Badge className="bg-blue-500">{pendingInvitations.length} awaiting acceptance</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <div className="space-y-2">
+              {pendingInvitations.map(invite => (
+                <div key={invite.id} className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-semibold text-sm">
+                      {invite.email?.charAt(0).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="font-medium text-slate-900">{invite.email}</p>
+                      <p className="text-xs text-slate-500">
+                        → {invite.organization_name} · Role: <span className="font-medium">{invite.role}</span> · Invited by {invite.invited_by}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-blue-600 border-blue-300">
+                      <Clock className="w-3 h-3 mr-1" />
+                      Pending
+                    </Badge>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-red-500 hover:bg-red-50"
+                      onClick={() => cancelInviteMutation.mutate(invite.id)}
+                      disabled={cancelInviteMutation.isPending}
+                    >
+                      <Ban className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Users by Organization */}
       {usersByOrg.map(({ org, users, pendingApprovals }) => (

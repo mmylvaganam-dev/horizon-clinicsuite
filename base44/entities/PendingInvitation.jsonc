@@ -1,0 +1,43 @@
+{
+  "name": "PendingInvitation",
+  "type": "object",
+  "properties": {
+    "email": {
+      "type": "string",
+      "description": "Invited user's email"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "user",
+        "admin"
+      ],
+      "default": "user"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Organization they were invited to"
+    },
+    "organization_name": {
+      "type": "string",
+      "description": "Cached org name for display"
+    },
+    "invited_by": {
+      "type": "string",
+      "description": "Email of the admin who sent the invite"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "cancelled"
+      ],
+      "default": "pending"
+    }
+  },
+  "required": [
+    "email",
+    "organization_id"
+  ]
+}
