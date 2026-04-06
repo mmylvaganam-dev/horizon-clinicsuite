@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import DrugInteractionChecker from './DrugInteractionChecker';
+import { useOrganization } from '@/components/OrganizationProvider';
 
 const DOSAGE_FORMS = ['Tablet', 'Capsule', 'Liquid', 'Injection', 'Cream', 'Ointment', 'Drops', 'Inhaler', 'Patch', 'Suppository', 'Other'];
 
@@ -21,6 +22,7 @@ export default function PrescriptionDraftBuilder({ patientId, patient, editPresc
   const queryClient = useQueryClient();
   const drugInputRef = useRef(null);
   const dropdownRef = useRef(null);
+  const { selectedOrgId } = useOrganization();
 
   const [formData, setFormData] = useState({
     drug_name: '',
@@ -149,11 +151,13 @@ export default function PrescriptionDraftBuilder({ patientId, patient, editPresc
 
   const saveMutation = useMutation({
     mutationFn: async (status) => {
+      const prescriberId = user?.id || user?.email;
+      if (!prescriberId) throw new Error('Provider not loaded — please wait a moment and try again');
       const payload = {
         ...formData,
         patient_id: patientId,
-        prescriber_id: user?.id || user?.email,
-        provider_email: user?.email,
+        prescriber_id: prescriberId,
+        organization_id: selectedOrgId || '',
         status,
         quantity: parseFloat(formData.quantity) || 0,
         refills: parseInt(formData.refills) || 0,
@@ -170,17 +174,19 @@ export default function PrescriptionDraftBuilder({ patientId, patient, editPresc
       invalidateAll();
       onSaved();
     },
-    onError: () => toast.error('Failed to save prescription'),
+    onError: (err) => toast.error(err?.message || 'Failed to save prescription'),
   });
 
   const sendToPharmacyMutation = useMutation({
     mutationFn: async () => {
       if (!formData.target_pharmacy_org_id) { toast.error('Select a pharmacy first'); return; }
+      const prescriberId = user?.id || user?.email;
+      if (!prescriberId) throw new Error('Provider not loaded — please wait a moment and try again');
       const payload = {
         ...formData,
         patient_id: patientId,
-        prescriber_id: user?.id || user?.email,
-        provider_email: user?.email,
+        prescriber_id: prescriberId,
+        organization_id: selectedOrgId || '',
         status: 'Verified',
         quantity: parseFloat(formData.quantity) || 0,
         refills: parseInt(formData.refills) || 0,
@@ -199,7 +205,7 @@ export default function PrescriptionDraftBuilder({ patientId, patient, editPresc
       invalidateAll();
       onSaved();
     },
-    onError: () => toast.error('Failed to send prescription'),
+    onError: (err) => toast.error(err?.message || 'Failed to send prescription'),
   });
 
   const isLoading = saveMutation.isPending || sendToPharmacyMutation.isPending;
