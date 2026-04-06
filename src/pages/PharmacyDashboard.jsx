@@ -33,6 +33,7 @@ import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import MedicineReturnDialog from '../components/pharmacy/MedicineReturnDialog';
 import LowStockWidget from '../components/pharmacy/LowStockWidget';
+import CreditSalesTab from '../components/pharmacy/CreditSalesTab';
 import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 import { useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -134,6 +135,15 @@ export default function PharmacyDashboard() {
     queryFn: async () => {
       if (!selectedOrgId) return [];
       return base44.entities.CompanyProfile.filter(orgFilter);
+    },
+    enabled: !!selectedOrgId,
+  });
+
+  const { data: creditPayments = [] } = useQuery({
+    queryKey: ['creditPayments', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      try { return await base44.entities.CreditPayment.filter(orgFilter, '-payment_date'); } catch { return []; }
     },
     enabled: !!selectedOrgId,
   });
@@ -623,12 +633,42 @@ export default function PharmacyDashboard() {
            </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0 shadow-lg">
+          <Card
+            className="bg-gradient-to-br from-orange-500 to-orange-600 text-white border-0 shadow-lg cursor-pointer hover:shadow-xl transition-all"
+            onClick={() => navigate(createPageUrl('CreditCustomerManagement'))}
+          >
            <CardContent className="p-6">
-             <div className="w-8 h-8 mb-2 opacity-80 flex items-center justify-center font-bold text-lg">{currency}</div>
+             <div className="flex items-center justify-between mb-2">
+               <Building2 className="w-8 h-8 opacity-80" />
+               <Button
+                 size="sm"
+                 variant="secondary"
+                 onClick={(e) => { e.stopPropagation(); navigate(createPageUrl('CreditCustomerManagement')); }}
+                 className="bg-white/20 hover:bg-white/30 text-white border-0"
+               >
+                 Manage
+               </Button>
+             </div>
              <p className="text-sm opacity-90">Today's Credit</p>
              <p className="text-3xl font-bold mt-1">{currency} {fmt(todayCreditAmount)}</p>
              <p className="text-xs opacity-80 mt-1">{todayCreditSales.length} sales</p>
+             {todayCreditSales.length > 0 && (
+               <div className="mt-3 pt-3 border-t border-white/20 space-y-1.5 max-h-36 overflow-y-auto">
+                 {todayCreditSales.slice(0, 4).map(sale => {
+                   const inst = sale.credit_institution || sale.notes?.match(/Bill To:\s*([^|]+)/)?.[1]?.trim() || 'Unknown';
+                   return (
+                     <div key={sale.id} className="text-xs bg-white/10 rounded p-1.5">
+                       <div className="flex justify-between items-center">
+                         <span className="font-medium truncate max-w-[120px]">{inst}</span>
+                         <span className="font-bold">{currency} {fmt(sale.total)}</span>
+                       </div>
+                       <span className="opacity-70">{sale.sale_number}</span>
+                     </div>
+                   );
+                 })}
+                 {todayCreditSales.length > 4 && <p className="text-xs text-white/60 text-center">+{todayCreditSales.length - 4} more</p>}
+               </div>
+             )}
            </CardContent>
           </Card>
         </div>
@@ -659,6 +699,9 @@ export default function PharmacyDashboard() {
               </TabsTrigger>
               <TabsTrigger value="med-return" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">
                 Med. Return
+              </TabsTrigger>
+              <TabsTrigger value="credit-sales" className="text-white data-[state=active]:bg-white/20 data-[state=active]:text-white">
+                Credit Sales
               </TabsTrigger>
             </TabsList>
           </div>
@@ -849,10 +892,13 @@ export default function PharmacyDashboard() {
                               {currency} {fmt(sale.total)}
                             </p>
                           </div>
-                          <div className="col-span-1">
-                            <Badge className={statusColors[sale.status]}>
+                          <div className="col-span-1 flex flex-col gap-1">
+                            <Badge className={statusColors[sale.status] || 'bg-amber-100 text-amber-700'}>
                               {sale.status}
                             </Badge>
+                            {(sale.is_credit_sale || sale.credit_institution || sale.status === 'credit') && (
+                              <Badge className="bg-orange-100 text-orange-700 border-orange-200 text-xs">Credit</Badge>
+                            )}
                           </div>
                           <div className="col-span-2 flex justify-end gap-1">
                            <Button 
@@ -1057,6 +1103,16 @@ export default function PharmacyDashboard() {
                   </div>
                 )}
               </div>
+            </TabsContent>
+
+            <TabsContent value="credit-sales" className="mt-0 space-y-4">
+              <CreditSalesTab
+                sales={sales}
+                creditPayments={creditPayments}
+                currency={currency}
+                fmt={fmt}
+                navigate={navigate}
+              />
             </TabsContent>
 
             <TabsContent value="med-return">
