@@ -82,6 +82,8 @@ Deno.serve(async (req) => {
   <div class="info-row"><span>From:</span><span>${invoice.service_from}</span></div>
   <div class="info-row"><span>To:</span><span>${invoice.service_to}</span></div>
   <div class="info-row"><span>Days:</span><span>${invoice.num_days || 0}</span></div>
+  ${invoice.shift_start_datetime ? `<div class="info-row"><span>Shift Start:</span><span>${new Date(invoice.shift_start_datetime).toLocaleString()}</span></div>` : ''}
+  ${invoice.shift_end_datetime ? `<div class="info-row"><span>Shift End:</span><span>${new Date(invoice.shift_end_datetime).toLocaleString()}</span></div>` : ''}
 
   <div class="divider"></div>
 

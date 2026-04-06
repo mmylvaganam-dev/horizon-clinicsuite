@@ -1,0 +1,76 @@
+{
+  "name": "HomeCareSchedule",
+  "type": "object",
+  "properties": {
+    "patient_id": {
+      "type": "string",
+      "description": "Patient receiving home care"
+    },
+    "staff_id": {
+      "type": "string",
+      "description": "Staff member assigned"
+    },
+    "schedule_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Start date (for backward compat / board view)"
+    },
+    "start_datetime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Shift start date & time (ISO 8601)"
+    },
+    "end_datetime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Shift end date & time (ISO 8601)"
+    },
+    "time_from": {
+      "type": "string",
+      "description": "Start time HH:MM (legacy)"
+    },
+    "time_to": {
+      "type": "string",
+      "description": "End time HH:MM (legacy)"
+    },
+    "service_type": {
+      "type": "string",
+      "enum": [
+        "nursing",
+        "physiotherapy",
+        "wound_care",
+        "medication",
+        "monitoring",
+        "assistance",
+        "other"
+      ],
+      "default": "nursing",
+      "description": "Type of service"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "confirmed",
+        "completed",
+        "cancelled",
+        "rescheduled"
+      ],
+      "default": "scheduled",
+      "description": "Schedule status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Schedule notes"
+    },
+    "completed_notes": {
+      "type": "string",
+      "description": "Notes after completion"
+    }
+  },
+  "required": [
+    "patient_id",
+    "staff_id",
+    "schedule_date"
+  ]
+}

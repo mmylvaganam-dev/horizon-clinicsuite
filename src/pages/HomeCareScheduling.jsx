@@ -28,10 +28,15 @@ export default function HomeCareScheduling() {
   const [dateFilter, setDateFilter] = useState(format(new Date(), 'yyyy-MM-dd'));
   const [viewTab, setViewTab] = useState('board');
 
+  const todayAt8 = format(new Date(), "yyyy-MM-dd") + 'T08:00';
+  const todayAt10 = format(new Date(), "yyyy-MM-dd") + 'T10:00';
+
   const [scheduleForm, setScheduleForm] = useState({
     patient_id: '',
     staff_id: '',
     schedule_date: format(new Date(), 'yyyy-MM-dd'),
+    start_datetime: todayAt8,
+    end_datetime: todayAt10,
     time_from: '08:00',
     time_to: '10:00',
     service_type: 'nursing',
@@ -82,7 +87,20 @@ export default function HomeCareScheduling() {
       toast.error('Please select patient and staff');
       return;
     }
-    createScheduleMutation.mutate(scheduleForm);
+    if (!scheduleForm.start_datetime || !scheduleForm.end_datetime) {
+      toast.error('Please set start and end date/time');
+      return;
+    }
+    // Derive schedule_date and time_from/time_to from datetime fields for backward compat
+    const startDate = scheduleForm.start_datetime.split('T')[0];
+    const startTime = scheduleForm.start_datetime.split('T')[1]?.slice(0, 5) || '08:00';
+    const endTime = scheduleForm.end_datetime.split('T')[1]?.slice(0, 5) || '10:00';
+    createScheduleMutation.mutate({
+      ...scheduleForm,
+      schedule_date: startDate,
+      time_from: startTime,
+      time_to: endTime,
+    });
   };
 
   const getPatientName = (patientId) => {
@@ -165,10 +183,19 @@ export default function HomeCareScheduling() {
               <Card key={schedule.id} className="p-5 hover:shadow-md transition-all">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-6 flex-1">
-                    <div className="w-20 text-center">
+                    <div className="w-28 text-center shrink-0">
                       <Clock className="w-5 h-5 mx-auto text-slate-400 mb-1" />
-                      <p className="text-sm font-medium">{schedule.time_from}</p>
-                      <p className="text-xs text-slate-500">{schedule.time_to}</p>
+                      {schedule.start_datetime ? (
+                        <>
+                          <p className="text-xs font-medium text-slate-700">{format(new Date(schedule.start_datetime), 'dd MMM HH:mm')}</p>
+                          <p className="text-xs text-slate-400">→ {format(new Date(schedule.end_datetime), 'dd MMM HH:mm')}</p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-sm font-medium">{schedule.time_from}</p>
+                          <p className="text-xs text-slate-500">{schedule.time_to}</p>
+                        </>
+                      )}
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
@@ -236,23 +263,40 @@ export default function HomeCareScheduling() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Date *</Label>
-                <Input type="date" value={scheduleForm.schedule_date}
-                  onChange={e => setScheduleForm({...scheduleForm, schedule_date: e.target.value})} />
+                <Label>Shift Start (Date &amp; Time) *</Label>
+                <Input
+                  type="datetime-local"
+                  value={scheduleForm.start_datetime}
+                  onChange={e => setScheduleForm({ ...scheduleForm, start_datetime: e.target.value })}
+                />
               </div>
               <div>
-                <Label>From *</Label>
-                <Input type="time" value={scheduleForm.time_from}
-                  onChange={e => setScheduleForm({...scheduleForm, time_from: e.target.value})} />
-              </div>
-              <div>
-                <Label>To *</Label>
-                <Input type="time" value={scheduleForm.time_to}
-                  onChange={e => setScheduleForm({...scheduleForm, time_to: e.target.value})} />
+                <Label>Shift End (Date &amp; Time) *</Label>
+                <Input
+                  type="datetime-local"
+                  value={scheduleForm.end_datetime}
+                  onChange={e => setScheduleForm({ ...scheduleForm, end_datetime: e.target.value })}
+                />
               </div>
             </div>
+            {scheduleForm.start_datetime && scheduleForm.end_datetime && (() => {
+              const start = new Date(scheduleForm.start_datetime);
+              const end = new Date(scheduleForm.end_datetime);
+              const diffMs = end - start;
+              if (diffMs > 0) {
+                const days = Math.floor(diffMs / 86400000);
+                const hours = Math.floor((diffMs % 86400000) / 3600000);
+                const mins = Math.floor((diffMs % 3600000) / 60000);
+                return (
+                  <p className="text-xs text-teal-700 bg-teal-50 border border-teal-200 rounded px-3 py-1">
+                    Duration: {days > 0 ? `${days}d ` : ''}{hours > 0 ? `${hours}h ` : ''}{mins > 0 ? `${mins}m` : ''}
+                  </p>
+                );
+              }
+              return null;
+            })()}
             <div>
               <Label>Service Type</Label>
               <Select value={scheduleForm.service_type} onValueChange={val => setScheduleForm({...scheduleForm, service_type: val})}>

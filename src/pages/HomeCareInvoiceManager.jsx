@@ -48,6 +48,7 @@ export default function HomeCareInvoiceManager() {
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [showLinesDialog, setShowLinesDialog] = useState(false);
   const [patientSearch, setPatientSearch] = useState('');
+  const [scheduleSearch, setScheduleSearch] = useState('');
 
   const emptyForm = {
     patient_id: '', patient_name: '', patient_phone: '', patient_address: '',
@@ -63,6 +64,18 @@ export default function HomeCareInvoiceManager() {
   const { data: patients = [] } = useQuery({
     queryKey: ['patients'],
     queryFn: () => base44.entities.Patient.list('-created_date'),
+  });
+
+  const { data: schedules = [] } = useQuery({
+    queryKey: ['homeCareSchedulesForInvoice', selectedOrgId],
+    queryFn: () => base44.entities.HomeCareSchedule.filter({ status: 'completed' }, '-start_datetime', 200),
+    enabled: showCreateDialog,
+  });
+
+  const { data: staffForInvoice = [] } = useQuery({
+    queryKey: ['staffForInvoice', selectedOrgId],
+    queryFn: () => base44.entities.StaffProfile.filter({ organization_id: selectedOrgId }),
+    enabled: !!selectedOrgId,
   });
 
   const { data: invoices = [], isLoading } = useQuery({
@@ -192,6 +205,34 @@ export default function HomeCareInvoiceManager() {
     const q = patientSearch.toLowerCase();
     return q && (p.first_name?.toLowerCase().includes(q) || p.last_name?.toLowerCase().includes(q) || p.phone?.includes(q) || p.phn?.toLowerCase().includes(q));
   });
+
+  // Schedules matching the selected patient
+  const patientSchedules = form.patient_id
+    ? schedules.filter(s => s.patient_id === form.patient_id)
+    : [];
+
+  const getStaffName = (staffId) => {
+    const s = staffForInvoice.find(x => x.id === staffId);
+    return s ? `${s.first_name} ${s.last_name}` : staffId;
+  };
+
+  const populateFromSchedule = (schedule) => {
+    const startDate = schedule.start_datetime
+      ? schedule.start_datetime.split('T')[0]
+      : schedule.schedule_date;
+    const endDate = schedule.end_datetime
+      ? schedule.end_datetime.split('T')[0]
+      : schedule.schedule_date;
+    const days = calcDays(startDate, endDate);
+    setForm(prev => ({
+      ...prev,
+      service_from: startDate,
+      service_to: endDate,
+      num_days: days,
+      notes: prev.notes || (schedule.notes || ''),
+    }));
+    setScheduleSearch('');
+  };
 
   const filteredInvoices = invoices.filter(inv => {
     const q = search.toLowerCase();
@@ -324,6 +365,33 @@ export default function HomeCareInvoiceManager() {
                 </div>
               )}
             </div>
+
+            {/* Auto-fill from Schedule */}
+            {form.patient_id && patientSchedules.length > 0 && (
+              <div className="border border-teal-200 rounded-lg p-3 bg-teal-50 space-y-2">
+                <p className="text-xs font-semibold text-teal-700">📅 Load from Completed Schedule</p>
+                <div className="space-y-1 max-h-40 overflow-y-auto">
+                  {patientSchedules.map(s => {
+                    const startDT = s.start_datetime ? new Date(s.start_datetime) : null;
+                    const endDT = s.end_datetime ? new Date(s.end_datetime) : null;
+                    const startLabel = startDT ? format(startDT, 'dd MMM yyyy HH:mm') : s.schedule_date;
+                    const endLabel = endDT ? format(endDT, 'dd MMM yyyy HH:mm') : '';
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        className="w-full text-left px-3 py-2 bg-white rounded border hover:border-teal-400 hover:bg-teal-50 text-sm transition-colors"
+                        onClick={() => populateFromSchedule(s)}
+                      >
+                        <span className="font-medium text-teal-800">{startLabel}</span>
+                        {endLabel && <span className="text-slate-500"> → {endLabel}</span>}
+                        <span className="ml-2 text-xs text-slate-400">{s.service_type} · {getStaffName(s.staff_id)}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Service Period */}
             <div className="grid grid-cols-3 gap-3">
