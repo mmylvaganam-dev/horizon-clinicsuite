@@ -17,6 +17,9 @@ import HomeCareWorkers from './pages/HomeCareWorkers';
 import AppointmentScheduler from './pages/AppointmentScheduler';
 import TelePaymentGateways from './pages/TelePaymentGateways';
 import TeleProviderSchedule from './pages/TeleProviderSchedule';
+import HomeCareCaretakerReport from './pages/HomeCareCaretakerReport';
+import HomeCareFamilyReport from './pages/HomeCareFamilyReport';
+import HomeCareSupervisorReport from './pages/HomeCareSupervisorReport';
 import PatientSelfPortal from './pages/PatientSelfPortal';
 import LabReportView from './pages/LabReportView';
 import FindLabReport from './pages/FindLabReport';
@@ -95,6 +98,9 @@ const AuthenticatedApp = () => {
       <Route path="/driver" element={<DriverDeliveryApp />} />
       <Route path="/TelePaymentGateways" element={<LayoutWrapper currentPageName="TelePaymentGateways"><TelePaymentGateways /></LayoutWrapper>} />
       <Route path="/TeleProviderSchedule" element={<LayoutWrapper currentPageName="TeleProviderSchedule"><TeleProviderSchedule /></LayoutWrapper>} />
+      <Route path="/HomeCareCaretakerReport" element={<LayoutWrapper currentPageName="HomeCareCaretakerReport"><HomeCareCaretakerReport /></LayoutWrapper>} />
+      <Route path="/HomeCareFamilyReport" element={<LayoutWrapper currentPageName="HomeCareFamilyReport"><HomeCareFamilyReport /></LayoutWrapper>} />
+      <Route path="/HomeCareSupervisorReport" element={<LayoutWrapper currentPageName="HomeCareSupervisorReport"><HomeCareSupervisorReport /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

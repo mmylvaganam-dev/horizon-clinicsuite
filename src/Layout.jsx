@@ -44,7 +44,8 @@ import {
   Play,
   Network,
   Pill,
-  Mic
+  Mic,
+  ClipboardList
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
@@ -241,10 +242,12 @@ function LayoutContent({ children, currentPageName }) {
       moduleRequired: 'PHARMACY',
       items: [
         { name: 'Point of Sale', page: 'PharmacyBilling', icon: ShoppingBag, description: 'POS system - Sell medicines, process walk-in customers, generate invoices' },
+        { name: 'Credit Sale', page: 'CreditCustomerManagement', icon: DollarSign, description: 'Credit sales — bill to institution accounts, track outstanding balances and payments' },
         { name: 'Dashboard', page: 'PharmacyDashboard', icon: Activity, description: 'Pharmacy overview - Sales stats, stock alerts, and quick actions' },
         { name: 'Work Queue', page: 'PharmacyWorkQueue', icon: CheckSquare, description: 'Prescription queue - Review and verify doctor prescriptions, prepare orders for dispensing' },
         { name: 'Inventory', page: 'PharmacyInventory', icon: Package, description: 'Stock management - Track inventory levels, receive stock, adjust quantities, view transactions' },
         { name: 'Barcode Setup', page: 'BarcodeSetup', icon: Activity, description: 'Barcode configuration - Add barcodes to products, scan items, print labels' },
+        { name: 'Staff Login', page: 'StaffDirectory', icon: Users, description: 'Staff login management - View staff profiles and manage pharmacy staff access' },
         { name: 'Stock Monitoring', page: 'StockMonitoring', icon: Activity, description: 'Low-stock alerts - Monitor items below minimum threshold, flag for reorder' },
         { name: 'Product Import', page: 'PharmacyProductImport', icon: FileText, description: 'Bulk product upload - Import medicines from CSV file into the system' },
         { name: 'Operations', page: 'PharmacyOperations', icon: Activity, description: 'Daily operations - Schedule vendor visits, returns pickup, and stock tasks' },
@@ -270,6 +273,9 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Home Care Workers', page: 'HomeCareWorkers', icon: Users, description: 'Home care workers - Support staff providing ADL assistance and care support' },
         { name: 'Scheduling', page: 'HomeCareScheduling', icon: Calendar, description: 'Visit scheduling - Plan and assign home visits to nursing staff' },
         { name: 'Daily Reports', page: 'HomeCareReports', icon: FileText, description: 'Service documentation - Daily reports from home visits and care activities' },
+        { name: 'Caretaker Report', page: 'HomeCareCaretakerReport', icon: ClipboardList, description: 'Caretaker daily reporting - Log daily patient care activities, observations and tasks completed' },
+        { name: 'Family Report', page: 'HomeCareFamilyReport', icon: Users, description: 'Family daily/weekly reporting - Family members submit updates on patient condition at home' },
+        { name: 'Supervisor Report', page: 'HomeCareSupervisorReport', icon: CheckSquare, description: 'Supervisor reporting - Supervisors review and sign off on care quality and staff performance' },
         { name: 'Invoicing & Billing', page: 'HomeCareInvoiceManager', icon: DollarSign, description: 'Bill patients for daily care, pharmacy supplies, lab tests and other services — print 80mm receipts' },
       ]
     },

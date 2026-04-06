@@ -21,7 +21,8 @@ import {
   List,
   Network,
   UserCheck,
-  UserMinus
+  UserMinus,
+  Calendar
 } from 'lucide-react';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -43,6 +44,7 @@ export default function Patients() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [viewMode, setViewMode] = useState('grid');
+  const [dateView, setDateView] = useState('all');
   const [formOpen, setFormOpen] = useState(false);
   const [editingPatient, setEditingPatient] = useState(null);
   const [showPHNCard, setShowPHNCard] = useState(false);
@@ -129,8 +131,23 @@ export default function Patients() {
       patient.nic?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === 'all' || patient.status === statusFilter || (!patient.status && statusFilter === 'active');
+
+    let matchesDate = true;
+    if (dateView !== 'all' && patient.created_date) {
+      const created = new Date(patient.created_date);
+      const now = new Date();
+      if (dateView === 'daily') {
+        matchesDate = created.toDateString() === now.toDateString();
+      } else if (dateView === 'weekly') {
+        const weekAgo = new Date(now); weekAgo.setDate(now.getDate() - 7);
+        matchesDate = created >= weekAgo;
+      } else if (dateView === 'monthly') {
+        const monthAgo = new Date(now); monthAgo.setMonth(now.getMonth() - 1);
+        matchesDate = created >= monthAgo;
+      }
+    }
     
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesStatus && matchesDate;
   });
 
   return (
@@ -234,6 +251,18 @@ export default function Patients() {
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="inactive">Inactive</SelectItem>
                 <SelectItem value="deceased">Deceased</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={dateView} onValueChange={setDateView}>
+              <SelectTrigger className="w-36">
+                <Calendar className="w-4 h-4 mr-2" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Time</SelectItem>
+                <SelectItem value="daily">Today</SelectItem>
+                <SelectItem value="weekly">This Week</SelectItem>
+                <SelectItem value="monthly">This Month</SelectItem>
               </SelectContent>
             </Select>
             <div className="flex border rounded-lg overflow-hidden">
