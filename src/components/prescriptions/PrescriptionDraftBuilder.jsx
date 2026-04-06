@@ -177,6 +177,11 @@ export default function PrescriptionDraftBuilder({ patientId, patient, editPresc
     queryClient.invalidateQueries({ queryKey: ['patientPrescriptions', patientId] });
   };
 
+  const prescriberName = myStaffProfile
+    ? `${myStaffProfile.first_name} ${myStaffProfile.last_name}`.trim()
+    : user?.full_name || user?.email || '';
+  const prescriberCredentials = myStaffProfile?.credentials_text || '';
+
   const saveMutation = useMutation({
     mutationFn: async (status) => {
       const prescriberId = user?.id || user?.email;
@@ -185,6 +190,8 @@ export default function PrescriptionDraftBuilder({ patientId, patient, editPresc
         ...formData,
         patient_id: patientId,
         prescriber_id: prescriberId,
+        prescriber_name: prescriberName,
+        prescriber_credentials: prescriberCredentials,
         organization_id: selectedOrgId || '',
         status,
         quantity: parseFloat(formData.quantity) || 0,
@@ -214,6 +221,8 @@ export default function PrescriptionDraftBuilder({ patientId, patient, editPresc
         ...formData,
         patient_id: patientId,
         prescriber_id: prescriberId,
+        prescriber_name: prescriberName,
+        prescriber_credentials: prescriberCredentials,
         organization_id: selectedOrgId || '',
         status: 'Verified',
         quantity: parseFloat(formData.quantity) || 0,
@@ -252,6 +261,20 @@ export default function PrescriptionDraftBuilder({ patientId, patient, editPresc
         </DialogHeader>
 
         <div className="space-y-5">
+          {/* Prescriber Banner */}
+          <div className={`p-3 rounded-lg border flex items-center gap-2 ${prescriberName ? 'bg-teal-50 border-teal-200' : 'bg-amber-50 border-amber-300'}`}>
+            <PenLine className={`w-4 h-4 flex-shrink-0 ${prescriberName ? 'text-teal-600' : 'text-amber-600'}`} />
+            {prescriberName ? (
+              <span className="text-sm font-semibold text-teal-800">
+                Prescribing as: Dr. {prescriberName}{prescriberCredentials ? ` — ${prescriberCredentials}` : ''}
+              </span>
+            ) : (
+              <span className="text-sm font-semibold text-amber-800">
+                ⚠ No staff profile found for your account. Prescription will be saved without a doctor name.
+              </span>
+            )}
+          </div>
+
           {/* Allergy Banner */}
           {patient?.allergies && (
             <div className="p-3 bg-rose-50 border-2 border-rose-300 rounded-lg flex items-center gap-2">

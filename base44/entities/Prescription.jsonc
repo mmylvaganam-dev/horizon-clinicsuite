@@ -1,0 +1,124 @@
+{
+  "name": "Prescription",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Prescription location"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Reference to patient"
+    },
+    "prescriber_id": {
+      "type": "string",
+      "description": "Provider who prescribed (user ID or email)"
+    },
+    "prescriber_name": {
+      "type": "string",
+      "description": "Cached prescriber full name for display"
+    },
+    "prescriber_credentials": {
+      "type": "string",
+      "description": "Cached credentials e.g. MBBS, MD"
+    },
+    "drug_id": {
+      "type": "string",
+      "description": "Reference to DrugCatalog"
+    },
+    "drug_name": {
+      "type": "string",
+      "description": "Drug name for reference"
+    },
+    "strength": {
+      "type": "string",
+      "description": "Drug strength"
+    },
+    "dosage_form": {
+      "type": "string",
+      "description": "Dosage form"
+    },
+    "directions": {
+      "type": "string",
+      "description": "Directions for use"
+    },
+    "quantity": {
+      "type": "number",
+      "description": "Quantity prescribed"
+    },
+    "refills": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of refills allowed"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "New",
+        "Verified",
+        "Dispensed",
+        "Cancelled"
+      ],
+      "default": "New",
+      "description": "Prescription status"
+    },
+    "prescribed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date prescribed"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Prescription expiry date"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Prescription notes"
+    },
+    "delivery_requested": {
+      "type": "boolean",
+      "default": false,
+      "description": "Patient requested delivery to preferred pharmacy"
+    },
+    "target_pharmacy_org_id": {
+      "type": "string",
+      "description": "Target pharmacy org for delivery/pickup"
+    },
+    "target_pharmacy_name": {
+      "type": "string",
+      "description": "Cached target pharmacy name"
+    },
+    "delivery_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "received",
+        "preparing",
+        "ready",
+        "delivered"
+      ],
+      "description": "Delivery workflow status"
+    },
+    "delivery_sent_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When prescription was sent to pharmacy"
+    },
+    "tele_appointment_id": {
+      "type": "string",
+      "description": "Linked telemedicine appointment (if from tele-consult)"
+    }
+  },
+  "required": [
+    "patient_id",
+    "prescriber_id",
+    "drug_name",
+    "directions",
+    "quantity"
+  ]
+}
