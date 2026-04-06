@@ -27,6 +27,7 @@ import PatientDocumentHub from '../components/emr/PatientDocumentHub';
 import PatientCaseChat from '../components/emr/PatientCaseChat';
 import PatientForm from '../components/patients/PatientForm';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
+import { HistorySection } from '../components/emr/HistoryEditor';
 
 export default function EMR() {
   const navigate = useNavigate();
@@ -297,39 +298,36 @@ export default function EMR() {
             </TabsContent>
 
             <TabsContent value="history">
-              <div className="space-y-6">
+              <div className="space-y-4">
+                <HistorySection
+                  title="Past Medical History (PMHx)"
+                  value={selectedPatient.chronic_conditions}
+                  fieldKey="chronic_conditions"
+                  patientId={selectedPatient.id}
+                  onSaved={(updated) => setSelectedPatient(prev => ({ ...prev, ...updated }))}
+                />
                 <Card className="bg-white border-0 shadow-sm">
                   <CardHeader>
-                    <CardTitle>Past Medical History (PMHx)</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {selectedPatient.chronic_conditions ? (
-                      <div className="p-4 bg-slate-50 rounded-lg">
-                        <p className="text-slate-900">{selectedPatient.chronic_conditions}</p>
-                      </div>
-                    ) : (
-                      <p className="text-sm text-slate-500 italic">No past medical history documented</p>
-                    )}
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-white border-0 shadow-sm">
-                  <CardHeader>
-                    <CardTitle>Past Surgical History (PSHx)</CardTitle>
+                    <CardTitle className="text-base">Past Surgical History (PSHx)</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <PastSurgicalHistory patientId={selectedPatient.id} />
                   </CardContent>
                 </Card>
-
-                <Card className="bg-white border-0 shadow-sm">
-                  <CardHeader>
-                    <CardTitle>Family History</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-slate-500 italic">Family history section - to be documented</p>
-                  </CardContent>
-                </Card>
+                <HistorySection
+                  title="Family History (FHx)"
+                  value={selectedPatient.family_history}
+                  fieldKey="family_history"
+                  patientId={selectedPatient.id}
+                  onSaved={(updated) => setSelectedPatient(prev => ({ ...prev, ...updated }))}
+                />
+                <HistorySection
+                  title="Social History"
+                  value={selectedPatient.social_history}
+                  fieldKey="social_history"
+                  patientId={selectedPatient.id}
+                  onSaved={(updated) => setSelectedPatient(prev => ({ ...prev, ...updated }))}
+                />
               </div>
             </TabsContent>
 

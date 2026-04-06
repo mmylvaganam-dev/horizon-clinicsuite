@@ -1,0 +1,183 @@
+{
+  "name": "Patient",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Primary location"
+    },
+    "phn": {
+      "type": "string",
+      "description": "Patient Health Number - unique identifier for patient"
+    },
+    "nic": {
+      "type": "string",
+      "description": "National Identity Card number"
+    },
+    "first_name": {
+      "type": "string",
+      "description": "Patient's first name"
+    },
+    "last_name": {
+      "type": "string",
+      "description": "Patient's last name"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of birth"
+    },
+    "gender": {
+      "type": "string",
+      "enum": [
+        "male",
+        "female",
+        "other"
+      ],
+      "description": "Patient's gender"
+    },
+    "email": {
+      "type": "string",
+      "description": "Email address"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number"
+    },
+    "mobile": {
+      "type": "string",
+      "description": "Mobile number"
+    },
+    "address": {
+      "type": "string",
+      "description": "Home address"
+    },
+    "emergency_contact_name": {
+      "type": "string",
+      "description": "Emergency contact name"
+    },
+    "emergency_contact_phone": {
+      "type": "string",
+      "description": "Emergency contact phone"
+    },
+    "blood_type": {
+      "type": "string",
+      "enum": [
+        "A+",
+        "A-",
+        "B+",
+        "B-",
+        "AB+",
+        "AB-",
+        "O+",
+        "O-",
+        "unknown"
+      ],
+      "description": "Blood type"
+    },
+    "allergies": {
+      "type": "string",
+      "description": "Known allergies"
+    },
+    "chronic_conditions": {
+      "type": "string",
+      "description": "Chronic conditions / Past Medical History (PMHx)"
+    },
+    "family_history": {
+      "type": "string",
+      "description": "Family history (FHx) \u2014 hereditary conditions, family illnesses"
+    },
+    "social_history": {
+      "type": "string",
+      "description": "Social history \u2014 smoking, alcohol, occupation, lifestyle"
+    },
+    "insurance_provider": {
+      "type": "string",
+      "description": "Insurance provider name"
+    },
+    "insurance_number": {
+      "type": "string",
+      "description": "Insurance policy number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "deceased"
+      ],
+      "default": "active",
+      "description": "Patient status"
+    },
+    "patient_type": {
+      "type": "string",
+      "enum": [
+        "registered",
+        "walk_in"
+      ],
+      "default": "registered",
+      "description": "Patient registration type"
+    },
+    "notes": {
+      "type": "string",
+      "description": "General notes"
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Patient photo URL"
+    },
+    "mrn": {
+      "type": "string",
+      "description": "Medical Record Number (unique identifier)"
+    },
+    "national_id": {
+      "type": "string",
+      "description": "National ID or SSN"
+    },
+    "passport_number": {
+      "type": "string",
+      "description": "Passport number"
+    },
+    "consent_treatment": {
+      "type": "boolean",
+      "default": false,
+      "description": "Consent for treatment"
+    },
+    "consent_research": {
+      "type": "boolean",
+      "default": false,
+      "description": "Consent for research"
+    },
+    "consent_data_sharing": {
+      "type": "boolean",
+      "default": false,
+      "description": "Consent for data sharing"
+    },
+    "portal_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Patient portal access enabled"
+    },
+    "portal_registered": {
+      "type": "boolean",
+      "default": false,
+      "description": "Patient has registered for portal"
+    },
+    "preferred_pharmacy_org_id": {
+      "type": "string",
+      "description": "Preferred pharmacy organization within the network"
+    },
+    "preferred_pharmacy_name": {
+      "type": "string",
+      "description": "Cached preferred pharmacy name"
+    }
+  },
+  "required": [
+    "first_name",
+    "last_name"
+  ]
+}
