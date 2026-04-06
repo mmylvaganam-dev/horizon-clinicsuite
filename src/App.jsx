@@ -8,6 +8,7 @@ import PageNotFound from './lib/PageNotFound';
 import PatientInvoiceManager from './pages/PatientInvoiceManager';
 import PatientHealthOverview from './pages/PatientHealthOverview';
 import CreditCustomerManagement from './pages/CreditCustomerManagement';
+import CreditBuyerPortal from './pages/CreditBuyerPortal';
 import StockMonitoring from './pages/StockMonitoring';
 import InstitutionManagement from './pages/InstitutionManagement';
 import LandingPage from './pages/LandingPage';
@@ -96,6 +97,7 @@ const AuthenticatedApp = () => {
       <Route path="/PrescriptionManager" element={<LayoutWrapper currentPageName="PrescriptionManager"><PrescriptionManager /></LayoutWrapper>} />
       <Route path="/PrescriptionPrint" element={<PrescriptionPrint />} />
       <Route path="/driver" element={<DriverDeliveryApp />} />
+      <Route path="/credit-buyer-portal" element={<CreditBuyerPortal />} />
       <Route path="/TelePaymentGateways" element={<LayoutWrapper currentPageName="TelePaymentGateways"><TelePaymentGateways /></LayoutWrapper>} />
       <Route path="/TeleProviderSchedule" element={<LayoutWrapper currentPageName="TeleProviderSchedule"><TeleProviderSchedule /></LayoutWrapper>} />
       <Route path="/HomeCareCaretakerReport" element={<LayoutWrapper currentPageName="HomeCareCaretakerReport"><HomeCareCaretakerReport /></LayoutWrapper>} />

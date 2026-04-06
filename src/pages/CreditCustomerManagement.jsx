@@ -25,7 +25,8 @@ import {
   Download,
   ShoppingCart,
   PackageCheck,
-  ClipboardList
+  ClipboardList,
+  Link2
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -679,7 +680,7 @@ export default function CreditCustomerManagement() {
                     </TabsContent>
                   </Tabs>
 
-                  <div className="flex gap-2 mt-4 pt-4 border-t">
+                  <div className="flex gap-2 mt-4 pt-4 border-t flex-wrap">
                     <Button
                       onClick={() => handleOpenOrder(customer)}
                       variant="outline"
@@ -702,6 +703,17 @@ export default function CreditCustomerManagement() {
                     >
                       <Download className="w-4 h-4 mr-2" />
                       Statement
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="flex-1 border-purple-300 text-purple-700 hover:bg-purple-50"
+                      onClick={() => {
+                        const link = `${window.location.origin}/credit-buyer-portal?org=${selectedOrgId}&institution=${encodeURIComponent(customer.institution)}`;
+                        navigator.clipboard.writeText(link).then(() => toast.success('Portal link copied! Share this with the institution.'));
+                      }}
+                    >
+                      <Link2 className="w-4 h-4 mr-2" />
+                      Share Portal Link
                     </Button>
                   </div>
                 </CardContent>
