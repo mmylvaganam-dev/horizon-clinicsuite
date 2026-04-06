@@ -1,0 +1,64 @@
+{
+  "name": "RxFavorite",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Clinic/organization ID \u2014 clinic-wide favorite"
+    },
+    "staff_id": {
+      "type": "string",
+      "description": "Staff profile ID \u2014 doctor-specific favorite (null = clinic-wide)"
+    },
+    "drug_name": {
+      "type": "string",
+      "description": "Drug name"
+    },
+    "strength": {
+      "type": "string",
+      "description": "e.g. 500mg"
+    },
+    "dosage_form": {
+      "type": "string",
+      "description": "e.g. Tablet"
+    },
+    "directions": {
+      "type": "string",
+      "description": "e.g. Take 1 tablet twice daily with food for 7 days"
+    },
+    "quantity": {
+      "type": "number",
+      "description": "Default quantity"
+    },
+    "refills": {
+      "type": "number",
+      "default": 0
+    },
+    "condition_tag": {
+      "type": "string",
+      "description": "Condition this is typically prescribed for, e.g. 'Hypertension', 'UTI'"
+    },
+    "label": {
+      "type": "string",
+      "description": "Short display label, e.g. 'Amoxicillin 500mg \u2013 7 days'"
+    },
+    "scope": {
+      "type": "string",
+      "enum": [
+        "clinic",
+        "doctor"
+      ],
+      "default": "clinic",
+      "description": "Whether this favorite is clinic-wide or doctor-specific"
+    },
+    "use_count": {
+      "type": "number",
+      "default": 0,
+      "description": "How many times this template was used"
+    }
+  },
+  "required": [
+    "drug_name",
+    "organization_id"
+  ]
+}

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import DrugInteractionChecker from './DrugInteractionChecker';
+import RxAISuggestions from './RxAISuggestions';
 import { useOrganization } from '@/components/OrganizationProvider';
 
 const DOSAGE_FORMS = ['Tablet', 'Capsule', 'Liquid', 'Injection', 'Cream', 'Ointment', 'Drops', 'Inhaler', 'Patch', 'Suppository', 'Other'];
@@ -81,6 +82,17 @@ export default function PrescriptionDraftBuilder({ patientId, patient, editPresc
 
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
 
+  // Find the staff profile for the current user (for doctor-scoped favorites)
+  const { data: myStaffProfile } = useQuery({
+    queryKey: ['myStaffProfile', user?.email, selectedOrgId],
+    queryFn: async () => {
+      if (!user?.email || !selectedOrgId) return null;
+      const results = await base44.entities.StaffProfile.filter({ organization_id: selectedOrgId, email: user.email });
+      return results[0] || null;
+    },
+    enabled: !!user?.email && !!selectedOrgId,
+  });
+
   const { data: drugCatalog = [] } = useQuery({
     queryKey: ['drugCatalog'],
     queryFn: () => base44.entities.DrugCatalog.list(),
@@ -140,6 +152,22 @@ export default function PrescriptionDraftBuilder({ patientId, patient, editPresc
     setDrugSearch(drug.label);
     setShowDropdown(false);
     checkInteractions(drug.label);
+  };
+
+  // Called when user picks an AI suggestion or favorite — fills the whole form
+  const applyRxTemplate = (tpl) => {
+    setFormData(prev => ({
+      ...prev,
+      drug_name: tpl.drug_name || prev.drug_name,
+      strength: tpl.strength || prev.strength,
+      dosage_form: tpl.dosage_form || prev.dosage_form,
+      directions: tpl.directions || prev.directions,
+      quantity: tpl.quantity !== undefined ? tpl.quantity : prev.quantity,
+      refills: tpl.refills !== undefined ? tpl.refills : prev.refills,
+    }));
+    setDrugSearch(tpl.drug_name || '');
+    setShowDropdown(false);
+    checkInteractions(tpl.drug_name);
   };
 
   const invalidateAll = () => {
@@ -281,6 +309,14 @@ export default function PrescriptionDraftBuilder({ patientId, patient, editPresc
               )}
             </div>
           </div>
+
+          {/* AI Suggestions & Favorites */}
+          <RxAISuggestions
+            drugSearch={drugSearch}
+            onSelect={applyRxTemplate}
+            organizationId={selectedOrgId}
+            staffId={myStaffProfile?.id}
+          />
 
           {/* Interaction Checker */}
           <DrugInteractionChecker result={interactionResult} loading={checkingInteractions} />
