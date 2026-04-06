@@ -5,14 +5,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { FileText, TestTube, Scan, ExternalLink, Activity } from 'lucide-react';
+import { FileText, TestTube, Scan, ExternalLink, Activity, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import UploadDocument from './UploadDocument';
 import SectionAIInput from './SectionAIInput';
+import LabOrderBuilder from './LabOrderBuilder';
 
-export default function DiagnosticsTab({ patientId }) {
+export default function DiagnosticsTab({ patientId, patient }) {
   const [aiLoading, setAiLoading] = useState(false);
+  const [showLabOrderBuilder, setShowLabOrderBuilder] = useState(false);
   const queryClient = useQueryClient();
 
   const { data: user } = useQuery({
@@ -107,6 +109,14 @@ Text: ${text || '(see uploaded file)'}`;
 
   return (
     <div className="space-y-4">
+      {showLabOrderBuilder && (
+        <LabOrderBuilder
+          patientId={patientId}
+          patient={patient}
+          onClose={() => setShowLabOrderBuilder(false)}
+          onSaved={() => queryClient.invalidateQueries({ queryKey: ['labOrders'] })}
+        />
+      )}
       <Tabs defaultValue="lab" className="space-y-4">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="lab">
@@ -125,6 +135,14 @@ Text: ${text || '(see uploaded file)'}`;
 
         <TabsContent value="lab" className="space-y-3">
           <div className="flex justify-end gap-2 flex-wrap">
+            <Button
+              onClick={() => setShowLabOrderBuilder(true)}
+              className="bg-teal-600 hover:bg-teal-700"
+              size="sm"
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Request Labs
+            </Button>
             <SectionAIInput
               label="AI: Add from Voice/Upload"
               placeholder="Paste lab report text or dictate findings — AI extracts title, date, notes. For multi-page reports, upload one page at a time."
