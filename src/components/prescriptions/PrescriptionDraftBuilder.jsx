@@ -140,6 +140,13 @@ export default function PrescriptionDraftBuilder({ patientId, patient, editPresc
     checkInteractions(drug.label);
   };
 
+  const invalidateAll = () => {
+    queryClient.invalidateQueries({ queryKey: ['prescriptions'] });
+    queryClient.invalidateQueries({ queryKey: ['prescriptions', patientId] });
+    queryClient.invalidateQueries({ queryKey: ['patientPrescriptions'] });
+    queryClient.invalidateQueries({ queryKey: ['patientPrescriptions', patientId] });
+  };
+
   const saveMutation = useMutation({
     mutationFn: async (status) => {
       const payload = {
@@ -160,6 +167,7 @@ export default function PrescriptionDraftBuilder({ patientId, patient, editPresc
     },
     onSuccess: (_, status) => {
       toast.success(status === 'Verified' ? 'Prescription signed & saved' : 'Draft saved');
+      invalidateAll();
       onSaved();
     },
     onError: () => toast.error('Failed to save prescription'),
@@ -188,6 +196,7 @@ export default function PrescriptionDraftBuilder({ patientId, patient, editPresc
     },
     onSuccess: () => {
       toast.success(`Prescription signed & sent to ${formData.target_pharmacy_name}`);
+      invalidateAll();
       onSaved();
     },
     onError: () => toast.error('Failed to send prescription'),
