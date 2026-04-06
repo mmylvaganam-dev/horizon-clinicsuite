@@ -56,8 +56,8 @@ export default function HomeCareStaff() {
   const queryClient = useQueryClient();
   const { selectedOrgId } = useOrganization();
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('all');
+   const [searchQuery, setSearchQuery] = useState('');
+   const [activeTab, setActiveTab] = useState('nursing_officer');
   const [staffForm, setStaffForm] = useState(emptyForm);
   const [selectedStaffForDocs, setSelectedStaffForDocs] = useState(null);
 
@@ -147,18 +147,14 @@ export default function HomeCareStaff() {
   const nursingCount = staff.filter(s => s.hc_staff_type === 'nursing_officer' || !s.hc_staff_type).length;
   const homeCareCount = staff.filter(s => s.hc_staff_type === 'home_care_worker').length;
 
-  const filteredStaff = staff.filter(s => {
+  const filteredStaff = nursingStaff.filter(s => {
     const fullName = `${s.first_name || ''} ${s.last_name || ''}`.toLowerCase();
     const searchLower = searchQuery.toLowerCase();
-    const matchesSearch =
+    return (
       fullName.includes(searchLower) ||
       s.phone?.includes(searchQuery) ||
-      s.division?.toLowerCase().includes(searchLower);
-    const matchesTab =
-      activeTab === 'all' ||
-      (activeTab === 'nursing_officer' && (s.hc_staff_type === 'nursing_officer' || !s.hc_staff_type)) ||
-      (activeTab === 'home_care_worker' && s.hc_staff_type === 'home_care_worker');
-    return matchesSearch && matchesTab;
+      s.division?.toLowerCase().includes(searchLower)
+    );
   });
 
   const getTypeInfo = (hcStaffType) => {
@@ -167,12 +163,14 @@ export default function HomeCareStaff() {
     return STAFF_TYPES.find(t => t.value === type) || STAFF_TYPES[0];
   };
 
+  const nursingStaff = staff.filter(s => s.hc_staff_type === 'nursing_officer' || !s.hc_staff_type);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Home Care Staff</h1>
-          <p className="text-slate-500 mt-1">Manage nursing officers and home care workers</p>
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Nursing Staff</h1>
+          <p className="text-slate-500 mt-1">Manage nursing officers providing clinical home care services</p>
         </div>
         <Button onClick={() => setShowAddDialog(true)}>
           <Plus className="w-4 h-4 mr-2" />
@@ -184,10 +182,10 @@ export default function HomeCareStaff() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4 flex items-center gap-3">
-            <Users className="w-8 h-8 text-slate-400" />
+            <Stethoscope className="w-8 h-8 text-blue-400" />
             <div>
-              <p className="text-xs text-slate-500">Total Staff</p>
-              <p className="text-2xl font-bold">{staff.length}</p>
+              <p className="text-xs text-slate-500">Total Nurses</p>
+              <p className="text-2xl font-bold">{nursingStaff.length}</p>
             </div>
           </CardContent>
         </Card>
@@ -196,36 +194,17 @@ export default function HomeCareStaff() {
             <Activity className="w-8 h-8 text-emerald-400" />
             <div>
               <p className="text-xs text-slate-500">Active</p>
-              <p className="text-2xl font-bold text-emerald-600">{staff.filter(s => s.status === 'active').length}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-blue-200 bg-blue-50">
-          <CardContent className="p-4 flex items-center gap-3">
-            <Stethoscope className="w-8 h-8 text-blue-400" />
-            <div>
-              <p className="text-xs text-blue-600">Nursing Officers</p>
-              <p className="text-2xl font-bold text-blue-700">{nursingCount}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-purple-200 bg-purple-50">
-          <CardContent className="p-4 flex items-center gap-3">
-            <Heart className="w-8 h-8 text-purple-400" />
-            <div>
-              <p className="text-xs text-purple-600">Home Care Workers</p>
-              <p className="text-2xl font-bold text-purple-700">{homeCareCount}</p>
+              <p className="text-2xl font-bold text-emerald-600">{nursingStaff.filter(s => s.status === 'active').length}</p>
             </div>
           </CardContent>
         </Card>
         {totalExpiryAlerts > 0 && (
-          <Card className="border-orange-300 bg-orange-50 col-span-2 md:col-span-1">
+          <Card className="border-orange-300 bg-orange-50">
             <CardContent className="p-4 flex items-center gap-3">
               <AlertTriangle className="w-8 h-8 text-orange-500" />
               <div>
                 <p className="text-xs text-orange-600">Credential Alerts</p>
                 <p className="text-2xl font-bold text-orange-700">{totalExpiryAlerts}</p>
-                <p className="text-xs text-orange-500">expiring / expired</p>
               </div>
             </CardContent>
           </Card>
@@ -233,14 +212,12 @@ export default function HomeCareStaff() {
       </div>
 
       {/* Filter Tabs + Search */}
-      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="all">All Staff ({staff.length})</TabsTrigger>
-            <TabsTrigger value="nursing_officer">Nursing Officers ({nursingCount})</TabsTrigger>
-            <TabsTrigger value="home_care_worker">Home Care Workers ({homeCareCount})</TabsTrigger>
-          </TabsList>
-        </Tabs>
+       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
+         <Tabs value={activeTab} onValueChange={setActiveTab}>
+           <TabsList>
+             <TabsTrigger value="nursing_officer">Nursing Officers ({nursingCount})</TabsTrigger>
+           </TabsList>
+         </Tabs>
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
