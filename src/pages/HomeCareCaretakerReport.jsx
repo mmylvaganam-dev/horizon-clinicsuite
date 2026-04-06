@@ -13,39 +13,83 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { ClipboardList, Plus, User, Calendar, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
+import HCSearchSelect from '@/components/homecare/HCSearchSelect';
+
+const EMPTY_FORM = {
+  patient_name: '',
+  caretaker_name: '',
+  report_date: new Date().toISOString().split('T')[0],
+  activities_completed: '',
+  patient_condition: 'stable',
+  observations: '',
+  concerns: '',
+};
 
 export default function HomeCareCaretakerReport() {
   const queryClient = useQueryClient();
   const { orgFilter, withOrgId, selectedOrgId } = useOrgFiltered();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState({
-    patient_name: '',
-    caretaker_name: '',
-    report_date: new Date().toISOString().split('T')[0],
-    activities_completed: '',
-    patient_condition: 'stable',
-    observations: '',
-    concerns: '',
-  });
+  const [form, setForm] = useState({ ...EMPTY_FORM });
 
+  // ── Live data ─────────────────────────────────────────────────────────────
   const { data: reports = [], isLoading } = useQuery({
     queryKey: ['caretakerReports', selectedOrgId],
     queryFn: () => base44.entities.HomeCareReport.filter({ ...orgFilter, report_type: 'caretaker' }, '-report_date', 100),
     enabled: !!selectedOrgId,
   });
 
+  // Fetch Home Care patients (HomeCareCase has patient_name_cache)
+  const { data: hcCases = [] } = useQuery({
+    queryKey: ['homeCareCasesForReport', selectedOrgId],
+    queryFn: () => base44.entities.HomeCareCase.filter({}),
+    enabled: !!selectedOrgId,
+  });
+
+  // Fetch EMR patients as well
+  const { data: emrPatients = [] } = useQuery({
+    queryKey: ['patientsForHCReport', selectedOrgId],
+    queryFn: () => base44.entities.Patient.filter(selectedOrgId ? { organization_id: selectedOrgId } : {}),
+    enabled: !!selectedOrgId,
+  });
+
+  // Fetch home care staff (caretakers / nursing officers)
+  const { data: staffList = [] } = useQuery({
+    queryKey: ['hcStaffForReport', selectedOrgId],
+    queryFn: () => base44.entities.StaffProfile.filter({ organization_id: selectedOrgId }),
+    enabled: !!selectedOrgId,
+  });
+
+  // ── Build option lists ─────────────────────────────────────────────────────
+  const patientOptions = [
+    ...hcCases.filter(c => c.patient_name_cache).map(c => ({ label: c.patient_name_cache, sub: 'HC Case' })),
+    ...emrPatients.map(p => ({ label: `${p.first_name} ${p.last_name}`, sub: p.phn || p.mrn || '' })),
+  ].reduce((acc, o) => { // deduplicate by label
+    if (!acc.find(x => x.label === o.label)) acc.push(o);
+    return acc;
+  }, []);
+
+  const caretakerOptions = staffList
+    .filter(s => ['home_care_worker', 'nursing_officer'].includes(s.hc_staff_type) || ['NURSE', 'OTHER'].includes(s.staff_type))
+    .map(s => ({ label: `${s.first_name} ${s.last_name}`, sub: s.hc_staff_type || s.staff_type }));
+
+  // ── Mutation ───────────────────────────────────────────────────────────────
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.HomeCareReport.create(withOrgId({ ...data, report_type: 'caretaker' })),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['caretakerReports'] });
       setDialogOpen(false);
-      setForm({ patient_name: '', caretaker_name: '', report_date: new Date().toISOString().split('T')[0], activities_completed: '', patient_condition: 'stable', observations: '', concerns: '' });
+      setForm({ ...EMPTY_FORM });
       toast.success('Caretaker report submitted');
     },
-    onError: () => toast.error('Failed to submit report'),
+    onError: (e) => toast.error(e?.message || 'Failed to submit report'),
   });
 
-  const conditionColors = { stable: 'bg-green-100 text-green-700', improving: 'bg-teal-100 text-teal-700', declining: 'bg-amber-100 text-amber-700', critical: 'bg-red-100 text-red-700' };
+  const conditionColors = {
+    stable: 'bg-green-100 text-green-700',
+    improving: 'bg-teal-100 text-teal-700',
+    declining: 'bg-amber-100 text-amber-700',
+    critical: 'bg-red-100 text-red-700',
+  };
 
   return (
     <div className="space-y-6">
@@ -55,8 +99,7 @@ export default function HomeCareCaretakerReport() {
           <p className="text-slate-500 text-sm mt-1">Daily care activity logs submitted by caretakers</p>
         </div>
         <Button onClick={() => setDialogOpen(true)} className="bg-teal-600 hover:bg-teal-700">
-          <Plus className="w-4 h-4 mr-2" />
-          New Report
+          <Plus className="w-4 h-4 mr-2" />New Report
         </Button>
       </div>
 
@@ -84,7 +127,7 @@ export default function HomeCareCaretakerReport() {
                       <p className="text-sm text-slate-500">Caretaker: {r.caretaker_name}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap justify-end">
                     {r.patient_condition && <Badge className={conditionColors[r.patient_condition] || 'bg-slate-100 text-slate-700'}>{r.patient_condition}</Badge>}
                     <span className="text-xs text-slate-400 flex items-center gap-1"><Calendar className="w-3 h-3" />{r.report_date ? format(new Date(r.report_date), 'dd MMM yyyy') : ''}</span>
                   </div>
@@ -99,15 +142,34 @@ export default function HomeCareCaretakerReport() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Submit Caretaker Daily Report</DialogTitle></DialogHeader>
           <div className="space-y-4 mt-2">
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Patient Name</Label><Input value={form.patient_name} onChange={e => setForm(p => ({ ...p, patient_name: e.target.value }))} placeholder="Patient full name" /></div>
-              <div><Label>Caretaker Name</Label><Input value={form.caretaker_name} onChange={e => setForm(p => ({ ...p, caretaker_name: e.target.value }))} placeholder="Your name" /></div>
+              <div>
+                <Label>Patient Name</Label>
+                <HCSearchSelect
+                  value={form.patient_name}
+                  onChange={v => setForm(p => ({ ...p, patient_name: v }))}
+                  options={patientOptions}
+                  placeholder="Search patient..."
+                />
+              </div>
+              <div>
+                <Label>Caretaker Name</Label>
+                <HCSearchSelect
+                  value={form.caretaker_name}
+                  onChange={v => setForm(p => ({ ...p, caretaker_name: v }))}
+                  options={caretakerOptions}
+                  placeholder="Search caretaker..."
+                />
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Report Date</Label><Input type="date" value={form.report_date} onChange={e => setForm(p => ({ ...p, report_date: e.target.value }))} /></div>
+              <div>
+                <Label>Report Date</Label>
+                <Input type="date" value={form.report_date} onChange={e => setForm(p => ({ ...p, report_date: e.target.value }))} />
+              </div>
               <div>
                 <Label>Patient Condition</Label>
                 <Select value={form.patient_condition} onValueChange={v => setForm(p => ({ ...p, patient_condition: v }))}>

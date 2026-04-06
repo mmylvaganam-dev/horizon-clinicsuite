@@ -13,42 +13,84 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Shield, Plus, Calendar, CheckCircle, Star } from 'lucide-react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
+import HCSearchSelect from '@/components/homecare/HCSearchSelect';
+
+const EMPTY_FORM = {
+  patient_name: '',
+  supervisor_name: '',
+  staff_member_name: '',
+  report_date: new Date().toISOString().split('T')[0],
+  care_quality_rating: '4',
+  staff_performance: 'satisfactory',
+  compliance_issues: '',
+  action_items: '',
+  notes: '',
+  sign_off: false,
+};
 
 export default function HomeCareSupervisorReport() {
   const queryClient = useQueryClient();
   const { orgFilter, withOrgId, selectedOrgId } = useOrgFiltered();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [form, setForm] = useState({
-    patient_name: '',
-    supervisor_name: '',
-    staff_member_name: '',
-    report_date: new Date().toISOString().split('T')[0],
-    care_quality_rating: '4',
-    staff_performance: 'satisfactory',
-    compliance_issues: '',
-    action_items: '',
-    notes: '',
-    sign_off: false,
-  });
+  const [form, setForm] = useState({ ...EMPTY_FORM });
 
+  // ── Live data ─────────────────────────────────────────────────────────────
   const { data: reports = [], isLoading } = useQuery({
     queryKey: ['supervisorReports', selectedOrgId],
     queryFn: () => base44.entities.HomeCareReport.filter({ ...orgFilter, report_type: 'supervisor' }, '-report_date', 100),
     enabled: !!selectedOrgId,
   });
 
+  const { data: hcCases = [] } = useQuery({
+    queryKey: ['homeCareCasesForReport', selectedOrgId],
+    queryFn: () => base44.entities.HomeCareCase.filter({}),
+    enabled: !!selectedOrgId,
+  });
+
+  const { data: emrPatients = [] } = useQuery({
+    queryKey: ['patientsForHCReport', selectedOrgId],
+    queryFn: () => base44.entities.Patient.filter(selectedOrgId ? { organization_id: selectedOrgId } : {}),
+    enabled: !!selectedOrgId,
+  });
+
+  const { data: staffList = [] } = useQuery({
+    queryKey: ['hcStaffForReport', selectedOrgId],
+    queryFn: () => base44.entities.StaffProfile.filter({ organization_id: selectedOrgId }),
+    enabled: !!selectedOrgId,
+  });
+
+  // ── Build option lists ─────────────────────────────────────────────────────
+  const patientOptions = [
+    ...hcCases.filter(c => c.patient_name_cache).map(c => ({ label: c.patient_name_cache, sub: 'HC Case' })),
+    ...emrPatients.map(p => ({ label: `${p.first_name} ${p.last_name}`, sub: p.phn || p.mrn || '' })),
+  ].reduce((acc, o) => {
+    if (!acc.find(x => x.label === o.label)) acc.push(o);
+    return acc;
+  }, []);
+
+  const staffOptions = staffList.map(s => ({
+    label: `${s.first_name} ${s.last_name}`,
+    sub: s.hc_staff_type || s.staff_type,
+  }));
+
+  // ── Mutation ───────────────────────────────────────────────────────────────
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.HomeCareReport.create(withOrgId({ ...data, report_type: 'supervisor' })),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['supervisorReports'] });
       setDialogOpen(false);
-      setForm({ patient_name: '', supervisor_name: '', staff_member_name: '', report_date: new Date().toISOString().split('T')[0], care_quality_rating: '4', staff_performance: 'satisfactory', compliance_issues: '', action_items: '', notes: '', sign_off: false });
+      setForm({ ...EMPTY_FORM });
       toast.success('Supervisor report submitted');
     },
-    onError: () => toast.error('Failed to submit report'),
+    onError: (e) => toast.error(e?.message || 'Failed to submit report'),
   });
 
-  const perfColors = { excellent: 'bg-green-100 text-green-700', satisfactory: 'bg-teal-100 text-teal-700', 'needs-improvement': 'bg-amber-100 text-amber-700', unsatisfactory: 'bg-red-100 text-red-700' };
+  const perfColors = {
+    excellent: 'bg-green-100 text-green-700',
+    satisfactory: 'bg-teal-100 text-teal-700',
+    'needs-improvement': 'bg-amber-100 text-amber-700',
+    unsatisfactory: 'bg-red-100 text-red-700',
+  };
 
   return (
     <div className="space-y-6">
@@ -58,8 +100,7 @@ export default function HomeCareSupervisorReport() {
           <p className="text-slate-500 text-sm mt-1">Care quality and staff performance sign-off by supervisors</p>
         </div>
         <Button onClick={() => setDialogOpen(true)} className="bg-teal-600 hover:bg-teal-700">
-          <Plus className="w-4 h-4 mr-2" />
-          New Report
+          <Plus className="w-4 h-4 mr-2" />New Report
         </Button>
       </div>
 
@@ -106,16 +147,43 @@ export default function HomeCareSupervisorReport() {
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>Submit Supervisor Report</DialogTitle></DialogHeader>
           <div className="space-y-4 mt-2">
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Patient Name</Label><Input value={form.patient_name} onChange={e => setForm(p => ({ ...p, patient_name: e.target.value }))} placeholder="Patient full name" /></div>
-              <div><Label>Supervisor Name</Label><Input value={form.supervisor_name} onChange={e => setForm(p => ({ ...p, supervisor_name: e.target.value }))} placeholder="Your name" /></div>
+              <div>
+                <Label>Patient Name</Label>
+                <HCSearchSelect
+                  value={form.patient_name}
+                  onChange={v => setForm(p => ({ ...p, patient_name: v }))}
+                  options={patientOptions}
+                  placeholder="Search patient..."
+                />
+              </div>
+              <div>
+                <Label>Supervisor Name</Label>
+                <HCSearchSelect
+                  value={form.supervisor_name}
+                  onChange={v => setForm(p => ({ ...p, supervisor_name: v }))}
+                  options={staffOptions}
+                  placeholder="Search supervisor..."
+                />
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div><Label>Staff Member Reviewed</Label><Input value={form.staff_member_name} onChange={e => setForm(p => ({ ...p, staff_member_name: e.target.value }))} placeholder="Staff name" /></div>
-              <div><Label>Report Date</Label><Input type="date" value={form.report_date} onChange={e => setForm(p => ({ ...p, report_date: e.target.value }))} /></div>
+              <div>
+                <Label>Staff Member Reviewed</Label>
+                <HCSearchSelect
+                  value={form.staff_member_name}
+                  onChange={v => setForm(p => ({ ...p, staff_member_name: v }))}
+                  options={staffOptions}
+                  placeholder="Search staff..."
+                />
+              </div>
+              <div>
+                <Label>Report Date</Label>
+                <Input type="date" value={form.report_date} onChange={e => setForm(p => ({ ...p, report_date: e.target.value }))} />
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
