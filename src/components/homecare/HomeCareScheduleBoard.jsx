@@ -87,7 +87,7 @@ export default function HomeCareScheduleBoard({ patients, staff, schedules, sele
 
   // Drag-to-assign new patient
   const [pendingAssign, setPendingAssign] = useState(null);
-  const [assignForm, setAssignForm] = useState({ time_from: '08:00', time_to: '10:00', service_type: 'nursing', notes: '' });
+  const [assignForm, setAssignForm] = useState({ start_datetime: '', end_datetime: '', service_type: 'nursing', notes: '' });
   const [conflictInfo, setConflictInfo] = useState(null);
 
   // Edit existing schedule
@@ -154,7 +154,12 @@ export default function HomeCareScheduleBoard({ patients, staff, schedules, sele
       const patient = patients.find(p => p.id === draggableId);
       if (!patient || !staffMember) return;
       setPendingAssign({ patient, staffMember });
-      setAssignForm({ time_from: '08:00', time_to: '10:00', service_type: 'nursing', notes: '' });
+      setAssignForm({
+        start_datetime: `${selectedDate}T08:00`,
+        end_datetime: `${selectedDate}T10:00`,
+        service_type: 'nursing',
+        notes: ''
+      });
       setConflictInfo(null);
       return;
     }
@@ -170,29 +175,42 @@ export default function HomeCareScheduleBoard({ patients, staff, schedules, sele
     }
   }
 
-  function handleTimeChange(field, value) {
+  function handleAssignDateTimeChange(field, value) {
     const updated = { ...assignForm, [field]: value };
     setAssignForm(updated);
-    if (pendingAssign && updated.time_from && updated.time_to) {
-      const conflicts = checkConflicts(pendingAssign.staffMember.id, updated.time_from, updated.time_to);
+    if (pendingAssign && updated.start_datetime && updated.end_datetime) {
+      const fromTime = updated.start_datetime.split('T')[1]?.slice(0, 5) || '08:00';
+      const toTime = updated.end_datetime.split('T')[1]?.slice(0, 5) || '10:00';
+      const conflicts = checkConflicts(pendingAssign.staffMember.id, fromTime, toTime);
       setConflictInfo(conflicts.length > 0 ? conflicts : null);
     }
   }
 
   function handleConfirmAssign() {
     if (!pendingAssign) return;
+    if (!assignForm.start_datetime || !assignForm.end_datetime) {
+      toast.error('Please set start and end date/time');
+      return;
+    }
+    if (new Date(assignForm.end_datetime) <= new Date(assignForm.start_datetime)) {
+      toast.error('End time must be after start time');
+      return;
+    }
     if (conflictInfo && conflictInfo.length > 0) {
       toast.error('Please resolve the time conflict before saving');
       return;
     }
+    const schedDate = assignForm.start_datetime.split('T')[0];
+    const startTime = assignForm.start_datetime.split('T')[1]?.slice(0, 5) || '08:00';
+    const endTime = assignForm.end_datetime.split('T')[1]?.slice(0, 5) || '10:00';
     createMutation.mutate({
       patient_id: pendingAssign.patient.id,
       staff_id: pendingAssign.staffMember.id,
-      schedule_date: selectedDate,
-      time_from: assignForm.time_from,
-      time_to: assignForm.time_to,
-      start_datetime: `${selectedDate}T${assignForm.time_from}`,
-      end_datetime: `${selectedDate}T${assignForm.time_to}`,
+      schedule_date: schedDate,
+      time_from: startTime,
+      time_to: endTime,
+      start_datetime: assignForm.start_datetime,
+      end_datetime: assignForm.end_datetime,
       service_type: assignForm.service_type,
       notes: assignForm.notes,
       status: 'scheduled',
@@ -214,13 +232,22 @@ export default function HomeCareScheduleBoard({ patients, staff, schedules, sele
 
   function handleSaveEdit() {
     if (!editingSchedule) return;
-    const startDate = editForm.start_datetime?.split('T')[0] || editingSchedule.schedule_date;
-    const startTime = editForm.start_datetime?.split('T')[1]?.slice(0, 5) || editForm.time_from;
-    const endTime = editForm.end_datetime?.split('T')[1]?.slice(0, 5) || editForm.time_to;
+    if (!editForm.start_datetime || !editForm.end_datetime) {
+      toast.error('Please set start and end date/time');
+      return;
+    }
+    if (new Date(editForm.end_datetime) <= new Date(editForm.start_datetime)) {
+      toast.error('End time must be after start time');
+      return;
+    }
+    const startDate = editForm.start_datetime.split('T')[0];
+    const startTime = editForm.start_datetime.split('T')[1]?.slice(0, 5) || '08:00';
+    const endTime = editForm.end_datetime.split('T')[1]?.slice(0, 5) || '10:00';
     updateMutation.mutate({
       id: editingSchedule.id,
       data: {
         ...editForm,
+        staff_id: editingSchedule.staff_id,
         schedule_date: startDate,
         time_from: startTime,
         time_to: endTime,
@@ -409,23 +436,37 @@ export default function HomeCareScheduleBoard({ patients, staff, schedules, sele
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>Shift Start *</Label>
-                  <Input type="datetime-local"
-                    value={`${selectedDate}T${assignForm.time_from}`}
-                    onChange={e => {
-                      const t = e.target.value.split('T')[1]?.slice(0,5) || '08:00';
-                      handleTimeChange('time_from', t);
-                    }} />
+                  <Input
+                    type="datetime-local"
+                    value={assignForm.start_datetime}
+                    onChange={e => handleAssignDateTimeChange('start_datetime', e.target.value)}
+                  />
                 </div>
                 <div>
                   <Label>Shift End *</Label>
-                  <Input type="datetime-local"
-                    value={`${selectedDate}T${assignForm.time_to}`}
-                    onChange={e => {
-                      const t = e.target.value.split('T')[1]?.slice(0,5) || '10:00';
-                      handleTimeChange('time_to', t);
-                    }} />
+                  <Input
+                    type="datetime-local"
+                    value={assignForm.end_datetime}
+                    onChange={e => handleAssignDateTimeChange('end_datetime', e.target.value)}
+                  />
                 </div>
               </div>
+              {assignForm.start_datetime && assignForm.end_datetime && (() => {
+                const diffMs = new Date(assignForm.end_datetime) - new Date(assignForm.start_datetime);
+                if (diffMs > 0) {
+                  const days = Math.floor(diffMs / 86400000);
+                  const hrs = Math.floor((diffMs % 86400000) / 3600000);
+                  const mins = Math.floor((diffMs % 3600000) / 60000);
+                  return (
+                    <p className="text-xs text-teal-700 bg-teal-50 border border-teal-200 rounded px-3 py-1">
+                      Duration: {days > 0 ? `${days}d ` : ''}{hrs > 0 ? `${hrs}h ` : ''}{mins > 0 ? `${mins}m` : ''}
+                    </p>
+                  );
+                } else if (diffMs <= 0) {
+                  return <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded px-3 py-1">⚠ End time must be after start time</p>;
+                }
+                return null;
+              })()}
               {conflictInfo && conflictInfo.length > 0 && (
                 <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
                   <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
@@ -478,15 +519,37 @@ export default function HomeCareScheduleBoard({ patients, staff, schedules, sele
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label>Shift Start *</Label>
-                  <Input type="datetime-local" value={editForm.start_datetime || ''}
-                    onChange={e => setEditForm({...editForm, start_datetime: e.target.value, time_from: e.target.value.split('T')[1]?.slice(0,5) || editForm.time_from})} />
+                  <Input
+                    type="datetime-local"
+                    value={editForm.start_datetime || ''}
+                    onChange={e => setEditForm({ ...editForm, start_datetime: e.target.value })}
+                  />
                 </div>
                 <div>
                   <Label>Shift End *</Label>
-                  <Input type="datetime-local" value={editForm.end_datetime || ''}
-                    onChange={e => setEditForm({...editForm, end_datetime: e.target.value, time_to: e.target.value.split('T')[1]?.slice(0,5) || editForm.time_to})} />
+                  <Input
+                    type="datetime-local"
+                    value={editForm.end_datetime || ''}
+                    onChange={e => setEditForm({ ...editForm, end_datetime: e.target.value })}
+                  />
                 </div>
               </div>
+              {editForm.start_datetime && editForm.end_datetime && (() => {
+                const diffMs = new Date(editForm.end_datetime) - new Date(editForm.start_datetime);
+                if (diffMs > 0) {
+                  const days = Math.floor(diffMs / 86400000);
+                  const hrs = Math.floor((diffMs % 86400000) / 3600000);
+                  const mins = Math.floor((diffMs % 3600000) / 60000);
+                  return (
+                    <p className="text-xs text-teal-700 bg-teal-50 border border-teal-200 rounded px-3 py-1">
+                      Duration: {days > 0 ? `${days}d ` : ''}{hrs > 0 ? `${hrs}h ` : ''}{mins > 0 ? `${mins}m` : ''}
+                    </p>
+                  );
+                } else if (diffMs <= 0) {
+                  return <p className="text-xs text-red-600 bg-red-50 border border-red-200 rounded px-3 py-1">⚠ End time must be after start time</p>;
+                }
+                return null;
+              })()}
 
               <div>
                 <Label>Reassign Staff</Label>
