@@ -28,6 +28,7 @@ import PatientCaseChat from '../components/emr/PatientCaseChat';
 import PatientForm from '../components/patients/PatientForm';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 import { HistorySection } from '../components/emr/HistoryEditor';
+import ClinicalDocumentLauncher from '@/components/clinical/ClinicalDocumentLauncher';
 
 export default function EMR() {
   const navigate = useNavigate();
@@ -232,7 +233,8 @@ export default function EMR() {
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
+                  <ClinicalDocumentLauncher patientId={selectedPatient.id} />
                   <Button variant="secondary" size="sm" onClick={() => setShowClinicalSummary(true)}>
                     <ClipboardList className="w-4 h-4 mr-2" />
                     Clinical Summary

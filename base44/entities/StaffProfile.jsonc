@@ -55,6 +55,10 @@
       "type": "string",
       "description": "Registration number"
     },
+    "specialization": {
+      "type": "string",
+      "description": "Area of specialization / department"
+    },
     "email": {
       "type": "string",
       "description": "Email address"
@@ -93,6 +97,18 @@
     "notes": {
       "type": "string",
       "description": "Additional notes"
+    },
+    "e_signature_url": {
+      "type": "string",
+      "description": "URL of doctor's e-signature image (uploaded via file upload)"
+    },
+    "seal_url": {
+      "type": "string",
+      "description": "URL of doctor's official seal/stamp image"
+    },
+    "profile_photo_url": {
+      "type": "string",
+      "description": "Doctor profile photo URL"
     }
   },
   "required": [

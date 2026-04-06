@@ -12,6 +12,7 @@ import { Users, Plus, Search, Upload, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
+import DoctorSignatureUpload from '@/components/clinical/DoctorSignatureUpload';
 
 export default function StaffDirectory() {
   const queryClient = useQueryClient();
@@ -124,15 +125,19 @@ export default function StaffDirectory() {
       credentials_text: '',
       registration_body: '',
       registration_number: '',
+      specialization: '',
       email: '',
       phone: '',
       home_address: '',
       status: 'active',
       start_date: '',
-      notes: ''
+      notes: '',
+      e_signature_url: '',
+      seal_url: '',
     });
     setEditingStaff(null);
   };
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -152,12 +157,15 @@ export default function StaffDirectory() {
       credentials_text: member.credentials_text || '',
       registration_body: member.registration_body || '',
       registration_number: member.registration_number || '',
+      specialization: member.specialization || '',
       email: member.email || '',
       phone: member.phone || '',
       home_address: member.home_address || '',
       status: member.status,
       start_date: member.start_date || '',
-      notes: member.notes || ''
+      notes: member.notes || '',
+      e_signature_url: member.e_signature_url || '',
+      seal_url: member.seal_url || '',
     });
     setShowForm(true);
   };
@@ -375,6 +383,15 @@ export default function StaffDirectory() {
               />
             </div>
 
+            <div>
+              <label className="text-sm font-medium">Specialization / Department</label>
+              <Input
+                placeholder="e.g. Cardiology, Internal Medicine"
+                value={formData.specialization}
+                onChange={(e) => setFormData({...formData, specialization: e.target.value})}
+              />
+            </div>
+
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium">Email</label>
@@ -431,6 +448,25 @@ export default function StaffDirectory() {
                 onChange={(e) => setFormData({...formData, notes: e.target.value})}
               />
             </div>
+
+            {/* E-Signature & Seal — shown for prescribing staff */}
+            {['PHYSICIAN_GP','CONSULT_SPECIALIST','RADIOLOGIST','NURSE'].includes(formData.staff_type) && (
+              <div className="border-t border-blue-100 pt-4 space-y-4">
+                <p className="text-sm font-semibold text-slate-700">Clinical Document Signatures</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <DoctorSignatureUpload
+                    label="E-Signature"
+                    value={formData.e_signature_url}
+                    onChange={url => setFormData({...formData, e_signature_url: url})}
+                  />
+                  <DoctorSignatureUpload
+                    label="Official Seal / Stamp"
+                    value={formData.seal_url}
+                    onChange={url => setFormData({...formData, seal_url: url})}
+                  />
+                </div>
+              </div>
+            )}
 
             <div className="flex gap-2 justify-end pt-4 border-t border-blue-100">
               <Button type="button" variant="outline" onClick={() => { setShowForm(false); resetForm(); }} className="border-slate-300">
