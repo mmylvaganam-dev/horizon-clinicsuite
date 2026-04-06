@@ -1,0 +1,97 @@
+{
+  "name": "CreditMonthlyInvoice",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "institution_name": {
+      "type": "string",
+      "description": "Institution name"
+    },
+    "institution_email": {
+      "type": "string",
+      "description": "Institution contact email"
+    },
+    "invoice_number": {
+      "type": "string",
+      "description": "e.g. CRI-2025-04-HOSPITAL-NAME"
+    },
+    "period_month": {
+      "type": "string",
+      "description": "Billing period yyyy-MM e.g. 2025-04"
+    },
+    "period_label": {
+      "type": "string",
+      "description": "Display label e.g. April 2025"
+    },
+    "sales_count": {
+      "type": "number",
+      "description": "Number of credit sales in this period"
+    },
+    "subtotal": {
+      "type": "number",
+      "description": "Total sales amount for the period"
+    },
+    "payments_received": {
+      "type": "number",
+      "description": "Total payments received during the period"
+    },
+    "opening_balance": {
+      "type": "number",
+      "description": "Balance carried forward from previous period"
+    },
+    "closing_balance": {
+      "type": "number",
+      "description": "Balance after this period (outstanding)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "issued",
+        "paid",
+        "void"
+      ],
+      "default": "draft",
+      "description": "Invoice status"
+    },
+    "email_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether invoice was emailed to institution"
+    },
+    "email_sent_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the email was sent"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Payment due date"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "generated_by": {
+      "type": "string",
+      "description": "Email of user who generated this invoice"
+    },
+    "sale_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs of PharmacySaleHeader records included"
+    }
+  },
+  "required": [
+    "organization_id",
+    "institution_name",
+    "invoice_number",
+    "period_month"
+  ]
+}

@@ -34,6 +34,7 @@ import {
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import toast from 'react-hot-toast';
 import PageInfoTooltip from '@/components/shared/PageInfoTooltip';
+import CreditMonthlyInvoicesPanel from '@/components/credit/CreditMonthlyInvoicesPanel';
 
 export default function CreditCustomerManagement() {
   const { orgFilter, selectedOrgId } = useOrgFiltered();
@@ -649,11 +650,12 @@ export default function CreditCustomerManagement() {
 
                 <CardContent className="pt-4">
                   <Tabs defaultValue="summary" className="w-full">
-                    <TabsList className="grid w-full grid-cols-4">
+                    <TabsList className="grid w-full grid-cols-5">
                       <TabsTrigger value="summary">Summary</TabsTrigger>
-                      <TabsTrigger value="invoices">Invoices</TabsTrigger>
+                      <TabsTrigger value="invoices">Sales</TabsTrigger>
                       <TabsTrigger value="payments">Payments</TabsTrigger>
                       <TabsTrigger value="orders">Orders</TabsTrigger>
+                      <TabsTrigger value="monthly">Monthly</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="summary" className="space-y-3 mt-4">
@@ -775,6 +777,16 @@ export default function CreditCustomerManagement() {
                           <p className="text-center text-slate-500 text-sm py-4">No orders yet. Click "New Order" to create one.</p>
                         )}
                       </div>
+                    </TabsContent>
+
+                    <TabsContent value="monthly" className="mt-4">
+                      <CreditMonthlyInvoicesPanel
+                        customer={customer}
+                        orgId={selectedOrgId}
+                        creditPayments={creditPayments}
+                        creditSales={creditSales}
+                        selectedMonth={selectedMonth}
+                      />
                     </TabsContent>
                   </Tabs>
 
