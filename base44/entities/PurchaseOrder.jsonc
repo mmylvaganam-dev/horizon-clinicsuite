@@ -1,0 +1,80 @@
+{
+  "name": "PurchaseOrder",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Delivery location"
+    },
+    "po_number": {
+      "type": "string",
+      "description": "Purchase order number"
+    },
+    "supplier_name": {
+      "type": "string",
+      "description": "Supplier name (denormalized)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "sent",
+        "approved",
+        "rejected",
+        "received",
+        "closed"
+      ],
+      "default": "draft",
+      "description": "Purchase order status"
+    },
+    "rejection_reason": {
+      "type": "string",
+      "description": "Reason for rejection (if rejected)"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "description": "Email of staff who approved/rejected"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the order was reviewed"
+    },
+    "order_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Order date"
+    },
+    "expected_delivery": {
+      "type": "string",
+      "format": "date",
+      "description": "Expected delivery date"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Order notes"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Created timestamp"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who created PO"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of creator"
+    }
+  },
+  "required": [
+    "supplier_name",
+    "created_at",
+    "created_by"
+  ]
+}

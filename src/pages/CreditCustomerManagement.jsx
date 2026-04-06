@@ -26,7 +26,10 @@ import {
   ShoppingCart,
   PackageCheck,
   ClipboardList,
-  Link2
+  Link2,
+  ThumbsUp,
+  ThumbsDown,
+  X
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -50,6 +53,9 @@ export default function CreditCustomerManagement() {
   const [itemSearch, setItemSearch] = useState('');
   const [showOrdersListDialog, setShowOrdersListDialog] = useState(false);
   const [ordersListCustomer, setOrdersListCustomer] = useState(null);
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [rejectingPO, setRejectingPO] = useState(null);
+  const [rejectionReason, setRejectionReason] = useState('');
 
   // Fetch all credit sales - INCLUDING institution-based sales
   const { data: creditSales = [] } = useQuery({
@@ -276,6 +282,64 @@ export default function CreditCustomerManagement() {
   };
 
   const removeOrderLine = (id) => setOrderLines(prev => prev.filter(l => l.id !== id));
+
+  // Approve / Reject PO mutations
+  const approvePOMutation = useMutation({
+    mutationFn: async (po) => {
+      const user = await base44.auth.me();
+      await base44.entities.PurchaseOrder.update(po.id, {
+        status: 'approved',
+        reviewed_by: user?.email || '',
+        reviewed_at: new Date().toISOString(),
+      });
+      // Notify institution by email if contact_email is available
+      const institutionName = po.supplier_name;
+      const inst = institutions.find(i => i.institution_name === institutionName);
+      if (inst?.contact_email) {
+        await base44.integrations.Core.SendEmail({
+          to: inst.contact_email,
+          subject: `Order ${po.po_number} — Approved`,
+          body: `Dear ${inst.contact_person || inst.institution_name},\n\nYour credit purchase order <strong>${po.po_number}</strong> has been <strong>approved</strong> by our pharmacy team.\n\nYour order is now being processed and will be ready as per the requested delivery date.\n\nThank you for your business.\n\nRegards,\nPharmacy Team`,
+        });
+      }
+      return po;
+    },
+    onSuccess: (po) => {
+      queryClient.invalidateQueries({ queryKey: ['buyerPurchaseOrders'] });
+      toast.success(`Order ${po.po_number} approved`);
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const rejectPOMutation = useMutation({
+    mutationFn: async ({ po, reason }) => {
+      const user = await base44.auth.me();
+      await base44.entities.PurchaseOrder.update(po.id, {
+        status: 'rejected',
+        rejection_reason: reason,
+        reviewed_by: user?.email || '',
+        reviewed_at: new Date().toISOString(),
+      });
+      const institutionName = po.supplier_name;
+      const inst = institutions.find(i => i.institution_name === institutionName);
+      if (inst?.contact_email) {
+        await base44.integrations.Core.SendEmail({
+          to: inst.contact_email,
+          subject: `Order ${po.po_number} — Rejected`,
+          body: `Dear ${inst.contact_person || inst.institution_name},\n\nUnfortunately, your credit purchase order <strong>${po.po_number}</strong> has been <strong>rejected</strong>.\n\n<strong>Reason:</strong> ${reason || 'Not specified'}\n\nPlease contact us if you have any questions.\n\nRegards,\nPharmacy Team`,
+        });
+      }
+      return po;
+    },
+    onSuccess: (po) => {
+      queryClient.invalidateQueries({ queryKey: ['buyerPurchaseOrders'] });
+      setShowRejectDialog(false);
+      setRejectingPO(null);
+      setRejectionReason('');
+      toast.success(`Order ${po.po_number} rejected`);
+    },
+    onError: (err) => toast.error(err.message),
+  });
 
   const handleSubmitOrder = () => {
     if (!orderLines.length || orderLines.some(l => !l.name)) {
@@ -653,23 +717,57 @@ export default function CreditCustomerManagement() {
                           New Order
                         </Button>
                       </div>
-                      <div className="space-y-2 max-h-52 overflow-y-auto">
+                      <div className="space-y-2 max-h-64 overflow-y-auto">
                         {buyerPOs
                           .filter(po => po.supplier_name === customer.institution && po.notes?.includes('CREDIT_BUYER_ORDER'))
+                          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
                           .map(po => {
                             const lines = allPOLines.filter(l => l.purchase_order_id === po.id);
                             const total = lines.reduce((s, l) => s + (l.line_total || 0), 0);
-                            const statusColors = { draft: 'bg-slate-100 text-slate-700', sent: 'bg-blue-100 text-blue-700', received: 'bg-emerald-100 text-emerald-700', closed: 'bg-slate-100 text-slate-500' };
+                            const statusColors = {
+                              draft: 'bg-slate-100 text-slate-700',
+                              sent: 'bg-blue-100 text-blue-700',
+                              approved: 'bg-emerald-100 text-emerald-700',
+                              rejected: 'bg-red-100 text-red-700',
+                              received: 'bg-teal-100 text-teal-700',
+                              closed: 'bg-slate-100 text-slate-500',
+                            };
+                            const isPending = po.status === 'draft' || po.status === 'sent';
                             return (
-                              <div key={po.id} className="flex items-center justify-between p-3 bg-slate-50 rounded border">
-                                <div>
-                                  <p className="font-medium text-sm font-mono">{po.po_number}</p>
-                                  <p className="text-xs text-slate-500">{format(new Date(po.order_date || po.created_at), 'd MMM yyyy')} • {lines.length} item{lines.length !== 1 ? 's' : ''}</p>
+                              <div key={po.id} className="p-3 bg-slate-50 rounded border space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <p className="font-medium text-sm font-mono">{po.po_number}</p>
+                                    <p className="text-xs text-slate-500">{format(new Date(po.order_date || po.created_at), 'd MMM yyyy')} • {lines.length} item{lines.length !== 1 ? 's' : ''}</p>
+                                    {po.rejection_reason && (
+                                      <p className="text-xs text-red-600 mt-0.5">Reason: {po.rejection_reason}</p>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <Badge className={statusColors[po.status] || 'bg-slate-100 text-slate-700'}>{po.status}</Badge>
+                                    <span className="font-bold text-sm">Rs. {total.toLocaleString('en-LK', { minimumFractionDigits: 2 })}</span>
+                                  </div>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                  <Badge className={statusColors[po.status] || 'bg-slate-100 text-slate-700'}>{po.status}</Badge>
-                                  <span className="font-bold text-sm">Rs. {total.toLocaleString('en-LK', { minimumFractionDigits: 2 })}</span>
-                                </div>
+                                {isPending && (
+                                  <div className="flex gap-2 pt-1">
+                                    <Button
+                                      size="sm"
+                                      className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white h-7 text-xs"
+                                      disabled={approvePOMutation.isPending}
+                                      onClick={() => approvePOMutation.mutate(po)}
+                                    >
+                                      <ThumbsUp className="w-3 h-3 mr-1" /> Approve
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="flex-1 border-red-300 text-red-700 hover:bg-red-50 h-7 text-xs"
+                                      onClick={() => { setRejectingPO(po); setRejectionReason(''); setShowRejectDialog(true); }}
+                                    >
+                                      <ThumbsDown className="w-3 h-3 mr-1" /> Reject
+                                    </Button>
+                                  </div>
+                                )}
                               </div>
                             );
                           })}
@@ -834,6 +932,40 @@ export default function CreditCustomerManagement() {
                 disabled={createBuyerPOMutation.isPending || orderLines.length === 0}
               >
                 {createBuyerPOMutation.isPending ? 'Creating...' : 'Create Order'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Rejection Reason Dialog */}
+      <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-700">
+              <ThumbsDown className="w-5 h-5" />
+              Reject Order — {rejectingPO?.po_number}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div>
+              <Label>Reason for Rejection</Label>
+              <Textarea
+                value={rejectionReason}
+                onChange={e => setRejectionReason(e.target.value)}
+                placeholder="e.g. Items out of stock, pricing issue, order incomplete..."
+                rows={3}
+                className="mt-1"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={() => setShowRejectDialog(false)}>Cancel</Button>
+              <Button
+                className="flex-1 bg-red-600 hover:bg-red-700"
+                disabled={rejectPOMutation.isPending}
+                onClick={() => rejectPOMutation.mutate({ po: rejectingPO, reason: rejectionReason })}
+              >
+                {rejectPOMutation.isPending ? 'Rejecting...' : 'Confirm Rejection'}
               </Button>
             </div>
           </div>
