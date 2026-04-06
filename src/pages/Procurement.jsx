@@ -1,44 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Plus, 
-  Trash2, 
-  ShoppingBag, 
-  FileText, 
-  Building2,
-  PackageCheck
-} from 'lucide-react';
+import { Plus, Trash2, FileText, Building2, PackageCheck, Search } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
+import { useOrganization } from '@/components/OrganizationProvider';
 
 export default function Procurement() {
   const queryClient = useQueryClient();
+  const { selectedOrgId } = useOrganization();
+
   const [showSupplierDialog, setShowSupplierDialog] = useState(false);
   const [showPODialog, setShowPODialog] = useState(false);
   const [showReceiveDialog, setShowReceiveDialog] = useState(false);
   const [selectedPO, setSelectedPO] = useState(null);
+  const [itemSearch, setItemSearch] = useState('');
   
-  const [supplierForm, setSupplierForm] = useState({
-    name: '',
-    contact: '',
-    email: '',
-    address: ''
-  });
+  const [supplierForm, setSupplierForm] = useState({ name: '', contact: '', email: '', address: '' });
 
   const [poForm, setPOForm] = useState({
     locationId: '',
@@ -66,14 +53,68 @@ export default function Procurement() {
     queryFn: () => base44.entities.PurchaseOrderLine.list(),
   });
 
-  const { data: drugs = [] } = useQuery({
-    queryKey: ['drugs'],
-    queryFn: () => base44.entities.DrugCatalog.list(),
+  // Load PharmacyStock as primary item source (filtered by org)
+  const { data: pharmacyStock = [] } = useQuery({
+    queryKey: ['pharmacyStockAll', selectedOrgId],
+    queryFn: () => selectedOrgId
+      ? base44.entities.PharmacyStock.filter({ organization_id: selectedOrgId })
+      : base44.entities.PharmacyStock.list(),
   });
 
+  // Also load DrugCatalog as fallback
+  const { data: drugs = [] } = useQuery({
+    queryKey: ['drugs', selectedOrgId],
+    queryFn: () => selectedOrgId
+      ? base44.entities.DrugCatalog.filter({ organization_id: selectedOrgId })
+      : base44.entities.DrugCatalog.list(),
+  });
+
+  // Also load ProductCatalog
+  const { data: productCatalog = [] } = useQuery({
+    queryKey: ['productCatalog', selectedOrgId],
+    queryFn: () => selectedOrgId
+      ? base44.entities.ProductCatalog.filter({ organization_id: selectedOrgId })
+      : base44.entities.ProductCatalog.list(),
+  });
+
+  // Merge all sources into a unified item list (deduplicated by sku_code)
+  const allItems = useMemo(() => {
+    const map = new Map();
+    // PharmacyStock — primary source
+    pharmacyStock.forEach(s => {
+      const code = s.product_id || s.barcode || s.id;
+      if (!map.has(code)) {
+        map.set(code, { sku_code: code, item_name: s.display_name || s.brand_name || s.generic_name, unit_cost: s.unit_cost || 0 });
+      }
+    });
+    // DrugCatalog
+    drugs.forEach(d => {
+      const code = d.drug_code;
+      if (code && !map.has(code)) {
+        map.set(code, { sku_code: code, item_name: d.drug_name, unit_cost: 0 });
+      }
+    });
+    // ProductCatalog
+    productCatalog.forEach(p => {
+      const code = p.product_code;
+      if (code && !map.has(code)) {
+        map.set(code, { sku_code: code, item_name: p.product_name, unit_cost: p.cost_price || 0 });
+      }
+    });
+    return Array.from(map.values()).sort((a, b) => a.item_name?.localeCompare(b.item_name));
+  }, [pharmacyStock, drugs, productCatalog]);
+
+  const filteredItems = useMemo(() => {
+    if (!itemSearch) return allItems;
+    const q = itemSearch.toLowerCase();
+    return allItems.filter(i => i.item_name?.toLowerCase().includes(q) || i.sku_code?.toLowerCase().includes(q));
+  }, [allItems, itemSearch]);
+
   const { data: locations = [] } = useQuery({
-    queryKey: ['locations'],
-    queryFn: () => base44.entities.Location.list(),
+    queryKey: ['locations', selectedOrgId],
+    queryFn: () => selectedOrgId
+      ? base44.entities.Location.filter({ organization_id: selectedOrgId })
+      : base44.entities.Location.list(),
   });
 
   const createSupplierMutation = useMutation({
@@ -96,6 +137,7 @@ export default function Procurement() {
       queryClient.invalidateQueries({ queryKey: ['purchaseOrderLines'] });
       setShowPODialog(false);
       setPOLines([]);
+      setItemSearch('');
       setPOForm({ locationId: '', supplierName: '', orderDate: new Date().toISOString().split('T')[0], expectedDelivery: '', notes: '' });
       toast.success('Purchase order created!');
     }
@@ -142,7 +184,7 @@ export default function Procurement() {
 
     createPOMutation.mutate({
       poData: {
-        organization_id: '',
+        organization_id: selectedOrgId || '',
         location_id: poForm.locationId,
         supplier_name: poForm.supplierName,
         order_date: poForm.orderDate,
@@ -310,7 +352,7 @@ export default function Procurement() {
       </Dialog>
 
       {/* Create PO Dialog */}
-      <Dialog open={showPODialog} onOpenChange={setShowPODialog}>
+      <Dialog open={showPODialog} onOpenChange={(open) => { setShowPODialog(open); if (!open) { setItemSearch(''); } }}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>New Purchase Order</DialogTitle>
@@ -382,28 +424,46 @@ export default function Procurement() {
                 </Button>
               </div>
               
+              {/* Item search bar — filter the dropdown list for all lines */}
+              <div className="relative mb-2">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input
+                  className="pl-9"
+                  placeholder="Search items by name or code..."
+                  value={itemSearch}
+                  onChange={(e) => setItemSearch(e.target.value)}
+                />
+              </div>
+
+              {allItems.length === 0 && (
+                <p className="text-sm text-amber-600 bg-amber-50 p-3 rounded-lg">
+                  No items found. Please add products to the Pharmacy Stock or Drug Catalog first.
+                </p>
+              )}
+
               <div className="space-y-3">
                 {poLines.map((line) => (
                   <Card key={line.id} className="p-4 bg-slate-50">
                     <div className="space-y-3">
                       <div className="flex gap-3">
                         <div className="flex-1">
-                          <Label>Item</Label>
+                          <Label>Item *</Label>
                           <Select 
                             value={line.sku_code} 
                             onValueChange={(val) => {
-                              const drug = drugs.find(d => d.drug_code === val);
+                              const item = allItems.find(i => i.sku_code === val);
                               updatePOLine(line.id, 'sku_code', val);
-                              updatePOLine(line.id, 'item_name', drug?.drug_name || '');
+                              updatePOLine(line.id, 'item_name', item?.item_name || val);
+                              if (item?.unit_cost) updatePOLine(line.id, 'unit_cost', item.unit_cost);
                             }}
                           >
                             <SelectTrigger>
-                              <SelectValue placeholder="Select item" />
+                              <SelectValue placeholder={allItems.length === 0 ? 'No items available' : 'Select item'} />
                             </SelectTrigger>
-                            <SelectContent>
-                              {drugs.map(drug => (
-                                <SelectItem key={drug.id} value={drug.drug_code}>
-                                  {drug.drug_name} ({drug.drug_code})
+                            <SelectContent className="max-h-60">
+                              {filteredItems.map(item => (
+                                <SelectItem key={item.sku_code} value={item.sku_code}>
+                                  {item.item_name} <span className="text-slate-400 text-xs ml-1">({item.sku_code})</span>
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -418,6 +478,9 @@ export default function Procurement() {
                           <Trash2 className="w-4 h-4 text-rose-500" />
                         </Button>
                       </div>
+                      {line.item_name && (
+                        <p className="text-xs text-slate-500">Selected: <span className="font-medium text-slate-700">{line.item_name}</span></p>
+                      )}
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <Label>Quantity</Label>
