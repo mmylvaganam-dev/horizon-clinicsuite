@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
@@ -8,7 +8,9 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Building2, 
   DollarSign, 
@@ -19,9 +21,11 @@ import {
   Calendar,
   AlertCircle,
   CheckCircle,
-  Clock,
+  Trash2,
   Download,
-  Filter
+  ShoppingCart,
+  PackageCheck,
+  ClipboardList
 } from 'lucide-react';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -37,6 +41,14 @@ export default function CreditCustomerManagement() {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [paymentAmount, setPaymentAmount] = useState('');
   const [paymentNotes, setPaymentNotes] = useState('');
+  const [showOrderDialog, setShowOrderDialog] = useState(false);
+  const [orderCustomer, setOrderCustomer] = useState(null);
+  const [orderLines, setOrderLines] = useState([]);
+  const [orderNotes, setOrderNotes] = useState('');
+  const [orderDeliveryDate, setOrderDeliveryDate] = useState('');
+  const [itemSearch, setItemSearch] = useState('');
+  const [showOrdersListDialog, setShowOrdersListDialog] = useState(false);
+  const [ordersListCustomer, setOrdersListCustomer] = useState(null);
 
   // Fetch all credit sales - INCLUDING institution-based sales
   const { data: creditSales = [] } = useQuery({
@@ -79,6 +91,43 @@ export default function CreditCustomerManagement() {
     },
     enabled: !!selectedOrgId,
   });
+
+  // Pharmacy stock for order items
+  const { data: pharmacyStock = [] } = useQuery({
+    queryKey: ['pharmacyStock', selectedOrgId],
+    queryFn: () => selectedOrgId
+      ? base44.entities.PharmacyStock.filter({ organization_id: selectedOrgId })
+      : [],
+    enabled: !!selectedOrgId,
+  });
+
+  // Credit buyer purchase orders (institution orders FROM pharmacy)
+  const { data: buyerPOs = [] } = useQuery({
+    queryKey: ['buyerPurchaseOrders', selectedOrgId],
+    queryFn: () => selectedOrgId
+      ? base44.entities.PurchaseOrder.filter({ organization_id: selectedOrgId })
+      : [],
+    enabled: !!selectedOrgId,
+  });
+
+  const { data: allPOLines = [] } = useQuery({
+    queryKey: ['buyerPOLines'],
+    queryFn: () => base44.entities.PurchaseOrderLine.list(),
+    enabled: !!selectedOrgId,
+  });
+
+  const stockItems = useMemo(() => {
+    return pharmacyStock
+      .filter(s => s.display_name || s.brand_name)
+      .map(s => ({ id: s.id, name: s.display_name || s.brand_name, price: s.unit_price || s.mrp || 0, sku: s.product_id || s.id }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [pharmacyStock]);
+
+  const filteredStockItems = useMemo(() => {
+    if (!itemSearch) return stockItems;
+    const q = itemSearch.toLowerCase();
+    return stockItems.filter(i => i.name?.toLowerCase().includes(q));
+  }, [stockItems, itemSearch]);
 
   // Group sales by institution - Match with registered institutions
   const customerGroups = creditSales.reduce((acc, sale) => {
@@ -167,6 +216,73 @@ export default function CreditCustomerManagement() {
       toast.error(error.message);
     }
   });
+
+  const createBuyerPOMutation = useMutation({
+    mutationFn: async ({ customer, lines, notes, deliveryDate }) => {
+      const user = await base44.auth.me();
+      const year = new Date().getFullYear();
+      const poNumber = `CPO-${year}-${Date.now().toString().slice(-5)}`;
+      const po = await base44.entities.PurchaseOrder.create({
+        organization_id: selectedOrgId,
+        po_number: poNumber,
+        supplier_name: customer.institution, // institution is the "buyer" here
+        order_date: new Date().toISOString().split('T')[0],
+        expected_delivery: deliveryDate || null,
+        notes: `CREDIT_BUYER_ORDER|Institution: ${customer.institution}|${notes || ''}`,
+        status: 'draft',
+        created_at: new Date().toISOString(),
+        created_by: user?.id || '',
+        created_by_email: user?.email || '',
+      });
+      for (const line of lines) {
+        await base44.entities.PurchaseOrderLine.create({
+          purchase_order_id: po.id,
+          sku_code: line.sku,
+          item_name: line.name,
+          qty_ordered: line.qty,
+          unit_cost: line.price,
+          line_total: line.qty * line.price,
+        });
+      }
+      return po;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['buyerPurchaseOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['buyerPOLines'] });
+      setShowOrderDialog(false);
+      setOrderLines([]);
+      setOrderNotes('');
+      setOrderDeliveryDate('');
+      setItemSearch('');
+      toast.success('Credit buyer order created!');
+    },
+    onError: (err) => toast.error(err.message),
+  });
+
+  const handleOpenOrder = (customer) => {
+    setOrderCustomer(customer);
+    setOrderLines([]);
+    setOrderNotes('');
+    setOrderDeliveryDate('');
+    setItemSearch('');
+    setShowOrderDialog(true);
+  };
+
+  const addOrderLine = () => setOrderLines(prev => [...prev, { id: Date.now(), sku: '', name: '', qty: 1, price: 0 }]);
+
+  const updateOrderLine = (id, field, value) => {
+    setOrderLines(prev => prev.map(l => l.id === id ? { ...l, [field]: value } : l));
+  };
+
+  const removeOrderLine = (id) => setOrderLines(prev => prev.filter(l => l.id !== id));
+
+  const handleSubmitOrder = () => {
+    if (!orderLines.length || orderLines.some(l => !l.name)) {
+      toast.error('Please add at least one item');
+      return;
+    }
+    createBuyerPOMutation.mutate({ customer: orderCustomer, lines: orderLines, notes: orderNotes, deliveryDate: orderDeliveryDate });
+  };
 
   const handleRecordPayment = (customer) => {
     setSelectedCustomer(customer);
@@ -468,10 +584,11 @@ export default function CreditCustomerManagement() {
 
                 <CardContent className="pt-4">
                   <Tabs defaultValue="summary" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3">
+                    <TabsList className="grid w-full grid-cols-4">
                       <TabsTrigger value="summary">Summary</TabsTrigger>
                       <TabsTrigger value="invoices">Invoices</TabsTrigger>
                       <TabsTrigger value="payments">Payments</TabsTrigger>
+                      <TabsTrigger value="orders">Orders</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="summary" className="space-y-3 mt-4">
@@ -527,9 +644,50 @@ export default function CreditCustomerManagement() {
                           ))}
                       </div>
                     </TabsContent>
+
+                    <TabsContent value="orders" className="mt-4">
+                      <div className="flex justify-end mb-3">
+                        <Button size="sm" onClick={() => handleOpenOrder(customer)}>
+                          <Plus className="w-4 h-4 mr-2" />
+                          New Order
+                        </Button>
+                      </div>
+                      <div className="space-y-2 max-h-52 overflow-y-auto">
+                        {buyerPOs
+                          .filter(po => po.supplier_name === customer.institution && po.notes?.includes('CREDIT_BUYER_ORDER'))
+                          .map(po => {
+                            const lines = allPOLines.filter(l => l.purchase_order_id === po.id);
+                            const total = lines.reduce((s, l) => s + (l.line_total || 0), 0);
+                            const statusColors = { draft: 'bg-slate-100 text-slate-700', sent: 'bg-blue-100 text-blue-700', received: 'bg-emerald-100 text-emerald-700', closed: 'bg-slate-100 text-slate-500' };
+                            return (
+                              <div key={po.id} className="flex items-center justify-between p-3 bg-slate-50 rounded border">
+                                <div>
+                                  <p className="font-medium text-sm font-mono">{po.po_number}</p>
+                                  <p className="text-xs text-slate-500">{format(new Date(po.order_date || po.created_at), 'd MMM yyyy')} • {lines.length} item{lines.length !== 1 ? 's' : ''}</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <Badge className={statusColors[po.status] || 'bg-slate-100 text-slate-700'}>{po.status}</Badge>
+                                  <span className="font-bold text-sm">Rs. {total.toLocaleString('en-LK', { minimumFractionDigits: 2 })}</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        {buyerPOs.filter(po => po.supplier_name === customer.institution && po.notes?.includes('CREDIT_BUYER_ORDER')).length === 0 && (
+                          <p className="text-center text-slate-500 text-sm py-4">No orders yet. Click "New Order" to create one.</p>
+                        )}
+                      </div>
+                    </TabsContent>
                   </Tabs>
 
                   <div className="flex gap-2 mt-4 pt-4 border-t">
+                    <Button
+                      onClick={() => handleOpenOrder(customer)}
+                      variant="outline"
+                      className="flex-1 border-blue-300 text-blue-700 hover:bg-blue-50"
+                    >
+                      <ShoppingCart className="w-4 h-4 mr-2" />
+                      Place Order
+                    </Button>
                     <Button
                       onClick={() => handleRecordPayment(customer)}
                       className="flex-1 bg-green-600 hover:bg-green-700"
@@ -552,6 +710,123 @@ export default function CreditCustomerManagement() {
           )}
         </div>
       </div>
+
+      {/* Place Order Dialog */}
+      <Dialog open={showOrderDialog} onOpenChange={(open) => { setShowOrderDialog(open); if (!open) setItemSearch(''); }}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              <ClipboardList className="w-5 h-5 inline mr-2 text-blue-600" />
+              New Credit Order — {orderCustomer?.institution}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-2">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Delivery / Required Date</Label>
+                <Input type="date" value={orderDeliveryDate} onChange={e => setOrderDeliveryDate(e.target.value)} />
+              </div>
+              <div>
+                <Label>Notes</Label>
+                <Input value={orderNotes} onChange={e => setOrderNotes(e.target.value)} placeholder="e.g. urgent, monthly supply" />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <Label>Order Items *</Label>
+                <Button size="sm" onClick={addOrderLine}>
+                  <Plus className="w-4 h-4 mr-1" /> Add Item
+                </Button>
+              </div>
+
+              {stockItems.length === 0 && (
+                <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded mb-2">No pharmacy stock found. Add items to pharmacy inventory first.</p>
+              )}
+
+              {orderLines.length > 0 && (
+                <div className="relative mb-2">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input className="pl-9 text-sm" placeholder="Search items..." value={itemSearch} onChange={e => setItemSearch(e.target.value)} />
+                </div>
+              )}
+
+              <div className="space-y-3">
+                {orderLines.map(line => (
+                  <Card key={line.id} className="p-3 bg-slate-50">
+                    <div className="flex gap-2 items-start">
+                      <div className="flex-1">
+                        <Select
+                          value={line.sku}
+                          onValueChange={val => {
+                            const item = stockItems.find(i => i.sku === val);
+                            updateOrderLine(line.id, 'sku', val);
+                            updateOrderLine(line.id, 'name', item?.name || val);
+                            updateOrderLine(line.id, 'price', item?.price || 0);
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select item" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-56">
+                            {filteredStockItems.map(item => (
+                              <SelectItem key={item.sku} value={item.sku}>
+                                {item.name} <span className="text-xs text-slate-400 ml-1">Rs.{item.price}</span>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="w-20">
+                        <Input
+                          type="number" min="1" placeholder="Qty"
+                          value={line.qty}
+                          onChange={e => updateOrderLine(line.id, 'qty', parseInt(e.target.value) || 1)}
+                        />
+                      </div>
+                      <div className="w-24">
+                        <Input
+                          type="number" min="0" step="0.01" placeholder="Price"
+                          value={line.price}
+                          onChange={e => updateOrderLine(line.id, 'price', parseFloat(e.target.value) || 0)}
+                        />
+                      </div>
+                      <Button variant="ghost" size="icon" onClick={() => removeOrderLine(line.id)}>
+                        <Trash2 className="w-4 h-4 text-rose-500" />
+                      </Button>
+                    </div>
+                    {line.name && (
+                      <p className="text-xs text-slate-500 mt-1">
+                        {line.name} — Subtotal: Rs. {((line.qty || 0) * (line.price || 0)).toLocaleString('en-LK', { minimumFractionDigits: 2 })}
+                      </p>
+                    )}
+                  </Card>
+                ))}
+              </div>
+
+              {orderLines.length > 0 && (
+                <div className="bg-blue-50 border border-blue-200 rounded p-3 mt-3 flex justify-between items-center">
+                  <span className="font-medium text-blue-900">Order Total</span>
+                  <span className="text-xl font-bold text-blue-900">
+                    Rs. {orderLines.reduce((s, l) => s + (l.qty * l.price), 0).toLocaleString('en-LK', { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              <Button variant="outline" className="flex-1" onClick={() => setShowOrderDialog(false)}>Cancel</Button>
+              <Button
+                className="flex-1"
+                onClick={handleSubmitOrder}
+                disabled={createBuyerPOMutation.isPending || orderLines.length === 0}
+              >
+                {createBuyerPOMutation.isPending ? 'Creating...' : 'Create Order'}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Payment Dialog */}
       <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
