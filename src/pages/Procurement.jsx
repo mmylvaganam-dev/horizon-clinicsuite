@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
 import { useOrganization } from '@/components/OrganizationProvider';
+import { useState as useStateRef, useRef, useEffect } from 'react';
 
 export default function Procurement() {
   const queryClient = useQueryClient();
@@ -37,6 +38,7 @@ export default function Procurement() {
 
   const [poLines, setPOLines] = useState([]);
   const [receiveLines, setReceiveLines] = useState([]);
+  const [lineSearches, setLineSearches] = useState({});
 
   const { data: suppliers = [] } = useQuery({
     queryKey: ['suppliers'],
@@ -442,32 +444,52 @@ export default function Procurement() {
               )}
 
               <div className="space-y-3">
-                {poLines.map((line) => (
+                {poLines.map((line) => {
+                  const lineSearch = lineSearches[line.id] || '';
+                  const lineFiltered = allItems.filter(i => 
+                    i.item_name?.toLowerCase().includes(lineSearch.toLowerCase()) || 
+                    i.sku_code?.toLowerCase().includes(lineSearch.toLowerCase())
+                  );
+                  const isOpen = lineSearch.length > 0;
+
+                  return (
                   <Card key={line.id} className="p-4 bg-slate-50">
                     <div className="space-y-3">
                       <div className="flex gap-3">
-                        <div className="flex-1">
+                        <div className="flex-1 relative">
                           <Label>Item *</Label>
-                          <Select 
-                            value={line.sku_code} 
-                            onValueChange={(val) => {
-                              const item = allItems.find(i => i.sku_code === val);
-                              updatePOLine(line.id, 'sku_code', val);
-                              updatePOLine(line.id, 'item_name', item?.item_name || val);
-                              if (item?.unit_cost) updatePOLine(line.id, 'unit_cost', item.unit_cost);
-                            }}
-                          >
-                            <SelectTrigger>
-                              <SelectValue placeholder={allItems.length === 0 ? 'No items available' : 'Select item'} />
-                            </SelectTrigger>
-                            <SelectContent className="max-h-60">
-                              {filteredItems.map(item => (
-                                <SelectItem key={item.sku_code} value={item.sku_code}>
-                                  {item.item_name} <span className="text-slate-400 text-xs ml-1">({item.sku_code})</span>
-                                </SelectItem>
+                          <Input
+                            type="text"
+                            placeholder="Search by name or code..."
+                            value={line.sku_code ? `${line.item_name} (${line.sku_code})` : lineSearch}
+                            onChange={(e) => setLineSearches({ ...lineSearches, [line.id]: e.target.value })}
+                            className="w-full"
+                          />
+                          {/* Autocomplete dropdown */}
+                          {isOpen && lineFiltered.length > 0 && (
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-300 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
+                              {lineFiltered.slice(0, 10).map(item => (
+                                <button
+                                  key={item.sku_code}
+                                  onClick={() => {
+                                    updatePOLine(line.id, 'sku_code', item.sku_code);
+                                    updatePOLine(line.id, 'item_name', item.item_name);
+                                    if (item.unit_cost) updatePOLine(line.id, 'unit_cost', item.unit_cost);
+                                    setLineSearches({ ...lineSearches, [line.id]: '' });
+                                  }}
+                                  className="w-full text-left px-4 py-2 text-sm hover:bg-blue-50 border-b border-slate-100 last:border-0 flex justify-between items-center"
+                                >
+                                  <span>{item.item_name}</span>
+                                  <span className="text-xs text-slate-400">({item.sku_code})</span>
+                                </button>
                               ))}
-                            </SelectContent>
-                          </Select>
+                            </div>
+                          )}
+                          {isOpen && lineFiltered.length === 0 && (
+                            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-slate-300 rounded-lg shadow-lg z-50 p-3 text-sm text-slate-500">
+                              No items found
+                            </div>
+                          )}
                         </div>
                         <Button
                           variant="ghost"
@@ -478,9 +500,6 @@ export default function Procurement() {
                           <Trash2 className="w-4 h-4 text-rose-500" />
                         </Button>
                       </div>
-                      {line.item_name && (
-                        <p className="text-xs text-slate-500">Selected: <span className="font-medium text-slate-700">{line.item_name}</span></p>
-                      )}
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <Label>Quantity</Label>
@@ -503,10 +522,11 @@ export default function Procurement() {
                         </div>
                       </div>
                     </div>
-                  </Card>
-                ))}
-              </div>
-            </div>
+                    </Card>
+                    );
+                    })}
+                    </div>
+                    </div>
 
             <div className="flex justify-end gap-3">
               <Button variant="outline" onClick={() => setShowPODialog(false)}>
