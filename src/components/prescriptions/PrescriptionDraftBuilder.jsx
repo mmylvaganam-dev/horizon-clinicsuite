@@ -82,15 +82,18 @@ export default function PrescriptionDraftBuilder({ patientId, patient, editPresc
 
   const { data: user } = useQuery({ queryKey: ['currentUser'], queryFn: () => base44.auth.me() });
 
-  // Find the staff profile for the current user (for doctor-scoped favorites)
+  // Find the staff profile for the current user — search by email only (not org-scoped)
+  // so doctors registered under any org (e.g. Anantham) are found regardless of selectedOrgId
   const { data: myStaffProfile } = useQuery({
-    queryKey: ['myStaffProfile', user?.email, selectedOrgId],
+    queryKey: ['myStaffProfile', user?.email],
     queryFn: async () => {
-      if (!user?.email || !selectedOrgId) return null;
-      const results = await base44.entities.StaffProfile.filter({ organization_id: selectedOrgId, email: user.email });
-      return results[0] || null;
+      if (!user?.email) return null;
+      const results = await base44.entities.StaffProfile.filter({ email: user.email });
+      // Prefer the profile in the selected org if multiple exist
+      const orgMatch = results.find(r => r.organization_id === selectedOrgId);
+      return orgMatch || results[0] || null;
     },
-    enabled: !!user?.email && !!selectedOrgId,
+    enabled: !!user?.email,
   });
 
   const { data: drugCatalog = [] } = useQuery({
