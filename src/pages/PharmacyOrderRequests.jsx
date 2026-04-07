@@ -33,14 +33,35 @@ export default function PharmacyOrderRequests() {
     enabled: !!selectedOrder,
   });
 
+  // Fetch institution credit info for risk assessment
+  const { data: institutionRiskInfo } = useQuery({
+    queryKey: ['institutionRiskInfo', selectedOrder?.supplier_name],
+    queryFn: async () => {
+      if (!selectedOrder?.supplier_name) return null;
+      const institutions = await base44.entities.Institution.filter({ name: selectedOrder.supplier_name });
+      if (!institutions[0]) return null;
+      const institution = institutions[0];
+      const creditSales = await base44.entities.CreditSale.filter({ 
+        institution_id: institution.id,
+        payment_status: { $ne: 'paid' }
+      });
+      const outstandingBalance = creditSales.reduce((sum, sale) => sum + sale.total_amount, 0);
+      return { institution, outstandingBalance };
+    },
+    enabled: !!selectedOrder?.supplier_name,
+  });
+
   // Approve and convert to sale
   const approveMutation = useMutation({
     mutationFn: async (orderId) => {
       const response = await base44.functions.invoke('convertPOToSale', { po_id: orderId });
       return response.data;
     },
-    onSuccess: () => {
-      toast({ description: 'Order approved and converted to credit sale' });
+    onSuccess: (data) => {
+      const message = data.is_high_risk 
+        ? `Order approved as HIGH RISK. Projected balance: $${data.projected_balance.toFixed(2)} exceeds limit of $${data.credit_limit.toFixed(2)}` 
+        : 'Order approved and converted to credit sale';
+      toast({ description: message, variant: data.is_high_risk ? 'destructive' : 'default' });
       queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
       setSelectedOrder(null);
     },
@@ -151,10 +172,50 @@ export default function PharmacyOrderRequests() {
                         </div>
                       </div>
 
-                      <div className="border-t pt-4 bg-blue-50 p-4 rounded-lg">
+                      {institutionRiskInfo && (
+                        <div className={`border-t pt-4 p-4 rounded-lg ${
+                          (institutionRiskInfo.outstandingBalance + totalCost) > institutionRiskInfo.institution.credit_limit
+                            ? 'bg-red-50 border border-red-200'
+                            : 'bg-blue-50'
+                        }`}>
+                          <p className="text-sm font-semibold text-slate-600 mb-2">Credit Status</p>
+                          <div className="space-y-1 text-sm mb-3">
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">Outstanding Balance:</span>
+                              <span className="font-semibold text-slate-900">${institutionRiskInfo.outstandingBalance.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">This Order:</span>
+                              <span className="font-semibold text-slate-900">${totalCost.toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between border-t pt-1">
+                              <span className="font-semibold text-slate-900">Projected Balance:</span>
+                              <span className={`font-bold ${
+                                (institutionRiskInfo.outstandingBalance + totalCost) > institutionRiskInfo.institution.credit_limit
+                                  ? 'text-red-600'
+                                  : 'text-blue-600'
+                              }`}>
+                                ${(institutionRiskInfo.outstandingBalance + totalCost).toFixed(2)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-slate-600">Credit Limit:</span>
+                              <span className="font-semibold text-slate-900">${institutionRiskInfo.institution.credit_limit.toFixed(2)}</span>
+                            </div>
+                          </div>
+                          {(institutionRiskInfo.outstandingBalance + totalCost) > institutionRiskInfo.institution.credit_limit && (
+                            <div className="flex gap-2 items-start p-3 bg-red-100 border border-red-300 rounded text-red-700 text-xs">
+                              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                              <span>⚠️ HIGH RISK: Institution will exceed credit limit. Order will be flagged for manual review.</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      <div className="border-t pt-4 bg-slate-100 p-4 rounded-lg">
                         <div className="flex justify-between items-center">
-                          <p className="text-lg font-bold text-slate-900">Total Cost</p>
-                          <p className="text-2xl font-bold text-blue-600">${totalCost.toFixed(2)}</p>
+                          <p className="text-lg font-bold text-slate-900">Order Total</p>
+                          <p className="text-2xl font-bold text-slate-900">${totalCost.toFixed(2)}</p>
                         </div>
                       </div>
 

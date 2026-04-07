@@ -1,0 +1,65 @@
+{
+  "name": "CreditSale",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization (pharmacy) ID"
+    },
+    "institution_id": {
+      "type": "string",
+      "description": "Institution (buyer) ID"
+    },
+    "institution_name": {
+      "type": "string",
+      "description": "Institution name for reference"
+    },
+    "sale_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Sale timestamp"
+    },
+    "po_number": {
+      "type": "string",
+      "description": "Original purchase order number"
+    },
+    "total_amount": {
+      "type": "number",
+      "description": "Total sale amount"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "outstanding",
+        "partial",
+        "paid"
+      ],
+      "default": "outstanding",
+      "description": "Payment status"
+    },
+    "risk_status": {
+      "type": "string",
+      "enum": [
+        "normal",
+        "high_risk"
+      ],
+      "default": "normal",
+      "description": "Credit risk assessment"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Sale notes"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "Created by user email"
+    }
+  },
+  "required": [
+    "organization_id",
+    "institution_id",
+    "institution_name",
+    "sale_date",
+    "total_amount"
+  ]
+}

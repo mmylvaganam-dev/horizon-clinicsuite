@@ -1,0 +1,87 @@
+{
+  "name": "Institution",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID (pharmacy)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Institution name"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "hospital",
+        "clinic",
+        "nursing_home",
+        "diagnostic_center",
+        "other"
+      ],
+      "description": "Institution type"
+    },
+    "contact_person": {
+      "type": "string",
+      "description": "Primary contact name"
+    },
+    "contact_email": {
+      "type": "string",
+      "description": "Contact email"
+    },
+    "contact_phone": {
+      "type": "string",
+      "description": "Contact phone"
+    },
+    "address": {
+      "type": "string",
+      "description": "Institution address"
+    },
+    "city": {
+      "type": "string",
+      "description": "City"
+    },
+    "country": {
+      "type": "string",
+      "description": "Country"
+    },
+    "tax_id": {
+      "type": "string",
+      "description": "Tax identification number"
+    },
+    "credit_limit": {
+      "type": "number",
+      "default": 0,
+      "description": "Maximum credit allowance for this institution"
+    },
+    "payment_terms": {
+      "type": "string",
+      "enum": [
+        "net_30",
+        "net_60",
+        "net_90",
+        "cash"
+      ],
+      "default": "net_30",
+      "description": "Payment terms"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "suspended",
+        "inactive"
+      ],
+      "default": "active",
+      "description": "Institution status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "organization_id",
+    "name"
+  ]
+}
