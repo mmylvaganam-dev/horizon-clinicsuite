@@ -25,6 +25,7 @@ import PatientSelfPortal from './pages/PatientSelfPortal';
 import LabReportView from './pages/LabReportView';
 import FindLabReport from './pages/FindLabReport';
 import InstitutionPortal from './pages/InstitutionPortal';
+import InstitutionOrderHistory from './pages/InstitutionOrderHistory';
 import PharmacyOrderRequests from './pages/PharmacyOrderRequests';
 import ConsultationTranscriber from './pages/ConsultationTranscriber';
 import DriverDeliveryApp from './pages/DriverDeliveryApp';
@@ -94,6 +95,7 @@ const AuthenticatedApp = () => {
       <Route path="/AppointmentScheduler" element={<LayoutWrapper currentPageName="AppointmentScheduler"><AppointmentScheduler /></LayoutWrapper>} />
       <Route path="/patient-portal" element={<PatientSelfPortal />} />
       <Route path="/institution-portal" element={<InstitutionPortal />} />
+      <Route path="/institution-order-history" element={<InstitutionOrderHistory />} />
       <Route path="/pharmacy-order-requests" element={<LayoutWrapper currentPageName="PharmacyOrderRequests"><PharmacyOrderRequests /></LayoutWrapper>} />
       <Route path="/lab-report-view" element={<LabReportView />} />
       <Route path="/find-lab-report" element={<FindLabReport />} />
