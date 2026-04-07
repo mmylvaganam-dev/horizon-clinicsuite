@@ -9,6 +9,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { DollarSign, CheckCircle2, AlertCircle, Calendar, Building2 } from 'lucide-react';
 import { format } from 'date-fns';
 import InstitutionAuthGate from '@/components/institutions/InstitutionAuthGate';
+import CreditSaleInvoiceButton from '@/components/credit/CreditSaleInvoiceButton';
 
 export default function InstitutionPaymentPortal() {
   const [selectedSale, setSelectedSale] = useState(null);
@@ -156,6 +157,7 @@ export default function InstitutionPaymentPortal() {
                         <th className="text-right py-3 px-4 font-semibold text-slate-700">Amount</th>
                         <th className="text-center py-3 px-4 font-semibold text-slate-700">Risk</th>
                         <th className="text-center py-3 px-4 font-semibold text-slate-700">Status</th>
+                        <th className="text-center py-3 px-4 font-semibold text-slate-700">Invoice</th>
                         <th className="text-right py-3 px-4 font-semibold text-slate-700">Action</th>
                       </tr>
                     </thead>
@@ -190,6 +192,9 @@ export default function InstitutionPaymentPortal() {
                                 {sale.payment_status}
                               </Badge>
                             )}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <CreditSaleInvoiceButton creditSale={sale} variant="outline" />
                           </td>
                           <td className="py-3 px-4 text-right">
                             {sale.payment_status === 'outstanding' ? (

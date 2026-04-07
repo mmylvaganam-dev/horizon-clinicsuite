@@ -53,6 +53,10 @@
     "created_by": {
       "type": "string",
       "description": "Created by user email"
+    },
+    "invoice_pdf_url": {
+      "type": "string",
+      "description": "URL to the generated PDF invoice"
     }
   },
   "required": [

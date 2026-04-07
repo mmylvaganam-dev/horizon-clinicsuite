@@ -7,6 +7,7 @@ import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, L
 import { AlertCircle, TrendingUp, DollarSign, Building2 } from 'lucide-react';
 import { format, subDays } from 'date-fns';
 import { useOrganization } from '@/components/OrganizationProvider';
+import CreditSaleInvoiceButton from '@/components/credit/CreditSaleInvoiceButton';
 
 export default function CreditUsageDashboard() {
   const { selectedOrgId } = useOrganization();
@@ -208,21 +209,26 @@ export default function CreditUsageDashboard() {
                   <div className="space-y-3">
                     {aggregateMetrics.overdueInstitutions.map(inst => (
                       <div key={inst.id} className="bg-white p-3 rounded border border-red-200">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <p className="font-semibold text-slate-900">{inst.name}</p>
-                            <p className="text-xs text-slate-600">{inst.contact_email}</p>
-                          </div>
-                          <Badge className="bg-red-100 text-red-700">
-                            {inst.overdueCount} overdue
-                          </Badge>
+                      <div className="flex justify-between items-start mb-2">
+                        <div>
+                          <p className="font-semibold text-slate-900">{inst.name}</p>
+                          <p className="text-xs text-slate-600">{inst.contact_email}</p>
                         </div>
-                        <div className="flex justify-between text-sm">
-                          <span className="text-slate-600">Outstanding: ${inst.outstandingAmount.toFixed(2)}</span>
-                          <span className="text-red-600 font-semibold">
-                            {inst.overdueSales.length} invoices past due
-                          </span>
-                        </div>
+                        <Badge className="bg-red-100 text-red-700">
+                          {inst.overdueCount} overdue
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-slate-600">Outstanding: ${inst.outstandingAmount.toFixed(2)}</span>
+                        <span className="text-red-600 font-semibold">
+                          {inst.overdueSales.length} invoices past due
+                        </span>
+                      </div>
+                      <div className="mt-3 flex gap-2 flex-wrap">
+                        {inst.overdueSales.map(sale => (
+                          <CreditSaleInvoiceButton key={sale.id} creditSale={sale} variant="ghost" />
+                        ))}
+                      </div>
                       </div>
                     ))}
                   </div>
