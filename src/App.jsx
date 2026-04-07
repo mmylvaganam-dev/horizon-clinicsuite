@@ -24,6 +24,7 @@ import HomeCareSupervisorReport from './pages/HomeCareSupervisorReport';
 import PatientSelfPortal from './pages/PatientSelfPortal';
 import LabReportView from './pages/LabReportView';
 import FindLabReport from './pages/FindLabReport';
+import InstitutionPortal from './pages/InstitutionPortal';
 import ConsultationTranscriber from './pages/ConsultationTranscriber';
 import DriverDeliveryApp from './pages/DriverDeliveryApp';
 import PrescriptionManager from './pages/PrescriptionManager';
@@ -91,6 +92,7 @@ const AuthenticatedApp = () => {
       <Route path="/HomeCareWorkers" element={<LayoutWrapper currentPageName="HomeCareWorkers"><HomeCareWorkers /></LayoutWrapper>} />
       <Route path="/AppointmentScheduler" element={<LayoutWrapper currentPageName="AppointmentScheduler"><AppointmentScheduler /></LayoutWrapper>} />
       <Route path="/patient-portal" element={<PatientSelfPortal />} />
+      <Route path="/institution-portal" element={<InstitutionPortal />} />
       <Route path="/lab-report-view" element={<LabReportView />} />
       <Route path="/find-lab-report" element={<FindLabReport />} />
       <Route path="/ConsultationTranscriber" element={<LayoutWrapper currentPageName="ConsultationTranscriber"><ConsultationTranscriber /></LayoutWrapper>} />
