@@ -28,6 +28,7 @@ import InstitutionPortal from './pages/InstitutionPortal';
 import InstitutionOrderHistory from './pages/InstitutionOrderHistory';
 import InstitutionPaymentPortal from './pages/InstitutionPaymentPortal';
 import PharmacyOrderRequests from './pages/PharmacyOrderRequests';
+import CreditUsageDashboard from './pages/CreditUsageDashboard';
 import ConsultationTranscriber from './pages/ConsultationTranscriber';
 import DriverDeliveryApp from './pages/DriverDeliveryApp';
 import PrescriptionManager from './pages/PrescriptionManager';
@@ -99,6 +100,7 @@ const AuthenticatedApp = () => {
       <Route path="/institution-order-history" element={<InstitutionOrderHistory />} />
       <Route path="/institution-payment-portal" element={<InstitutionPaymentPortal />} />
       <Route path="/pharmacy-order-requests" element={<LayoutWrapper currentPageName="PharmacyOrderRequests"><PharmacyOrderRequests /></LayoutWrapper>} />
+      <Route path="/credit-usage-dashboard" element={<LayoutWrapper currentPageName="CreditUsageDashboard"><CreditUsageDashboard /></LayoutWrapper>} />
       <Route path="/lab-report-view" element={<LabReportView />} />
       <Route path="/find-lab-report" element={<FindLabReport />} />
       <Route path="/ConsultationTranscriber" element={<LayoutWrapper currentPageName="ConsultationTranscriber"><ConsultationTranscriber /></LayoutWrapper>} />
