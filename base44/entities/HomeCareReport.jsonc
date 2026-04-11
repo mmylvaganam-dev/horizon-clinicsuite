@@ -1,0 +1,138 @@
+{
+  "name": "HomeCareReport",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "report_type": {
+      "type": "string",
+      "enum": [
+        "caretaker",
+        "shift_handover"
+      ],
+      "default": "shift_handover",
+      "description": "Type of report"
+    },
+    "patient_name": {
+      "type": "string",
+      "description": "Patient name (caretaker reports)"
+    },
+    "caretaker_name": {
+      "type": "string",
+      "description": "Caretaker/worker name"
+    },
+    "activities_completed": {
+      "type": "string",
+      "description": "Activities completed during the shift"
+    },
+    "patient_condition": {
+      "type": "string",
+      "enum": [
+        "stable",
+        "improving",
+        "declining",
+        "critical"
+      ],
+      "description": "Patient condition"
+    },
+    "observations": {
+      "type": "string",
+      "description": "Observations about the patient"
+    },
+    "concerns": {
+      "type": "string",
+      "description": "Concerns or escalations"
+    },
+    "report_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Report date"
+    },
+    "shift_type": {
+      "type": "string",
+      "enum": [
+        "morning",
+        "evening"
+      ],
+      "default": "morning",
+      "description": "Shift type"
+    },
+    "shift_time": {
+      "type": "string",
+      "description": "Shift time range"
+    },
+    "incoming_nurse": {
+      "type": "string",
+      "description": "Incoming nurse name"
+    },
+    "outgoing_nurse": {
+      "type": "string",
+      "description": "Outgoing nurse name"
+    },
+    "duty_doctor_morning": {
+      "type": "string",
+      "description": "Morning duty doctor"
+    },
+    "duty_doctor_evening": {
+      "type": "string",
+      "description": "Evening duty doctor"
+    },
+    "takeover_holistic_care": {
+      "type": "number",
+      "description": "Takeover amount for Holistic Care"
+    },
+    "takeover_pharmacy": {
+      "type": "number",
+      "description": "Takeover amount for Pharmacy"
+    },
+    "handover_holistic_care": {
+      "type": "number",
+      "description": "Handover amount for Holistic Care"
+    },
+    "handover_pharmacy": {
+      "type": "number",
+      "description": "Handover amount for Pharmacy"
+    },
+    "pharmacy_morning_income": {
+      "type": "number",
+      "description": "Pharmacy morning income"
+    },
+    "opd_status": {
+      "type": "string",
+      "description": "OPD status or notes"
+    },
+    "lab_status": {
+      "type": "string",
+      "description": "LAB status or notes"
+    },
+    "home_care_notes": {
+      "type": "string",
+      "description": "Home care arrangements summary"
+    },
+    "patient_communication": {
+      "type": "string",
+      "description": "Patient communication notes"
+    },
+    "equipment_facility_check": {
+      "type": "string",
+      "description": "Equipment and facility check notes"
+    },
+    "pharmacy_stock_notes": {
+      "type": "string",
+      "description": "Pharmacy and stock notes"
+    },
+    "special_notes": {
+      "type": "string",
+      "description": "Special notes and updates"
+    },
+    "handing_over_by": {
+      "type": "string",
+      "description": "Staff member handing over"
+    }
+  },
+  "required": [
+    "report_date"
+  ]
+}
