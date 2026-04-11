@@ -203,7 +203,7 @@ export default function FrontDeskWorkspace() {
                       <p className="text-sm text-slate-500">Patient: {inv.patient_ref}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-emerald-600">${inv.total.toFixed(2)}</p>
+                      <p className="font-bold text-emerald-600">Rs. {inv.total.toFixed(2)}</p>
                       <p className="text-xs text-slate-500">{inv.payment_status}</p>
                     </div>
                   </div>
@@ -280,7 +280,7 @@ export default function FrontDeskWorkspace() {
                       <SelectContent>
                         {services.map(s => (
                           <SelectItem key={s.service_code} value={s.service_code}>
-                            {s.service_name} - ${s.default_price}
+                            {s.service_name} - Rs. {s.default_price}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -317,15 +317,15 @@ export default function FrontDeskWorkspace() {
             <div className="border-t pt-4">
               <div className="flex justify-between mb-2">
                 <span>Subtotal:</span>
-                <span className="font-semibold">${subtotal.toFixed(2)}</span>
+                <span className="font-semibold">Rs. {subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between mb-2">
                 <span>Tax (10%):</span>
-                <span className="font-semibold">${taxTotal.toFixed(2)}</span>
+                <span className="font-semibold">Rs. {taxTotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-lg font-bold">
                 <span>Total:</span>
-                <span>${total.toFixed(2)}</span>
+                <span>Rs. {total.toFixed(2)}</span>
               </div>
             </div>
 

@@ -80,7 +80,7 @@ export default function InstitutionPaymentPortal() {
               <CardContent>
                 <div className="flex items-end gap-3">
                   <div className="text-3xl font-bold text-slate-900">
-                    ${totalOutstanding.toFixed(2)}
+                    Rs. {totalOutstanding.toFixed(2)}
                   </div>
                   <DollarSign className="w-6 h-6 text-teal-600 mb-1" />
                 </div>
@@ -95,7 +95,7 @@ export default function InstitutionPaymentPortal() {
               <CardContent>
                 <div className="flex items-end gap-3">
                   <div className="text-3xl font-bold text-slate-900">
-                    ${institution?.credit_limit || 0}
+                    Rs. {institution?.credit_limit || 0}
                   </div>
                   <Building2 className="w-6 h-6 text-blue-600 mb-1" />
                 </div>
@@ -169,7 +169,7 @@ export default function InstitutionPaymentPortal() {
                             {format(new Date(sale.sale_date), 'MMM dd, yyyy')}
                           </td>
                           <td className="py-3 px-4 text-right font-semibold text-slate-900">
-                            ${sale.total_amount.toFixed(2)}
+                            Rs. {sale.total_amount.toFixed(2)}
                           </td>
                           <td className="py-3 px-4 text-center">
                             {sale.risk_status === 'high_risk' ? (
@@ -268,7 +268,7 @@ export default function InstitutionPaymentPortal() {
                   </div>
                   <div className="flex justify-between border-t pt-2">
                     <span className="text-slate-600 font-semibold">Amount Due:</span>
-                    <span className="text-lg font-bold text-teal-600">${selectedSale.total_amount.toFixed(2)}</span>
+                    <span className="text-lg font-bold text-teal-600">Rs. {selectedSale.total_amount.toFixed(2)}</span>
                   </div>
                 </div>
               </div>

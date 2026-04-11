@@ -133,7 +133,7 @@ export default function CreditUsageDashboard() {
                 <CardContent>
                   <div className="flex items-end gap-2">
                     <div className="text-2xl font-bold text-slate-900">
-                      ${aggregateMetrics.totalOutstanding.toFixed(0)}
+                      Rs. {aggregateMetrics.totalOutstanding.toFixed(0)}
                     </div>
                     <DollarSign className="w-5 h-5 text-teal-600 mb-1" />
                   </div>
@@ -219,7 +219,7 @@ export default function CreditUsageDashboard() {
                         </Badge>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="text-slate-600">Outstanding: ${inst.outstandingAmount.toFixed(2)}</span>
+                        <span className="text-slate-600">Outstanding: Rs. {inst.outstandingAmount.toFixed(2)}</span>
                         <span className="text-red-600 font-semibold">
                           {inst.overdueSales.length} invoices past due
                         </span>
@@ -251,7 +251,7 @@ export default function CreditUsageDashboard() {
                     <Tooltip formatter={(value) => value.toFixed(2)} />
                     <Legend />
                     <Line yAxisId="left" type="monotone" dataKey="newSales" stroke="#3b82f6" name="New Invoices" />
-                    <Line yAxisId="right" type="monotone" dataKey="totalAmount" stroke="#10b981" name="Amount ($)" />
+                    <Line yAxisId="right" type="monotone" dataKey="totalAmount" stroke="#10b981" name="Amount (LKR)" />
                   </LineChart>
                 </ResponsiveContainer>
               </CardContent>
@@ -297,13 +297,13 @@ export default function CreditUsageDashboard() {
                             <div className="flex justify-between">
                               <span className={textColor}>Outstanding:</span>
                               <span className="font-semibold text-slate-900">
-                                ${inst.outstandingAmount.toFixed(0)}
+                                 Rs. {inst.outstandingAmount.toFixed(0)}
                               </span>
                             </div>
                             <div className="flex justify-between">
                               <span className={textColor}>Limit:</span>
                               <span className="font-semibold text-slate-900">
-                                ${inst.credit_limit.toFixed(0)}
+                                 Rs. {inst.credit_limit.toFixed(0)}
                               </span>
                             </div>
                           </div>
@@ -369,10 +369,10 @@ export default function CreditUsageDashboard() {
                               </div>
                             </td>
                             <td className="py-3 px-4 text-right font-semibold text-slate-900">
-                              ${inst.outstandingAmount.toFixed(0)}
+                              Rs. {inst.outstandingAmount.toFixed(0)}
                             </td>
                             <td className="py-3 px-4 text-right font-semibold text-slate-900">
-                              ${inst.credit_limit.toFixed(0)}
+                              Rs. {inst.credit_limit.toFixed(0)}
                             </td>
                             <td className="py-3 px-4 text-center">
                               <span className="font-semibold text-slate-900">
