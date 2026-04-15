@@ -84,33 +84,18 @@ export default function PlatformUserManagement() {
     mutationFn: async ({ email, role, orgId }) => {
       toast.loading('Sending invitation...', { id: 'invite-toast' });
 
-      const org = organizations.find(o => o.id === orgId);
-
-      // Send invitation
-      await base44.users.inviteUser(email, role);
-
-      // Record the invitation
-      await base44.entities.PendingInvitation.create({
+      // Use the inviteUserToOrg backend function which handles everything
+      const response = await base44.functions.invoke('inviteUserToOrg', {
         email,
         role,
-        organization_id: orgId,
-        organization_name: org?.name || '',
-        invited_by: user?.email || '',
-        status: 'pending'
-      });
-
-      toast.loading('Email sent! Assigning to organization...', { id: 'invite-toast' });
-
-      // Wait for user creation
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      // Assign to organization
-      await base44.functions.invoke('assignUserToOrganization', {
-        userEmail: email,
         organizationId: orgId
       });
 
-      toast.success(`✅ ${email} invited and assigned!`, { id: 'invite-toast', duration: 5000 });
+      if (response.data?.error) {
+        throw new Error(response.data.error);
+      }
+
+      toast.success(`✅ ${email} invited successfully!`, { id: 'invite-toast', duration: 5000 });
       return { email, role, orgId };
     },
     onSuccess: async () => {
