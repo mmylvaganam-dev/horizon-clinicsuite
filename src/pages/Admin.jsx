@@ -110,6 +110,15 @@ export default function Admin() {
     enabled: !!selectedOrgId && isPlatformOwner,
   });
 
+  const { data: allInvitations = [], refetch: refetchInvitations } = useQuery({
+    queryKey: ['allInvitations', selectedOrgId],
+    queryFn: async () => {
+      if (!selectedOrgId) return [];
+      return await base44.entities.UserApproval.filter({ organization_id: selectedOrgId });
+    },
+    enabled: !!selectedOrgId,
+  });
+
   // Get organization roles (exclude platform roles)
   const organizationRoles = allRoles.filter(role => {
     const roleCode = role.code || role.role_name;
@@ -295,9 +304,11 @@ export default function Admin() {
       await queryClient.invalidateQueries(['allUsers']);
       await queryClient.invalidateQueries(['userRoles']);
       await queryClient.invalidateQueries(['pendingInvitations']);
+      await queryClient.invalidateQueries(['allInvitations']);
       setInviteDialogOpen(false);
       setInviteEmail('');
       setInviteRole('user');
+      toast.success(`✅ Invitation sent to ${inviteEmail}! They will receive an email to join.`, { duration: 8000 });
     },
     onError: (error) => {
       console.error('❌ Mutation error:', error);
@@ -337,7 +348,8 @@ export default function Admin() {
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries(['pendingInvitations']);
-      toast.success('✅ Duplicate invitation deleted!');
+      await queryClient.invalidateQueries(['allInvitations']);
+      toast.success('✅ Invitation deleted!');
     },
     onError: (error) => {
       toast.error(`❌ Error: ${error.message || 'Failed to delete invitation'}`);
@@ -802,6 +814,76 @@ export default function Admin() {
                     </div>
                   ))}
                 </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Sent Invitations - visible to all admins */}
+          {selectedOrgId && (
+            <Card className="border-l-4 border-teal-600">
+              <CardHeader className="bg-teal-50 border-b">
+                <CardTitle className="flex items-center gap-3 text-lg text-slate-900">
+                  <UserCheck className="w-5 h-5 text-teal-600" />
+                  Sent Invitations ({allInvitations.length})
+                </CardTitle>
+                <p className="text-sm text-slate-600 mt-1">All invitation records for this organization</p>
+              </CardHeader>
+              <CardContent className="pt-4">
+                {allInvitations.length === 0 ? (
+                  <div className="text-center py-8 text-slate-400">
+                    <Users className="w-10 h-10 mx-auto mb-2 opacity-40" />
+                    <p className="text-sm">No invitations sent yet. Use the "Invite User" button above.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {allInvitations.sort((a, b) => new Date(b.created_date) - new Date(a.created_date)).map((inv) => {
+                      const statusColors = {
+                        approved: 'bg-green-100 text-green-800 border-green-300',
+                        pending_platform: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+                        pending_org: 'bg-blue-100 text-blue-800 border-blue-300',
+                        rejected: 'bg-red-100 text-red-800 border-red-300',
+                      };
+                      const statusLabels = {
+                        approved: '✅ Access Granted',
+                        pending_platform: '⏳ Awaiting Platform Approval',
+                        pending_org: '⏳ Awaiting Org Approval',
+                        rejected: '❌ Rejected',
+                      };
+                      return (
+                        <div key={inv.id} className="flex items-center justify-between p-4 bg-white rounded-lg border border-slate-200">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 bg-teal-100 rounded-full flex items-center justify-center">
+                              <UserCheck className="w-4 h-4 text-teal-600" />
+                            </div>
+                            <div>
+                              <p className="font-medium text-slate-900">{inv.user_email}</p>
+                              <p className="text-xs text-slate-500">
+                                Invited by: {inv.org_admin_approved_by || 'Unknown'} 
+                                {inv.org_admin_approved_date ? ` · ${new Date(inv.org_admin_approved_date).toLocaleDateString()}` : ''}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`text-xs font-semibold px-3 py-1 rounded-full border ${statusColors[inv.final_status] || 'bg-slate-100 text-slate-600 border-slate-300'}`}>
+                              {statusLabels[inv.final_status] || inv.final_status}
+                            </span>
+                            {isPlatformOwner && (
+                              <Button
+                                onClick={() => deleteInvitationMutation.mutate(inv.id)}
+                                disabled={deleteInvitationMutation.isPending}
+                                variant="ghost"
+                                size="sm"
+                                className="text-red-500 hover:bg-red-50"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
