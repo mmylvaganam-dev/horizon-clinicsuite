@@ -9,14 +9,15 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Only platform owners can list all users
     const platformOwnerEmails = [
       'mylvaganam@premierhealthcanada.ca',
       'mmylvaganam@premierhealthcanada.ca'
     ];
-    
-    if (!platformOwnerEmails.includes(user.email) && !user.is_platform_owner) {
-      return Response.json({ error: 'Forbidden: Platform owner access required' }, { status: 403 });
+    const isPlatformOwner = platformOwnerEmails.includes(user.email) || user.is_platform_owner;
+    const isAdmin = user.role === 'admin';
+
+    if (!isPlatformOwner && !isAdmin) {
+      return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
     // Fetch all users using service role
@@ -45,8 +46,18 @@ Deno.serve(async (req) => {
       orgMap[org.id] = org.name;
     });
 
+    // For org admins, scope to their organization + users invited to their org
+    let filteredUsers = allUsers;
+    if (!isPlatformOwner && isAdmin && user.organization_id) {
+      const orgApprovals = approvals.filter(a => a.organization_id === user.organization_id);
+      const approvedEmails = new Set(orgApprovals.map(a => a.user_email));
+      filteredUsers = allUsers.filter(u => 
+        u.organization_id === user.organization_id || approvedEmails.has(u.email)
+      );
+    }
+
     // Map users with their organizations
-    const usersWithDetails = allUsers.map(u => {
+    const usersWithDetails = filteredUsers.map(u => {
       const userRoles = allUserRoles.filter(ur => ur.user_id === u.id);
       const orgIds = [...new Set(userRoles.map(ur => ur.organization_id))];
       const orgs = orgIds.map(orgId => orgMap[orgId] || 'Unknown');
@@ -56,6 +67,7 @@ Deno.serve(async (req) => {
         email: u.email,
         full_name: u.full_name,
         role: u.role,
+        organization_id: u.organization_id,
         created_date: u.created_date,
         organizations: orgs,
         is_blocked: blockedEmails.has(u.email),
@@ -64,7 +76,7 @@ Deno.serve(async (req) => {
     });
 
     return Response.json({ 
-      total_users: allUsers.length,
+      total_users: filteredUsers.length,
       users: usersWithDetails,
       fetched_at: new Date().toISOString()
     });

@@ -30,7 +30,10 @@ export default function AdminUsers() {
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['users'],
-    queryFn: () => base44.entities.User.list('-created_date'),
+    queryFn: async () => {
+      const res = await base44.functions.invoke('listAllUsers', {});
+      return res.data?.users || [];
+    },
   });
 
   const { data: userRoles = [] } = useQuery({
