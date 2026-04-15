@@ -483,6 +483,7 @@ function LayoutContent({ children, currentPageName }) {
       category: 'Organization Admin',
       icon: Settings,
       items: [
+        { name: 'User Management', page: 'UnifiedUserManagement', icon: Users, description: 'Unified user hub — invitations, approvals, roles, and access in one place' },
         { name: 'Organization Settings', page: 'Admin', icon: Settings, description: 'Organization administration - Staff, roles, branding, pricing, and configuration' },
         { name: 'User Access Approvals', page: 'UserApprovals', icon: CheckSquare, description: 'Approve or reject new user access requests for your organization' },
         { name: 'Sale Deletion Requests', page: 'SaleDeletionRequests', icon: CheckSquare, description: 'Review and approve staff sale deletion requests' },
