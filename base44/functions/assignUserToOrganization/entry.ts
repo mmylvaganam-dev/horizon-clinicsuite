@@ -9,13 +9,14 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Check if user is platform owner
+    // Check if user is platform owner OR admin
     const isPlatformOwner = user.email === 'mmylvaganam@premierhealthcanada.ca' || 
                            user.email === 'mylvaganam@premierhealthcanada.ca' ||
                            user.is_platform_owner === true;
+    const isAdmin = user.role === 'admin';
 
-    if (!isPlatformOwner) {
-      return Response.json({ error: 'Forbidden: Platform owner access required' }, { status: 403 });
+    if (!isPlatformOwner && !isAdmin) {
+      return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
     const { userId, userEmail, orgId, organizationId, isCompanyAdmin, deleteUser } = await req.json();
