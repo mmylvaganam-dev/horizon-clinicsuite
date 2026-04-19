@@ -162,8 +162,12 @@ function LayoutContent({ children, currentPageName }) {
   
   console.log('🔴 Layout - PLATFORM OWNER STATUS:', isDefinitelyPlatformOwner, '(This should ALWAYS be true for platform owner, regardless of org/company status)');
 
-  // Helper: check if a module code is enabled (platform owners always see everything)
-  const isModuleOn = (code) => isDefinitelyPlatformOwner || enabledModules.length === 0 || enabledModules.includes(code);
+  // Helper: check if a module code is enabled (platform owners ALWAYS see everything - no exceptions)
+  const isModuleOn = (code) => {
+    if (isDefinitelyPlatformOwner) return true;
+    if (enabledModules.length === 0) return true;
+    return enabledModules.includes(code);
+  };
 
   const { data: pendingApprovals = [] } = useQuery({
     queryKey: ['pendingApprovals'],
@@ -533,7 +537,9 @@ function LayoutContent({ children, currentPageName }) {
                     <nav className="flex-1 p-4 overflow-y-auto bg-slate-50">
                       <Accordion type="multiple" defaultValue={['Sale', 'Pharmacy', 'Operations', 'Platform Administration']} className="space-y-1">
                         {navigationGroups.filter(group => {
-                          if (group.platformOwnerOnly) return isDefinitelyPlatformOwner;
+                          // Platform owner sees EVERYTHING with no restrictions
+                          if (isDefinitelyPlatformOwner) return true;
+                          if (group.platformOwnerOnly) return false;
                           if (group.moduleRequired) return isModuleOn(group.moduleRequired);
                           if (group.moduleRequiredAny) return group.moduleRequiredAny.some(m => isModuleOn(m));
                           return true;
