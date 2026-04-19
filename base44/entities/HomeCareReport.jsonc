@@ -10,14 +10,15 @@
       "type": "string",
       "enum": [
         "caretaker",
-        "shift_handover"
+        "shift_handover",
+        "supervisor"
       ],
       "default": "shift_handover",
       "description": "Type of report"
     },
     "patient_name": {
       "type": "string",
-      "description": "Patient name (caretaker reports)"
+      "description": "Patient name"
     },
     "caretaker_name": {
       "type": "string",
@@ -130,6 +131,45 @@
     "handing_over_by": {
       "type": "string",
       "description": "Staff member handing over"
+    },
+    "supervisor_name": {
+      "type": "string",
+      "description": "Supervisor name (supervisor reports)"
+    },
+    "staff_member_name": {
+      "type": "string",
+      "description": "Staff member being reviewed (supervisor reports)"
+    },
+    "care_quality_rating": {
+      "type": "string",
+      "description": "Care quality star rating 1-5"
+    },
+    "staff_performance": {
+      "type": "string",
+      "enum": [
+        "excellent",
+        "satisfactory",
+        "needs-improvement",
+        "unsatisfactory"
+      ],
+      "description": "Staff performance rating"
+    },
+    "compliance_issues": {
+      "type": "string",
+      "description": "Compliance issues noted"
+    },
+    "action_items": {
+      "type": "string",
+      "description": "Action items or corrective actions"
+    },
+    "sign_off": {
+      "type": "boolean",
+      "default": false,
+      "description": "Supervisor sign-off"
+    },
+    "notes": {
+      "type": "string",
+      "description": "General notes"
     }
   },
   "required": [
