@@ -73,14 +73,14 @@ export function OrganizationProvider({ children }) {
       // For non-tele modules, also check OrganizationModuleAccess
       const orgAccess = await base44.entities.OrganizationModuleAccess.filter({ organization_id: selectedOrgId, is_enabled: true });
       const orgEnabledModules = orgAccess.map(a => a.module_code);
-      // Merge: org-level modules must also exist at company level (company gates everything)
-      const enabledModules = companyEnabledModules.filter(code => code !== 'TELEMEDICINE' && code !== 'VIRTUAL_HOSPITAL')
-        .concat(companyEnabledModules.filter(code => code === 'TELEMEDICINE' || code === 'VIRTUAL_HOSPITAL'));
+      // Merge: combine company-level AND org-level enabled modules
+      const teleCodes = ['TELEMEDICINE', 'VIRTUAL_HOSPITAL'];
+      const enabledModules = [...new Set([...companyEnabledModules, ...orgEnabledModules])];
       // Tele flags: ONLY from CompanyModuleAccess (platform owner controlled)
       const teleEnabled = companyEnabledModules.includes('TELEMEDICINE');
       const virtualHospital = companyEnabledModules.includes('VIRTUAL_HOSPITAL');
-      console.log('🔵 Modules for org:', org.name, 'Company modules:', companyEnabledModules, 'Tele:', teleEnabled, 'VH:', virtualHospital);
-      return { isTeleEnabled: teleEnabled || virtualHospital, isVirtualHospital: virtualHospital, enabledModules: companyEnabledModules };
+      console.log('🔵 Modules for org:', org.name, 'Company modules:', companyEnabledModules, 'Org modules:', orgEnabledModules, 'Merged:', enabledModules, 'Tele:', teleEnabled, 'VH:', virtualHospital);
+      return { isTeleEnabled: teleEnabled || virtualHospital, isVirtualHospital: virtualHospital, enabledModules };
     },
     enabled: !!selectedOrgId,
   });
