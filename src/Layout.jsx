@@ -242,7 +242,7 @@ function LayoutContent({ children, currentPageName }) {
       moduleRequired: 'PHARMACY',
       items: [
         { name: 'Point of Sale', page: 'PharmacyBilling', icon: ShoppingBag, description: 'POS system - Sell medicines, process walk-in customers, generate invoices' },
-        { name: 'Credit Sale', page: 'CreditCustomerManagement', icon: DollarSign, description: 'Credit sales — bill to institution accounts, track outstanding balances and payments' },
+
         { name: 'Dashboard', page: 'PharmacyDashboard', icon: Activity, description: 'Pharmacy overview - Sales stats, stock alerts, and quick actions' },
         { name: 'Work Queue', page: 'PharmacyWorkQueue', icon: CheckSquare, description: 'Prescription queue - Review and verify doctor prescriptions, prepare orders for dispensing' },
         { name: 'Inventory', page: 'PharmacyInventory', icon: Package, description: 'Stock management - Track inventory levels, receive stock, adjust quantities, view transactions' },
@@ -257,7 +257,7 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Bill Card Reports', page: 'PharmacyBillCardReports', icon: BarChart3, description: 'Bill card tracking - Monitor stock movement, quantity in/out, and balances' },
         { name: 'Procurement', page: 'Procurement', icon: ShoppingBag, description: 'Purchase orders - Create POs, receive goods, manage vendors' },
         { name: 'Credit Sale Institutions', page: 'InstitutionManagement', icon: Building2, description: 'Manage credit institutions - Add hospitals, clinics, corporates for credit sales' },
-        { name: 'Credit Sales Accounts', page: 'CreditCustomerManagement', icon: DollarSign, description: 'Credit accounts & payments - Track outstanding balances, payment history, and statements' },
+        { name: 'Credit Customer Management', page: 'CreditCustomerManagement', icon: DollarSign, description: 'Credit accounts & payments - Track outstanding balances, payment history, and statements' },
         { name: 'Credit Usage Dashboard', page: 'CreditUsageDashboard', icon: BarChart3, description: 'Analytics - Monitor credit trends, overdue alerts, and institution risk heatmap' },
         { name: 'Wholesale Marketplace', page: 'WholesaleMarketplace', icon: Package, description: 'Browse & order from wholesale suppliers — place bulk orders, track deliveries, manage payments' },
       ]
