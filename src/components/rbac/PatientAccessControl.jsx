@@ -27,6 +27,33 @@ export function usePatientAccess() {
     enabled: !isPlatformOwnerByEmail,
   });
 
+  // While user is still loading, return a neutral "loading" state (not denied)
+  if (!user) {
+    return {
+      user: null,
+      roleNames: [],
+      canViewFullChart: false,
+      canViewBasicProfile: false,
+      canViewAppointments: false,
+      canViewClinicalNotes: false,
+      canViewLabResults: false,
+      canViewPrescriptions: false,
+      canViewDiagnostics: false,
+      canViewBilling: false,
+      canViewTasks: false,
+      canViewReferrals: false,
+      noPatientAccess: false,
+      isPhysician: false,
+      isClinicAdmin: false,
+      isLabTech: false,
+      isPharmacist: false,
+      isDiagnosticsTech: false,
+      isDirector: false,
+      isPlatformOwner: false,
+      isLoading: true,
+    };
+  }
+
   // If platform owner, grant ALL permissions immediately without checking roles
   if (isPlatformOwnerByEmail) {
     return {

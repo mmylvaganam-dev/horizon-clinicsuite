@@ -191,6 +191,17 @@ export default function PatientDetails() {
     );
   }
 
+  // Don't block access while user/roles are still loading
+  if (!access.user) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-10 w-32" />
+        <Skeleton className="h-48 rounded-2xl" />
+        <Skeleton className="h-64 rounded-2xl" />
+      </div>
+    );
+  }
+
   if (access.noPatientAccess) {
     return (
       <div className="text-center py-12">

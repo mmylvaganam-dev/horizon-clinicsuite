@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
+import { useOrganization } from '@/components/OrganizationProvider';
 import PHNCard from '@/components/patients/PHNCard';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
@@ -58,9 +59,14 @@ export default function Patients() {
     },
   });
 
+  const { isPlatformOwner } = useOrganization();
+
   const { data: patients = [], isLoading } = useQuery({
-    queryKey: ['patients', selectedOrgId],
-    queryFn: () => base44.entities.Patient.filter(orgFilter, '-created_date'),
+    queryKey: ['patients', selectedOrgId, isPlatformOwner],
+    // Platform owners can see ALL patients across all orgs; others see only their org
+    queryFn: () => isPlatformOwner
+      ? base44.entities.Patient.list('-created_date')
+      : base44.entities.Patient.filter(orgFilter, '-created_date'),
   });
 
   const { data: wholesaleConnections = [] } = useQuery({
