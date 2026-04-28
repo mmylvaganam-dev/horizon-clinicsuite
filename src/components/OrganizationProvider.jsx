@@ -46,16 +46,16 @@ export function OrganizationProvider({ children }) {
   console.log('🔴 PLATFORM OWNER CHECK - Email:', user?.email, 'isPlatformOwner:', isPlatformOwner, 'This should ALWAYS be true for platform owner emails');
 
   // For platform owners: load ALL organizations (including inactive)
+  // Use !!user to ensure we wait for user to load before deciding
   const { data: organizations } = useQuery({
     queryKey: ['allOrganizations'],
     queryFn: async () => {
-      if (!isPlatformOwner) return [];
       const orgs = await base44.entities.Organization.list();
       console.log('🔵 Platform owner - Loading ALL organizations (active + inactive):', orgs.length, 'orgs');
       console.log('🔵 Organizations:', orgs.map(o => `${o.name} (${o.status})`));
-      return orgs; // Platform owners can see all organizations
+      return orgs;
     },
-    enabled: isPlatformOwner,
+    enabled: isPlatformOwner && !!user,
   });
 
   // Fetch all enabled module codes for the selected org's company
@@ -147,13 +147,16 @@ export function OrganizationProvider({ children }) {
 
   useEffect(() => {
     console.log('OrganizationProvider - isPlatformOwner:', isPlatformOwner, 'user:', user?.email, 'selectedOrgId:', selectedOrgId, 'organizations:', organizations?.length);
-    
-    // Platform owner: auto-select first org
-    if (isPlatformOwner && organizations?.length > 0 && !selectedOrgId) {
-      const firstOrg = organizations[0];
-      console.log('Auto-selecting first organization:', firstOrg.id, firstOrg.name);
-      setSelectedOrgId(firstOrg.id);
-      sessionStorage.setItem('selectedOrgId', firstOrg.id);
+
+    if (isPlatformOwner && organizations?.length > 0) {
+      // If no org selected, or selected org is no longer in the list, pick first
+      const orgExists = organizations.some(o => o.id === selectedOrgId);
+      if (!selectedOrgId || !orgExists) {
+        const firstOrg = organizations[0];
+        console.log('Auto-selecting first organization:', firstOrg.id, firstOrg.name);
+        setSelectedOrgId(firstOrg.id);
+        sessionStorage.setItem('selectedOrgId', firstOrg.id);
+      }
     }
     
     // Regular user: use their assigned organization
