@@ -52,12 +52,13 @@ export default function EMR() {
 
   const { data: patients = [], isLoading } = useQuery({
     queryKey: ['patients', selectedOrgId, isPlatformOwner],
-    queryFn: () => isPlatformOwner
-      ? base44.entities.Patient.list('-created_date')
-      : base44.entities.Patient.filter(
-          selectedOrgId ? { organization_id: selectedOrgId } : {},
-          '-created_date'
-        ),
+    queryFn: () => {
+      if (isPlatformOwner && !selectedOrgId) return base44.entities.Patient.list('-created_date');
+      return base44.entities.Patient.filter(
+        selectedOrgId ? { organization_id: selectedOrgId } : {},
+        '-created_date'
+      );
+    },
   });
 
   const createPatientMutation = useMutation({

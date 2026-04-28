@@ -63,10 +63,12 @@ export default function Patients() {
 
   const { data: patients = [], isLoading } = useQuery({
     queryKey: ['patients', selectedOrgId, isPlatformOwner],
-    // Platform owners can see ALL patients across all orgs; others see only their org
-    queryFn: () => isPlatformOwner
-      ? base44.entities.Patient.list('-created_date')
-      : base44.entities.Patient.filter(orgFilter, '-created_date'),
+    // Platform owners: filter by selected org if one is chosen, else show all
+    // Regular users: always filter by their org
+    queryFn: () => {
+      if (isPlatformOwner && !selectedOrgId) return base44.entities.Patient.list('-created_date');
+      return base44.entities.Patient.filter(orgFilter, '-created_date');
+    },
   });
 
   const { data: wholesaleConnections = [] } = useQuery({
