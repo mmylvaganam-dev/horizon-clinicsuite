@@ -116,10 +116,10 @@ export default function PatientDetails() {
   const { data: patient, isLoading: loadingPatient } = useQuery({
     queryKey: ['patient', patientId],
     queryFn: async () => {
-      const patients = await base44.entities.Patient.filter({ id: patientId, organization_id: selectedOrgId });
+      const patients = await base44.entities.Patient.filter({ id: patientId });
       return patients[0];
     },
-    enabled: !!patientId && !!selectedOrgId,
+    enabled: !!patientId,
   });
 
   useEffect(() => {
