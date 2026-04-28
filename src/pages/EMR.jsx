@@ -48,12 +48,16 @@ export default function EMR() {
     queryFn: () => base44.auth.me(),
   });
 
+  const { isPlatformOwner } = useOrganization();
+
   const { data: patients = [], isLoading } = useQuery({
-    queryKey: ['patients', selectedOrgId],
-    queryFn: async () => {
-      const filter = selectedOrgId ? { organization_id: selectedOrgId } : {};
-      return base44.entities.Patient.filter(filter, '-created_date');
-    },
+    queryKey: ['patients', selectedOrgId, isPlatformOwner],
+    queryFn: () => isPlatformOwner
+      ? base44.entities.Patient.list('-created_date')
+      : base44.entities.Patient.filter(
+          selectedOrgId ? { organization_id: selectedOrgId } : {},
+          '-created_date'
+        ),
   });
 
   const createPatientMutation = useMutation({
