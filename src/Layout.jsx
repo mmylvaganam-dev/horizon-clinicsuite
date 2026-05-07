@@ -71,7 +71,7 @@ function LayoutContent({ children, currentPageName }) {
   const navigate = useNavigate();
   const location = useLocation();
   const queryClient = useQueryClient();
-  const { isPlatformOwner, user: contextUser, isTeleEnabled, isVirtualHospital, enabledModules = [] } = useOrganization();
+  const { isPlatformOwner, user: contextUser, isTeleEnabled, isVirtualHospital, enabledModules = [], companyName } = useOrganization();
 
   // Auto-refresh all data every 60 seconds
   useEffect(() => {
@@ -421,8 +421,8 @@ function LayoutContent({ children, currentPageName }) {
         ...(!isVirtualHospital ? [
           { name: 'Tele Appointments', page: 'TeleAppointments', icon: Video, description: 'Virtual consultations for your registered patients' },
         ] : []),
-        // For virtual hospitals only: show Global Patient Hub and full suite
-        ...(isVirtualHospital ? [
+        // For virtual hospitals ONLY in CrossBorder Health Network: show Global Patient Hub and full suite
+        ...(isVirtualHospital && companyName === 'CrossBorder Health Network' ? [
           { name: 'Global Patient Hub', page: 'PatientHub', icon: Globe, description: 'Global telemedicine patients - overseas patients, second opinions, medical tourism' },
           { name: 'Services', page: 'TelemedicineServices', icon: Video, description: 'Manage virtual care service types and offerings' },
           { name: 'Doctors', page: 'TelemedicineDoctors', icon: Users, description: 'Manage doctors available for virtual consultations' },

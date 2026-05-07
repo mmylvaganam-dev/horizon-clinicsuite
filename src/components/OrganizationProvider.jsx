@@ -59,13 +59,18 @@ export function OrganizationProvider({ children }) {
   });
 
   // Fetch all enabled module codes for the selected org's company
-  const { data: moduleData = { isTeleEnabled: false, isVirtualHospital: false, enabledModules: [] } } = useQuery({
+  const { data: moduleData = { isTeleEnabled: false, isVirtualHospital: false, enabledModules: [], companyName: null } } = useQuery({
     queryKey: ['companyModules', selectedOrgId],
     queryFn: async () => {
-      if (!selectedOrgId) return { isTeleEnabled: false, isVirtualHospital: false, enabledModules: [] };
+      if (!selectedOrgId) return { isTeleEnabled: false, isVirtualHospital: false, enabledModules: [], companyName: null };
       const allOrgs = await base44.entities.Organization.list();
       const org = allOrgs.find(o => o.id === selectedOrgId);
-      if (!org?.company_id) return { isTeleEnabled: false, isVirtualHospital: false, enabledModules: [] };
+      if (!org?.company_id) return { isTeleEnabled: false, isVirtualHospital: false, enabledModules: [], companyName: null };
+      
+      // Fetch company name
+      const allCompanies = await base44.entities.CompanyProfile.list();
+      const company = allCompanies.find(c => c.id === org.company_id);
+      
       // CRITICAL: Telemedicine/Virtual Hospital status is read ONLY from CompanyModuleAccess
       // (controlled exclusively by platform owners). OrganizationModuleAccess cannot override these.
       const allAccess = await base44.entities.CompanyModuleAccess.filter({ company_id: org.company_id, is_enabled: true });
@@ -79,8 +84,8 @@ export function OrganizationProvider({ children }) {
       // Tele flags: ONLY from CompanyModuleAccess (platform owner controlled)
       const teleEnabled = companyEnabledModules.includes('TELEMEDICINE');
       const virtualHospital = companyEnabledModules.includes('VIRTUAL_HOSPITAL');
-      console.log('🔵 Modules for org:', org.name, 'Company modules:', companyEnabledModules, 'Org modules:', orgEnabledModules, 'Merged:', enabledModules, 'Tele:', teleEnabled, 'VH:', virtualHospital);
-      return { isTeleEnabled: teleEnabled || virtualHospital, isVirtualHospital: virtualHospital, enabledModules };
+      console.log('🔵 Modules for org:', org.name, 'Company:', company?.name, 'Company modules:', companyEnabledModules, 'Org modules:', orgEnabledModules, 'Merged:', enabledModules, 'Tele:', teleEnabled, 'VH:', virtualHospital);
+      return { isTeleEnabled: teleEnabled || virtualHospital, isVirtualHospital: virtualHospital, enabledModules, companyName: company?.name };
     },
     enabled: !!selectedOrgId,
   });
@@ -88,6 +93,7 @@ export function OrganizationProvider({ children }) {
   const isTeleEnabled = moduleData.isTeleEnabled;
   const isVirtualHospital = moduleData.isVirtualHospital;
   const enabledModules = moduleData.enabledModules;
+  const companyName = moduleData.companyName;
 
   const { data: userOrganization } = useQuery({
     queryKey: ['userOrganization', user?.email],
@@ -184,6 +190,7 @@ export function OrganizationProvider({ children }) {
         isTeleEnabled,
         isVirtualHospital,
         enabledModules,
+        companyName,
       }}
     >
       {children}
