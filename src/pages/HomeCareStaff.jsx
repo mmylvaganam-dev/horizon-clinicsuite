@@ -75,16 +75,24 @@ export default function HomeCareStaff() {
 
   const getStaffExpiryAlerts = (staffId) => {
     return allCredentials.filter(doc => {
-      if (!doc.expiry_date || doc.staff_ref !== staffId) return false;
-      const daysLeft = differenceInDays(parseISO(doc.expiry_date), new Date());
-      return daysLeft <= (doc.alert_days_before || 30);
+      if (!doc.expiry_date || !doc.expiry_date.trim() || doc.staff_ref !== staffId) return false;
+      try {
+        const daysLeft = differenceInDays(parseISO(doc.expiry_date), new Date());
+        return daysLeft <= (doc.alert_days_before || 30);
+      } catch {
+        return false;
+      }
     });
   };
 
   const totalExpiryAlerts = allCredentials.filter(doc => {
-    if (!doc.expiry_date) return false;
-    const daysLeft = differenceInDays(parseISO(doc.expiry_date), new Date());
-    return daysLeft <= (doc.alert_days_before || 30);
+    if (!doc.expiry_date || !doc.expiry_date.trim()) return false;
+    try {
+      const daysLeft = differenceInDays(parseISO(doc.expiry_date), new Date());
+      return daysLeft <= (doc.alert_days_before || 30);
+    } catch {
+      return false;
+    }
   }).length;
 
   const divisions = ['North', 'South', 'East', 'West', 'Central'];

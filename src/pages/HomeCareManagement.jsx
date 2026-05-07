@@ -412,7 +412,7 @@ export default function HomeCareReports() {
                           {doc.document_type === 'home_care_notes' ? 'Home Care Notes' : doc.document_type}
                         </p>
                         <p className="text-xs text-slate-500">
-                          Uploaded by {doc.uploaded_by} on {doc.uploaded_date ? format(new Date(doc.uploaded_date), 'MMM d, yyyy') : 'Unknown'}
+                          Uploaded by {doc.uploaded_by} on {doc.uploaded_date && doc.uploaded_date.trim() ? format(new Date(doc.uploaded_date), 'MMM d, yyyy') : 'Unknown date'}
                         </p>
                       </div>
                     </div>
@@ -454,20 +454,20 @@ export default function HomeCareReports() {
             </div>
           </div>
 
-          {reports.filter(r => r.report_date === dateFilter).length === 0 ? (
+          {reports.filter(r => r.report_date && r.report_date.trim() === dateFilter).length === 0 ? (
             <Card className="p-12 text-center">
               <Activity className="w-12 h-12 mx-auto text-slate-300 mb-4" />
-              <p className="text-slate-500">No report for {dateFilter ? format(new Date(dateFilter + 'T00:00:00'), 'MMM d, yyyy') : 'selected date'}</p>
+              <p className="text-slate-500">No report for {dateFilter && dateFilter.trim() ? format(new Date(dateFilter + 'T00:00:00'), 'MMM d, yyyy') : 'selected date'}</p>
               <p className="text-xs text-slate-400 mt-2">Create a daily report to track operations</p>
             </Card>
           ) : (
-            reports.filter(r => r.report_date === dateFilter).map((report) => (
+            reports.filter(r => r.report_date && r.report_date.trim() === dateFilter).map((report) => (
               <Card key={report.id} className="p-6">
                 <div className="space-y-6">
                   {/* Header */}
                   <div className="flex items-center justify-between border-b pb-4">
                     <div>
-                      <h3 className="text-xl font-bold">{report.report_date ? format(new Date(report.report_date + 'T00:00:00'), 'EEEE, MMMM d, yyyy') : 'Unknown Date'}</h3>
+                      <h3 className="text-xl font-bold">{report.report_date && report.report_date.trim() ? format(new Date(report.report_date + 'T00:00:00'), 'EEEE, MMMM d, yyyy') : 'Unknown Date'}</h3>
                       <p className="text-sm text-slate-500">{report.shift_type === 'morning' ? 'Morning Shift' : 'Evening Shift'} - {report.shift_time}</p>
                     </div>
                     <Badge className="bg-blue-100 text-blue-700">Daily Report</Badge>
@@ -570,11 +570,11 @@ export default function HomeCareReports() {
           )}
 
           {/* Patient Visits for Selected Date */}
-          {patientVisits.filter(v => v.report_date === dateFilter).length > 0 && (
+          {patientVisits.filter(v => v.report_date && v.report_date.trim() === dateFilter).length > 0 && (
             <div className="mt-6">
-              <h3 className="text-lg font-semibold mb-4">Patient Visits - {dateFilter ? format(new Date(dateFilter + 'T00:00:00'), 'MMM d, yyyy') : 'Selected Date'}</h3>
+              <h3 className="text-lg font-semibold mb-4">Patient Visits - {dateFilter && dateFilter.trim() ? format(new Date(dateFilter + 'T00:00:00'), 'MMM d, yyyy') : 'Selected Date'}</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {patientVisits.filter(v => v.report_date === dateFilter).map((visit) => (
+                {patientVisits.filter(v => v.report_date && v.report_date.trim() === dateFilter).map((visit) => (
                   <Card key={visit.id} className="p-4">
                     <div className="space-y-2">
                       <div className="flex items-start justify-between">
