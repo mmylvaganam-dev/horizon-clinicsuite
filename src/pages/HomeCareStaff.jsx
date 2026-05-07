@@ -144,8 +144,15 @@ export default function HomeCareStaff() {
      });
   };
 
-  const nursingCount = staff.filter(s => s.hc_staff_type === 'nursing_officer' || !s.hc_staff_type).length;
+  const nursingStaff = staff.filter(s => s.hc_staff_type === 'nursing_officer' || !s.hc_staff_type);
+  const nursingCount = nursingStaff.length;
   const homeCareCount = staff.filter(s => s.hc_staff_type === 'home_care_worker').length;
+
+  const getTypeInfo = (hcStaffType) => {
+    // Default to nursing_officer if not set (backward compatibility)
+    const type = hcStaffType || 'nursing_officer';
+    return STAFF_TYPES.find(t => t.value === type) || STAFF_TYPES[0];
+  };
 
   const filteredStaff = nursingStaff.filter(s => {
     const fullName = `${s.first_name || ''} ${s.last_name || ''}`.toLowerCase();
@@ -156,14 +163,6 @@ export default function HomeCareStaff() {
       s.division?.toLowerCase().includes(searchLower)
     );
   });
-
-  const getTypeInfo = (hcStaffType) => {
-    // Default to nursing_officer if not set (backward compatibility)
-    const type = hcStaffType || 'nursing_officer';
-    return STAFF_TYPES.find(t => t.value === type) || STAFF_TYPES[0];
-  };
-
-  const nursingStaff = staff.filter(s => s.hc_staff_type === 'nursing_officer' || !s.hc_staff_type);
 
   return (
     <div className="space-y-6">
