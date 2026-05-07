@@ -31,9 +31,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
+import { useOrganization } from '@/components/OrganizationProvider';
 
 export default function HomeCareReports() {
   const queryClient = useQueryClient();
+  const { selectedOrgId } = useOrganization();
   const [showAddStaffDialog, setShowAddStaffDialog] = useState(false);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [showReportDialog, setShowReportDialog] = useState(false);
@@ -87,30 +89,36 @@ export default function HomeCareReports() {
   });
 
   const { data: staff = [] } = useQuery({
-    queryKey: ['homeCareStaff'],
+    queryKey: ['homeCareStaff', selectedOrgId],
     queryFn: () => base44.entities.StaffProfile.filter({ 
+      organization_id: selectedOrgId,
       role: 'home_nurse'
     }),
+    enabled: !!selectedOrgId,
   });
 
   const { data: patients = [] } = useQuery({
-    queryKey: ['patients'],
-    queryFn: () => base44.entities.Patient.list(),
+    queryKey: ['patients', selectedOrgId],
+    queryFn: () => base44.entities.Patient.filter({ organization_id: selectedOrgId }),
+    enabled: !!selectedOrgId,
   });
 
   const { data: documents = [] } = useQuery({
-    queryKey: ['homeCareDocuments'],
-    queryFn: () => base44.entities.PatientDocument.list('-created_date'),
+    queryKey: ['homeCareDocuments', selectedOrgId],
+    queryFn: () => base44.entities.PatientDocument.filter({ organization_id: selectedOrgId }),
+    enabled: !!selectedOrgId,
   });
 
   const { data: reports = [] } = useQuery({
-    queryKey: ['homeCareReports'],
-    queryFn: () => base44.entities.HomeCareReport.list('-report_date'),
+    queryKey: ['homeCareReports', selectedOrgId],
+    queryFn: () => base44.entities.HomeCareReport.filter({ organization_id: selectedOrgId }),
+    enabled: !!selectedOrgId,
   });
 
   const { data: patientVisits = [] } = useQuery({
-    queryKey: ['homeCarePatientVisits'],
-    queryFn: () => base44.entities.HomeCarePatientVisit.list('-report_date'),
+    queryKey: ['homeCarePatientVisits', selectedOrgId],
+    queryFn: () => base44.entities.HomeCarePatientVisit.filter({ organization_id: selectedOrgId }),
+    enabled: !!selectedOrgId,
   });
 
   const { data: companies = [] } = useQuery({
@@ -197,11 +205,18 @@ export default function HomeCareReports() {
   });
 
   const handleAddStaff = () => {
+    if (!selectedOrgId) {
+      toast.error('No organization selected. Please switch to an organization first.');
+      return;
+    }
     if (!staffForm.full_name || !staffForm.phone || !staffForm.division) {
       toast.error('Please fill required fields');
       return;
     }
-    createStaffMutation.mutate(staffForm);
+    createStaffMutation.mutate({
+      ...staffForm,
+      organization_id: selectedOrgId
+    });
   };
 
   const handleUpload = () => {
