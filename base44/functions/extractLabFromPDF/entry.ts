@@ -145,6 +145,8 @@ Deno.serve(async (req) => {
             patient_id: patient_id,
             module: 'LAB',
             action: 'extract_lab_from_pdf',
+            action_type: 'create',
+            entity_type: 'Result',
             record_type: 'Result',
             record_id: result.id,
             metadata: {

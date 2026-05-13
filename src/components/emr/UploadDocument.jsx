@@ -88,6 +88,8 @@ export default function UploadDocument({ patientId, defaultCategory, onSuccess }
         patient_id: patientId,
         module: 'EMR_UPLOAD',
         action: 'create',
+        action_type: 'create',
+        entity_type: 'PatientDocument',
         record_type: 'PatientDocument',
         record_id: doc.id,
         metadata: { doc_category: formData.doc_category, doc_title: titleToUse }
