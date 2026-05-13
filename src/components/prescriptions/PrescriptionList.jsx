@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent } from '@/components/ui/card';
 import {
   Pill, Search, Edit2, XCircle, Send, CheckCircle, Clock, RefreshCw,
-  Building2, AlertTriangle, ChevronDown, ChevronUp, Printer
+  Building2, AlertTriangle, ChevronDown, ChevronUp, Printer, Copy, FileText
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
@@ -35,12 +35,16 @@ export default function PrescriptionList({ patientId, patient, onEdit }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [expandedId, setExpandedId] = useState(null);
+  const [faxingId, setFaxingId] = useState(null);
 
   const { data: prescriptions = [], isLoading } = useQuery({
     queryKey: ['prescriptions', patientId],
-    queryFn: () => patientId
-      ? base44.entities.Prescription.filter({ patient_id: patientId }, '-prescribed_date', 100)
-      : base44.entities.Prescription.list('-prescribed_date', 100),
+    queryFn: () => {
+      // Always filter by patient if patientId is provided - never show all patients' Rx
+      if (patientId) return base44.entities.Prescription.filter({ patient_id: patientId }, '-prescribed_date', 100);
+      return base44.entities.Prescription.list('-prescribed_date', 100);
+    },
+    enabled: !!patientId, // Don't load anything without a patient context
   });
 
   const cancelMutation = useMutation({
@@ -50,6 +54,35 @@ export default function PrescriptionList({ patientId, patient, onEdit }) {
       toast.success('Prescription cancelled');
     },
   });
+
+  const renewMutation = useMutation({
+    mutationFn: async (rx) => {
+      // Create a new prescription as a renewal/refill copy
+      const { id, created_date, updated_date, prescribed_date, status, delivery_status, delivery_sent_at, ...rest } = rx;
+      return base44.entities.Prescription.create({
+        ...rest,
+        status: 'New',
+        prescribed_date: new Date().toISOString(),
+        refills: rx.refills || 0,
+        notes: `Renewal of prescription from ${rx.prescribed_date ? format(new Date(rx.prescribed_date), 'dd MMM yyyy') : 'previous date'}`,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['prescriptions'] });
+      toast.success('Renewal prescription created as Draft');
+    },
+  });
+
+  const handleFax = async (rx) => {
+    setFaxingId(rx.id);
+    try {
+      // Open print view which has the fax-ready prescription format
+      window.open(`/PrescriptionPrint?id=${rx.id}&fax=1`, '_blank');
+      toast.success('Prescription opened for fax/print');
+    } finally {
+      setFaxingId(null);
+    }
+  };
 
   const resendMutation = useMutation({
     mutationFn: (rx) => base44.entities.Prescription.update(rx.id, {
@@ -67,6 +100,14 @@ export default function PrescriptionList({ patientId, patient, onEdit }) {
     const matchesStatus = statusFilter === 'all' || rx.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  if (!patientId) return (
+    <div className="text-center py-16 text-slate-400">
+      <Pill className="w-10 h-10 mx-auto mb-3 opacity-30" />
+      <p className="font-medium">No patient selected</p>
+      <p className="text-sm mt-1">Open this page from a patient's chart to see their prescriptions.</p>
+    </div>
+  );
 
   if (isLoading) return <div className="text-center py-12 text-slate-400">Loading prescriptions...</div>;
 
@@ -120,8 +161,8 @@ export default function PrescriptionList({ patientId, patient, onEdit }) {
                   <div className="flex items-center gap-4 mt-2 text-xs text-slate-400 flex-wrap">
                     <span>Qty: <strong className="text-slate-600">{rx.quantity}</strong></span>
                     <span>Refills: <strong className="text-slate-600">{rx.refills}</strong></span>
-                    {rx.prescribed_date && <span>Prescribed: {format(new Date(rx.prescribed_date), 'dd MMM yyyy')}</span>}
-                    {rx.expiry_date && <span>Expires: {format(new Date(rx.expiry_date), 'dd MMM yyyy')}</span>}
+                    {rx.prescribed_date && (() => { try { const d = new Date(rx.prescribed_date); return isNaN(d) ? null : <span>Prescribed: {format(d, 'dd MMM yyyy')}</span>; } catch { return null; } })()}
+                    {rx.expiry_date && (() => { try { const d = new Date(rx.expiry_date); return isNaN(d) ? null : <span>Expires: {format(d, 'dd MMM yyyy')}</span>; } catch { return null; } })()}
                     {rx.target_pharmacy_name && (
                       <span className="flex items-center gap-1"><Building2 className="w-3 h-3" />{rx.target_pharmacy_name}</span>
                     )}
@@ -149,6 +190,26 @@ export default function PrescriptionList({ patientId, patient, onEdit }) {
                       <RefreshCw className="w-4 h-4" />
                     </button>
                   )}
+                  {/* Renew/Refill button — available on Verified or Dispensed Rx */}
+                  {(rx.status === 'Verified' || rx.status === 'Dispensed') && (
+                    <button
+                      onClick={() => { if (confirm(`Renew "${rx.drug_name}"? A new Draft prescription will be created.`)) renewMutation.mutate(rx); }}
+                      className="p-1.5 rounded hover:bg-green-50 text-slate-400 hover:text-green-600"
+                      title="Renew / Refill"
+                      disabled={renewMutation.isPending}
+                    >
+                      <Copy className="w-4 h-4" />
+                    </button>
+                  )}
+                  {/* Fax / Print button */}
+                  <button
+                    onClick={() => handleFax(rx)}
+                    className="p-1.5 rounded hover:bg-purple-50 text-slate-400 hover:text-purple-600"
+                    title="Fax / Print prescription"
+                    disabled={faxingId === rx.id}
+                  >
+                    <FileText className="w-4 h-4" />
+                  </button>
                   <button
                     onClick={() => navigate(`/PrescriptionPrint?id=${rx.id}`)}
                     className="p-1.5 rounded hover:bg-teal-50 text-slate-400 hover:text-teal-600"
@@ -164,11 +225,7 @@ export default function PrescriptionList({ patientId, patient, onEdit }) {
                 <div className="mt-3 pt-3 border-t border-slate-100 space-y-2 text-sm text-slate-600">
                   {rx.notes && <p><span className="font-medium text-slate-700">Notes: </span>{rx.notes}</p>}
                   {rx.prescriber_id && <p><span className="font-medium text-slate-700">Prescriber ID: </span>{rx.prescriber_id}</p>}
-                  {rx.delivery_sent_at && (
-                    <p><span className="font-medium text-slate-700">Sent to pharmacy: </span>
-                      {format(new Date(rx.delivery_sent_at), 'dd MMM yyyy HH:mm')}
-                    </p>
-                  )}
+                  {rx.delivery_sent_at && (() => { try { const d = new Date(rx.delivery_sent_at); return isNaN(d) ? null : <p><span className="font-medium text-slate-700">Sent to pharmacy: </span>{format(d, 'dd MMM yyyy HH:mm')}</p>; } catch { return null; } })()}
                 </div>
               )}
             </CardContent>
