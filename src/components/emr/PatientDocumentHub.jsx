@@ -248,7 +248,7 @@ Be concise and clinically accurate.`,
                     {doc.doc_type === 'IMAGE' && <Badge variant="outline" className="text-xs text-orange-600 border-orange-200"><Camera className="w-3 h-3 mr-1" />Photo</Badge>}
                     {doc.ai_summary && <Badge className="text-xs bg-teal-50 text-teal-700 border border-teal-200"><Sparkles className="w-3 h-3 mr-1" />AI Analyzed</Badge>}
                   </div>
-                  <p className="text-xs text-slate-400 mt-0.5">{format(new Date(doc.doc_date || doc.created_date), 'MMM d, yyyy')}</p>
+                  <p className="text-xs text-slate-400 mt-0.5">{(() => { try { const d = new Date(doc.doc_date || doc.created_date); return isNaN(d) ? '' : format(d, 'MMM d, yyyy'); } catch { return ''; } })()}</p>
                   {doc.ai_summary && (
                     <p className="text-xs text-slate-600 mt-1 line-clamp-2">{doc.ai_summary}</p>
                   )}
@@ -443,7 +443,7 @@ Be concise and clinically accurate.`,
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2">
                 <Badge>{getCatInfo(viewDoc.doc_category)?.label}</Badge>
-                <Badge variant="outline">{format(new Date(viewDoc.doc_date || viewDoc.created_date), 'MMM d, yyyy')}</Badge>
+                <Badge variant="outline">{(() => { try { const d = new Date(viewDoc.doc_date || viewDoc.created_date); return isNaN(d) ? '' : format(d, 'MMM d, yyyy'); } catch { return ''; } })()}</Badge>
                 {viewDoc.doc_type === 'IMAGE' && <Badge variant="outline" className="text-orange-600"><Camera className="w-3 h-3 mr-1" />Photo</Badge>}
               </div>
 

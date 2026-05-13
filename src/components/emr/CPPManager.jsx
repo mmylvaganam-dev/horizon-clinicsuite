@@ -217,7 +217,7 @@ Text: ${text || '(see uploaded file)'}`;
             <div key={item.id} className="flex items-start justify-between p-3 bg-slate-50 rounded-lg">
               <div className="flex-1">
                 <p className="font-semibold text-slate-900">{item.problem_name}</p>
-                {item.onset_date && <p className="text-xs text-slate-500">Onset: {format(new Date(item.onset_date), 'MMM yyyy')}</p>}
+                {item.onset_date && (() => { try { const d = new Date(item.onset_date); return isNaN(d) ? null : <p className="text-xs text-slate-500">Onset: {format(d, 'MMM yyyy')}</p>; } catch { return null; } })()}
                 {item.notes && <p className="text-sm text-slate-600 mt-1">{item.notes}</p>}
               </div>
               <div className="flex gap-2">

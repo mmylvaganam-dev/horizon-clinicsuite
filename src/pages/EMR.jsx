@@ -196,9 +196,7 @@ export default function EMR() {
                           </p>
                           <div className="flex items-center gap-2 text-sm text-slate-500">
                             {patient.mrn && <span>MRN: {patient.mrn}</span>}
-                            {patient.date_of_birth && (
-                              <span>• DOB: {format(new Date(patient.date_of_birth), 'MMM d, yyyy')}</span>
-                            )}
+                            {patient.date_of_birth && (() => { try { const d = new Date(patient.date_of_birth); return isNaN(d) ? null : <span>• DOB: {format(d, 'MMM d, yyyy')}</span>; } catch { return null; } })()}
                           </div>
                         </div>
                       </div>
@@ -231,9 +229,7 @@ export default function EMR() {
                     </h2>
                     <div className="flex items-center gap-3 text-teal-100 text-sm mt-1">
                       {selectedPatient.mrn && <span>MRN: {selectedPatient.mrn}</span>}
-                      {selectedPatient.date_of_birth && (
-                        <span>• {Math.floor((new Date() - new Date(selectedPatient.date_of_birth)) / (365.25 * 24 * 60 * 60 * 1000))} years old</span>
-                      )}
+                      {selectedPatient.date_of_birth && (() => { try { const age = Math.floor((new Date() - new Date(selectedPatient.date_of_birth)) / (365.25 * 24 * 60 * 60 * 1000)); return isNaN(age) ? null : <span>• {age} years old</span>; } catch { return null; } })()}
                       {selectedPatient.gender && <span>• {selectedPatient.gender}</span>}
                     </div>
                   </div>
@@ -422,7 +418,7 @@ export default function EMR() {
                                 <p className="font-semibold text-slate-900 capitalize">
                                   {record.record_type?.replace(/[_-]/g, ' ')}
                                 </p>
-                                <Badge variant="outline">{format(new Date(record.record_date), 'MMM d, yyyy')}</Badge>
+                                <Badge variant="outline">{(() => { try { const d = new Date(record.record_date); return isNaN(d) ? record.record_date : format(d, 'MMM d, yyyy'); } catch { return record.record_date || ''; } })()}</Badge>
                               </div>
                               {record.provider && (
                                 <p className="text-sm text-slate-500">Provider: {record.provider}</p>
