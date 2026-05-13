@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   Upload, Sparkles, FileText, Image, Loader2, CheckCircle2, 
-  FlaskConical, Pill, Stethoscope, ClipboardList, Eye, Camera
+  FlaskConical, Pill, Stethoscope, ClipboardList, Eye, Camera, Trash2
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
@@ -193,6 +193,20 @@ Be concise and clinically accurate.`,
 
   const getCatInfo = (val) => DOC_CATEGORIES.find(c => c.value === val);
 
+  const deleteMutation = useMutation({
+    mutationFn: (docId) => base44.entities.PatientDocument.delete(docId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['patientDocuments', patientId] });
+      toast.success('Document deleted');
+    },
+    onError: () => toast.error('Failed to delete document'),
+  });
+
+  const handleDelete = (doc) => {
+    if (!window.confirm(`Delete "${doc.doc_title}"? This cannot be undone.`)) return;
+    deleteMutation.mutate(doc.id);
+  };
+
   return (
     <div className="space-y-4">
       {/* Header */}
@@ -239,9 +253,20 @@ Be concise and clinically accurate.`,
                     <p className="text-xs text-slate-600 mt-1 line-clamp-2">{doc.ai_summary}</p>
                   )}
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => setViewDoc(doc)}>
-                  <Eye className="w-4 h-4" />
-                </Button>
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <Button variant="ghost" size="sm" onClick={() => setViewDoc(doc)}>
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-400 hover:text-red-600 hover:bg-red-50"
+                    onClick={() => handleDelete(doc)}
+                    disabled={deleteMutation.isPending}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
               </div>
             );
           })}
