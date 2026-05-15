@@ -29,6 +29,7 @@ import PatientForm from '../components/patients/PatientForm';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 import { HistorySection } from '../components/emr/HistoryEditor';
 import ClinicalDocumentLauncher from '@/components/clinical/ClinicalDocumentLauncher';
+import EMRErrorBoundary from '../components/emr/EMRErrorBoundary';
 
 export default function EMR() {
   const navigate = useNavigate();
@@ -278,29 +279,34 @@ export default function EMR() {
             </TabsList>
 
             <TabsContent value="cpp">
-              <CPPManager patientId={selectedPatient.id} />
+              <EMRErrorBoundary key={`cpp-${selectedPatient.id}`}>
+                <CPPManager patientId={selectedPatient.id} />
+              </EMRErrorBoundary>
             </TabsContent>
 
             <TabsContent value="medications">
-              <Card className="bg-white border-0 shadow-sm">
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle>Current Medications</CardTitle>
-                  <Button 
-                    onClick={() => navigate(`${createPageUrl('Prescriptions')}?patient=${selectedPatient.id}`)}
-                    size="sm"
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    <Pill className="w-4 h-4 mr-2" />
-                    New Prescription
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <MedicationList patientId={selectedPatient.id} />
-                </CardContent>
-              </Card>
+              <EMRErrorBoundary key={`meds-${selectedPatient.id}`}>
+                <Card className="bg-white border-0 shadow-sm">
+                  <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle>Current Medications</CardTitle>
+                    <Button 
+                      onClick={() => navigate(`${createPageUrl('Prescriptions')}?patient=${selectedPatient.id}`)}
+                      size="sm"
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      <Pill className="w-4 h-4 mr-2" />
+                      New Prescription
+                    </Button>
+                  </CardHeader>
+                  <CardContent>
+                    <MedicationList patientId={selectedPatient.id} />
+                  </CardContent>
+                </Card>
+              </EMRErrorBoundary>
             </TabsContent>
 
             <TabsContent value="history">
+              <EMRErrorBoundary key={`history-${selectedPatient.id}`}>
               <div className="space-y-4">
                 <HistorySection
                   title="Past Medical History (PMHx)"
@@ -332,72 +338,86 @@ export default function EMR() {
                   onSaved={(updated) => setSelectedPatient(prev => ({ ...prev, ...updated }))}
                 />
               </div>
+              </EMRErrorBoundary>
             </TabsContent>
 
             <TabsContent value="soap">
-              <Card className="bg-white border-0 shadow-sm">
-                <CardContent className="pt-6">
-                  <PatientSOAPTab patientId={selectedPatient.id} />
-                </CardContent>
-              </Card>
+              <EMRErrorBoundary key={`soap-${selectedPatient.id}`}>
+                <Card className="bg-white border-0 shadow-sm">
+                  <CardContent className="pt-6">
+                    <PatientSOAPTab patientId={selectedPatient.id} />
+                  </CardContent>
+                </Card>
+              </EMRErrorBoundary>
             </TabsContent>
 
             <TabsContent value="diagnostics">
-              <Card className="bg-white border-0 shadow-sm">
-                <CardContent className="pt-6">
-                  <DiagnosticsTab patientId={selectedPatient.id} />
-                </CardContent>
-              </Card>
+              <EMRErrorBoundary key={`diag-${selectedPatient.id}`}>
+                <Card className="bg-white border-0 shadow-sm">
+                  <CardContent className="pt-6">
+                    <DiagnosticsTab patientId={selectedPatient.id} />
+                  </CardContent>
+                </Card>
+              </EMRErrorBoundary>
             </TabsContent>
 
             <TabsContent value="labs">
-              <Card className="bg-white border-0 shadow-sm">
-                <CardContent className="pt-6">
-                  <PatientLabsTab patientId={selectedPatient.id} />
-                </CardContent>
-              </Card>
+              <EMRErrorBoundary key={`labs-${selectedPatient.id}`}>
+                <Card className="bg-white border-0 shadow-sm">
+                  <CardContent className="pt-6">
+                    <PatientLabsTab patientId={selectedPatient.id} />
+                  </CardContent>
+                </Card>
+              </EMRErrorBoundary>
             </TabsContent>
 
             <TabsContent value="referrals">
-              <Card className="bg-white border-0 shadow-sm">
-                <CardHeader>
-                  <CardTitle>Specialist Consultations</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <SpecialistChart patientId={selectedPatient.id} />
-                </CardContent>
-              </Card>
+              <EMRErrorBoundary key={`ref-${selectedPatient.id}`}>
+                <Card className="bg-white border-0 shadow-sm">
+                  <CardHeader>
+                    <CardTitle>Specialist Consultations</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <SpecialistChart patientId={selectedPatient.id} />
+                  </CardContent>
+                </Card>
+              </EMRErrorBoundary>
             </TabsContent>
 
             <TabsContent value="documents">
-              <Card className="bg-white border-0 shadow-sm">
-                <CardContent className="pt-6">
-                  <PatientDocumentHub
-                    patientId={selectedPatient.id}
-                    patientName={`${selectedPatient.first_name} ${selectedPatient.last_name}`}
-                  />
-                </CardContent>
-              </Card>
+              <EMRErrorBoundary key={`docs-${selectedPatient.id}`}>
+                <Card className="bg-white border-0 shadow-sm">
+                  <CardContent className="pt-6">
+                    <PatientDocumentHub
+                      patientId={selectedPatient.id}
+                      patientName={`${selectedPatient.first_name} ${selectedPatient.last_name}`}
+                    />
+                  </CardContent>
+                </Card>
+              </EMRErrorBoundary>
             </TabsContent>
 
             <TabsContent value="casechat">
-              <Card className="bg-white border-0 shadow-sm">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-base">
-                    <MessageSquare className="w-5 h-5 text-blue-600" />
-                    Case Discussion — {selectedPatient.first_name} {selectedPatient.last_name}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <PatientCaseChat
-                    patientId={selectedPatient.id}
-                    patientName={`${selectedPatient.first_name} ${selectedPatient.last_name}`}
-                  />
-                </CardContent>
-              </Card>
+              <EMRErrorBoundary key={`chat-${selectedPatient.id}`}>
+                <Card className="bg-white border-0 shadow-sm">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <MessageSquare className="w-5 h-5 text-blue-600" />
+                      Case Discussion — {selectedPatient.first_name} {selectedPatient.last_name}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <PatientCaseChat
+                      patientId={selectedPatient.id}
+                      patientName={`${selectedPatient.first_name} ${selectedPatient.last_name}`}
+                    />
+                  </CardContent>
+                </Card>
+              </EMRErrorBoundary>
             </TabsContent>
 
             <TabsContent value="records">
+              <EMRErrorBoundary key={`records-${selectedPatient.id}`}>
               <Card className="bg-white border-0 shadow-sm">
                 <CardHeader>
                   <CardTitle>Medical Records History</CardTitle>
@@ -446,10 +466,11 @@ export default function EMR() {
                   )}
                 </CardContent>
               </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
-      ) : (
+              </EMRErrorBoundary>
+              </TabsContent>
+              </Tabs>
+              </div>
+              ) : (
         <Card className="p-12 text-center bg-white border-0 shadow-sm">
           <Search className="w-16 h-16 mx-auto text-slate-300 mb-4" />
           <h3 className="text-xl font-semibold text-slate-900">Search for a Patient</h3>

@@ -209,9 +209,7 @@ Text: ${text || '(see uploaded file)'}`;
                   {rx.strength && <p className="text-sm text-slate-600">Dose: {rx.strength}</p>}
                   {rx.directions && <p className="text-sm text-slate-600">Directions: {rx.directions}</p>}
                   {rx.quantity && <p className="text-sm text-slate-500">Qty: {rx.quantity}{rx.refills > 0 ? ` · ${rx.refills} refill(s)` : ''}</p>}
-                  {rx.prescribed_date && (
-                    <p className="text-xs text-slate-400 mt-1">Prescribed: {format(new Date(rx.prescribed_date), 'MMM d, yyyy')}</p>
-                  )}
+                  {rx.prescribed_date && (() => { try { const d = new Date(rx.prescribed_date); return isNaN(d.getTime()) ? null : <p className="text-xs text-slate-400 mt-1">Prescribed: {format(d, 'MMM d, yyyy')}</p>; } catch { return null; } })()}
                 </div>
                 <div className="flex gap-1 flex-shrink-0">
                   <Button variant="ghost" size="sm" onClick={() => openEdit(rx)} title="Edit medication">

@@ -45,8 +45,8 @@ export default function CPPManager({ patientId }) {
       organization_id: '',
       patient_ref: patientId,
       last_reviewed_at: new Date().toISOString(),
-      last_reviewed_by: user.id,
-      last_reviewed_by_email: user.email,
+      last_reviewed_by: user?.id,
+      last_reviewed_by_email: user?.email,
       ...data
     }),
     onSuccess: () => {
@@ -61,8 +61,8 @@ export default function CPPManager({ patientId }) {
     mutationFn: ({ id, status }) => base44.entities.CPPItem.update(id, { 
       status,
       last_reviewed_at: new Date().toISOString(),
-      last_reviewed_by: user.id,
-      last_reviewed_by_email: user.email
+      last_reviewed_by: user?.id,
+      last_reviewed_by_email: user?.email
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['cppItems', patientId] });
@@ -276,7 +276,7 @@ Text: ${text || '(see uploaded file)'}`;
                   <Badge variant="outline">From: {sug.source_type}</Badge>
                   <div>
                     <p className="font-semibold mb-2">Suggested Problems:</p>
-                    {(sug.suggested_changes_json.add_problems || []).map((prob, idx) => (
+                    {(sug.suggested_changes_json?.add_problems || []).map((prob, idx) => (
                       <div key={idx} className="ml-4 mb-2">
                         <p className="font-medium">• {prob.name}</p>
                         {prob.notes && <p className="text-sm text-slate-600 ml-4">{prob.notes}</p>}
