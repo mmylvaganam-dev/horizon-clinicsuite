@@ -24,6 +24,9 @@ export default function PatientHub() {
   const queryClient = useQueryClient();
   const { selectedOrgId } = useOrganization();
   const [search, setSearch] = useState('');
+  const [filterRegion, setFilterRegion] = useState('ALL');
+  const [filterGender, setFilterGender] = useState('ALL');
+  const [filterDob, setFilterDob] = useState('');
   const [showAddPatient, setShowAddPatient] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [showConsent, setShowConsent] = useState(false);
@@ -85,11 +88,21 @@ export default function PatientHub() {
     onError: (e) => toast.error('Failed: ' + e.message),
   });
 
-  const filtered = patients.filter(p =>
-    p.name?.toLowerCase().includes(search.toLowerCase()) ||
-    p.email?.toLowerCase().includes(search.toLowerCase()) ||
-    p.country_of_residence?.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = patients.filter(p => {
+    const q = search.toLowerCase();
+    const matchesSearch = !q ||
+      p.name?.toLowerCase().includes(q) ||
+      p.email?.toLowerCase().includes(q) ||
+      p.country_of_residence?.toLowerCase().includes(q) ||
+      p.date_of_birth?.includes(q);
+    const matchesRegion = filterRegion === 'ALL' || p.region === filterRegion;
+    const matchesGender = filterGender === 'ALL' || p.gender === filterGender;
+    const matchesDob = !filterDob || p.date_of_birth === filterDob;
+    return matchesSearch && matchesRegion && matchesGender && matchesDob;
+  });
+
+  const activeFilterCount = [filterRegion !== 'ALL', filterGender !== 'ALL', !!filterDob].filter(Boolean).length;
+  const clearFilters = () => { setFilterRegion('ALL'); setFilterGender('ALL'); setFilterDob(''); setSearch(''); };
 
   const getRegionBadge = (region) => {
     const map = { EU: 'bg-blue-100 text-blue-800', USA: 'bg-red-100 text-red-800', CANADA: 'bg-red-50 text-red-700', SRI_LANKA: 'bg-yellow-100 text-yellow-800', OTHER: 'bg-slate-100 text-slate-700' };
@@ -146,9 +159,63 @@ export default function PatientHub() {
 
         {/* PATIENTS LIST */}
         <TabsContent value="patients" className="space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input placeholder="Search by name, email, country..." className="pl-9" value={search} onChange={e => setSearch(e.target.value)} />
+          {/* Search & Filters */}
+          <div className="space-y-2">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input
+                placeholder="Search by name, email, country..."
+                className="pl-9"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+            </div>
+            <div className="flex flex-wrap gap-2 items-center">
+              <Select value={filterRegion} onValueChange={setFilterRegion}>
+                <SelectTrigger className="w-44 h-8 text-xs">
+                  <SelectValue placeholder="All Regions" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Regions</SelectItem>
+                  <SelectItem value="EU">🇪🇺 EU (GDPR)</SelectItem>
+                  <SelectItem value="USA">🇺🇸 USA (HIPAA)</SelectItem>
+                  <SelectItem value="CANADA">🇨🇦 Canada</SelectItem>
+                  <SelectItem value="SRI_LANKA">🇱🇰 Sri Lanka</SelectItem>
+                  <SelectItem value="OTHER">🌍 Other</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={filterGender} onValueChange={setFilterGender}>
+                <SelectTrigger className="w-32 h-8 text-xs">
+                  <SelectValue placeholder="All Genders" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Genders</SelectItem>
+                  <SelectItem value="male">Male</SelectItem>
+                  <SelectItem value="female">Female</SelectItem>
+                  <SelectItem value="other">Other</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <div className="flex items-center gap-1">
+                <Input
+                  type="date"
+                  className="h-8 text-xs w-36"
+                  value={filterDob}
+                  onChange={e => setFilterDob(e.target.value)}
+                  title="Filter by date of birth"
+                />
+                {filterDob && <span className="text-xs text-slate-400">DOB</span>}
+              </div>
+
+              {activeFilterCount > 0 && (
+                <Button variant="ghost" size="sm" className="h-8 text-xs text-slate-500 hover:text-red-500" onClick={clearFilters}>
+                  Clear filters ({activeFilterCount})
+                </Button>
+              )}
+
+              <span className="text-xs text-slate-400 ml-auto">{filtered.length} of {patients.length} patients</span>
+            </div>
           </div>
 
           {/* Workflow explanation banner */}
