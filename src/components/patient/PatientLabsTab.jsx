@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Upload, AlertTriangle, CheckCircle, TrendingUp, FileText, Loader2, X } from 'lucide-react';
+import { Upload, AlertTriangle, CheckCircle, TrendingUp, FileText, Loader2, X, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import LabTrendChart from './LabTrendChart';
 import toast from 'react-hot-toast';
@@ -106,6 +106,15 @@ export default function PatientLabsTab({ patientId }) {
       );
     },
     onError: () => toast.error('Failed to extract lab data'),
+  });
+
+  const deleteResultMutation = useMutation({
+    mutationFn: (resultId) => base44.entities.Result.delete(resultId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['patientLabResults', patientId] });
+      toast.success('Lab result deleted');
+    },
+    onError: () => toast.error('Failed to delete lab result'),
   });
 
   const acknowledgeResultMutation = useMutation({
@@ -283,7 +292,7 @@ export default function PatientLabsTab({ patientId }) {
                     <p className="font-medium">{format(new Date(result.result_date), 'MMM d, yyyy')}</p>
                     <p className="text-sm text-slate-600">{result.structured_json?.lab_name || 'Lab Results'}</p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-center">
                     <Badge className={result.status === 'Reviewed' ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-100 text-blue-700'}>
                       {result.status}
                     </Badge>
@@ -296,6 +305,19 @@ export default function PatientLabsTab({ patientId }) {
                         Acknowledge
                       </Button>
                     )}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="text-red-400 hover:text-red-600 hover:bg-red-50"
+                      onClick={() => {
+                        if (window.confirm('Delete this lab result? This cannot be undone.')) {
+                          deleteResultMutation.mutate(result.id);
+                        }
+                      }}
+                      disabled={deleteResultMutation.isPending}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
                 </div>
                 {result.structured_json?.test_results && (

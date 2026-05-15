@@ -18,9 +18,11 @@ import { createPageUrl } from '../utils';
 import toast from 'react-hot-toast';
 import ConsentModal from '../components/telehealth/ConsentModal';
 import TelePatientProfileDialog from '../components/telemedicine/TelePatientProfileDialog';
+import { useOrganization } from '@/components/OrganizationProvider';
 
 export default function PatientHub() {
   const queryClient = useQueryClient();
+  const { selectedOrgId } = useOrganization();
   const [search, setSearch] = useState('');
   const [showAddPatient, setShowAddPatient] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
@@ -33,18 +35,27 @@ export default function PatientHub() {
   });
 
   const { data: patients = [], isLoading } = useQuery({
-    queryKey: ['telePatients'],
-    queryFn: () => base44.entities.TelePatient.list('-created_date', 100),
+    queryKey: ['telePatients', selectedOrgId],
+    queryFn: () => selectedOrgId
+      ? base44.entities.TelePatient.filter({ organization_id: selectedOrgId }, '-created_date', 100)
+      : [],
+    enabled: !!selectedOrgId,
   });
 
   const { data: appointments = [] } = useQuery({
-    queryKey: ['teleAppointments'],
-    queryFn: () => base44.entities.TeleAppointment.list('-created_date', 100),
+    queryKey: ['teleAppointments', selectedOrgId],
+    queryFn: () => selectedOrgId
+      ? base44.entities.TeleAppointment.filter({ organization_id: selectedOrgId }, '-created_date', 100)
+      : [],
+    enabled: !!selectedOrgId,
   });
 
   const { data: secondOpinions = [] } = useQuery({
-    queryKey: ['secondOpinionRequests'],
-    queryFn: () => base44.entities.SecondOpinionRequest.list('-created_date', 100),
+    queryKey: ['secondOpinionRequests', selectedOrgId],
+    queryFn: () => selectedOrgId
+      ? base44.entities.SecondOpinionRequest.filter({ organization_id: selectedOrgId }, '-created_date', 100)
+      : [],
+    enabled: !!selectedOrgId,
   });
 
   // Local EMR patients — only load for cross-referencing by email, strictly read-only
@@ -64,7 +75,7 @@ export default function PatientHub() {
   };
 
   const createPatientMutation = useMutation({
-    mutationFn: (data) => base44.entities.TelePatient.create({ ...data, tele_access_enabled: true }),
+    mutationFn: (data) => base44.entities.TelePatient.create({ ...data, organization_id: selectedOrgId, tele_access_enabled: true }),
     onSuccess: () => {
       queryClient.invalidateQueries(['telePatients']);
       setShowAddPatient(false);
