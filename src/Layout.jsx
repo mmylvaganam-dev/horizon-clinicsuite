@@ -45,7 +45,8 @@ import {
   Network,
   Pill,
   Mic,
-  ClipboardList
+  ClipboardList,
+  BookOpen
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
@@ -398,6 +399,13 @@ function LayoutContent({ children, currentPageName }) {
       icon: Ticket,
       items: [
         { name: 'Help Desk', page: 'HelpDesk', icon: Ticket, description: 'Support tickets, remote sessions via HopToDesk, live chat, and screenshot uploads for IT support' },
+      ]
+    },
+    {
+      category: 'Operator Manual',
+      icon: BookOpen,
+      items: [
+        { name: 'Operator Manual & Videos', page: 'OperatorManual', icon: BookOpen, description: 'Step-by-step operator guides and video training library for all system modules' },
       ]
     },
     {

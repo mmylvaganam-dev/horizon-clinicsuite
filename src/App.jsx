@@ -34,6 +34,7 @@ import DriverDeliveryApp from './pages/DriverDeliveryApp';
 import PrescriptionManager from './pages/PrescriptionManager';
 import PrescriptionPrint from './pages/PrescriptionPrint';
 import UnifiedUserManagement from './pages/UnifiedUserManagement';
+import OperatorManual from './pages/OperatorManual';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -115,6 +116,7 @@ const AuthenticatedApp = () => {
       <Route path="/HomeCareFamilyReport" element={<LayoutWrapper currentPageName="HomeCareFamilyReport"><HomeCareFamilyReport /></LayoutWrapper>} />
       <Route path="/HomeCareSupervisorReport" element={<LayoutWrapper currentPageName="HomeCareSupervisorReport"><HomeCareSupervisorReport /></LayoutWrapper>} />
       <Route path="/UnifiedUserManagement" element={<LayoutWrapper currentPageName="UnifiedUserManagement"><UnifiedUserManagement /></LayoutWrapper>} />
+      <Route path="/OperatorManual" element={<LayoutWrapper currentPageName="OperatorManual"><OperatorManual /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
