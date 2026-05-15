@@ -10,8 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
-  Upload, Sparkles, FileText, Image, Loader2, CheckCircle2, 
-  FlaskConical, Pill, Stethoscope, ClipboardList, Eye, Camera, Trash2
+  Upload, Sparkles, FileText, Image, Loader2, CheckCircle2, XCircle,
+  FlaskConical, Pill, Stethoscope, ClipboardList, Eye, Camera, Trash2, AlertCircle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
@@ -33,10 +33,9 @@ export default function PatientDocumentHub({ patientId, patientName }) {
 
   const [uploadOpen, setUploadOpen] = useState(false);
   const [viewDoc, setViewDoc] = useState(null);
-  const [file, setFile] = useState(null);
-  const [filePreview, setFilePreview] = useState(null);
-  const [processing, setProcessing] = useState(false);
-  const [aiResult, setAiResult] = useState(null);
+  const [files, setFiles] = useState([]); // array of File objects
+  const [fileStatuses, setFileStatuses] = useState({}); // { fileName: 'pending'|'uploading'|'done'|'error' }
+  const [allDone, setAllDone] = useState(false);
   const [formData, setFormData] = useState({
     doc_category: 'LAB',
     doc_title: '',
@@ -52,35 +51,30 @@ export default function PatientDocumentHub({ patientId, patientName }) {
   });
 
   const handleFileChange = (e) => {
-    const f = e.target.files[0];
-    if (!f) return;
-    setFile(f);
-    if (f.type.startsWith('image/')) {
-      setFilePreview(URL.createObjectURL(f));
-    } else {
-      setFilePreview(null);
-    }
+    const selected = Array.from(e.target.files || []);
+    if (!selected.length) return;
+    setFiles(prev => {
+      const existing = new Set(prev.map(f => f.name + f.size));
+      const newOnes = selected.filter(f => !existing.has(f.name + f.size));
+      return [...prev, ...newOnes];
+    });
+    // Reset input so same files can be re-added after removal
+    e.target.value = '';
   };
 
-  const uploadMutation = useMutation({
-    mutationFn: async () => {
-      if (!file) throw new Error('No file selected');
-      if (!formData.doc_title) throw new Error('Please enter a document title');
+  const removeFile = (index) => {
+    setFiles(prev => prev.filter((_, i) => i !== index));
+  };
 
-      setProcessing(true);
-      setAiResult(null);
+  const processSingleFile = async (file, titleOverride, catInfo) => {
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    const isImage = file.type.startsWith('image/');
 
-      // 1. Upload file
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      const isImage = file.type.startsWith('image/');
-      const catInfo = DOC_CATEGORIES.find(c => c.value === formData.doc_category);
-
-      // 2. AI Analysis — works for both PDF and image
-      let aiSummary = null;
-      let aiExtracted = null;
-      try {
-        const aiResponse = await base44.integrations.Core.InvokeLLM({
-          prompt: `You are a clinical AI assistant. Analyze this medical document and ${catInfo?.aiAction || 'summarize key clinical information'}.
+    let aiSummary = null;
+    let aiExtracted = null;
+    try {
+      const aiResponse = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are a clinical AI assistant. Analyze this medical document and ${catInfo?.aiAction || 'summarize key clinical information'}.
 
 Document category: ${catInfo?.label}
 Patient: ${patientName}
@@ -96,98 +90,96 @@ For consult notes: extract diagnosis, recommendations, follow-up date.
 For imaging: extract findings, impression, recommendations.
 
 Be concise and clinically accurate.`,
-          file_urls: [file_url],
-          response_json_schema: {
-            type: 'object',
-            properties: {
-              summary: { type: 'string' },
-              key_findings: { type: 'array', items: { type: 'string' } },
-              action_items: { type: 'array', items: { type: 'string' } },
-              medications: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    name: { type: 'string' }, dose: { type: 'string' },
-                    frequency: { type: 'string' }, route: { type: 'string' }, duration: { type: 'string' }
-                  }
-                }
-              },
-              lab_results: {
-                type: 'array',
-                items: {
-                  type: 'object',
-                  properties: {
-                    test: { type: 'string' }, value: { type: 'string' },
-                    unit: { type: 'string' }, reference_range: { type: 'string' }, is_abnormal: { type: 'boolean' }
-                  }
-                }
-              },
-              document_date: { type: 'string' },
-              ordering_provider: { type: 'string' }
-            }
+        file_urls: [file_url],
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            summary: { type: 'string' },
+            key_findings: { type: 'array', items: { type: 'string' } },
+            action_items: { type: 'array', items: { type: 'string' } },
+            medications: { type: 'array', items: { type: 'object', properties: { name: { type: 'string' }, dose: { type: 'string' }, frequency: { type: 'string' }, route: { type: 'string' }, duration: { type: 'string' } } } },
+            lab_results: { type: 'array', items: { type: 'object', properties: { test: { type: 'string' }, value: { type: 'string' }, unit: { type: 'string' }, reference_range: { type: 'string' }, is_abnormal: { type: 'boolean' } } } },
+            document_date: { type: 'string' },
+            ordering_provider: { type: 'string' }
           }
-        });
-        aiExtracted = aiResponse;
-        aiSummary = aiResponse?.summary || null;
-      } catch (err) {
-        console.error('AI extraction failed (non-critical):', err);
-      }
-
-      // 3. Save document record
-      const doc = await base44.entities.PatientDocument.create({
-        patient_ref: patientId,
-        doc_category: formData.doc_category,
-        doc_type: isImage ? 'IMAGE' : 'PDF',
-        doc_title: formData.doc_title,
-        doc_date: formData.doc_date,
-        source: 'clinic_scan',
-        uploaded_by: user?.id,
-        uploaded_by_email: user?.email,
-        file_ref: file_url,
-        ai_summary: aiSummary,
-        ai_extracted_json: aiExtracted,
-        visibility: 'internal',
-        status: 'active'
+        }
       });
-
-      // 4. Auto-create MedRecon suggestion for prescriptions
-      if (['PRESCRIPTION', 'MED_SUMMARY'].includes(formData.doc_category) && aiExtracted?.medications?.length > 0) {
-        await base44.entities.MedReconSuggestion.create({
-          patient_ref: patientId,
-          source_type: 'DocumentUpload',
-          source_id: doc.id,
-          suggested_meds_json: { add_medications: aiExtracted.medications },
-          status: 'pending'
-        });
-      }
-
-      // 5. Auto-extract labs via function (works for both PDF and image now)
-      if (formData.doc_category === 'LAB') {
-        try {
-          await base44.functions.invoke('extractLabFromPDF', { file_url, patient_id: patientId });
-        } catch (_) {}
-      }
-
-      setAiResult(aiExtracted);
-      return doc;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['patientDocuments', patientId] });
-      queryClient.invalidateQueries({ queryKey: ['medReconSuggestions', patientId] });
-      toast.success('Document uploaded & analyzed by AI ✨');
-      setProcessing(false);
-    },
-    onError: (err) => {
-      toast.error(err.message || 'Upload failed');
-      setProcessing(false);
+      aiExtracted = aiResponse;
+      aiSummary = aiResponse?.summary || null;
+    } catch (err) {
+      console.error('AI extraction failed (non-critical):', err);
     }
-  });
+
+    const doc = await base44.entities.PatientDocument.create({
+      patient_ref: patientId,
+      doc_category: formData.doc_category,
+      doc_type: isImage ? 'IMAGE' : 'PDF',
+      doc_title: titleOverride || file.name,
+      doc_date: formData.doc_date,
+      source: 'clinic_scan',
+      uploaded_by: user?.id,
+      uploaded_by_email: user?.email,
+      file_ref: file_url,
+      ai_summary: aiSummary,
+      ai_extracted_json: aiExtracted,
+      visibility: 'internal',
+      status: 'active'
+    });
+
+    if (['PRESCRIPTION', 'MED_SUMMARY'].includes(formData.doc_category) && aiExtracted?.medications?.length > 0) {
+      await base44.entities.MedReconSuggestion.create({
+        patient_ref: patientId,
+        source_type: 'DocumentUpload',
+        source_id: doc.id,
+        suggested_meds_json: { add_medications: aiExtracted.medications },
+        status: 'pending'
+      });
+    }
+
+    if (formData.doc_category === 'LAB') {
+      try { await base44.functions.invoke('extractLabFromPDF', { file_url, patient_id: patientId }); } catch (_) {}
+    }
+
+    return doc;
+  };
+
+  const [uploading, setUploading] = useState(false);
+
+  const handleUploadAll = async () => {
+    if (!files.length) { toast.error('No files selected'); return; }
+    if (files.length === 1 && !formData.doc_title) { toast.error('Please enter a document title'); return; }
+
+    setUploading(true);
+    const catInfo = DOC_CATEGORIES.find(c => c.value === formData.doc_category);
+    const initial = {};
+    files.forEach(f => { initial[f.name + f.size] = 'pending'; });
+    setFileStatuses(initial);
+
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
+      const key = f.name + f.size;
+      const titleOverride = files.length === 1 ? formData.doc_title : (formData.doc_title ? `${formData.doc_title} (${i + 1})` : f.name.replace(/\.[^.]+$/, ''));
+      setFileStatuses(prev => ({ ...prev, [key]: 'uploading' }));
+      try {
+        await processSingleFile(f, titleOverride, catInfo);
+        setFileStatuses(prev => ({ ...prev, [key]: 'done' }));
+      } catch (err) {
+        setFileStatuses(prev => ({ ...prev, [key]: 'error' }));
+        console.error('Failed to process file:', f.name, err);
+      }
+    }
+
+    queryClient.invalidateQueries({ queryKey: ['patientDocuments', patientId] });
+    queryClient.invalidateQueries({ queryKey: ['medReconSuggestions', patientId] });
+    toast.success(`${files.length} document(s) uploaded & analyzed ✨`);
+    setUploading(false);
+    setAllDone(true);
+  };
 
   const resetForm = () => {
-    setFile(null);
-    setFilePreview(null);
-    setAiResult(null);
+    setFiles([]);
+    setFileStatuses({});
+    setAllDone(false);
     setFormData({ doc_category: 'LAB', doc_title: '', doc_date: new Date().toISOString().split('T')[0] });
   };
 
@@ -283,65 +275,27 @@ Be concise and clinically accurate.`,
             </DialogTitle>
           </DialogHeader>
 
-          {aiResult ? (
-            // Show AI Results
+          {allDone ? (
             <div className="space-y-4">
               <div className="bg-teal-50 border border-teal-200 rounded-lg p-4">
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mb-3">
                   <CheckCircle2 className="w-5 h-5 text-teal-600" />
-                  <span className="font-semibold text-teal-800">AI Analysis Complete</span>
+                  <span className="font-semibold text-teal-800">Upload Complete</span>
                 </div>
-                {aiResult.summary && <p className="text-sm text-teal-900">{aiResult.summary}</p>}
-              </div>
-
-              {aiResult.key_findings?.length > 0 && (
-                <div>
-                  <p className="text-sm font-semibold text-slate-700 mb-2">Key Findings</p>
-                  <ul className="space-y-1">
-                    {aiResult.key_findings.map((f, i) => (
-                      <li key={i} className="text-sm text-slate-600 flex items-start gap-2">
-                        <span className="text-teal-500 mt-0.5">•</span>{f}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              {aiResult.lab_results?.length > 0 && (
-                <div>
-                  <p className="text-sm font-semibold text-slate-700 mb-2">Lab Results Extracted</p>
-                  <div className="space-y-1">
-                    {aiResult.lab_results.map((lr, i) => (
-                      <div key={i} className={`flex items-center justify-between text-xs p-2 rounded ${lr.is_abnormal ? 'bg-red-50 border border-red-200' : 'bg-slate-50'}`}>
-                        <span className="font-medium">{lr.test}</span>
-                        <span className={lr.is_abnormal ? 'text-red-600 font-bold' : 'text-slate-600'}>{lr.value} {lr.unit}</span>
-                        {lr.reference_range && <span className="text-slate-400">({lr.reference_range})</span>}
+                <div className="space-y-2">
+                  {files.map((f, i) => {
+                    const key = f.name + f.size;
+                    const status = fileStatuses[key];
+                    return (
+                      <div key={i} className="flex items-center gap-2 text-sm">
+                        {status === 'done' ? <CheckCircle2 className="w-4 h-4 text-teal-500 flex-shrink-0" /> : <XCircle className="w-4 h-4 text-red-400 flex-shrink-0" />}
+                        <span className={status === 'error' ? 'text-red-600' : 'text-slate-700'}>{f.name}</span>
+                        {status === 'error' && <span className="text-xs text-red-400">— failed</span>}
                       </div>
-                    ))}
-                  </div>
+                    );
+                  })}
                 </div>
-              )}
-
-              {aiResult.medications?.length > 0 && (
-                <div>
-                  <p className="text-sm font-semibold text-slate-700 mb-2">Medications Extracted → Added to Med Reconciliation</p>
-                  {aiResult.medications.map((m, i) => (
-                    <div key={i} className="text-xs bg-green-50 border border-green-200 rounded p-2 mb-1">
-                      <span className="font-medium">{m.name}</span> — {m.dose} {m.frequency} {m.route && `(${m.route})`}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {aiResult.action_items?.length > 0 && (
-                <div>
-                  <p className="text-sm font-semibold text-slate-700 mb-2">Action Items</p>
-                  {aiResult.action_items.map((a, i) => (
-                    <p key={i} className="text-sm text-amber-700 bg-amber-50 rounded px-2 py-1 mb-1">⚠️ {a}</p>
-                  ))}
-                </div>
-              )}
-
+              </div>
               <Button className="w-full" onClick={() => { setUploadOpen(false); resetForm(); }}>Done</Button>
             </div>
           ) : (
@@ -349,24 +303,21 @@ Be concise and clinically accurate.`,
               <div>
                 <Label>Document Type</Label>
                 <Select value={formData.doc_category} onValueChange={v => setFormData({ ...formData, doc_category: v })}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {DOC_CATEGORIES.map(c => (
-                      <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-                    ))}
+                    {DOC_CATEGORIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
 
               <div>
-                <Label>Document Title *</Label>
+                <Label>{files.length > 1 ? 'Title Prefix (optional)' : 'Document Title *'}</Label>
                 <Input
                   value={formData.doc_title}
                   onChange={e => setFormData({ ...formData, doc_title: e.target.value })}
-                  placeholder="e.g., CBC Report, Chest X-ray, Dr. Silva Consult"
+                  placeholder={files.length > 1 ? 'e.g., "CBC Report" → auto-numbered per file' : 'e.g., CBC Report, Chest X-ray, Dr. Silva Consult'}
                 />
+                {files.length > 1 && <p className="text-xs text-slate-400 mt-1">Leave blank to use each file's filename as the title.</p>}
               </div>
 
               <div>
@@ -374,32 +325,49 @@ Be concise and clinically accurate.`,
                 <Input type="date" value={formData.doc_date} onChange={e => setFormData({ ...formData, doc_date: e.target.value })} />
               </div>
 
-              {/* File Upload Area */}
+              {/* Multi-file area */}
               <div>
-                <Label>File (PDF or Photo) *</Label>
-                <div className="mt-1 border-2 border-dashed border-slate-300 rounded-lg p-4 text-center">
-                  {filePreview ? (
-                    <div className="space-y-2">
-                      <img src={filePreview} alt="Preview" className="max-h-40 mx-auto rounded object-contain" />
-                      <p className="text-xs text-slate-500">{file?.name}</p>
-                    </div>
-                  ) : file ? (
-                    <div className="flex items-center justify-center gap-2 text-slate-600">
-                      <FileText className="w-6 h-6 text-teal-600" />
-                      <span className="text-sm">{file.name}</span>
-                    </div>
-                  ) : (
+                <Label>Files (PDF or Photos) *</Label>
+                <div
+                  className="mt-1 border-2 border-dashed border-slate-300 rounded-lg p-4 text-center cursor-pointer hover:border-teal-400 hover:bg-teal-50/30 transition-colors"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {files.length === 0 ? (
                     <div className="text-slate-400">
                       <Upload className="w-8 h-8 mx-auto mb-2" />
-                      <p className="text-sm">PDF, JPG, PNG, HEIC supported</p>
+                      <p className="text-sm font-medium">Click to select files</p>
+                      <p className="text-xs mt-1">PDF, JPG, PNG, HEIC — multiple files supported</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5 text-left">
+                      {files.map((f, i) => {
+                        const key = f.name + f.size;
+                        const status = fileStatuses[key];
+                        return (
+                          <div key={i} className="flex items-center gap-2 bg-white border border-slate-200 rounded px-3 py-2">
+                            {f.type.startsWith('image/') ? <Image className="w-4 h-4 text-orange-500 flex-shrink-0" /> : <FileText className="w-4 h-4 text-teal-600 flex-shrink-0" />}
+                            <span className="text-sm text-slate-700 flex-1 truncate">{f.name}</span>
+                            <span className="text-xs text-slate-400">{(f.size / 1024).toFixed(0)} KB</span>
+                            {status === 'uploading' && <Loader2 className="w-4 h-4 text-teal-500 animate-spin flex-shrink-0" />}
+                            {status === 'done' && <CheckCircle2 className="w-4 h-4 text-teal-500 flex-shrink-0" />}
+                            {status === 'error' && <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />}
+                            {!status && (
+                              <button onClick={(e) => { e.stopPropagation(); removeFile(i); }} className="p-0.5 rounded hover:bg-red-50 text-slate-300 hover:text-red-400">
+                                <XCircle className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
+                      <p className="text-xs text-teal-600 pt-1 text-center">+ Click to add more files</p>
                     </div>
                   )}
                 </div>
                 <div className="flex gap-2 mt-2">
-                  <input ref={fileInputRef} type="file" accept=".pdf,image/*" className="hidden" onChange={handleFileChange} />
+                  <input ref={fileInputRef} type="file" accept=".pdf,image/*" multiple className="hidden" onChange={handleFileChange} />
                   <input ref={cameraInputRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileChange} />
                   <Button type="button" variant="outline" size="sm" className="flex-1" onClick={() => fileInputRef.current?.click()}>
-                    <Upload className="w-4 h-4 mr-2" />Choose File
+                    <Upload className="w-4 h-4 mr-2" />Add Files
                   </Button>
                   <Button type="button" variant="outline" size="sm" className="flex-1" onClick={() => cameraInputRef.current?.click()}>
                     <Camera className="w-4 h-4 mr-2" />Take Photo
@@ -410,7 +378,7 @@ Be concise and clinically accurate.`,
               <div className="bg-teal-50 border border-teal-200 rounded-lg p-3">
                 <p className="text-xs text-teal-800">
                   <Sparkles className="w-3 h-3 inline mr-1" />
-                  <strong>AI will automatically:</strong> analyze the document, extract key data, update lab records (for lab reports), and add medication suggestions (for prescriptions).
+                  <strong>AI will automatically:</strong> analyze each file, extract key data, update lab records, and add medication suggestions. Files are processed one by one.
                 </p>
               </div>
 
@@ -418,13 +386,13 @@ Be concise and clinically accurate.`,
                 <Button variant="outline" className="flex-1" onClick={() => setUploadOpen(false)}>Cancel</Button>
                 <Button
                   className="flex-1 bg-teal-600 hover:bg-teal-700"
-                  disabled={!file || !formData.doc_title || processing || uploadMutation.isPending}
-                  onClick={() => uploadMutation.mutate()}
+                  disabled={files.length === 0 || (files.length === 1 && !formData.doc_title) || uploading}
+                  onClick={handleUploadAll}
                 >
-                  {processing || uploadMutation.isPending ? (
-                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Analyzing...</>
+                  {uploading ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Analyzing {files.length} file{files.length > 1 ? 's' : ''}...</>
                   ) : (
-                    <><Sparkles className="w-4 h-4 mr-2" />Upload & Analyze</>
+                    <><Sparkles className="w-4 h-4 mr-2" />Upload & Analyze {files.length > 1 ? `${files.length} Files` : ''}</>
                   )}
                 </Button>
               </div>
