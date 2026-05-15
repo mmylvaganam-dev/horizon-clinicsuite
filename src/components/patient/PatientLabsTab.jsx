@@ -39,6 +39,12 @@ export default function PatientLabsTab({ patientId }) {
     queryFn: () => base44.entities.LabParameter.list(),
   });
 
+  const { data: patientDocs = [] } = useQuery({
+    queryKey: ['patientDocuments', patientId],
+    queryFn: () => base44.entities.PatientDocument.filter({ patient_ref: patientId, doc_category: 'LAB' }, '-doc_date'),
+    enabled: !!patientId,
+  });
+
   const uploadFile = useCallback(async (file) => {
     if (!file) return;
     setUploadedFileName(file.name);
@@ -128,35 +134,40 @@ export default function PatientLabsTab({ patientId }) {
     },
   });
 
-  // Aggregate lab data for trending
+  // Aggregate lab data for trending — from LIS Results
   const labTrends = {};
+
   results.forEach(result => {
     if (result.structured_json?.test_results) {
       result.structured_json.test_results.forEach(test => {
-        if (!labTrends[test.test_code]) {
-          labTrends[test.test_code] = {
-            test_code: test.test_code,
-            test_name: test.test_name,
-            unit: test.unit,
-            results: []
-          };
+        const key = test.test_code || test.test_name;
+        if (!key) return;
+        if (!labTrends[key]) {
+          labTrends[key] = { test_code: key, test_name: test.test_name, unit: test.unit, results: [] };
         }
-        
         const param = labParameters.find(p => p.test_code === test.test_code);
         const value = parseFloat(test.value);
-        const isAbnormal = param && ((param.normal_range_min && value < param.normal_range_min) || 
+        const isAbnormal = param && ((param.normal_range_min && value < param.normal_range_min) ||
                                      (param.normal_range_max && value > param.normal_range_max));
-        
-        labTrends[test.test_code].results.push({
-          result_date: result.result_date,
-          value: value,
-          is_abnormal: isAbnormal
-        });
-        
-        if (param) {
-          labTrends[test.test_code].normal_min = param.normal_range_min;
-          labTrends[test.test_code].normal_max = param.normal_range_max;
+        labTrends[key].results.push({ result_date: result.result_date, value, is_abnormal: isAbnormal });
+        if (param) { labTrends[key].normal_min = param.normal_range_min; labTrends[key].normal_max = param.normal_range_max; }
+      });
+    }
+  });
+
+  // Also pull AI-extracted lab results from PatientDocument uploads
+  patientDocs.forEach(doc => {
+    if (doc.ai_extracted_json?.lab_results?.length > 0) {
+      const dateStr = doc.doc_date || doc.created_date;
+      doc.ai_extracted_json.lab_results.forEach(lr => {
+        const key = lr.test || lr.test_name;
+        if (!key) return;
+        const value = parseFloat(lr.value);
+        if (isNaN(value)) return;
+        if (!labTrends[key]) {
+          labTrends[key] = { test_code: key, test_name: key, unit: lr.unit || '', results: [] };
         }
+        labTrends[key].results.push({ result_date: dateStr, value, is_abnormal: lr.is_abnormal || false });
       });
     }
   });
