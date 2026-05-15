@@ -1,14 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   BookOpen, Video, Search, ChevronDown, ChevronRight,
   ShoppingBag, Users, TestTube, Activity, FileText,
   Settings, Globe, DollarSign, Calendar, MessageSquare,
-  AlertTriangle, CheckCircle, Info, Play, Clock, Monitor
+  AlertTriangle, CheckCircle, Info, Play, Clock, Monitor,
+  Link, X, Pencil
 } from 'lucide-react';
+
+// Convert a YouTube/Vimeo watch URL to an embed URL
+function toEmbedUrl(raw) {
+  if (!raw) return '';
+  raw = raw.trim();
+  // Already an embed URL
+  if (raw.includes('/embed/') || raw.includes('player.vimeo')) return raw;
+  // YouTube: https://www.youtube.com/watch?v=ID or https://youtu.be/ID
+  const ytMatch = raw.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}?rel=0&autoplay=1`;
+  // Vimeo: https://vimeo.com/ID
+  const vimeoMatch = raw.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}?autoplay=1`;
+  return raw;
+}
+
+const STORAGE_KEY = 'operator_manual_video_urls';
 
 const MANUAL_SECTIONS = [
   {
@@ -310,39 +329,110 @@ function ManualSection({ section }) {
   );
 }
 
-function VideoCard({ video }) {
+function VideoCard({ video, savedUrl, onSaveUrl }) {
   const [playing, setPlaying] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [inputUrl, setInputUrl] = useState(savedUrl || video.url || '');
+
+  const activeUrl = savedUrl || video.url || '';
+  const embedUrl = toEmbedUrl(activeUrl);
+
+  const handleSave = () => {
+    onSaveUrl(inputUrl.trim());
+    setEditing(false);
+    setPlaying(false);
+  };
+
+  const handleClear = () => {
+    onSaveUrl('');
+    setInputUrl('');
+    setEditing(false);
+    setPlaying(false);
+  };
 
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
-      <div className="bg-slate-900 aspect-video flex items-center justify-center relative group cursor-pointer"
-        onClick={() => video.url ? setPlaying(true) : null}
+      <div
+        className="bg-slate-900 aspect-video flex items-center justify-center relative group cursor-pointer"
+        onClick={() => embedUrl && !editing ? setPlaying(true) : null}
       >
-        {playing && video.url ? (
-          <iframe src={video.url} className="w-full h-full" allowFullScreen title={video.title} />
+        {playing && embedUrl ? (
+          <iframe
+            src={embedUrl}
+            className="w-full h-full"
+            allowFullScreen
+            allow="autoplay; encrypted-media"
+            title={video.title}
+          />
         ) : (
           <>
             <div className="absolute inset-0 bg-gradient-to-br from-teal-900/60 to-slate-900/80" />
             <div className="relative z-10 flex flex-col items-center gap-2 text-white">
-              <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center border-2 border-white/40 group-hover:bg-white/30 transition-colors">
+              <div className={`w-14 h-14 bg-white/20 rounded-full flex items-center justify-center border-2 border-white/40 transition-colors ${embedUrl ? 'group-hover:bg-white/30' : 'opacity-40'}`}>
                 <Play className="w-6 h-6 fill-white" />
               </div>
-              <span className="text-xs text-white/60">{video.duration}</span>
+              {embedUrl
+                ? <span className="text-xs text-white/70">Click to play</span>
+                : <span className="text-xs text-white/50">No video added yet</span>
+              }
             </div>
-            {!video.url && (
+            {!embedUrl && (
               <div className="absolute bottom-2 right-2">
-                <Badge className="bg-amber-500/90 text-white text-xs">Coming Soon</Badge>
+                <Badge className="bg-amber-500/90 text-white text-xs">No URL</Badge>
+              </div>
+            )}
+            {embedUrl && (
+              <div className="absolute bottom-2 right-2">
+                <Badge className="bg-green-600/90 text-white text-xs">Ready</Badge>
               </div>
             )}
           </>
         )}
       </div>
-      <CardContent className="p-3">
-        <p className="font-semibold text-sm text-slate-900 mb-1">{video.title}</p>
+
+      <CardContent className="p-3 space-y-2">
+        <p className="font-semibold text-sm text-slate-900">{video.title}</p>
         <p className="text-xs text-slate-500 leading-relaxed">{video.description}</p>
-        <div className="flex items-center gap-1 mt-2 text-xs text-slate-400">
-          <Clock className="w-3 h-3" /> {video.duration}
-        </div>
+
+        {editing ? (
+          <div className="space-y-2 pt-1">
+            <Input
+              placeholder="Paste YouTube or Vimeo URL..."
+              value={inputUrl}
+              onChange={e => setInputUrl(e.target.value)}
+              className="text-xs h-8"
+              autoFocus
+            />
+            <div className="flex gap-1.5">
+              <Button size="sm" className="h-7 text-xs flex-1 bg-teal-600 hover:bg-teal-700" onClick={handleSave}>
+                Save
+              </Button>
+              {activeUrl && (
+                <Button size="sm" variant="outline" className="h-7 text-xs text-red-500 hover:text-red-700" onClick={handleClear}>
+                  <X className="w-3 h-3" />
+                </Button>
+              )}
+              <Button size="sm" variant="outline" className="h-7 text-xs" onClick={() => setEditing(false)}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between pt-1">
+            <div className="flex items-center gap-1 text-xs text-slate-400">
+              <Clock className="w-3 h-3" /> {video.duration}
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-7 text-xs gap-1"
+              onClick={() => { setEditing(true); setPlaying(false); }}
+            >
+              <Pencil className="w-3 h-3" />
+              {activeUrl ? 'Change URL' : 'Add Video URL'}
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -351,6 +441,16 @@ function VideoCard({ video }) {
 export default function OperatorManual() {
   const [search, setSearch] = useState('');
   const [activeSection, setActiveSection] = useState('getting-started');
+  const [videoUrls, setVideoUrls] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch { return {}; }
+  });
+
+  const saveVideoUrl = (catIdx, vidIdx, url) => {
+    const key = `${catIdx}-${vidIdx}`;
+    const updated = { ...videoUrls, [key]: url };
+    setVideoUrls(updated);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  };
 
   const filteredSections = MANUAL_SECTIONS.filter(s =>
     !search ||
@@ -487,7 +587,7 @@ export default function OperatorManual() {
               <p>No videos match your search.</p>
             </div>
           ) : (
-            filteredVideos.map(cat => {
+            filteredVideos.map((cat, catIdx) => {
               const Icon = cat.icon;
               return (
                 <div key={cat.category}>
@@ -498,7 +598,12 @@ export default function OperatorManual() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {cat.videos.map((video, i) => (
-                      <VideoCard key={i} video={video} />
+                      <VideoCard
+                        key={i}
+                        video={video}
+                        savedUrl={videoUrls[`${catIdx}-${i}`] || ''}
+                        onSaveUrl={(url) => saveVideoUrl(catIdx, i, url)}
+                      />
                     ))}
                   </div>
                 </div>
@@ -506,15 +611,17 @@ export default function OperatorManual() {
             })
           )}
 
-          {/* Upload notice */}
-          <Card className="border-dashed border-2 border-slate-200">
-            <CardContent className="p-6 text-center">
-              <Monitor className="w-10 h-10 mx-auto mb-2 text-slate-300" />
-              <p className="font-semibold text-slate-600 mb-1">Add Your Own Training Videos</p>
-              <p className="text-sm text-slate-400">
-                To embed real videos, add YouTube or Vimeo embed URLs to the video entries in the source configuration.
-                Videos marked "Coming Soon" are placeholder entries awaiting recording.
-              </p>
+          {/* How to add videos */}
+          <Card className="border-dashed border-2 border-teal-200 bg-teal-50/40">
+            <CardContent className="p-5 flex items-start gap-3">
+              <Link className="w-5 h-5 text-teal-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="font-semibold text-teal-800 mb-1">How to add videos</p>
+                <p className="text-sm text-teal-700">
+                  Click <strong>"Add Video URL"</strong> on any card above and paste a <strong>YouTube</strong> or <strong>Vimeo</strong> link (e.g. <code className="bg-teal-100 px-1 rounded">https://www.youtube.com/watch?v=...</code>).
+                  The URL is saved automatically and persists for this browser. Videos are embedded inline and play on click.
+                </p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
