@@ -31,7 +31,12 @@ class User(Base):
         index=True,
     )
     email: Mapped[str] = mapped_column(String, unique=True, index=True)
+    first_name: Mapped[Optional[str]] = mapped_column(String, index=True)
+    last_name: Mapped[Optional[str]] = mapped_column(String, index=True)
     name: Mapped[Optional[str]] = mapped_column(String, index=True)
+    mobile_number: Mapped[Optional[str]] = mapped_column(String)
+    specialty_or_program: Mapped[Optional[str]] = mapped_column(String)
+    practice_address: Mapped[Optional[str]] = mapped_column(String)
     status: Mapped[str] = mapped_column(String, default="active", index=True)
     metadata_json: Mapped[dict] = mapped_column(JSONB, default=dict)
     created_at: Mapped[datetime] = mapped_column(

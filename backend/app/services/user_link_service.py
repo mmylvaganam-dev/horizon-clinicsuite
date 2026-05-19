@@ -19,41 +19,55 @@ def get_or_create_user_from_firebase(firebase_user: dict) -> Optional[User]:
 
     try:
         with SessionLocal() as db:
-            app_user = _find_user_by_firebase_uid(db, firebase_uid)
-            if app_user:
-                return app_user
-
-            app_user = _find_user_by_email(db, email)
-            if app_user:
-                if firebase_uid and not app_user.firebase_uid:
-                    app_user.firebase_uid = firebase_uid
-                if not app_user.auth_provider:
-                    app_user.auth_provider = "firebase"
-                db.commit()
-                db.refresh(app_user)
-                return app_user
-
-            if not email:
-                return None
-
-            app_user = User(
-                firebase_uid=firebase_uid,
-                auth_provider="firebase",
-                email=email,
-                name=firebase_user.get("name") or email,
-                status="active",
-                metadata_json={
-                    "created_from": "firebase_protected_profile",
-                    "email_verified": firebase_user.get("email_verified", False),
-                    "firebase": firebase_user.get("firebase", {}),
-                },
-            )
-            db.add(app_user)
-            db.commit()
-            db.refresh(app_user)
-            return app_user
+            return get_or_create_user_from_firebase_in_session(db, firebase_user)
     except SQLAlchemyError:
         return None
+
+
+def get_or_create_user_from_firebase_in_session(db, firebase_user: dict) -> Optional[User]:
+    firebase_uid = firebase_user.get("uid")
+    email = firebase_user.get("email")
+
+    if not firebase_uid and not email:
+        return None
+
+    app_user = _find_user_by_firebase_uid(db, firebase_uid)
+    if app_user:
+        return app_user
+
+    app_user = _find_user_by_email(db, email)
+    if app_user:
+        if firebase_uid and not app_user.firebase_uid:
+            app_user.firebase_uid = firebase_uid
+        if not app_user.auth_provider:
+            app_user.auth_provider = "firebase"
+        db.commit()
+        db.refresh(app_user)
+        return app_user
+
+    if not email:
+        return None
+
+    full_name = firebase_user.get("name") or email
+    first_name, last_name = _split_display_name(firebase_user.get("name"))
+    app_user = User(
+        firebase_uid=firebase_uid,
+        auth_provider="firebase",
+        email=email,
+        first_name=first_name,
+        last_name=last_name,
+        name=full_name,
+        status="active",
+        metadata_json={
+            "created_from": "firebase_protected_profile",
+            "email_verified": firebase_user.get("email_verified", False),
+            "firebase": firebase_user.get("firebase", {}),
+        },
+    )
+    db.add(app_user)
+    db.commit()
+    db.refresh(app_user)
+    return app_user
 
 
 def _find_user_by_firebase_uid(db, firebase_uid: Optional[str]) -> Optional[User]:
@@ -70,3 +84,13 @@ def _find_user_by_email(db, email: Optional[str]) -> Optional[User]:
 
     statement = select(User).where(User.email == email).limit(1)
     return db.execute(statement).scalars().first()
+
+
+def _split_display_name(name: Optional[str]) -> tuple[Optional[str], Optional[str]]:
+    if not name:
+        return None, None
+
+    parts = name.strip().split(" ", 1)
+    if len(parts) == 1:
+        return parts[0], None
+    return parts[0], parts[1]

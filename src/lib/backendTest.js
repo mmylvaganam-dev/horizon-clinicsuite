@@ -27,7 +27,28 @@ export async function getProtectedProfile(backendBaseUrl = defaultBackendBaseUrl
   );
 }
 
-async function sendFirebaseAuthorizedRequest(url, fallbackErrorMessage) {
+export async function getMyProfile(backendBaseUrl = defaultBackendBaseUrl) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/profile/me`,
+    "Firebase profile load failed"
+  );
+}
+
+export async function updateMyProfile(
+  profileUpdates,
+  backendBaseUrl = defaultBackendBaseUrl
+) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/profile/me`,
+    "Firebase profile update failed",
+    {
+      method: "PATCH",
+      body: JSON.stringify(profileUpdates),
+    }
+  );
+}
+
+async function sendFirebaseAuthorizedRequest(url, fallbackErrorMessage, options = {}) {
   const currentUser = await waitForFirebaseUser();
 
   if (!currentUser) {
@@ -36,10 +57,12 @@ async function sendFirebaseAuthorizedRequest(url, fallbackErrorMessage) {
 
   const token = await currentUser.getIdToken();
   const response = await fetch(url, {
-    method: "GET",
+    method: options.method || "GET",
     headers: {
       Authorization: `Bearer ${token}`,
+      ...(options.body ? { "Content-Type": "application/json" } : {}),
     },
+    body: options.body,
   });
 
   const payload = await response.json().catch(() => ({}));

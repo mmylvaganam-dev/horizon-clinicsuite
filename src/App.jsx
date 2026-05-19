@@ -40,6 +40,8 @@ import FirebaseAuthTest from './pages/FirebaseAuthTest';
 import BackendTest from './pages/BackendTest';
 import FirebaseSessionTest from './pages/FirebaseSessionTest';
 import AppDashboardTest from './pages/AppDashboardTest';
+import ProfileTest from './pages/ProfileTest';
+import AppHomeTest from './pages/AppHomeTest';
 import { FirebaseSessionProvider } from '@/context/FirebaseSessionContext';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -143,6 +145,8 @@ function App() {
               <Route path="/firebase-auth-test" element={<FirebaseAuthTest />} />
               <Route path="/firebase-session-test" element={<FirebaseSessionTest />} />
               <Route path="/app-dashboard-test" element={<AppDashboardTest />} />
+              <Route path="/app-home-test" element={<AppHomeTest />} />
+              <Route path="/profile-test" element={<ProfileTest />} />
               <Route path="/backend-test" element={<BackendTest />} />
               <Route path="*" element={<AuthenticatedApp />} />
             </Routes>
