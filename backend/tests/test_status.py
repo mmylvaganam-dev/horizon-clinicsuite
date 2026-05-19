@@ -125,7 +125,7 @@ def test_protected_profile_returns_not_linked_without_database(monkeypatch):
         fake_verify_firebase_token,
     )
     monkeypatch.setattr(
-        "app.services.protected_profile_service.SessionLocal",
+        "app.services.user_link_service.SessionLocal",
         None,
     )
 

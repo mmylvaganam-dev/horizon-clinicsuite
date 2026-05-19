@@ -24,6 +24,7 @@ class User(Base):
     )
     base44_id: Mapped[Optional[str]] = mapped_column(String, unique=True, index=True)
     firebase_uid: Mapped[Optional[str]] = mapped_column(String, unique=True)
+    auth_provider: Mapped[Optional[str]] = mapped_column(String, index=True)
     primary_organization_id: Mapped[Optional[PythonUUID]] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("organizations.id", ondelete="SET NULL"),
