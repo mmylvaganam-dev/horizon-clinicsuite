@@ -2,6 +2,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from app.db.base import Base
 from app.db.models import (
     AuditLog,
+    AppointmentRequest,
     DocumentMetadata,
     Invitation,
     Organization,
@@ -21,6 +22,7 @@ def test_first_entity_models_are_registered():
     assert Base.metadata.tables["audit_logs"] is AuditLog.__table__
     assert Base.metadata.tables["invitations"] is Invitation.__table__
     assert Base.metadata.tables["provider_availability"] is ProviderAvailability.__table__
+    assert Base.metadata.tables["appointment_requests"] is AppointmentRequest.__table__
 
 
 def test_first_entity_models_use_uuid_primary_keys():
@@ -31,6 +33,7 @@ def test_first_entity_models_use_uuid_primary_keys():
         UserRole,
         DocumentMetadata,
         AuditLog,
+        AppointmentRequest,
         Invitation,
         ProviderAvailability,
     ):

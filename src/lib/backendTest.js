@@ -199,6 +199,41 @@ export async function updateAvailability(
   );
 }
 
+export async function createAppointmentRequest(
+  appointmentRequest,
+  backendBaseUrl = defaultBackendBaseUrl
+) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/appointments/request`,
+    "Appointment request create failed",
+    {
+      method: "POST",
+      body: JSON.stringify(appointmentRequest),
+    }
+  );
+}
+
+export async function listAppointmentRequests(backendBaseUrl = defaultBackendBaseUrl) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/appointments/list`,
+    "Appointment request list failed"
+  );
+}
+
+export async function updateAppointmentRequestStatus(
+  appointmentRequestStatus,
+  backendBaseUrl = defaultBackendBaseUrl
+) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/appointments/status`,
+    "Appointment request status update failed",
+    {
+      method: "PATCH",
+      body: JSON.stringify(appointmentRequestStatus),
+    }
+  );
+}
+
 async function sendFirebaseAuthorizedRequest(url, fallbackErrorMessage, options = {}) {
   const currentUser = await waitForFirebaseUser();
 

@@ -11,6 +11,11 @@ from app.services.admin_org_service import (
     list_organizations,
     list_roles,
 )
+from app.services.appointment_request_service import (
+    create_appointment_request,
+    list_appointment_requests,
+    update_appointment_request_status,
+)
 from app.services.audit_service import list_audit_logs
 from app.services.availability_service import (
     create_availability,
@@ -85,6 +90,21 @@ class AvailabilityUpdateRequest(BaseModel):
     end_time: Optional[str] = None
     timezone: Optional[str] = None
     is_available: Optional[bool] = None
+
+
+class AppointmentRequestCreateRequest(BaseModel):
+    organization_id: Optional[str] = None
+    patient_name: str
+    patient_email: Optional[str] = None
+    requested_provider_user_id: Optional[str] = None
+    requested_date: str
+    requested_time: str
+    request_reason: Optional[str] = None
+
+
+class AppointmentRequestStatusUpdateRequest(BaseModel):
+    id: str
+    status: str
 
 app = FastAPI(
     title="Horizon Clinical Suite Backend",
@@ -288,6 +308,33 @@ def availability_update(
     firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
     context = require_any_role(firebase_user, ["admin", "provider"])
     return update_availability(_model_payload(availability, exclude_unset=True), context)
+
+
+@app.post("/appointments/request")
+def appointments_request(
+    appointment_request: AppointmentRequestCreateRequest,
+    authorization: Optional[str] = Header(default=None),
+):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin", "provider", "staff"])
+    return create_appointment_request(_model_payload(appointment_request), context)
+
+
+@app.get("/appointments/list")
+def appointments_list(authorization: Optional[str] = Header(default=None)):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin", "provider", "staff", "viewer"])
+    return list_appointment_requests(context)
+
+
+@app.patch("/appointments/status")
+def appointments_status(
+    appointment_request: AppointmentRequestStatusUpdateRequest,
+    authorization: Optional[str] = Header(default=None),
+):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin", "provider", "staff"])
+    return update_appointment_request_status(_model_payload(appointment_request), context)
 
 
 @app.get("/system/health-summary")
