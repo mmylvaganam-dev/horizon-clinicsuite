@@ -12,9 +12,19 @@ from app.services.admin_org_service import (
     list_roles,
 )
 from app.services.audit_service import list_audit_logs
+from app.services.availability_service import (
+    create_availability,
+    list_availability,
+    update_availability,
+)
 from app.services.document_service import (
     list_document_metadata,
     register_document_metadata,
+)
+from app.services.invitation_service import (
+    accept_invitation,
+    create_invitation,
+    list_invitations,
 )
 from app.services.profile_service import get_my_profile, update_my_profile
 from app.services.protected_profile_service import build_protected_profile_response
@@ -45,6 +55,36 @@ class DocumentRegisterRequest(BaseModel):
     download_url: Optional[str] = None
     mime_type: Optional[str] = None
     file_size: Optional[int] = None
+
+
+class InvitationCreateRequest(BaseModel):
+    invited_email: str
+    invited_role: str
+
+
+class InvitationAcceptRequest(BaseModel):
+    token: str
+
+
+class AvailabilityCreateRequest(BaseModel):
+    provider_user_id: Optional[str] = None
+    organization_id: Optional[str] = None
+    weekday: int
+    start_time: str
+    end_time: str
+    timezone: str = "America/Toronto"
+    is_available: bool = True
+
+
+class AvailabilityUpdateRequest(BaseModel):
+    id: str
+    provider_user_id: Optional[str] = None
+    organization_id: Optional[str] = None
+    weekday: Optional[int] = None
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
+    timezone: Optional[str] = None
+    is_available: Optional[bool] = None
 
 app = FastAPI(
     title="Horizon Clinical Suite Backend",
@@ -195,6 +235,59 @@ def audit_logs(authorization: Optional[str] = Header(default=None)):
     firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
     require_any_role(firebase_user, ["admin"])
     return list_audit_logs()
+
+
+@app.post("/invitations/create")
+def invitations_create(
+    invitation: InvitationCreateRequest,
+    authorization: Optional[str] = Header(default=None),
+):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin"])
+    return create_invitation(_model_payload(invitation), context)
+
+
+@app.get("/invitations/list")
+def invitations_list(authorization: Optional[str] = Header(default=None)):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    require_any_role(firebase_user, ["admin"])
+    return list_invitations()
+
+
+@app.post("/invitations/accept")
+def invitations_accept(
+    invitation: InvitationAcceptRequest,
+    authorization: Optional[str] = Header(default=None),
+):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    return accept_invitation(_model_payload(invitation), firebase_user)
+
+
+@app.post("/availability/create")
+def availability_create(
+    availability: AvailabilityCreateRequest,
+    authorization: Optional[str] = Header(default=None),
+):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin", "provider"])
+    return create_availability(_model_payload(availability), context)
+
+
+@app.get("/availability/list")
+def availability_list(authorization: Optional[str] = Header(default=None)):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin", "provider"])
+    return list_availability(context)
+
+
+@app.patch("/availability/update")
+def availability_update(
+    availability: AvailabilityUpdateRequest,
+    authorization: Optional[str] = Header(default=None),
+):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin", "provider"])
+    return update_availability(_model_payload(availability, exclude_unset=True), context)
 
 
 @app.get("/system/health-summary")

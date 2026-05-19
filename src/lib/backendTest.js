@@ -132,6 +132,73 @@ export async function getSystemHealthSummary(backendBaseUrl = defaultBackendBase
   );
 }
 
+export async function createInvitation(
+  invitation,
+  backendBaseUrl = defaultBackendBaseUrl
+) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/invitations/create`,
+    "Invitation create failed",
+    {
+      method: "POST",
+      body: JSON.stringify(invitation),
+    }
+  );
+}
+
+export async function listInvitations(backendBaseUrl = defaultBackendBaseUrl) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/invitations/list`,
+    "Invitation list failed"
+  );
+}
+
+export async function acceptInvitation(token, backendBaseUrl = defaultBackendBaseUrl) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/invitations/accept`,
+    "Invitation accept failed",
+    {
+      method: "POST",
+      body: JSON.stringify({ token }),
+    }
+  );
+}
+
+export async function createAvailability(
+  availability,
+  backendBaseUrl = defaultBackendBaseUrl
+) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/availability/create`,
+    "Availability create failed",
+    {
+      method: "POST",
+      body: JSON.stringify(availability),
+    }
+  );
+}
+
+export async function listAvailability(backendBaseUrl = defaultBackendBaseUrl) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/availability/list`,
+    "Availability list failed"
+  );
+}
+
+export async function updateAvailability(
+  availability,
+  backendBaseUrl = defaultBackendBaseUrl
+) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/availability/update`,
+    "Availability update failed",
+    {
+      method: "PATCH",
+      body: JSON.stringify(availability),
+    }
+  );
+}
+
 async function sendFirebaseAuthorizedRequest(url, fallbackErrorMessage, options = {}) {
   const currentUser = await waitForFirebaseUser();
 

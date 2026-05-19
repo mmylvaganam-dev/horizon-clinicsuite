@@ -48,6 +48,8 @@ import RbacTest from './pages/RbacTest';
 import DocumentsTest from './pages/DocumentsTest';
 import AuditTest from './pages/AuditTest';
 import SystemHealthTest from './pages/SystemHealthTest';
+import InvitationsTest from './pages/InvitationsTest';
+import AvailabilityTest from './pages/AvailabilityTest';
 import { FirebaseSessionProvider } from '@/context/FirebaseSessionContext';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -158,6 +160,8 @@ function App() {
               <Route path="/documents-test" element={<DocumentsTest />} />
               <Route path="/audit-test" element={<AuditTest />} />
               <Route path="/system-health-test" element={<SystemHealthTest />} />
+              <Route path="/invitations-test" element={<InvitationsTest />} />
+              <Route path="/availability-test" element={<AvailabilityTest />} />
               <Route path="/profile-test" element={<ProfileTest />} />
               <Route path="/backend-test" element={<BackendTest />} />
               <Route path="*" element={<AuthenticatedApp />} />
