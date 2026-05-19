@@ -13,6 +13,7 @@ from app.services.admin_org_service import (
 )
 from app.services.profile_service import get_my_profile, update_my_profile
 from app.services.protected_profile_service import build_protected_profile_response
+from app.services.rbac_service import get_rbac_context, require_any_role
 from app.services.storage_service import (
     get_migration_storage_status,
     get_storage_status,
@@ -127,6 +128,34 @@ def admin_create_organization(
 def admin_roles(authorization: Optional[str] = Header(default=None)):
     firebase_auth_service.get_current_user_from_token(authorization)
     return list_roles()
+
+
+@app.get("/rbac/me")
+def rbac_me(authorization: Optional[str] = Header(default=None)):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    return get_rbac_context(firebase_user)
+
+
+@app.get("/rbac/admin-test")
+def rbac_admin_test(authorization: Optional[str] = Header(default=None)):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin"])
+    return {
+        "authorized": True,
+        "required_roles": ["admin"],
+        **context,
+    }
+
+
+@app.get("/rbac/provider-test")
+def rbac_provider_test(authorization: Optional[str] = Header(default=None)):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin", "provider"])
+    return {
+        "authorized": True,
+        "required_roles": ["admin", "provider"],
+        **context,
+    }
 
 
 def _profile_update_payload(profile_update: ProfileUpdateRequest) -> dict:

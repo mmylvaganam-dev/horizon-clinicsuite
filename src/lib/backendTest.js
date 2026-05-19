@@ -76,6 +76,27 @@ export async function getAdminRoles(backendBaseUrl = defaultBackendBaseUrl) {
   );
 }
 
+export async function getRbacMe(backendBaseUrl = defaultBackendBaseUrl) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/rbac/me`,
+    "RBAC roles load failed"
+  );
+}
+
+export async function testRbacAdmin(backendBaseUrl = defaultBackendBaseUrl) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/rbac/admin-test`,
+    "Admin RBAC test failed"
+  );
+}
+
+export async function testRbacProvider(backendBaseUrl = defaultBackendBaseUrl) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/rbac/provider-test`,
+    "Provider RBAC test failed"
+  );
+}
+
 async function sendFirebaseAuthorizedRequest(url, fallbackErrorMessage, options = {}) {
   const currentUser = await waitForFirebaseUser();
 
@@ -96,7 +117,10 @@ async function sendFirebaseAuthorizedRequest(url, fallbackErrorMessage, options 
   const payload = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(payload.detail || fallbackErrorMessage);
+    const error = new Error(payload.detail || fallbackErrorMessage);
+    error.status = response.status;
+    error.payload = payload;
+    throw error;
   }
 
   return payload;
