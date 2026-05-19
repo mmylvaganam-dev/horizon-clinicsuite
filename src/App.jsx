@@ -38,6 +38,8 @@ import OperatorManual from './pages/OperatorManual';
 import FirebaseTest from './pages/FirebaseTest';
 import FirebaseAuthTest from './pages/FirebaseAuthTest';
 import BackendTest from './pages/BackendTest';
+import FirebaseSessionTest from './pages/FirebaseSessionTest';
+import { FirebaseSessionProvider } from '@/context/FirebaseSessionContext';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -130,19 +132,22 @@ function App() {
 
   return (
     <AuthProvider>
-      <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <NavigationTracker />
-          <Routes>
-            <Route path="/landing" element={<LandingPage />} />
-            <Route path="/firebase-test" element={<FirebaseTest />} />
-            <Route path="/firebase-auth-test" element={<FirebaseAuthTest />} />
-            <Route path="/backend-test" element={<BackendTest />} />
-            <Route path="*" element={<AuthenticatedApp />} />
-          </Routes>
-        </Router>
-        <Toaster />
-      </QueryClientProvider>
+      <FirebaseSessionProvider>
+        <QueryClientProvider client={queryClientInstance}>
+          <Router>
+            <NavigationTracker />
+            <Routes>
+              <Route path="/landing" element={<LandingPage />} />
+              <Route path="/firebase-test" element={<FirebaseTest />} />
+              <Route path="/firebase-auth-test" element={<FirebaseAuthTest />} />
+              <Route path="/firebase-session-test" element={<FirebaseSessionTest />} />
+              <Route path="/backend-test" element={<BackendTest />} />
+              <Route path="*" element={<AuthenticatedApp />} />
+            </Routes>
+          </Router>
+          <Toaster />
+        </QueryClientProvider>
+      </FirebaseSessionProvider>
     </AuthProvider>
   )
 }
