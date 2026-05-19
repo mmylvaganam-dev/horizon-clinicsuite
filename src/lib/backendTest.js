@@ -97,6 +97,27 @@ export async function testRbacProvider(backendBaseUrl = defaultBackendBaseUrl) {
   );
 }
 
+export async function registerDocumentUpload(
+  document,
+  backendBaseUrl = defaultBackendBaseUrl
+) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/documents/register-upload`,
+    "Document upload registration failed",
+    {
+      method: "POST",
+      body: JSON.stringify(document),
+    }
+  );
+}
+
+export async function listDocuments(backendBaseUrl = defaultBackendBaseUrl) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/documents/list`,
+    "Document list failed"
+  );
+}
+
 async function sendFirebaseAuthorizedRequest(url, fallbackErrorMessage, options = {}) {
   const currentUser = await waitForFirebaseUser();
 

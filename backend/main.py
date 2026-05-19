@@ -11,6 +11,10 @@ from app.services.admin_org_service import (
     list_organizations,
     list_roles,
 )
+from app.services.document_service import (
+    list_document_metadata,
+    register_document_metadata,
+)
 from app.services.profile_service import get_my_profile, update_my_profile
 from app.services.protected_profile_service import build_protected_profile_response
 from app.services.rbac_service import get_rbac_context, require_any_role
@@ -31,6 +35,14 @@ class ProfileUpdateRequest(BaseModel):
 class OrganizationCreateRequest(BaseModel):
     name: str
     slug: Optional[str] = None
+
+
+class DocumentRegisterRequest(BaseModel):
+    file_name: str
+    storage_path: str
+    download_url: Optional[str] = None
+    mime_type: Optional[str] = None
+    file_size: Optional[int] = None
 
 app = FastAPI(
     title="Horizon Clinical Suite Backend",
@@ -156,6 +168,23 @@ def rbac_provider_test(authorization: Optional[str] = Header(default=None)):
         "required_roles": ["admin", "provider"],
         **context,
     }
+
+
+@app.post("/documents/register-upload")
+def documents_register_upload(
+    document: DocumentRegisterRequest,
+    authorization: Optional[str] = Header(default=None),
+):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin", "provider", "staff"])
+    return register_document_metadata(_model_payload(document), context)
+
+
+@app.get("/documents/list")
+def documents_list(authorization: Optional[str] = Header(default=None)):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    get_rbac_context(firebase_user)
+    return list_document_metadata()
 
 
 def _profile_update_payload(profile_update: ProfileUpdateRequest) -> dict:
