@@ -3,7 +3,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import PatientInvoiceManager from './pages/PatientInvoiceManager';
 import PatientHealthOverview from './pages/PatientHealthOverview';
@@ -51,6 +51,13 @@ import SystemHealthTest from './pages/SystemHealthTest';
 import InvitationsTest from './pages/InvitationsTest';
 import AvailabilityTest from './pages/AvailabilityTest';
 import AppointmentsTest from './pages/AppointmentsTest';
+import OrgMembersTest from './pages/OrgMembersTest';
+import RbacRouteGuard from '@/components/app/RbacRouteGuard';
+import AdminOperationalLayout from '@/layouts/AdminOperationalLayout';
+import ProviderOperationalLayout from '@/layouts/ProviderOperationalLayout';
+import ViewerOperationalLayout from '@/layouts/ViewerOperationalLayout';
+import OperationalDashboard from './pages/OperationalDashboard';
+import OperationalModulePage from './pages/OperationalModulePage';
 import { FirebaseSessionProvider } from '@/context/FirebaseSessionContext';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -164,6 +171,80 @@ function App() {
               <Route path="/invitations-test" element={<InvitationsTest />} />
               <Route path="/availability-test" element={<AvailabilityTest />} />
               <Route path="/appointments-test" element={<AppointmentsTest />} />
+              <Route path="/org-members-test" element={<OrgMembersTest />} />
+              <Route path="/app" element={<Navigate to="/app/viewer/dashboard" replace />} />
+              <Route
+                path="/app/admin"
+                element={<Navigate to="/app/admin/dashboard" replace />}
+              />
+              <Route
+                path="/app/admin/dashboard"
+                element={
+                  <RbacRouteGuard allowedRoles={["admin"]}>
+                    <AdminOperationalLayout>
+                      <OperationalDashboard area="admin" />
+                    </AdminOperationalLayout>
+                  </RbacRouteGuard>
+                }
+              />
+              <Route
+                path="/app/admin/:moduleKey"
+                element={
+                  <RbacRouteGuard allowedRoles={["admin"]}>
+                    <AdminOperationalLayout>
+                      <OperationalModulePage area="admin" />
+                    </AdminOperationalLayout>
+                  </RbacRouteGuard>
+                }
+              />
+              <Route
+                path="/app/provider"
+                element={<Navigate to="/app/provider/dashboard" replace />}
+              />
+              <Route
+                path="/app/provider/dashboard"
+                element={
+                  <RbacRouteGuard allowedRoles={["admin", "provider"]}>
+                    <ProviderOperationalLayout>
+                      <OperationalDashboard area="provider" />
+                    </ProviderOperationalLayout>
+                  </RbacRouteGuard>
+                }
+              />
+              <Route
+                path="/app/provider/:moduleKey"
+                element={
+                  <RbacRouteGuard allowedRoles={["admin", "provider"]}>
+                    <ProviderOperationalLayout>
+                      <OperationalModulePage area="provider" />
+                    </ProviderOperationalLayout>
+                  </RbacRouteGuard>
+                }
+              />
+              <Route
+                path="/app/viewer"
+                element={<Navigate to="/app/viewer/dashboard" replace />}
+              />
+              <Route
+                path="/app/viewer/dashboard"
+                element={
+                  <RbacRouteGuard allowedRoles={["admin", "provider", "staff", "viewer"]}>
+                    <ViewerOperationalLayout>
+                      <OperationalDashboard area="viewer" />
+                    </ViewerOperationalLayout>
+                  </RbacRouteGuard>
+                }
+              />
+              <Route
+                path="/app/viewer/:moduleKey"
+                element={
+                  <RbacRouteGuard allowedRoles={["admin", "provider", "staff", "viewer"]}>
+                    <ViewerOperationalLayout>
+                      <OperationalModulePage area="viewer" />
+                    </ViewerOperationalLayout>
+                  </RbacRouteGuard>
+                }
+              />
               <Route path="/profile-test" element={<ProfileTest />} />
               <Route path="/backend-test" element={<BackendTest />} />
               <Route path="*" element={<AuthenticatedApp />} />

@@ -234,6 +234,38 @@ export async function updateAppointmentRequestStatus(
   );
 }
 
+export async function listOrgMembers(backendBaseUrl = defaultBackendBaseUrl) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/org-members/list`,
+    "Organization member list failed"
+  );
+}
+
+export async function addOrgMember(member, backendBaseUrl = defaultBackendBaseUrl) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/org-members/add`,
+    "Organization member add failed",
+    {
+      method: "POST",
+      body: JSON.stringify(member),
+    }
+  );
+}
+
+export async function updateOrgMemberStatus(
+  memberStatus,
+  backendBaseUrl = defaultBackendBaseUrl
+) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/org-members/status`,
+    "Organization member status update failed",
+    {
+      method: "PATCH",
+      body: JSON.stringify(memberStatus),
+    }
+  );
+}
+
 async function sendFirebaseAuthorizedRequest(url, fallbackErrorMessage, options = {}) {
   const currentUser = await waitForFirebaseUser();
 

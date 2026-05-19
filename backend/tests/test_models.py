@@ -5,6 +5,7 @@ from app.db.models import (
     AppointmentRequest,
     DocumentMetadata,
     Invitation,
+    OrganizationMember,
     Organization,
     ProviderAvailability,
     Role,
@@ -23,6 +24,7 @@ def test_first_entity_models_are_registered():
     assert Base.metadata.tables["invitations"] is Invitation.__table__
     assert Base.metadata.tables["provider_availability"] is ProviderAvailability.__table__
     assert Base.metadata.tables["appointment_requests"] is AppointmentRequest.__table__
+    assert Base.metadata.tables["organization_members"] is OrganizationMember.__table__
 
 
 def test_first_entity_models_use_uuid_primary_keys():
@@ -35,6 +37,7 @@ def test_first_entity_models_use_uuid_primary_keys():
         AuditLog,
         AppointmentRequest,
         Invitation,
+        OrganizationMember,
         ProviderAvailability,
     ):
         primary_key_column = model.__table__.primary_key.columns.values()[0]

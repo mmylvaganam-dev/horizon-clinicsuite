@@ -1,6 +1,7 @@
 from app.db.models.audit_log import AuditLog
 from app.db.models.appointment_request import AppointmentRequest
 from app.db.models.invitation import Invitation
+from app.db.models.organization_member import OrganizationMember
 from app.db.models.organization import Organization
 from app.db.models.provider_availability import ProviderAvailability
 from app.db.models.role import Role
@@ -12,6 +13,7 @@ __all__ = [
     "AuditLog",
     "AppointmentRequest",
     "Invitation",
+    "OrganizationMember",
     "Organization",
     "ProviderAvailability",
     "Role",

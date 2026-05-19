@@ -31,6 +31,11 @@ from app.services.invitation_service import (
     create_invitation,
     list_invitations,
 )
+from app.services.org_member_service import (
+    add_org_member,
+    list_org_members,
+    update_org_member_status,
+)
 from app.services.profile_service import get_my_profile, update_my_profile
 from app.services.protected_profile_service import build_protected_profile_response
 from app.services.rbac_service import get_rbac_context, require_any_role
@@ -103,6 +108,19 @@ class AppointmentRequestCreateRequest(BaseModel):
 
 
 class AppointmentRequestStatusUpdateRequest(BaseModel):
+    id: str
+    status: str
+
+
+class OrganizationMemberAddRequest(BaseModel):
+    organization_id: Optional[str] = None
+    user_id: str
+    role: str
+    status: str = "active"
+    invited_by_user_id: Optional[str] = None
+
+
+class OrganizationMemberStatusUpdateRequest(BaseModel):
     id: str
     status: str
 
@@ -335,6 +353,33 @@ def appointments_status(
     firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
     context = require_any_role(firebase_user, ["admin", "provider", "staff"])
     return update_appointment_request_status(_model_payload(appointment_request), context)
+
+
+@app.get("/org-members/list")
+def org_members_list(authorization: Optional[str] = Header(default=None)):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin", "provider", "staff", "viewer"])
+    return list_org_members(context)
+
+
+@app.post("/org-members/add")
+def org_members_add(
+    member: OrganizationMemberAddRequest,
+    authorization: Optional[str] = Header(default=None),
+):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin"])
+    return add_org_member(_model_payload(member), context)
+
+
+@app.patch("/org-members/status")
+def org_members_status(
+    member: OrganizationMemberStatusUpdateRequest,
+    authorization: Optional[str] = Header(default=None),
+):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin"])
+    return update_org_member_status(_model_payload(member), context)
 
 
 @app.get("/system/health-summary")
