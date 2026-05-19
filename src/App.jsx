@@ -35,6 +35,9 @@ import PrescriptionManager from './pages/PrescriptionManager';
 import PrescriptionPrint from './pages/PrescriptionPrint';
 import UnifiedUserManagement from './pages/UnifiedUserManagement';
 import OperatorManual from './pages/OperatorManual';
+import FirebaseTest from './pages/FirebaseTest';
+import FirebaseAuthTest from './pages/FirebaseAuthTest';
+import BackendTest from './pages/BackendTest';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -132,6 +135,9 @@ function App() {
           <NavigationTracker />
           <Routes>
             <Route path="/landing" element={<LandingPage />} />
+            <Route path="/firebase-test" element={<FirebaseTest />} />
+            <Route path="/firebase-auth-test" element={<FirebaseAuthTest />} />
+            <Route path="/backend-test" element={<BackendTest />} />
             <Route path="*" element={<AuthenticatedApp />} />
           </Routes>
         </Router>
