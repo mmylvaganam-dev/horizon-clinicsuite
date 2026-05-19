@@ -103,8 +103,13 @@ def test_profile_me_returns_linked_profile(monkeypatch):
 
 
 def test_profile_me_updates_safe_fields(monkeypatch):
+    audit_calls = []
     user = app_user()
     fake_db = patch_profile_dependencies(monkeypatch, user)
+    monkeypatch.setattr(
+        "app.services.profile_service.log_audit_event",
+        lambda **kwargs: audit_calls.append(kwargs),
+    )
 
     response = client.patch(
         "/profile/me",
@@ -132,3 +137,12 @@ def test_profile_me_updates_safe_fields(monkeypatch):
     assert response.json()["app_user"]["name"] == "Updated Owner"
     assert fake_db.committed is True
     assert fake_db.refreshed_user is user
+    assert audit_calls[0]["action_type"] == "profile_updated"
+    assert audit_calls[0]["resource_type"] == "user_profile"
+    assert audit_calls[0]["metadata_json"]["updated_fields"] == [
+        "first_name",
+        "last_name",
+        "mobile_number",
+        "practice_address",
+        "specialty_or_program",
+    ]

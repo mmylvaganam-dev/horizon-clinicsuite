@@ -71,8 +71,10 @@ def test_documents_register_rejects_viewer(monkeypatch):
 
 
 def test_documents_register_allows_staff_placeholder(monkeypatch):
+    audit_calls = []
     patch_document_auth(monkeypatch)
     monkeypatch.setattr("app.services.document_service.SessionLocal", None)
+    monkeypatch.setattr("app.services.document_service.log_audit_event", lambda **kwargs: audit_calls.append(kwargs))
     monkeypatch.setattr("main.require_any_role", lambda firebase_user, roles: {
         "app_user": {"id": "app-user-1", "primary_organization_id": None},
         "roles": ["staff"],
@@ -92,3 +94,5 @@ def test_documents_register_allows_staff_placeholder(monkeypatch):
     assert response.json()["document"]["storage_path"] == (
         "document-test-uploads/storage-test.txt"
     )
+    assert audit_calls[0]["action_type"] == "document_metadata_registered"
+    assert audit_calls[0]["resource_type"] == "document_metadata"

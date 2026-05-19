@@ -43,8 +43,10 @@ def test_admin_organizations_returns_placeholder_without_database(monkeypatch):
 
 
 def test_admin_create_organization_returns_placeholder_without_database(monkeypatch):
+    audit_calls = []
     patch_admin_auth(monkeypatch)
     monkeypatch.setattr("app.services.admin_org_service.SessionLocal", None)
+    monkeypatch.setattr("app.services.admin_org_service.log_audit_event", lambda **kwargs: audit_calls.append(kwargs))
 
     response = client.post(
         "/admin/organizations",
@@ -60,6 +62,8 @@ def test_admin_create_organization_returns_placeholder_without_database(monkeypa
     assert response.json()["source"] == "placeholder"
     assert response.json()["organization"]["name"] == "Created Test Organization"
     assert response.json()["organization"]["slug"] == "created-test-organization"
+    assert audit_calls[0]["action_type"] == "organization_created"
+    assert audit_calls[0]["resource_type"] == "organization"
 
 
 def test_admin_roles_returns_placeholder_without_database(monkeypatch):

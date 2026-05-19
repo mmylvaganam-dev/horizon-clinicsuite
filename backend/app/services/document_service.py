@@ -5,6 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.db.models import DocumentMetadata
 from app.db.session import SessionLocal
+from app.services.audit_service import log_audit_event
 
 
 PLACEHOLDER_DOCUMENTS = [
@@ -27,8 +28,10 @@ def register_document_metadata(payload: dict, rbac_context: dict) -> dict:
     app_user = rbac_context.get("app_user") or {}
 
     if SessionLocal is None:
+        document = _placeholder_document(payload)
+        _log_document_registration(document, app_user)
         return {
-            "document": _placeholder_document(payload),
+            "document": document,
             "registered": True,
             "source": "placeholder",
         }
@@ -47,14 +50,18 @@ def register_document_metadata(payload: dict, rbac_context: dict) -> dict:
             db.add(document)
             db.commit()
             db.refresh(document)
+            serialized_document = serialize_document(document)
+            _log_document_registration(serialized_document, app_user)
             return {
-                "document": serialize_document(document),
+                "document": serialized_document,
                 "registered": True,
                 "source": "postgresql",
             }
     except SQLAlchemyError:
+        document = _placeholder_document(payload)
+        _log_document_registration(document, app_user)
         return {
-            "document": _placeholder_document(payload),
+            "document": document,
             "registered": True,
             "source": "placeholder",
         }
@@ -114,3 +121,18 @@ def _placeholder_document(payload: dict) -> dict:
         "created_at": None,
         "source": "placeholder",
     }
+
+
+def _log_document_registration(document: dict, app_user: dict) -> None:
+    log_audit_event(
+        action_type="document_metadata_registered",
+        resource_type="document_metadata",
+        resource_id=document.get("id"),
+        organization_id=app_user.get("primary_organization_id"),
+        user_id=app_user.get("id"),
+        metadata_json={
+            "file_name": document.get("file_name"),
+            "storage_path": document.get("storage_path"),
+            "source": document.get("source"),
+        },
+    )

@@ -11,6 +11,7 @@ from app.services.admin_org_service import (
     list_organizations,
     list_roles,
 )
+from app.services.audit_service import list_audit_logs
 from app.services.document_service import (
     list_document_metadata,
     register_document_metadata,
@@ -132,8 +133,9 @@ def admin_create_organization(
     organization: OrganizationCreateRequest,
     authorization: Optional[str] = Header(default=None),
 ):
-    firebase_auth_service.get_current_user_from_token(authorization)
-    return create_organization(_model_payload(organization))
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    audit_context = get_rbac_context(firebase_user)
+    return create_organization(_model_payload(organization), audit_context)
 
 
 @app.get("/admin/roles")
@@ -185,6 +187,13 @@ def documents_list(authorization: Optional[str] = Header(default=None)):
     firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
     get_rbac_context(firebase_user)
     return list_document_metadata()
+
+
+@app.get("/audit/logs")
+def audit_logs(authorization: Optional[str] = Header(default=None)):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    require_any_role(firebase_user, ["admin"])
+    return list_audit_logs()
 
 
 def _profile_update_payload(profile_update: ProfileUpdateRequest) -> dict:

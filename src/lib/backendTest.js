@@ -118,6 +118,13 @@ export async function listDocuments(backendBaseUrl = defaultBackendBaseUrl) {
   );
 }
 
+export async function getAuditLogs(backendBaseUrl = defaultBackendBaseUrl) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/audit/logs`,
+    "Audit logs load failed"
+  );
+}
+
 async function sendFirebaseAuthorizedRequest(url, fallbackErrorMessage, options = {}) {
   const currentUser = await waitForFirebaseUser();
 

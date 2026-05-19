@@ -6,6 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.db.models import Organization, Role
 from app.db.session import SessionLocal
+from app.services.audit_service import log_audit_event
 
 
 PLACEHOLDER_ORGANIZATIONS = [
@@ -60,19 +61,22 @@ def list_organizations() -> dict:
         return _placeholder_organizations_response()
 
 
-def create_organization(payload: dict) -> dict:
+def create_organization(payload: dict, audit_context: Optional[dict] = None) -> dict:
     name = (payload.get("name") or "Test Organization").strip()
     slug = (payload.get("slug") or _slugify(name)).strip()
+    audit_context = audit_context or {}
 
     if SessionLocal is None:
+        organization = {
+            "id": f"placeholder-org-{uuid4()}",
+            "name": name,
+            "slug": slug,
+            "status": "active",
+            "source": "placeholder",
+        }
+        _log_organization_creation(organization, audit_context)
         return {
-            "organization": {
-                "id": f"placeholder-org-{uuid4()}",
-                "name": name,
-                "slug": slug,
-                "status": "active",
-                "source": "placeholder",
-            },
+            "organization": organization,
             "created": True,
             "source": "placeholder",
         }
@@ -88,20 +92,24 @@ def create_organization(payload: dict) -> dict:
             db.add(organization)
             db.commit()
             db.refresh(organization)
+            serialized_organization = serialize_organization(organization)
+            _log_organization_creation(serialized_organization, audit_context)
             return {
-                "organization": serialize_organization(organization),
+                "organization": serialized_organization,
                 "created": True,
                 "source": "postgresql",
             }
     except SQLAlchemyError:
+        organization = {
+            "id": f"placeholder-org-{uuid4()}",
+            "name": name,
+            "slug": slug,
+            "status": "active",
+            "source": "placeholder",
+        }
+        _log_organization_creation(organization, audit_context)
         return {
-            "organization": {
-                "id": f"placeholder-org-{uuid4()}",
-                "name": name,
-                "slug": slug,
-                "status": "active",
-                "source": "placeholder",
-            },
+            "organization": organization,
             "created": True,
             "source": "placeholder",
         }
@@ -168,3 +176,19 @@ def _slugify(value: Optional[str]) -> str:
     while "--" in slug:
         slug = slug.replace("--", "-")
     return slug or "test-organization"
+
+
+def _log_organization_creation(organization: dict, audit_context: dict) -> None:
+    app_user = audit_context.get("app_user") or {}
+    log_audit_event(
+        action_type="organization_created",
+        resource_type="organization",
+        resource_id=organization.get("id"),
+        organization_id=organization.get("id") if organization.get("source") == "postgresql" else None,
+        user_id=app_user.get("id"),
+        metadata_json={
+            "name": organization.get("name"),
+            "slug": organization.get("slug"),
+            "source": organization.get("source"),
+        },
+    )

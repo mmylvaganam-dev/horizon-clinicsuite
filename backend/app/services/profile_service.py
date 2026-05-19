@@ -5,6 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.db.models import User
 from app.db.session import SessionLocal
+from app.services.audit_service import log_audit_event
 from app.services.protected_profile_service import build_firebase_user_payload
 from app.services.user_link_service import get_or_create_user_from_firebase_in_session
 
@@ -42,6 +43,7 @@ def update_my_profile(firebase_user: dict, updates: dict) -> dict:
             app_user.name = _build_display_name(app_user)
             db.commit()
             db.refresh(app_user)
+            _log_profile_update(app_user, safe_updates)
             return build_profile_response(firebase_user, app_user)
     except HTTPException:
         raise
@@ -103,3 +105,16 @@ def _build_display_name(user: User) -> Optional[str]:
     parts = [user.first_name, user.last_name]
     name = " ".join(part.strip() for part in parts if part and part.strip())
     return name or user.name
+
+
+def _log_profile_update(user: User, updates: dict) -> None:
+    log_audit_event(
+        action_type="profile_updated",
+        resource_type="user_profile",
+        resource_id=str(user.id),
+        organization_id=str(user.primary_organization_id) if user.primary_organization_id else None,
+        user_id=str(user.id),
+        metadata_json={
+            "updated_fields": sorted(updates.keys()),
+        },
+    )
