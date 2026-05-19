@@ -125,6 +125,13 @@ export async function getAuditLogs(backendBaseUrl = defaultBackendBaseUrl) {
   );
 }
 
+export async function getSystemHealthSummary(backendBaseUrl = defaultBackendBaseUrl) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/system/health-summary`,
+    "System health summary load failed"
+  );
+}
+
 async function sendFirebaseAuthorizedRequest(url, fallbackErrorMessage, options = {}) {
   const currentUser = await waitForFirebaseUser();
 

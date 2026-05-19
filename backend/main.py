@@ -23,6 +23,7 @@ from app.services.storage_service import (
     get_migration_storage_status,
     get_storage_status,
 )
+from app.services.system_health_service import get_system_health_summary
 
 
 class ProfileUpdateRequest(BaseModel):
@@ -194,6 +195,13 @@ def audit_logs(authorization: Optional[str] = Header(default=None)):
     firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
     require_any_role(firebase_user, ["admin"])
     return list_audit_logs()
+
+
+@app.get("/system/health-summary")
+def system_health_summary(authorization: Optional[str] = Header(default=None)):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    require_any_role(firebase_user, ["admin"])
+    return get_system_health_summary()
 
 
 def _profile_update_payload(profile_update: ProfileUpdateRequest) -> dict:
