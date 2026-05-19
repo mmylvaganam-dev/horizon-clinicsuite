@@ -6,6 +6,11 @@ from typing import Optional
 
 from app.db.session import get_database_status
 from app.services import firebase_auth_service
+from app.services.admin_org_service import (
+    create_organization,
+    list_organizations,
+    list_roles,
+)
 from app.services.profile_service import get_my_profile, update_my_profile
 from app.services.protected_profile_service import build_protected_profile_response
 from app.services.storage_service import (
@@ -20,6 +25,11 @@ class ProfileUpdateRequest(BaseModel):
     mobile_number: Optional[str] = None
     specialty_or_program: Optional[str] = None
     practice_address: Optional[str] = None
+
+
+class OrganizationCreateRequest(BaseModel):
+    name: str
+    slug: Optional[str] = None
 
 app = FastAPI(
     title="Horizon Clinical Suite Backend",
@@ -98,10 +108,35 @@ def update_profile_me(
     )
 
 
+@app.get("/admin/organizations")
+def admin_organizations(authorization: Optional[str] = Header(default=None)):
+    firebase_auth_service.get_current_user_from_token(authorization)
+    return list_organizations()
+
+
+@app.post("/admin/organizations")
+def admin_create_organization(
+    organization: OrganizationCreateRequest,
+    authorization: Optional[str] = Header(default=None),
+):
+    firebase_auth_service.get_current_user_from_token(authorization)
+    return create_organization(_model_payload(organization))
+
+
+@app.get("/admin/roles")
+def admin_roles(authorization: Optional[str] = Header(default=None)):
+    firebase_auth_service.get_current_user_from_token(authorization)
+    return list_roles()
+
+
 def _profile_update_payload(profile_update: ProfileUpdateRequest) -> dict:
-    if hasattr(profile_update, "model_dump"):
-        return profile_update.model_dump(exclude_unset=True)
-    return profile_update.dict(exclude_unset=True)
+    return _model_payload(profile_update, exclude_unset=True)
+
+
+def _model_payload(model: BaseModel, exclude_unset: bool = False) -> dict:
+    if hasattr(model, "model_dump"):
+        return model.model_dump(exclude_unset=exclude_unset)
+    return model.dict(exclude_unset=exclude_unset)
 
 
 @app.get("/migration/status")

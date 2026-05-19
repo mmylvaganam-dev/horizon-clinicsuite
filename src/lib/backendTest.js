@@ -48,6 +48,34 @@ export async function updateMyProfile(
   );
 }
 
+export async function getAdminOrganizations(backendBaseUrl = defaultBackendBaseUrl) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/admin/organizations`,
+    "Admin organizations load failed"
+  );
+}
+
+export async function createAdminOrganization(
+  organization,
+  backendBaseUrl = defaultBackendBaseUrl
+) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/admin/organizations`,
+    "Admin organization create failed",
+    {
+      method: "POST",
+      body: JSON.stringify(organization),
+    }
+  );
+}
+
+export async function getAdminRoles(backendBaseUrl = defaultBackendBaseUrl) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/admin/roles`,
+    "Admin roles load failed"
+  );
+}
+
 async function sendFirebaseAuthorizedRequest(url, fallbackErrorMessage, options = {}) {
   const currentUser = await waitForFirebaseUser();
 

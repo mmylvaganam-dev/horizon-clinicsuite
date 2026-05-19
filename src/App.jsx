@@ -43,6 +43,7 @@ import AppDashboardTest from './pages/AppDashboardTest';
 import ProfileTest from './pages/ProfileTest';
 import AppHomeTest from './pages/AppHomeTest';
 import FileUploadTest from './pages/FileUploadTest';
+import AdminOrgTest from './pages/AdminOrgTest';
 import { FirebaseSessionProvider } from '@/context/FirebaseSessionContext';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -148,6 +149,7 @@ function App() {
               <Route path="/app-dashboard-test" element={<AppDashboardTest />} />
               <Route path="/app-home-test" element={<AppHomeTest />} />
               <Route path="/file-upload-test" element={<FileUploadTest />} />
+              <Route path="/admin-org-test" element={<AdminOrgTest />} />
               <Route path="/profile-test" element={<ProfileTest />} />
               <Route path="/backend-test" element={<BackendTest />} />
               <Route path="*" element={<AuthenticatedApp />} />
