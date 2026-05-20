@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: horizon-clinicsuite-staging-api
+    runtime: python
+    region: singapore
+    rootDir: backend
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /system/health-summary
+    autoDeploy: false
+    envVars:
+      - key: APP_ENV
+        value: staging
+      - key: ENVIRONMENT
+        value: staging
+      - key: HCS_DATABASE_URL
+        sync: false
+      - key: BACKEND_CORS_ORIGINS
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_STORAGE_BUCKET
+        sync: false
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON_PATH
+        sync: false
+      - key: APP_SECRET_KEY
+        sync: false

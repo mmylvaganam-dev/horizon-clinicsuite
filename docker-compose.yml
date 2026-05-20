@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: horizon-clinicsuite-postgres-dev
+    environment:
+      POSTGRES_DB: horizon_clinicsuite_dev
+      POSTGRES_USER: horizon
+      POSTGRES_PASSWORD: horizon_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - horizon_clinicsuite_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U horizon -d horizon_clinicsuite_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  horizon_clinicsuite_pgdata:

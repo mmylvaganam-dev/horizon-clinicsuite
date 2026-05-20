@@ -9,7 +9,7 @@ from sqlalchemy.orm import sessionmaker
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("HCS_DATABASE_URL") or os.getenv("DATABASE_URL")
 DATABASE_SSL = os.getenv("DATABASE_SSL", "false").lower() == "true"
 DATABASE_POOL_MIN = int(os.getenv("DATABASE_POOL_MIN", "1"))
 DATABASE_POOL_MAX = int(os.getenv("DATABASE_POOL_MAX", "5"))
@@ -47,12 +47,22 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine) if e
 
 
 def get_database_status() -> dict[str, str]:
-    return {"database": "configured_not_connected"}
+    if engine is None:
+        return {
+            "database": "configured_not_connected",
+            "database_url_configured": "false",
+        }
+
+    return {
+        "database": "configured_not_connected",
+        "database_url_configured": "true",
+        "database_engine": "sqlalchemy",
+    }
 
 
 def get_db():
     if SessionLocal is None:
-        raise RuntimeError("DATABASE_URL is not configured")
+        raise RuntimeError("HCS_DATABASE_URL is not configured")
 
     db = SessionLocal()
     try:

@@ -10,7 +10,8 @@ def test_db_status_is_configured_not_connected():
     response = client.get("/db/status")
 
     assert response.status_code == 200
-    assert response.json() == {"database": "configured_not_connected"}
+    assert response.json()["database"] == "configured_not_connected"
+    assert "database_url_configured" in response.json()
 
 
 def test_migration_status_includes_database_status():
