@@ -43,6 +43,10 @@ from app.services.storage_service import (
     get_migration_storage_status,
     get_storage_status,
 )
+from app.services.staging_admin_seed_service import (
+    rollback_staging_admin_user,
+    seed_staging_admin_user,
+)
 from app.services.system_health_service import get_system_health_summary
 
 
@@ -123,6 +127,7 @@ class OrganizationMemberAddRequest(BaseModel):
 class OrganizationMemberStatusUpdateRequest(BaseModel):
     id: str
     status: str
+
 
 app = FastAPI(
     title="Horizon Clinical Suite Backend",
@@ -387,6 +392,20 @@ def system_health_summary(authorization: Optional[str] = Header(default=None)):
     firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
     require_any_role(firebase_user, ["admin"])
     return get_system_health_summary()
+
+
+@app.post("/management/staging/seed-admin")
+def management_staging_seed_admin(
+    x_admin_seed_token: Optional[str] = Header(default=None),
+):
+    return seed_staging_admin_user(x_admin_seed_token)
+
+
+@app.post("/management/staging/seed-admin/rollback")
+def management_staging_seed_admin_rollback(
+    x_admin_seed_token: Optional[str] = Header(default=None),
+):
+    return rollback_staging_admin_user(x_admin_seed_token)
 
 
 def _profile_update_payload(profile_update: ProfileUpdateRequest) -> dict:
