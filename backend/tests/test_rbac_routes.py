@@ -2,6 +2,7 @@ from fastapi.testclient import TestClient
 from types import SimpleNamespace
 
 from main import app
+from main import _require_test_page_role
 from app.services.rbac_service import (
     get_user_role_codes,
     require_any_role,
@@ -252,3 +253,47 @@ def test_test_module_role_logs_denied_access(monkeypatch, caplog):
     assert "email=other@example.com" in caplog.text
     assert "firebase_uid=other-uid" in caplog.text
     assert "resolved_roles=['viewer']" in caplog.text
+
+
+def test_main_route_direct_bypass_allows_staging_test_user(monkeypatch):
+    monkeypatch.setenv("APP_ENV", "staging")
+    monkeypatch.setattr("main.get_rbac_context", lambda firebase_user: {
+        "app_user": {"email": "firebase-auth-test-1779380527677@example.com"},
+        "roles": ["viewer"],
+        "source": "test",
+    })
+
+    context = _require_test_page_role(
+        "/appointments/list",
+        {
+            "uid": "9q7CTtPwd4V2D8BccggxmYv8hsi1",
+            "email": "firebase-auth-test-1779380527677@example.com",
+        },
+        ["admin", "provider", "staff", "viewer"],
+    )
+
+    assert context["source"] == "main_route_staging_bypass"
+    assert set(context["roles"]) == {"admin", "provider", "staff"}
+
+
+def test_main_route_direct_bypass_denies_test_user_in_production(monkeypatch):
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setattr("main.get_rbac_context", lambda firebase_user: {
+        "app_user": {"email": "firebase-auth-test-1779380527677@example.com"},
+        "roles": ["viewer"],
+        "source": "test",
+    })
+
+    try:
+        _require_test_page_role(
+            "/appointments/list",
+            {
+                "uid": "9q7CTtPwd4V2D8BccggxmYv8hsi1",
+                "email": "firebase-auth-test-1779380527677@example.com",
+            },
+            ["admin", "provider", "staff"],
+        )
+    except Exception as exc:
+        assert getattr(exc, "status_code", None) == 403
+    else:
+        raise AssertionError("main route bypass should not run in production")
