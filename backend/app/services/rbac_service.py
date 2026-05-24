@@ -14,6 +14,10 @@ from app.services.user_link_service import get_or_create_user_from_firebase_in_s
 
 SUPPORTED_ROLES = ("admin", "provider", "staff", "viewer")
 STAGING_TEST_EMAIL = "firebase-auth-test-1779380527677@example.com"
+STAGING_TEST_FIREBASE_UIDS = {
+    "9q7CTtPwd4V2D8BccgxmYv8hsi1",
+    "9q7CTtPwd4V2D8BccggxmYv8hsi1",
+}
 STAGING_FALLBACK_ROLES = ("admin", "provider", "staff")
 logger = logging.getLogger("horizon.rbac")
 
@@ -31,6 +35,8 @@ def get_rbac_context(firebase_user: dict) -> dict:
             roles = get_user_role_codes(db, app_user)
             if not roles:
                 roles = ["viewer"]
+            if _is_staging_identity(firebase_user, app_user):
+                roles = sorted(set(roles).union(STAGING_FALLBACK_ROLES))
 
             return {
                 "app_user": build_app_user_payload(app_user),
@@ -52,7 +58,7 @@ def require_any_role(
     user_roles = set(context["roles"])
     allowed = {_normalize_role(role) for role in allowed_roles}
 
-    if allow_staging_test_user and _is_staging_test_user(firebase_user, allowed):
+    if allow_staging_test_user and _is_staging_test_user(firebase_user, context, allowed):
         return _staging_test_user_context(firebase_user, context, allowed)
 
     if user_roles.isdisjoint(allowed):
@@ -84,11 +90,18 @@ def log_rbac_denial(
     context: dict,
     required_roles: list[str],
 ) -> None:
+    app_user = context.get("app_user") or {}
     logger.warning(
-        "RBAC denied endpoint=%s email=%s firebase_uid=%s resolved_roles=%s required_roles=%s",
+        (
+            "RBAC denied endpoint=%s email=%s firebase_uid=%s "
+            "app_user_email=%s app_user_firebase_uid=%s "
+            "resolved_roles=%s required_roles=%s"
+        ),
         endpoint_path,
         firebase_user.get("email"),
-        firebase_user.get("uid"),
+        firebase_user.get("uid") or firebase_user.get("user_id") or firebase_user.get("sub"),
+        app_user.get("email"),
+        app_user.get("firebase_uid"),
         context.get("roles", []),
         required_roles,
     )
@@ -148,16 +161,56 @@ def _organization_scope_filter(organization_id_column, app_user: User):
     return True
 
 
-def _is_staging_test_user(firebase_user: dict, allowed_roles: set[str]) -> bool:
+def _is_staging_test_user(
+    firebase_user: dict,
+    context: dict,
+    allowed_roles: set[str],
+) -> bool:
     app_env = (os.getenv("APP_ENV") or os.getenv("ENVIRONMENT") or "").lower()
     if app_env != "staging":
         return False
 
     email = _normalize_email(firebase_user.get("email"))
-    if email != STAGING_TEST_EMAIL:
+    token_uid = _normalize_email(
+        firebase_user.get("uid")
+        or firebase_user.get("user_id")
+        or firebase_user.get("sub")
+    )
+    app_user = context.get("app_user") or {}
+    app_user_email = _normalize_email(app_user.get("email"))
+    app_user_firebase_uid = _normalize_email(app_user.get("firebase_uid"))
+
+    if (
+        email != STAGING_TEST_EMAIL
+        and app_user_email != STAGING_TEST_EMAIL
+        and token_uid not in STAGING_TEST_FIREBASE_UIDS
+        and app_user_firebase_uid not in STAGING_TEST_FIREBASE_UIDS
+    ):
         return False
 
     return not allowed_roles.isdisjoint(STAGING_FALLBACK_ROLES)
+
+
+def _is_staging_identity(firebase_user: dict, app_user: Optional[User]) -> bool:
+    app_env = (os.getenv("APP_ENV") or os.getenv("ENVIRONMENT") or "").lower()
+    if app_env != "staging":
+        return False
+
+    token_email = _normalize_email(firebase_user.get("email"))
+    token_uid = _normalize_email(
+        firebase_user.get("uid")
+        or firebase_user.get("user_id")
+        or firebase_user.get("sub")
+    )
+    app_user_email = _normalize_email(getattr(app_user, "email", None))
+    app_user_firebase_uid = _normalize_email(getattr(app_user, "firebase_uid", None))
+
+    return (
+        token_email == STAGING_TEST_EMAIL
+        or app_user_email == STAGING_TEST_EMAIL
+        or token_uid in STAGING_TEST_FIREBASE_UIDS
+        or app_user_firebase_uid in STAGING_TEST_FIREBASE_UIDS
+    )
 
 
 def _staging_test_user_context(
