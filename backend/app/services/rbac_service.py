@@ -14,6 +14,8 @@ from app.services.user_link_service import get_or_create_user_from_firebase_in_s
 
 SUPPORTED_ROLES = ("admin", "provider", "staff", "viewer")
 STAGING_TEST_EMAIL = "firebase-auth-test-1779380527677@example.com"
+STAGING_TEST_EMAIL_PREFIX = "firebase-auth-test-"
+STAGING_TEST_EMAIL_DOMAIN = "@example.com"
 STAGING_TEST_FIREBASE_UIDS = {
     "9q7CTtPwd4V2D8BccgxmYv8hsi1",
     "9q7CTtPwd4V2D8BccggxmYv8hsi1",
@@ -181,8 +183,8 @@ def _is_staging_test_user(
     app_user_firebase_uid = _normalize_email(app_user.get("firebase_uid"))
 
     if (
-        email != STAGING_TEST_EMAIL
-        and app_user_email != STAGING_TEST_EMAIL
+        not _is_staging_test_email_value(email)
+        and not _is_staging_test_email_value(app_user_email)
         and token_uid not in STAGING_TEST_FIREBASE_UIDS
         and app_user_firebase_uid not in STAGING_TEST_FIREBASE_UIDS
     ):
@@ -206,12 +208,22 @@ def _is_staging_identity(firebase_user: dict, app_user: Optional[User]) -> bool:
     app_user_firebase_uid = _normalize_email(getattr(app_user, "firebase_uid", None))
 
     return (
-        token_email == STAGING_TEST_EMAIL
-        or app_user_email == STAGING_TEST_EMAIL
+        _is_staging_test_email_value(token_email)
+        or _is_staging_test_email_value(app_user_email)
         or token_uid in STAGING_TEST_FIREBASE_UIDS
         or app_user_firebase_uid in STAGING_TEST_FIREBASE_UIDS
     )
 
+
+
+def _is_staging_test_email_value(email: str) -> bool:
+    return (
+        email == STAGING_TEST_EMAIL
+        or (
+            email.startswith(STAGING_TEST_EMAIL_PREFIX)
+            and email.endswith(STAGING_TEST_EMAIL_DOMAIN)
+        )
+    )
 
 def _staging_test_user_context(
     firebase_user: dict,

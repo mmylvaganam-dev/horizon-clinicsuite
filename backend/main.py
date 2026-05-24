@@ -59,6 +59,8 @@ from app.services.system_health_service import get_system_health_summary
 
 
 STAGING_TEST_EMAIL = "firebase-auth-test-1779380527677@example.com"
+STAGING_TEST_EMAIL_PREFIX = "firebase-auth-test-"
+STAGING_TEST_EMAIL_DOMAIN = "@example.com"
 STAGING_TEST_ROLES = {"admin", "provider", "staff"}
 rbac_route_logger = logging.getLogger("horizon.rbac.routes")
 
@@ -504,6 +506,16 @@ def _is_staging_test_email(firebase_user: dict) -> bool:
         and _normalize_role(firebase_user.get("email")) == STAGING_TEST_EMAIL
     )
 
+
+
+def _is_staging_test_email_value(email: str) -> bool:
+    return (
+        email == STAGING_TEST_EMAIL
+        or (
+            email.startswith(STAGING_TEST_EMAIL_PREFIX)
+            and email.endswith(STAGING_TEST_EMAIL_DOMAIN)
+        )
+    )
 
 def _log_test_page_rbac_denial(
     endpoint_path: str,
