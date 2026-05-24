@@ -70,7 +70,7 @@ def test_appointment_request_create_rejects_viewer(monkeypatch):
 def test_appointment_request_create_allows_staff_placeholder(monkeypatch):
     patch_appointment_auth(monkeypatch)
     monkeypatch.setattr("app.services.appointment_request_service.SessionLocal", None)
-    monkeypatch.setattr("main.require_any_role", lambda firebase_user, roles, **kwargs: rbac_context(["staff"]))
+    monkeypatch.setattr("main.require_test_module_role", lambda endpoint_path, firebase_user, roles, **kwargs: rbac_context(["staff"]))
 
     response = client.post(
         "/appointments/request",
@@ -91,7 +91,7 @@ def test_appointment_request_create_allows_staff_placeholder(monkeypatch):
 def test_appointment_request_create_allows_admin_placeholder(monkeypatch):
     patch_appointment_auth(monkeypatch)
     monkeypatch.setattr("app.services.appointment_request_service.SessionLocal", None)
-    monkeypatch.setattr("main.require_any_role", lambda firebase_user, roles, **kwargs: rbac_context(["admin"]))
+    monkeypatch.setattr("main.require_test_module_role", lambda endpoint_path, firebase_user, roles, **kwargs: rbac_context(["admin"]))
 
     response = client.post(
         "/appointments/request",
@@ -106,7 +106,7 @@ def test_appointment_request_create_allows_admin_placeholder(monkeypatch):
 def test_appointment_request_create_allows_provider_placeholder(monkeypatch):
     patch_appointment_auth(monkeypatch)
     monkeypatch.setattr("app.services.appointment_request_service.SessionLocal", None)
-    monkeypatch.setattr("main.require_any_role", lambda firebase_user, roles, **kwargs: rbac_context(["provider"]))
+    monkeypatch.setattr("main.require_test_module_role", lambda endpoint_path, firebase_user, roles, **kwargs: rbac_context(["provider"]))
 
     response = client.post(
         "/appointments/request",
@@ -121,7 +121,7 @@ def test_appointment_request_create_allows_provider_placeholder(monkeypatch):
 def test_appointment_request_list_allows_viewer_read_only(monkeypatch):
     patch_appointment_auth(monkeypatch)
     monkeypatch.setattr("app.services.appointment_request_service.SessionLocal", None)
-    monkeypatch.setattr("main.require_any_role", lambda firebase_user, roles, **kwargs: rbac_context(["viewer"]))
+    monkeypatch.setattr("main.require_test_module_role", lambda endpoint_path, firebase_user, roles, **kwargs: rbac_context(["viewer"]))
 
     response = client.get(
         "/appointments/list",
@@ -149,7 +149,7 @@ def test_appointment_request_status_rejects_viewer(monkeypatch):
 def test_appointment_request_status_allows_provider_placeholder(monkeypatch):
     patch_appointment_auth(monkeypatch)
     monkeypatch.setattr("app.services.appointment_request_service.SessionLocal", None)
-    monkeypatch.setattr("main.require_any_role", lambda firebase_user, roles, **kwargs: rbac_context(["provider"]))
+    monkeypatch.setattr("main.require_test_module_role", lambda endpoint_path, firebase_user, roles, **kwargs: rbac_context(["provider"]))
 
     response = client.patch(
         "/appointments/status",
@@ -167,7 +167,7 @@ def test_appointment_request_status_allows_provider_placeholder(monkeypatch):
 def test_appointment_request_status_rejects_invalid_status(monkeypatch):
     patch_appointment_auth(monkeypatch)
     monkeypatch.setattr("app.services.appointment_request_service.SessionLocal", None)
-    monkeypatch.setattr("main.require_any_role", lambda firebase_user, roles, **kwargs: rbac_context(["admin"]))
+    monkeypatch.setattr("main.require_test_module_role", lambda endpoint_path, firebase_user, roles, **kwargs: rbac_context(["admin"]))
 
     response = client.patch(
         "/appointments/status",
