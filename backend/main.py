@@ -38,7 +38,11 @@ from app.services.org_member_service import (
 )
 from app.services.profile_service import get_my_profile, update_my_profile
 from app.services.protected_profile_service import build_protected_profile_response
-from app.services.rbac_service import get_rbac_context, require_any_role
+from app.services.rbac_service import (
+    get_rbac_context,
+    require_any_role,
+    require_test_module_role,
+)
 from app.services.storage_service import (
     get_migration_storage_status,
     get_storage_status,
@@ -262,10 +266,10 @@ def documents_register_upload(
     authorization: Optional[str] = Header(default=None),
 ):
     firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
-    context = require_any_role(
+    context = require_test_module_role(
+        "/documents/register-upload",
         firebase_user,
         ["admin", "provider", "staff"],
-        allow_staging_test_user=True,
     )
     return register_document_metadata(_model_payload(document), context)
 
@@ -316,10 +320,10 @@ def availability_create(
     authorization: Optional[str] = Header(default=None),
 ):
     firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
-    context = require_any_role(
+    context = require_test_module_role(
+        "/availability/create",
         firebase_user,
         ["admin", "provider", "staff"],
-        allow_staging_test_user=True,
     )
     return create_availability(_model_payload(availability), context)
 
@@ -327,10 +331,10 @@ def availability_create(
 @app.get("/availability/list")
 def availability_list(authorization: Optional[str] = Header(default=None)):
     firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
-    context = require_any_role(
+    context = require_test_module_role(
+        "/availability/list",
         firebase_user,
         ["admin", "provider", "staff"],
-        allow_staging_test_user=True,
     )
     return list_availability(context)
 
@@ -341,10 +345,10 @@ def availability_update(
     authorization: Optional[str] = Header(default=None),
 ):
     firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
-    context = require_any_role(
+    context = require_test_module_role(
+        "/availability/update",
         firebase_user,
         ["admin", "provider", "staff"],
-        allow_staging_test_user=True,
     )
     return update_availability(_model_payload(availability, exclude_unset=True), context)
 
@@ -355,10 +359,10 @@ def appointments_request(
     authorization: Optional[str] = Header(default=None),
 ):
     firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
-    context = require_any_role(
+    context = require_test_module_role(
+        "/appointments/request",
         firebase_user,
         ["admin", "provider", "staff"],
-        allow_staging_test_user=True,
     )
     return create_appointment_request(_model_payload(appointment_request), context)
 
@@ -366,10 +370,10 @@ def appointments_request(
 @app.get("/appointments/list")
 def appointments_list(authorization: Optional[str] = Header(default=None)):
     firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
-    context = require_any_role(
+    context = require_test_module_role(
+        "/appointments/list",
         firebase_user,
         ["admin", "provider", "staff", "viewer"],
-        allow_staging_test_user=True,
     )
     return list_appointment_requests(context)
 
@@ -380,10 +384,10 @@ def appointments_status(
     authorization: Optional[str] = Header(default=None),
 ):
     firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
-    context = require_any_role(
+    context = require_test_module_role(
+        "/appointments/status",
         firebase_user,
         ["admin", "provider", "staff"],
-        allow_staging_test_user=True,
     )
     return update_appointment_request_status(_model_payload(appointment_request), context)
 
