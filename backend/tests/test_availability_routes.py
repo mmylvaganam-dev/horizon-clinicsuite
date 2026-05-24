@@ -81,7 +81,7 @@ def test_availability_list_rejects_viewer(monkeypatch):
 def test_availability_create_allows_provider_own_placeholder(monkeypatch):
     patch_availability_auth(monkeypatch)
     monkeypatch.setattr("app.services.availability_service.SessionLocal", None)
-    monkeypatch.setattr("main.require_test_module_role", lambda endpoint_path, firebase_user, roles, **kwargs: provider_context())
+    monkeypatch.setattr("main._require_test_page_role", lambda endpoint_path, firebase_user, roles, **kwargs: provider_context())
 
     response = client.post(
         "/availability/create",
@@ -101,7 +101,7 @@ def test_availability_create_allows_provider_own_placeholder(monkeypatch):
 def test_availability_create_rejects_provider_for_other_provider(monkeypatch):
     patch_availability_auth(monkeypatch)
     monkeypatch.setattr("app.services.availability_service.SessionLocal", None)
-    monkeypatch.setattr("main.require_test_module_role", lambda endpoint_path, firebase_user, roles, **kwargs: provider_context())
+    monkeypatch.setattr("main._require_test_page_role", lambda endpoint_path, firebase_user, roles, **kwargs: provider_context())
 
     response = client.post(
         "/availability/create",
@@ -116,7 +116,7 @@ def test_availability_create_rejects_provider_for_other_provider(monkeypatch):
 def test_availability_create_allows_admin_for_other_provider(monkeypatch):
     patch_availability_auth(monkeypatch)
     monkeypatch.setattr("app.services.availability_service.SessionLocal", None)
-    monkeypatch.setattr("main.require_test_module_role", lambda endpoint_path, firebase_user, roles, **kwargs: admin_context())
+    monkeypatch.setattr("main._require_test_page_role", lambda endpoint_path, firebase_user, roles, **kwargs: admin_context())
 
     response = client.post(
         "/availability/create",
@@ -131,7 +131,7 @@ def test_availability_create_allows_admin_for_other_provider(monkeypatch):
 def test_availability_list_allows_admin_placeholder(monkeypatch):
     patch_availability_auth(monkeypatch)
     monkeypatch.setattr("app.services.availability_service.SessionLocal", None)
-    monkeypatch.setattr("main.require_test_module_role", lambda endpoint_path, firebase_user, roles, **kwargs: admin_context())
+    monkeypatch.setattr("main._require_test_page_role", lambda endpoint_path, firebase_user, roles, **kwargs: admin_context())
 
     response = client.get(
         "/availability/list",
@@ -146,7 +146,7 @@ def test_availability_list_allows_admin_placeholder(monkeypatch):
 def test_availability_update_allows_provider_own_placeholder(monkeypatch):
     patch_availability_auth(monkeypatch)
     monkeypatch.setattr("app.services.availability_service.SessionLocal", None)
-    monkeypatch.setattr("main.require_test_module_role", lambda endpoint_path, firebase_user, roles, **kwargs: provider_context())
+    monkeypatch.setattr("main._require_test_page_role", lambda endpoint_path, firebase_user, roles, **kwargs: provider_context())
 
     response = client.patch(
         "/availability/update",
