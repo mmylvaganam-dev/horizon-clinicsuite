@@ -2,7 +2,11 @@ from fastapi.testclient import TestClient
 from types import SimpleNamespace
 
 from main import app
-from app.services.rbac_service import get_user_role_codes, require_any_role
+from app.services.rbac_service import (
+    get_user_role_codes,
+    require_any_role,
+    require_test_module_role,
+)
 
 
 client = TestClient(app)
@@ -173,7 +177,7 @@ def test_staging_fallback_allows_test_user_only_in_staging(monkeypatch):
         allow_staging_test_user=True,
     )
 
-    assert context["source"] == "staging_test_user_fallback"
+    assert context["source"] == "staging_test_route_bypass"
     assert set(context["roles"]) == {"admin", "provider", "staff"}
 
 
@@ -210,3 +214,41 @@ def test_unrelated_active_user_without_role_is_denied(monkeypatch):
         assert getattr(exc, "status_code", None) == 403
     else:
         raise AssertionError("unrelated users without roles should be denied")
+
+
+def test_test_module_role_bypasses_appointment_route_for_staging_user(monkeypatch):
+    monkeypatch.setenv("APP_ENV", "staging")
+    monkeypatch.setattr("app.services.rbac_service.SessionLocal", None)
+
+    context = require_test_module_role(
+        "/appointments/list",
+        {
+            "uid": "9q7CTtPwd4V2D8BccggxmYv8hsi1",
+            "email": "firebase-auth-test-1779380527677@example.com",
+        },
+        ["admin", "provider", "staff", "viewer"],
+    )
+
+    assert context["source"] == "staging_test_route_bypass"
+    assert set(context["roles"]) == {"admin", "provider", "staff"}
+
+
+def test_test_module_role_logs_denied_access(monkeypatch, caplog):
+    monkeypatch.setenv("APP_ENV", "staging")
+    monkeypatch.setattr("app.services.rbac_service.SessionLocal", None)
+
+    try:
+        require_test_module_role(
+            "/appointments/list",
+            {"uid": "other-uid", "email": "other@example.com"},
+            ["admin", "provider", "staff"],
+        )
+    except Exception as exc:
+        assert getattr(exc, "status_code", None) == 403
+    else:
+        raise AssertionError("unrelated users without roles should be denied")
+
+    assert "endpoint=/appointments/list" in caplog.text
+    assert "email=other@example.com" in caplog.text
+    assert "firebase_uid=other-uid" in caplog.text
+    assert "resolved_roles=['viewer']" in caplog.text
