@@ -75,7 +75,7 @@ def test_documents_register_allows_staff_placeholder(monkeypatch):
     patch_document_auth(monkeypatch)
     monkeypatch.setattr("app.services.document_service.SessionLocal", None)
     monkeypatch.setattr("app.services.document_service.log_audit_event", lambda **kwargs: audit_calls.append(kwargs))
-    monkeypatch.setattr("main.require_any_role", lambda firebase_user, roles: {
+    monkeypatch.setattr("main.require_any_role", lambda firebase_user, roles, **kwargs: {
         "app_user": {"id": "app-user-1", "primary_organization_id": None},
         "roles": ["staff"],
         "source": "test",
