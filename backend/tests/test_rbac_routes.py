@@ -1,6 +1,8 @@
 from fastapi.testclient import TestClient
+from types import SimpleNamespace
 
 from main import app
+from app.services.rbac_service import get_user_role_codes, require_any_role
 
 
 client = TestClient(app)
@@ -102,3 +104,109 @@ def test_rbac_provider_test_authorizes_provider_role(monkeypatch):
     assert response.status_code == 200
     assert response.json()["authorized"] is True
     assert response.json()["roles"] == ["provider"]
+
+
+class _ScalarResult:
+    def __init__(self, values):
+        self.values = values
+
+    def all(self):
+        return self.values
+
+
+class _ExecuteResult:
+    def __init__(self, values):
+        self.values = values
+
+    def scalars(self):
+        return _ScalarResult(self.values)
+
+
+class _RoleDb:
+    def __init__(self, *result_sets):
+        self.result_sets = list(result_sets)
+
+    def execute(self, statement):
+        return _ExecuteResult(self.result_sets.pop(0))
+
+
+def test_rbac_reads_user_role_relationships():
+    db = _RoleDb(["admin"], [])
+    app_user = SimpleNamespace(
+        id="app-user-id",
+        primary_organization_id="organization-id",
+    )
+
+    assert get_user_role_codes(db, app_user) == ["admin"]
+
+
+def test_rbac_reads_active_organization_member_roles():
+    db = _RoleDb([], ["staff"])
+    app_user = SimpleNamespace(
+        id="app-user-id",
+        primary_organization_id="organization-id",
+    )
+
+    assert get_user_role_codes(db, app_user) == ["staff"]
+
+
+def test_rbac_combines_user_role_and_organization_member_roles():
+    db = _RoleDb(["provider"], ["admin"])
+    app_user = SimpleNamespace(
+        id="app-user-id",
+        primary_organization_id="organization-id",
+    )
+
+    assert get_user_role_codes(db, app_user) == ["admin", "provider"]
+
+
+def test_staging_fallback_allows_test_user_only_in_staging(monkeypatch):
+    monkeypatch.setenv("APP_ENV", "staging")
+    monkeypatch.setattr("app.services.rbac_service.SessionLocal", None)
+
+    context = require_any_role(
+        {
+            "uid": "9q7CTtPwd4V2D8BccggxmYv8hsi1",
+            "email": "firebase-auth-test-1779380527677@example.com",
+        },
+        ["admin", "provider", "staff"],
+        allow_staging_test_user=True,
+    )
+
+    assert context["source"] == "staging_test_user_fallback"
+    assert set(context["roles"]) == {"admin", "provider", "staff"}
+
+
+def test_staging_fallback_does_not_run_in_production(monkeypatch):
+    monkeypatch.setenv("APP_ENV", "production")
+    monkeypatch.setattr("app.services.rbac_service.SessionLocal", None)
+
+    try:
+        require_any_role(
+            {
+                "uid": "9q7CTtPwd4V2D8BccggxmYv8hsi1",
+                "email": "firebase-auth-test-1779380527677@example.com",
+            },
+            ["admin", "provider", "staff"],
+            allow_staging_test_user=True,
+        )
+    except Exception as exc:
+        assert getattr(exc, "status_code", None) == 403
+    else:
+        raise AssertionError("staging fallback should not run in production")
+
+
+def test_unrelated_active_user_without_role_is_denied(monkeypatch):
+    monkeypatch.setenv("APP_ENV", "staging")
+    monkeypatch.setattr("app.services.rbac_service.SessionLocal", None)
+
+    try:
+        require_any_role(
+            {"uid": "unrelated-user", "email": "unrelated@example.com"},
+            ["admin", "provider", "staff"],
+            allow_staging_test_user=True,
+        )
+    except Exception as exc:
+        assert getattr(exc, "status_code", None) == 403
+    else:
+        raise AssertionError("unrelated users without roles should be denied")
