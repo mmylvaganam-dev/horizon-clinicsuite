@@ -1,4 +1,5 @@
 import os
+import logging
 from typing import Iterable, Optional
 
 from fastapi import HTTPException, status
@@ -14,6 +15,7 @@ from app.services.user_link_service import get_or_create_user_from_firebase_in_s
 SUPPORTED_ROLES = ("admin", "provider", "staff", "viewer")
 STAGING_TEST_EMAIL = "firebase-auth-test-1779380527677@example.com"
 STAGING_FALLBACK_ROLES = ("admin", "provider", "staff")
+logger = logging.getLogger("horizon.rbac")
 
 
 def get_rbac_context(firebase_user: dict) -> dict:
@@ -44,29 +46,52 @@ def require_any_role(
     allowed_roles: Iterable[str],
     *,
     allow_staging_test_user: bool = False,
+    endpoint_path: str = "unknown",
 ) -> dict:
     context = get_rbac_context(firebase_user)
     user_roles = set(context["roles"])
     allowed = {_normalize_role(role) for role in allowed_roles}
 
-    if user_roles.isdisjoint(allowed):
-        if allow_staging_test_user and _is_staging_test_user(firebase_user, allowed):
-            return {
-                "app_user": context.get("app_user"),
-                "firebase_user": {
-                    "uid": firebase_user.get("uid"),
-                    "email": firebase_user.get("email"),
-                },
-                "roles": sorted(allowed.intersection(STAGING_FALLBACK_ROLES)),
-                "source": "staging_test_user_fallback",
-            }
+    if allow_staging_test_user and _is_staging_test_user(firebase_user, allowed):
+        return _staging_test_user_context(firebase_user, context, allowed)
 
+    if user_roles.isdisjoint(allowed):
+        log_rbac_denial(endpoint_path, firebase_user, context, sorted(allowed))
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="User does not have the required role",
         )
 
     return context
+
+
+def require_test_module_role(
+    endpoint_path: str,
+    firebase_user: dict,
+    allowed_roles: Iterable[str],
+) -> dict:
+    return require_any_role(
+        firebase_user,
+        allowed_roles,
+        allow_staging_test_user=True,
+        endpoint_path=endpoint_path,
+    )
+
+
+def log_rbac_denial(
+    endpoint_path: str,
+    firebase_user: dict,
+    context: dict,
+    required_roles: list[str],
+) -> None:
+    logger.warning(
+        "RBAC denied endpoint=%s email=%s firebase_uid=%s resolved_roles=%s required_roles=%s",
+        endpoint_path,
+        firebase_user.get("email"),
+        firebase_user.get("uid"),
+        context.get("roles", []),
+        required_roles,
+    )
 
 
 def get_user_role_codes(db, app_user: User) -> list[str]:
@@ -133,6 +158,23 @@ def _is_staging_test_user(firebase_user: dict, allowed_roles: set[str]) -> bool:
         return False
 
     return not allowed_roles.isdisjoint(STAGING_FALLBACK_ROLES)
+
+
+def _staging_test_user_context(
+    firebase_user: dict,
+    context: dict,
+    allowed_roles: set[str],
+) -> dict:
+    roles = sorted(allowed_roles.intersection(STAGING_FALLBACK_ROLES))
+    return {
+        "app_user": context.get("app_user"),
+        "firebase_user": {
+            "uid": firebase_user.get("uid"),
+            "email": firebase_user.get("email"),
+        },
+        "roles": roles,
+        "source": "staging_test_route_bypass",
+    }
 
 
 def _normalize_email(email: Optional[str]) -> str:
