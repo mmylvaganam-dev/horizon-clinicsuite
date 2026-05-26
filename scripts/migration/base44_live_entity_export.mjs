@@ -15,19 +15,26 @@ const args = parseArgs(process.argv.slice(2));
 const checklistPath = args["checklist"];
 const outputDir = args["output-dir"] || "Base44-Final-Backup/01_raw_entity_exports";
 const limit = Number(args.limit || "100000");
-const appId = process.env.BASE44_APP_ID || process.env.VITE_BASE44_APP_ID;
-const token = process.env.BASE44_ACCESS_TOKEN;
+const apiBaseUrl = args["api-base-url"] || process.env.BASE44_API_BASE_URL;
+const appId = args["app-id"] || process.env.BASE44_APP_ID || process.env.VITE_BASE44_APP_ID;
+const token = args["access-token"] || process.env.BASE44_ACCESS_TOKEN;
 
 if (!checklistPath) {
   exitWithUsage("Missing --checklist");
 }
 
+if (!apiBaseUrl) {
+  exitWithUsage("Missing BASE44_API_BASE_URL or --api-base-url. Example: https://base44.app");
+}
+
+validateUrl("BASE44_API_BASE_URL", apiBaseUrl);
+
 if (!appId) {
-  exitWithUsage("Missing BASE44_APP_ID");
+  exitWithUsage("Missing BASE44_APP_ID or --app-id. The app ID is usually visible in the Base44 editor URL or VITE_BASE44_APP_ID.");
 }
 
 if (!token) {
-  exitWithUsage("Missing BASE44_ACCESS_TOKEN");
+  exitWithUsage("Missing BASE44_ACCESS_TOKEN or --access-token. Use your current Base44 access/session token; do not paste it into chat.");
 }
 
 fs.mkdirSync(outputDir, { recursive: true });
@@ -35,7 +42,7 @@ fs.mkdirSync(outputDir, { recursive: true });
 const base44 = createClient({
   appId,
   token,
-  serverUrl: "",
+  serverUrl: apiBaseUrl,
   requiresAuth: false,
 });
 
@@ -44,6 +51,9 @@ const manifest = {
   status: "read_only_export",
   checklist: checklistPath,
   output_dir: outputDir,
+  api_base_url: apiBaseUrl,
+  app_id: appId,
+  token_present: true,
   started_at: new Date().toISOString(),
   total_expected_entities: entities.length,
   exported: [],
@@ -162,11 +172,33 @@ async function listEntity(api, limit) {
   }
 }
 
+function validateUrl(label, value) {
+  try {
+    const parsed = new URL(value);
+    if (!["http:", "https:"].includes(parsed.protocol)) {
+      throw new Error("URL must start with http:// or https://");
+    }
+  } catch (error) {
+    exitWithUsage(`${label} is not a valid URL: ${value}`);
+  }
+}
+
 function exitWithUsage(message) {
   console.error(message);
   console.error(`
 Usage:
-  BASE44_APP_ID=... BASE44_ACCESS_TOKEN=... node scripts/migration/base44_live_entity_export.mjs \
+  BASE44_API_BASE_URL=https://base44.app \
+  BASE44_APP_ID=your-base44-app-id \
+  BASE44_ACCESS_TOKEN=your-current-base44-access-token \
+  node scripts/migration/base44_live_entity_export.mjs \
+    --checklist docs/migration/BASE44_PHARMACY_ENTITY_EXPORT_CHECKLIST.csv \
+    --output-dir Base44-Final-Backup/01_raw_entity_exports
+
+Alternative CLI arguments:
+  node scripts/migration/base44_live_entity_export.mjs \
+    --api-base-url https://base44.app \
+    --app-id your-base44-app-id \
+    --access-token your-current-base44-access-token \
     --checklist docs/migration/BASE44_PHARMACY_ENTITY_EXPORT_CHECKLIST.csv \
     --output-dir Base44-Final-Backup/01_raw_entity_exports
 

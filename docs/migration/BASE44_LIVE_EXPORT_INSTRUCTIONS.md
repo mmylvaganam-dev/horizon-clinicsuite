@@ -27,8 +27,15 @@ Base44-Final-Backup/
 The script needs:
 
 ```bash
+BASE44_API_BASE_URL
 BASE44_APP_ID
 BASE44_ACCESS_TOKEN
+```
+
+Use:
+
+```bash
+BASE44_API_BASE_URL=https://base44.app
 ```
 
 Use an admin/platform-owner Base44 session token. Do not paste the token into chat. Do not commit it.
@@ -54,6 +61,7 @@ Set the Base44 values securely in the shell:
 
 ```bash
 export BASE44_APP_ID="your-base44-app-id"
+export BASE44_API_BASE_URL="https://base44.app"
 export BASE44_ACCESS_TOKEN="your-current-base44-access-token"
 ```
 
@@ -89,8 +97,18 @@ node scripts/migration/base44_live_entity_export.mjs \
 - Writes one JSON file per entity.
 - Writes `__export_manifest.json`.
 - Writes `__export_errors.json` for entities that fail or do not exist.
+- Validates the Base44 API URL before attempting entity export.
 - Does not call create, update, or delete.
 - Does not import into Horizon.
+
+## If Live API Export Still Fails
+
+External SDK export is only possible if the Base44 token has enough permission to read the entities. Base44 service-role export is only available inside Base44-hosted backend functions, not from Cloud Shell. If user-token export fails with authorization errors, use one of these fallback paths:
+
+1. Run the existing Base44 Google Drive backup functions and download every backup JSON.
+2. Use the Base44 app's partial CSV/PDF export pages for immediately visible report data.
+3. Ask Base44 support for a full app data export before shutdown.
+4. Keep screenshots of all Base44 list/report counts and export pages as validation evidence.
 
 ## Validation Rule
 
