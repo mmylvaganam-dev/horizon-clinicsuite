@@ -1,0 +1,68 @@
+entity,category,priority,required_for_full_backup,needed_for_go_live,expected_file,base44_screen_count,exported_file_count,matched,notes
+PharmacySale,sales_transactions,P0,yes,no,PharmacySale.json,,,,historical sales archive
+PharmacySaleHeader,sales_transactions,P0,yes,yes,PharmacySaleHeader.json,,,,sale header totals and payment status
+PharmacySaleItem,sales_transactions,P0,yes,no,PharmacySaleItem.json,,,,line/item detail if used
+PharmacySaleLine,sales_transactions,P0,yes,no,PharmacySaleLine.json,,,,line detail used by admin sales manager
+PharmacyReceipt,sales_transactions,P0,yes,no,PharmacyReceipt.json,,,,receipt/payment evidence
+SaleDeletionRequest,sales_transactions,P1,yes,no,SaleDeletionRequest.json,,,,audit trail for sale changes
+DailyClose,sales_transactions,P1,yes,no,DailyClose.json,,,,daily register close records
+ShiftCashSnapshot,sales_transactions,P1,yes,no,ShiftCashSnapshot.json,,,,cash balance history
+ShiftLog,sales_transactions,P1,yes,no,ShiftLog.json,,,,shift operations history
+ShiftLogItem,sales_transactions,P1,yes,no,ShiftLogItem.json,,,,shift line detail
+ShiftLogAttachment,sales_transactions,P2,yes,no,ShiftLogAttachment.json,,,,supporting files
+Prescription,prescriptions_medicine,P0,yes,yes,Prescription.json,,,,active prescriptions needed first
+PrescriptionRenewalRequest,prescriptions_medicine,P1,yes,no,PrescriptionRenewalRequest.json,,,,renewal history
+RxFavorite,prescriptions_medicine,P2,yes,no,RxFavorite.json,,,,prescriber templates
+DrugCatalog,prescriptions_medicine,P1,yes,yes,DrugCatalog.json,,,,medicine catalog if populated
+Products,prescriptions_medicine,P1,yes,yes,Products.json,,,,product list if used
+ProductCatalog,prescriptions_medicine,P1,yes,yes,ProductCatalog.json,,,,service/product catalog
+MedicineReturn,prescriptions_medicine,P1,yes,no,MedicineReturn.json,,,,medicine return history
+PharmacyStock,inventory_supply,P0,yes,yes,PharmacyStock.json,,,,current stock balance
+PharmacyStockTask,inventory_supply,P1,yes,yes,PharmacyStockTask.json,,,,open stock tasks
+PharmacyProductUsage,inventory_supply,P1,yes,no,PharmacyProductUsage.json,,,,usage analytics
+PharmacyRequest,inventory_supply,P1,yes,yes,PharmacyRequest.json,,,,open pharmacy requests
+PharmacyReturnsPickup,inventory_supply,P1,yes,no,PharmacyReturnsPickup.json,,,,returns pickup workflow
+InventoryBalance,inventory_supply,P0,yes,yes,InventoryBalance.json,,,,inventory balances
+InventoryTxn,inventory_supply,P0,yes,no,InventoryTxn.json,,,,inventory transaction history
+StockBatch,inventory_supply,P0,yes,yes,StockBatch.json,,,,batch/expiry records
+StockSnapshot,inventory_supply,P1,yes,no,StockSnapshot.json,,,,stock snapshots
+Supplier,inventory_supply,P0,yes,yes,Supplier.json,,,,supplier registry
+PurchaseOrder,inventory_supply,P0,yes,yes,PurchaseOrder.json,,,,open purchase orders
+PurchaseOrderLine,inventory_supply,P0,yes,yes,PurchaseOrderLine.json,,,,purchase order lines
+GoodsReceived,inventory_supply,P0,yes,no,GoodsReceived.json,,,,GRN/goods received records
+CreditSale,credit_invoices,P0,yes,yes,CreditSale.json,,,,open credit balances first
+CreditPayment,credit_invoices,P0,yes,yes,CreditPayment.json,,,,credit payment history
+CreditMonthlyInvoice,credit_invoices,P0,yes,yes,CreditMonthlyInvoice.json,,,,monthly statements
+Invoice,credit_invoices,P1,yes,no,Invoice.json,,,,invoice archive
+InvoiceHeader,credit_invoices,P1,yes,no,InvoiceHeader.json,,,,invoice header archive
+InvoiceLine,credit_invoices,P1,yes,no,InvoiceLine.json,,,,invoice line archive
+Payment,credit_invoices,P1,yes,no,Payment.json,,,,payment records
+TeleConsultationBilling,credit_invoices,P2,yes,no,TeleConsultationBilling.json,,,,telemedicine billing if used
+TelePaymentGatewayConfig,credit_invoices,P2,yes,no,TelePaymentGatewayConfig.json,,,,payment gateway configuration
+Institution,credit_invoices,P0,yes,yes,Institution.json,,,,credit institutions/customers
+CompanyProfile,credit_invoices,P1,yes,yes,CompanyProfile.json,,,,company/customer profile
+WholesaleConnection,wholesale_delivery_returns,P1,yes,no,WholesaleConnection.json,,,,buyer supplier relation
+WholesaleCreditAccount,wholesale_delivery_returns,P1,yes,no,WholesaleCreditAccount.json,,,,wholesale credit
+WholesaleDelivery,wholesale_delivery_returns,P1,yes,no,WholesaleDelivery.json,,,,delivery records
+WholesaleGRN,wholesale_delivery_returns,P1,yes,no,WholesaleGRN.json,,,,wholesale GRN
+WholesaleGRNLine,wholesale_delivery_returns,P1,yes,no,WholesaleGRNLine.json,,,,wholesale GRN lines
+WholesaleMessage,wholesale_delivery_returns,P2,yes,no,WholesaleMessage.json,,,,supplier/buyer messages
+WholesaleOrder,wholesale_delivery_returns,P1,yes,no,WholesaleOrder.json,,,,wholesale orders
+WholesaleOrderItem,wholesale_delivery_returns,P1,yes,no,WholesaleOrderItem.json,,,,wholesale order lines
+WholesalePayment,wholesale_delivery_returns,P1,yes,no,WholesalePayment.json,,,,wholesale payment records
+WholesaleProduct,wholesale_delivery_returns,P1,yes,no,WholesaleProduct.json,,,,wholesale products
+WholesaleProvider,wholesale_delivery_returns,P1,yes,no,WholesaleProvider.json,,,,supplier profiles
+WholesaleReturn,wholesale_delivery_returns,P1,yes,no,WholesaleReturn.json,,,,wholesale return headers
+WholesaleReturnLine,wholesale_delivery_returns,P1,yes,no,WholesaleReturnLine.json,,,,wholesale return lines
+WholesaleSubscription,wholesale_delivery_returns,P2,yes,no,WholesaleSubscription.json,,,,wholesale subscription state
+Patient,patient_customer_documents_audit,P0,yes,yes,Patient.json,,,,patient/customer links
+PatientDocument,patient_customer_documents_audit,P0,yes,yes,PatientDocument.json,,,,document metadata and file refs
+DocumentArtifact,patient_customer_documents_audit,P1,yes,no,DocumentArtifact.json,,,,generated documents
+StaffCredentialDocument,patient_customer_documents_audit,P1,yes,no,StaffCredentialDocument.json,,,,staff document files
+AuditLog,patient_customer_documents_audit,P0,yes,no,AuditLog.json,,,,audit/history if available
+SignageAuditLog,patient_customer_documents_audit,P2,yes,no,SignageAuditLog.json,,,,signage audit if used
+Message,patient_customer_documents_audit,P1,yes,no,Message.json,,,,message history
+MessageThread,patient_customer_documents_audit,P1,yes,no,MessageThread.json,,,,message threads
+MessageTemplate,patient_customer_documents_audit,P2,yes,no,MessageTemplate.json,,,,message templates
+HelpDeskMessage,patient_customer_documents_audit,P2,yes,no,HelpDeskMessage.json,,,,support messages
+OutboundMessage,patient_customer_documents_audit,P2,yes,no,OutboundMessage.json,,,,outbound message log
