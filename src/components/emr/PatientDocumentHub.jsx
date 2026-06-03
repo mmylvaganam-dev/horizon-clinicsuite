@@ -11,10 +11,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { 
   Upload, Sparkles, FileText, Image, Loader2, CheckCircle2, XCircle,
-  FlaskConical, Pill, Stethoscope, ClipboardList, Eye, Camera, Trash2, AlertCircle
+  FlaskConical, Pill, Stethoscope, ClipboardList, Eye, Camera, Trash2, AlertCircle, Cloud
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { format } from 'date-fns';
+import GoogleDrivePickerDialog from './GoogleDrivePickerDialog';
 
 const DOC_CATEGORIES = [
   { value: 'LAB', label: 'Lab Report', icon: FlaskConical, color: 'bg-blue-100 text-blue-700', aiAction: 'extract lab results and update patient lab records' },
@@ -32,6 +33,7 @@ export default function PatientDocumentHub({ patientId, patientName }) {
   const cameraInputRef = useRef();
 
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [driveOpen, setDriveOpen] = useState(false);
   const [viewDoc, setViewDoc] = useState(null);
   const [files, setFiles] = useState([]); // array of File objects
   const [fileStatuses, setFileStatuses] = useState({}); // { fileName: 'pending'|'uploading'|'done'|'error' }
@@ -185,6 +187,51 @@ Be concise and clinically accurate.`,
 
   const getCatInfo = (val) => DOC_CATEGORIES.find(c => c.value === val);
 
+  const handleDriveImport = async ({ file_url, file_name, mime_type }) => {
+    const isImage = mime_type?.startsWith('image/');
+    const catInfo = DOC_CATEGORIES.find(c => c.value === 'OTHER');
+
+    let aiSummary = null;
+    let aiExtracted = null;
+    try {
+      const aiResponse = await base44.integrations.Core.InvokeLLM({
+        prompt: `You are a clinical AI assistant. Analyze this medical document and summarize key clinical information.
+Patient: ${patientName}
+Please provide: 1. A brief clinical summary. 2. Key findings. 3. Any action items.`,
+        file_urls: [file_url],
+        response_json_schema: {
+          type: 'object',
+          properties: {
+            summary: { type: 'string' },
+            key_findings: { type: 'array', items: { type: 'string' } },
+            action_items: { type: 'array', items: { type: 'string' } },
+          }
+        }
+      });
+      aiExtracted = aiResponse;
+      aiSummary = aiResponse?.summary || null;
+    } catch (_) {}
+
+    await base44.entities.PatientDocument.create({
+      patient_ref: patientId,
+      doc_category: 'OTHER',
+      doc_type: isImage ? 'IMAGE' : 'PDF',
+      doc_title: file_name,
+      doc_date: new Date().toISOString().split('T')[0],
+      source: 'google_drive',
+      uploaded_by: user?.id,
+      uploaded_by_email: user?.email,
+      file_ref: file_url,
+      ai_summary: aiSummary,
+      ai_extracted_json: aiExtracted,
+      visibility: 'internal',
+      status: 'active'
+    });
+
+    queryClient.invalidateQueries({ queryKey: ['patientDocuments', patientId] });
+    setDriveOpen(false);
+  };
+
   const deleteMutation = useMutation({
     mutationFn: (docId) => base44.entities.PatientDocument.delete(docId),
     onSuccess: () => {
@@ -208,10 +255,16 @@ Be concise and clinically accurate.`,
           <h3 className="font-semibold text-slate-900">AI Document Hub</h3>
           <Badge variant="outline" className="text-xs text-teal-600 border-teal-200">PDF & Photo</Badge>
         </div>
-        <Button size="sm" className="bg-teal-600 hover:bg-teal-700" onClick={() => { resetForm(); setUploadOpen(true); }}>
-          <Upload className="w-4 h-4 mr-2" />
-          Upload & Analyze
-        </Button>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" className="border-blue-300 text-blue-700 hover:bg-blue-50" onClick={() => setDriveOpen(true)}>
+            <Cloud className="w-4 h-4 mr-2" />
+            Google Drive
+          </Button>
+          <Button size="sm" className="bg-teal-600 hover:bg-teal-700" onClick={() => { resetForm(); setUploadOpen(true); }}>
+            <Upload className="w-4 h-4 mr-2" />
+            Upload & Analyze
+          </Button>
+        </div>
       </div>
 
       {/* Documents List */}
@@ -400,6 +453,13 @@ Be concise and clinically accurate.`,
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Google Drive Picker */}
+      <GoogleDrivePickerDialog
+        open={driveOpen}
+        onClose={() => setDriveOpen(false)}
+        onImport={handleDriveImport}
+      />
 
       {/* View Document Dialog */}
       <Dialog open={!!viewDoc} onOpenChange={() => setViewDoc(null)}>
