@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
 Deno.serve(async (req) => {
   try {
@@ -26,8 +26,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Get Google Drive access token
-    const accessToken = await base44.asServiceRole.connectors.getAccessToken('googledrive');
+    // Get Google Drive access token with full drive scope
+    const { accessToken } = await base44.asServiceRole.connectors.getConnection('googledrive');
     
     // Export company data
     console.log('Exporting data for organization:', organization_id);

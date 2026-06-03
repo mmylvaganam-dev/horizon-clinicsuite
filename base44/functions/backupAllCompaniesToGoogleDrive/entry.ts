@@ -1,12 +1,12 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.31';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     
     // This is a scheduled automation - runs without user context
-    // Get Google Drive access token
-    const accessToken = await base44.asServiceRole.connectors.getAccessToken('googledrive');
+    // Get Google Drive access token with full drive scope
+    const { accessToken } = await base44.asServiceRole.connectors.getConnection('googledrive');
     
     console.log('Starting automated backup for all companies...');
     
