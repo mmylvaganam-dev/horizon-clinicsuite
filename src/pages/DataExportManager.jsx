@@ -5,8 +5,9 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import {
-  Download, Database, CheckCircle2, XCircle, Loader2, FileJson, AlertTriangle, RefreshCw
+  Download, Database, CheckCircle2, XCircle, Loader2, FileJson, AlertTriangle, RefreshCw, Zap, Cloud
 } from 'lucide-react';
+import { useToast } from '@/components/ui/use-toast';
 import { format } from 'date-fns';
 
 const ENTITY_GROUPS = {
@@ -107,12 +108,14 @@ function downloadCSV(records, filename) {
 }
 
 export default function DataExportManager() {
+  const { toast } = useToast();
   const [status, setStatus] = useState({}); // { entityName: { count, loading, error, done } }
   const [exporting, setExporting] = useState(false);
   const [progress, setProgress] = useState(0);
   const [exportLog, setExportLog] = useState([]);
   const [format_, setFormat] = useState('json');
   const [fullBundle, setFullBundle] = useState(null);
+  const [driveBackingUp, setDriveBackingUp] = useState(false);
 
   const fetchEntity = async (name) => {
     setStatus(prev => ({ ...prev, [name]: { loading: true } }));
@@ -156,6 +159,9 @@ export default function DataExportManager() {
     };
     setFullBundle(bundle);
     setExporting(false);
+    // Auto-download immediately after export
+    const ts = format(new Date(), 'yyyy-MM-dd_HHmm');
+    downloadJSON(bundle, `horizon_clinicsuite_export_${ts}.json`);
   };
 
   const handleDownloadAll = () => {
@@ -172,6 +178,21 @@ export default function DataExportManager() {
     } else {
       downloadJSON({ entity: name, count: result.count, records: result.records }, `${name}_${ts}.json`);
     }
+  };
+
+  const handleDriveBackupNow = async () => {
+    setDriveBackingUp(true);
+    try {
+      const res = await base44.functions.invoke('backupAllCompaniesToGoogleDrive', {});
+      const { summary, results } = res.data;
+      toast({
+        title: `Google Drive Backup Complete`,
+        description: `${summary.successful}/${summary.total_companies} companies backed up successfully.${summary.failed > 0 ? ` ${summary.failed} failed — check folder config.` : ''}`,
+      });
+    } catch (e) {
+      toast({ title: 'Backup Failed', description: e.message, variant: 'destructive' });
+    }
+    setDriveBackingUp(false);
   };
 
   const totalCount = Object.values(status).reduce((s, v) => s + (v.count || 0), 0);
@@ -191,7 +212,7 @@ export default function DataExportManager() {
             Export all entity data from Horizon ClinicSuite as JSON or CSV.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <select
             value={format_}
             onChange={e => setFormat(e.target.value)}
@@ -214,6 +235,26 @@ export default function DataExportManager() {
               Download Full Bundle
             </Button>
           )}
+          <Button
+            onClick={async () => {
+              await handleExportAll();
+            }}
+            disabled={exporting}
+            className="bg-violet-600 hover:bg-violet-700"
+            title="One-click: fetch all data then download immediately"
+          >
+            <Zap className="w-4 h-4 mr-2" />
+            One-Click Full Download
+          </Button>
+          <Button
+            onClick={handleDriveBackupNow}
+            disabled={driveBackingUp}
+            variant="outline"
+            className="border-teal-500 text-teal-700 hover:bg-teal-50"
+          >
+            {driveBackingUp ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Cloud className="w-4 h-4 mr-2" />}
+            {driveBackingUp ? 'Backing up...' : 'Backup to Drive Now'}
+          </Button>
         </div>
       </div>
 
