@@ -35,6 +35,7 @@ import PrescriptionManager from './pages/PrescriptionManager';
 import PrescriptionPrint from './pages/PrescriptionPrint';
 import UnifiedUserManagement from './pages/UnifiedUserManagement';
 import OperatorManual from './pages/OperatorManual';
+import DataExportManager from './pages/DataExportManager';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -117,6 +118,7 @@ const AuthenticatedApp = () => {
       <Route path="/HomeCareSupervisorReport" element={<LayoutWrapper currentPageName="HomeCareSupervisorReport"><HomeCareSupervisorReport /></LayoutWrapper>} />
       <Route path="/UnifiedUserManagement" element={<LayoutWrapper currentPageName="UnifiedUserManagement"><UnifiedUserManagement /></LayoutWrapper>} />
       <Route path="/OperatorManual" element={<LayoutWrapper currentPageName="OperatorManual"><OperatorManual /></LayoutWrapper>} />
+      <Route path="/DataExportManager" element={<LayoutWrapper currentPageName="DataExportManager"><DataExportManager /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

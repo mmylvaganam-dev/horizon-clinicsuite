@@ -488,6 +488,7 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Blocked Users', page: 'BlockedUsers', icon: Shield, description: 'Permanently block users from accessing the platform' },
         { name: 'Transfer Ownership', page: 'PlatformOwnership', icon: Crown, description: 'Transfer platform ownership to another user' },
         { name: 'Patient Access Requests', page: 'PatientAccessRequests', icon: Network, description: 'Review and approve cross-clinic patient record access requests from organizations and patients' },
+        { name: 'Data Export Manager', page: 'DataExportManager', icon: FileText, description: 'Export all entity data as JSON or CSV for migration or backup purposes' },
       ],
       platformOwnerOnly: true
     },
