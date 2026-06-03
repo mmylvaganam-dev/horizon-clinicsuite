@@ -1,0 +1,115 @@
+{
+  "name": "PatientDocument",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location reference"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference"
+    },
+    "doc_category": {
+      "type": "string",
+      "enum": [
+        "LAB",
+        "TEST",
+        "IMAGING",
+        "CONSULT_NOTE",
+        "PRESCRIPTION",
+        "MED_SUMMARY",
+        "OTHER"
+      ],
+      "description": "Document category"
+    },
+    "doc_type": {
+      "type": "string",
+      "enum": [
+        "PDF",
+        "IMAGE"
+      ],
+      "description": "Document file type"
+    },
+    "doc_title": {
+      "type": "string",
+      "description": "Document title"
+    },
+    "doc_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Report/document date"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "patient_brought",
+        "clinic_scan",
+        "external",
+        "other"
+      ],
+      "default": "clinic_scan",
+      "description": "Document source"
+    },
+    "uploaded_by": {
+      "type": "string",
+      "description": "User who uploaded"
+    },
+    "uploaded_by_email": {
+      "type": "string",
+      "description": "Email of uploader"
+    },
+    "file_ref": {
+      "type": "string",
+      "description": "File URL"
+    },
+    "ai_summary": {
+      "type": "string",
+      "description": "AI-generated clinical summary of the document"
+    },
+    "ai_extracted_json": {
+      "type": "object",
+      "description": "AI-extracted structured data (lab results, medications, findings, action items)",
+      "additionalProperties": true
+    },
+    "tags_json": {
+      "type": "object",
+      "description": "Document tags",
+      "additionalProperties": true
+    },
+    "notes": {
+      "type": "string",
+      "description": "Clinical notes"
+    },
+    "visibility": {
+      "type": "string",
+      "enum": [
+        "internal",
+        "portal_optional"
+      ],
+      "default": "internal",
+      "description": "Visibility setting"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "archived"
+      ],
+      "default": "active",
+      "description": "Document status"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "doc_category",
+    "doc_title",
+    "doc_date",
+    "uploaded_by",
+    "file_ref"
+  ]
+}

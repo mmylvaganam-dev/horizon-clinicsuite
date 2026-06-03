@@ -1,0 +1,83 @@
+{
+  "name": "HomeCareServiceCatalog",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "service_category": {
+      "type": "string",
+      "enum": [
+        "nursing_officer",
+        "home_care_worker"
+      ],
+      "description": "Service category"
+    },
+    "service_type": {
+      "type": "string",
+      "enum": [
+        "ng_tubing",
+        "urinary_catheter_insertion",
+        "urinary_catheter_changing",
+        "iv_injection",
+        "iv_infusion",
+        "wound_care",
+        "medication",
+        "monitoring",
+        "adl_support_day",
+        "adl_support_night",
+        "adl_support_day_night",
+        "adl_support_part_time",
+        "housekeeping",
+        "other"
+      ],
+      "description": "Type of home care service"
+    },
+    "service_name": {
+      "type": "string",
+      "description": "Service display name"
+    },
+    "price_per_visit": {
+      "type": "number",
+      "description": "Price per visit/session"
+    },
+    "price_per_hour": {
+      "type": "number",
+      "description": "Price per hour (for hourly services)"
+    },
+    "price_per_day": {
+      "type": "number",
+      "description": "Price per day (for daily services)"
+    },
+    "duration_type": {
+      "type": "string",
+      "enum": [
+        "one_time",
+        "hourly",
+        "daily",
+        "weekly",
+        "monthly"
+      ],
+      "description": "Pricing duration type"
+    },
+    "description": {
+      "type": "string",
+      "description": "Service description"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active",
+      "description": "Status"
+    }
+  },
+  "required": [
+    "service_category",
+    "service_type",
+    "service_name"
+  ]
+}

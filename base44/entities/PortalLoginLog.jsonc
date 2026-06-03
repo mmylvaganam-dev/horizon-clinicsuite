@@ -1,0 +1,32 @@
+{
+  "name": "PortalLoginLog",
+  "type": "object",
+  "properties": {
+    "portal_account_id": {
+      "type": "string",
+      "description": "Portal account ID (text reference)"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference"
+    },
+    "logged_in_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Login timestamp"
+    },
+    "ip_device": {
+      "type": "string",
+      "description": "IP address and device info"
+    },
+    "success": {
+      "type": "boolean",
+      "default": true,
+      "description": "Login success status"
+    }
+  },
+  "required": [
+    "portal_account_id",
+    "logged_in_at"
+  ]
+}

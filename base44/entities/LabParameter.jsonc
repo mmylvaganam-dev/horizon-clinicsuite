@@ -1,0 +1,34 @@
+{
+  "name": "LabParameter",
+  "type": "object",
+  "properties": {
+    "test_code": {
+      "type": "string",
+      "description": "Lab test code (e.g., HbA1C, TSH)"
+    },
+    "test_name": {
+      "type": "string",
+      "description": "Lab test name"
+    },
+    "normal_range_min": {
+      "type": "number",
+      "description": "Normal range minimum"
+    },
+    "normal_range_max": {
+      "type": "number",
+      "description": "Normal range maximum"
+    },
+    "unit": {
+      "type": "string",
+      "description": "Unit of measurement"
+    },
+    "category": {
+      "type": "string",
+      "description": "Lab category (Chemistry, Hematology, etc.)"
+    }
+  },
+  "required": [
+    "test_code",
+    "test_name"
+  ]
+}

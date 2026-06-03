@@ -1,0 +1,32 @@
+{
+  "name": "PatientSmartSummary",
+  "type": "object",
+  "properties": {
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference"
+    },
+    "summary_text": {
+      "type": "string",
+      "description": "Free-text summary"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who created"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Creator email"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "summary_text",
+    "created_by"
+  ]
+}

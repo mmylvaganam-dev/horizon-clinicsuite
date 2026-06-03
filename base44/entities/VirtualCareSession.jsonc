@@ -1,0 +1,79 @@
+{
+  "name": "VirtualCareSession",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Clinic location"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Reference to patient"
+    },
+    "appointment_id": {
+      "type": "string",
+      "description": "Reference to appointment"
+    },
+    "provider_id": {
+      "type": "string",
+      "description": "Provider conducting session"
+    },
+    "session_url": {
+      "type": "string",
+      "description": "Video conference URL"
+    },
+    "room_id": {
+      "type": "string",
+      "description": "Video room identifier"
+    },
+    "scheduled_start": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Scheduled start time"
+    },
+    "actual_start": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Actual start time"
+    },
+    "actual_end": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Actual end time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "in_progress",
+        "completed",
+        "cancelled",
+        "no_show"
+      ],
+      "default": "scheduled",
+      "description": "Session status"
+    },
+    "recording_url": {
+      "type": "string",
+      "description": "Recording URL (if enabled)"
+    },
+    "consent_obtained": {
+      "type": "boolean",
+      "default": false,
+      "description": "Virtual care consent obtained"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Session notes"
+    }
+  },
+  "required": [
+    "patient_id",
+    "provider_id",
+    "scheduled_start"
+  ]
+}

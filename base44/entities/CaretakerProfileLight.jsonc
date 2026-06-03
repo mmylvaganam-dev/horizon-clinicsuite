@@ -1,0 +1,38 @@
+{
+  "name": "CaretakerProfileLight",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "caretaker_name": {
+      "type": "string",
+      "description": "Caretaker name"
+    },
+    "caretaker_phone": {
+      "type": "string",
+      "description": "Caretaker phone"
+    },
+    "caretaker_age": {
+      "type": "number",
+      "description": "Caretaker age"
+    },
+    "experience_notes": {
+      "type": "string",
+      "description": "Experience notes (e.g., patient care to hospital)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active status"
+    }
+  },
+  "required": [
+    "caretaker_name"
+  ]
+}

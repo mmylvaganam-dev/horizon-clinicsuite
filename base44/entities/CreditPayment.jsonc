@@ -1,0 +1,66 @@
+{
+  "name": "CreditPayment",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "institution_name": {
+      "type": "string",
+      "description": "Credit customer/institution name"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Payment amount"
+    },
+    "payment_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the payment was received"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "cheque",
+        "bank_transfer",
+        "cash",
+        "other"
+      ],
+      "default": "cheque",
+      "description": "Payment method"
+    },
+    "cheque_number": {
+      "type": "string",
+      "description": "Cheque number if applicable"
+    },
+    "reference_number": {
+      "type": "string",
+      "description": "Bank transfer or other reference"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "recorded_by": {
+      "type": "string",
+      "description": "User who recorded the payment"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "confirmed",
+        "cleared"
+      ],
+      "default": "confirmed",
+      "description": "Payment status"
+    }
+  },
+  "required": [
+    "organization_id",
+    "institution_name",
+    "amount",
+    "payment_date"
+  ]
+}

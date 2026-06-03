@@ -1,0 +1,18 @@
+{
+  "name": "DentalInvoiceLink",
+  "type": "object",
+  "properties": {
+    "encounter_ref": {
+      "type": "string",
+      "description": "DentalEncounter.id as TEXT"
+    },
+    "invoice_ref": {
+      "type": "string",
+      "description": "Invoice.id as TEXT"
+    }
+  },
+  "required": [
+    "encounter_ref",
+    "invoice_ref"
+  ]
+}

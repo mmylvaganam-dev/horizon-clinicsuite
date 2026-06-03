@@ -1,0 +1,51 @@
+{
+  "name": "DepositLog",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "deposit_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Deposit date"
+    },
+    "bank_account_ref": {
+      "type": "string",
+      "description": "Bank account ID"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Deposit amount"
+    },
+    "method": {
+      "type": "string",
+      "enum": [
+        "cash",
+        "transfer"
+      ],
+      "description": "Deposit method"
+    },
+    "reference": {
+      "type": "string",
+      "description": "Deposit reference"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who logged deposit"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Logger email"
+    }
+  },
+  "required": [
+    "organization_id",
+    "deposit_date",
+    "bank_account_ref",
+    "amount",
+    "method",
+    "created_by"
+  ]
+}

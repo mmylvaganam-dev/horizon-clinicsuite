@@ -1,0 +1,76 @@
+{
+  "name": "DailyClose",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location ID"
+    },
+    "business_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Business date"
+    },
+    "shift_log_ref": {
+      "type": "string",
+      "description": "ShiftLog.id as TEXT (optional)"
+    },
+    "frontdesk_sales_total": {
+      "type": "number",
+      "description": "Front desk sales total"
+    },
+    "pharmacy_sales_total": {
+      "type": "number",
+      "description": "Pharmacy sales total"
+    },
+    "other_sales_total": {
+      "type": "number",
+      "description": "Other sales total"
+    },
+    "total_sales": {
+      "type": "number",
+      "description": "Total sales"
+    },
+    "counted_cash_total": {
+      "type": "number",
+      "description": "Actual cash counted"
+    },
+    "expected_cash_total": {
+      "type": "number",
+      "description": "Expected cash total"
+    },
+    "variance": {
+      "type": "number",
+      "description": "Cash variance (counted - expected)"
+    },
+    "deposit_amount": {
+      "type": "number",
+      "description": "Deposit amount"
+    },
+    "deposit_reference": {
+      "type": "string",
+      "description": "Deposit reference/slip number"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "prepared_by": {
+      "type": "string",
+      "description": "User who prepared"
+    },
+    "prepared_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Preparation timestamp"
+    }
+  },
+  "required": [
+    "business_date",
+    "total_sales"
+  ]
+}

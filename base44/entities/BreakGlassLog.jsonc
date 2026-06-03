@@ -1,0 +1,55 @@
+{
+  "name": "BreakGlassLog",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "User who initiated break-glass"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "User email"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location ID"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Patient ID (text reference)"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason for emergency access"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Approver user ID (optional)"
+    },
+    "approved_by_email": {
+      "type": "string",
+      "description": "Approver email (optional)"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Access start timestamp"
+    },
+    "ended_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Access end timestamp"
+    }
+  },
+  "required": [
+    "user_id",
+    "user_email",
+    "patient_id",
+    "reason",
+    "started_at"
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "name": "TelephonyQueue",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "name": {
+      "type": "string",
+      "description": "Queue name e.g. Reception, Pharmacy"
+    },
+    "pbx_queue_id": {
+      "type": "string",
+      "description": "ID in the PBX system (nullable)"
+    },
+    "strategy": {
+      "type": "string",
+      "enum": [
+        "ring_all",
+        "hunt",
+        "round_robin"
+      ],
+      "default": "ring_all",
+      "description": "Ring strategy"
+    },
+    "members": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Array of TelephonyExtension IDs"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "org_id",
+    "name"
+  ]
+}

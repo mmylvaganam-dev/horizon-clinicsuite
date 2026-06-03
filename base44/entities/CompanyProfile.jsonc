@@ -1,0 +1,108 @@
+{
+  "name": "CompanyProfile",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "company_code": {
+      "type": "string",
+      "description": "Unique company code (e.g., AR for Anantham) - used as PHN prefix"
+    },
+    "company_legal_name": {
+      "type": "string",
+      "description": "Legal name of company"
+    },
+    "company_trade_name": {
+      "type": "string",
+      "description": "Trade name (DBA)"
+    },
+    "country_code": {
+      "type": "string",
+      "description": "Country of incorporation"
+    },
+    "incorporation_number": {
+      "type": "string",
+      "description": "Registration/incorporation number"
+    },
+    "fiscal_year_end": {
+      "type": "string",
+      "description": "Fiscal year end (MM-DD)"
+    },
+    "base_currency": {
+      "type": "string",
+      "default": "LKR",
+      "description": "Base currency"
+    },
+    "email_domain": {
+      "type": "string",
+      "description": "Company email domain for sending invoices (e.g., anantham.lk)"
+    },
+    "sms_api_provider": {
+      "type": "string",
+      "enum": [
+        "twilio",
+        "dialog",
+        "mobitel",
+        "none"
+      ],
+      "default": "none",
+      "description": "SMS API provider"
+    },
+    "sms_api_key": {
+      "type": "string",
+      "description": "SMS API key or account SID"
+    },
+    "sms_api_secret": {
+      "type": "string",
+      "description": "SMS API secret or auth token"
+    },
+    "sms_sender_id": {
+      "type": "string",
+      "description": "SMS sender ID or phone number"
+    },
+    "esms_username": {
+      "type": "string",
+      "description": "Dialog eSMS username"
+    },
+    "esms_password": {
+      "type": "string",
+      "description": "Dialog eSMS password"
+    },
+    "google_drive_backup_enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Enable automated Google Drive backups"
+    },
+    "google_drive_folder_id": {
+      "type": "string",
+      "description": "Google Drive folder ID for backups (optional - will create in root if not specified)"
+    },
+    "last_backup_drive_file_id": {
+      "type": "string",
+      "description": "Google Drive file ID of the last backup (to delete old backup)"
+    },
+    "last_backup_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last successful backup timestamp"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active",
+      "description": "Company status"
+    }
+  },
+  "required": [
+    "organization_id",
+    "company_legal_name",
+    "country_code",
+    "base_currency",
+    "company_code"
+  ]
+}

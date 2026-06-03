@@ -1,0 +1,38 @@
+{
+  "name": "Role",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID (null for system roles)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Role name"
+    },
+    "code": {
+      "type": "string",
+      "description": "Unique role code"
+    },
+    "description": {
+      "type": "string"
+    },
+    "is_system_role": {
+      "type": "boolean",
+      "default": false,
+      "description": "System-defined role"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "name",
+    "code"
+  ]
+}

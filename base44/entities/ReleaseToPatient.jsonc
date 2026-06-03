@@ -1,0 +1,35 @@
+{
+  "name": "ReleaseToPatient",
+  "type": "object",
+  "properties": {
+    "result_id": {
+      "type": "string",
+      "description": "Reference to result"
+    },
+    "released": {
+      "type": "boolean",
+      "default": false,
+      "description": "Released to patient portal"
+    },
+    "released_by": {
+      "type": "string"
+    },
+    "released_by_email": {
+      "type": "string"
+    },
+    "released_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "release_note": {
+      "type": "string"
+    },
+    "portal_visible_from": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "result_id"
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "name": "LabCollectionOrder",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location ID"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference (text)"
+    },
+    "ordering_provider_ref": {
+      "type": "string",
+      "description": "Ordering provider reference"
+    },
+    "order_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Order date"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "routine",
+        "stat"
+      ],
+      "default": "routine",
+      "description": "Priority"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "registered",
+        "collected",
+        "dispatched",
+        "result_received",
+        "closed",
+        "cancelled"
+      ],
+      "default": "registered",
+      "description": "Order status"
+    },
+    "external_lab_name": {
+      "type": "string",
+      "description": "External lab name"
+    },
+    "external_lab_ref_number": {
+      "type": "string",
+      "description": "External lab reference number"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Order notes"
+    }
+  },
+  "required": [
+    "organization_id",
+    "location_id",
+    "patient_ref",
+    "order_date",
+    "status"
+  ]
+}

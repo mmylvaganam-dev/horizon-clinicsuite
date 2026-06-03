@@ -1,0 +1,46 @@
+{
+  "name": "CapTableSnapshot",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "company_ref": {
+      "type": "string",
+      "description": "CompanyProfile ID (text reference)"
+    },
+    "snapshot_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Snapshot date"
+    },
+    "total_equity_invested": {
+      "type": "number",
+      "description": "Total equity invested"
+    },
+    "total_shares": {
+      "type": "number",
+      "description": "Total shares issued"
+    },
+    "snapshot_json": {
+      "type": "object",
+      "description": "Computed ownership percentages",
+      "additionalProperties": true
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who created snapshot"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of creator"
+    }
+  },
+  "required": [
+    "organization_id",
+    "company_ref",
+    "snapshot_date",
+    "created_by"
+  ]
+}

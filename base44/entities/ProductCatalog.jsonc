@@ -1,0 +1,57 @@
+{
+  "name": "ProductCatalog",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "product_code": {
+      "type": "string",
+      "description": "Unique product code"
+    },
+    "barcode_value": {
+      "type": "string",
+      "description": "Barcode value for scanning"
+    },
+    "product_name": {
+      "type": "string",
+      "description": "Product name"
+    },
+    "strength": {
+      "type": "string",
+      "description": "Strength/dosage"
+    },
+    "form": {
+      "type": "string",
+      "description": "Form (tablet/capsule/syrup etc)"
+    },
+    "pack_size": {
+      "type": "string",
+      "description": "Pack size"
+    },
+    "cost_price": {
+      "type": "number",
+      "description": "Cost price"
+    },
+    "sale_price": {
+      "type": "number",
+      "description": "Sale price"
+    },
+    "tax_rule_code": {
+      "type": "string",
+      "description": "Tax rule reference"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active status"
+    }
+  },
+  "required": [
+    "organization_id",
+    "product_code",
+    "product_name",
+    "sale_price"
+  ]
+}

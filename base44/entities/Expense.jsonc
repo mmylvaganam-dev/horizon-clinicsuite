@@ -1,0 +1,110 @@
+{
+  "name": "Expense",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "company_ref": {
+      "type": "string",
+      "description": "CompanyProfile ID (text reference)"
+    },
+    "expense_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Expense date"
+    },
+    "vendor_name": {
+      "type": "string",
+      "description": "Vendor name (deprecated, use payee_name_cache)"
+    },
+    "payee_type": {
+      "type": "string",
+      "enum": [
+        "STAFF",
+        "VENDOR",
+        "THIRDPARTY",
+        "OTHER"
+      ],
+      "description": "Payee type"
+    },
+    "payee_ref_id": {
+      "type": "string",
+      "description": "Reference to PayeeDirectory ID"
+    },
+    "payee_name_cache": {
+      "type": "string",
+      "description": "Cached payee name for reporting"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "rent",
+        "utilities",
+        "supplies",
+        "it",
+        "marketing",
+        "insurance",
+        "professional_fees",
+        "maintenance",
+        "salary",
+        "payroll",
+        "physician_payment",
+        "contractor_payment",
+        "other"
+      ],
+      "description": "Expense category"
+    },
+    "description": {
+      "type": "string",
+      "description": "Expense description"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Expense amount"
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD",
+      "description": "Currency"
+    },
+    "payment_method": {
+      "type": "string",
+      "description": "Payment method"
+    },
+    "paid_from_account": {
+      "type": "string",
+      "description": "Bank account reference"
+    },
+    "attachment_ref": {
+      "type": "string",
+      "description": "Receipt/invoice attachment"
+    },
+    "recurring": {
+      "type": "boolean",
+      "default": false,
+      "description": "Is recurring expense"
+    },
+    "recurring_rule": {
+      "type": "string",
+      "description": "Recurrence pattern"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who created"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of creator"
+    }
+  },
+  "required": [
+    "organization_id",
+    "company_ref",
+    "expense_date",
+    "category",
+    "amount",
+    "created_by"
+  ]
+}

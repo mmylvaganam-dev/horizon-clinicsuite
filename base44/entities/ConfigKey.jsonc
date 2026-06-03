@@ -1,0 +1,44 @@
+{
+  "name": "ConfigKey",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "Configuration key identifier"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "tax",
+        "numbering",
+        "retention",
+        "language",
+        "general"
+      ],
+      "description": "Configuration category"
+    },
+    "description": {
+      "type": "string",
+      "description": "Configuration description"
+    },
+    "data_type": {
+      "type": "string",
+      "enum": [
+        "string",
+        "number",
+        "boolean",
+        "json"
+      ],
+      "default": "string",
+      "description": "Expected data type"
+    },
+    "default_value": {
+      "type": "string",
+      "description": "Default value"
+    }
+  },
+  "required": [
+    "key",
+    "category"
+  ]
+}

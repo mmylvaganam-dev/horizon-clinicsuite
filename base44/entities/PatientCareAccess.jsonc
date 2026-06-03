@@ -1,0 +1,105 @@
+{
+  "name": "PatientCareAccess",
+  "type": "object",
+  "properties": {
+    "patient_id": {
+      "type": "string",
+      "description": "Patient ID this access is for"
+    },
+    "patient_name": {
+      "type": "string",
+      "description": "Cached patient name"
+    },
+    "patient_phn": {
+      "type": "string",
+      "description": "Cached patient PHN"
+    },
+    "home_org_id": {
+      "type": "string",
+      "description": "The originating/home organization"
+    },
+    "home_org_name": {
+      "type": "string",
+      "description": "Cached home org name"
+    },
+    "granted_org_id": {
+      "type": "string",
+      "description": "Organization being granted access"
+    },
+    "granted_org_name": {
+      "type": "string",
+      "description": "Cached name of org being granted access"
+    },
+    "access_level": {
+      "type": "string",
+      "enum": [
+        "read_only",
+        "full_chart",
+        "labs_only",
+        "medications_only"
+      ],
+      "default": "read_only",
+      "description": "Level of access granted"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "revoked",
+        "expired"
+      ],
+      "default": "active"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason for sharing (e.g. specialist referral, emergency, continuity of care)"
+    },
+    "consent_obtained": {
+      "type": "boolean",
+      "default": false,
+      "description": "Patient consent was obtained before sharing"
+    },
+    "consent_notes": {
+      "type": "string",
+      "description": "How consent was obtained"
+    },
+    "granted_by": {
+      "type": "string",
+      "description": "User ID who granted access"
+    },
+    "granted_by_email": {
+      "type": "string",
+      "description": "Email of user who granted access"
+    },
+    "granted_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Optional expiry date for time-limited access"
+    },
+    "revoked_by": {
+      "type": "string"
+    },
+    "revoked_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "revoke_reason": {
+      "type": "string"
+    },
+    "last_accessed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time the granted org accessed this record"
+    }
+  },
+  "required": [
+    "patient_id",
+    "home_org_id",
+    "granted_org_id",
+    "access_level"
+  ]
+}

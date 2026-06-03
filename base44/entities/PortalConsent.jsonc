@@ -1,0 +1,37 @@
+{
+  "name": "PortalConsent",
+  "type": "object",
+  "properties": {
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference (text)"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "consent_type": {
+      "type": "string",
+      "description": "Type of consent (portal_access, data_sharing, etc.)"
+    },
+    "status": {
+      "type": "boolean",
+      "default": false,
+      "description": "Consent status"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    },
+    "updated_by": {
+      "type": "string",
+      "description": "User who updated"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "consent_type",
+    "updated_at"
+  ]
+}

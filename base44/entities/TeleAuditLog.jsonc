@@ -1,0 +1,34 @@
+{
+  "name": "TeleAuditLog",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "ID or email of the user who performed the action"
+    },
+    "action_type": {
+      "type": "string",
+      "description": "Type of action performed (e.g., CREATE, UPDATE, DELETE, SIGN, VIEW)"
+    },
+    "entity_type": {
+      "type": "string",
+      "description": "The entity/table affected (e.g., TeleEncounter, TeleAppointment)"
+    },
+    "entity_id": {
+      "type": "string",
+      "description": "ID of the affected entity record"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the action occurred"
+    }
+  },
+  "required": [
+    "user_id",
+    "action_type",
+    "entity_type",
+    "entity_id",
+    "timestamp"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "name": "LabPanelCatalog",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "panel_code": {
+      "type": "string",
+      "description": "Unique panel code/identifier"
+    },
+    "panel_name": {
+      "type": "string",
+      "description": "Panel name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Panel description"
+    },
+    "test_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of test IDs in this panel"
+    },
+    "category": {
+      "type": "string",
+      "description": "Panel category"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Panel active status"
+    }
+  },
+  "required": [
+    "panel_code",
+    "panel_name"
+  ]
+}

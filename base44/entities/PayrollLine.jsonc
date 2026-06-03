@@ -1,0 +1,58 @@
+{
+  "name": "PayrollLine",
+  "type": "object",
+  "properties": {
+    "payroll_period_ref": {
+      "type": "string",
+      "description": "PayrollPeriod ID (text reference)"
+    },
+    "staff_ref": {
+      "type": "string",
+      "description": "StaffPayrollProfile ID (text reference)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Payment description"
+    },
+    "units": {
+      "type": "number",
+      "description": "Hours/sessions worked"
+    },
+    "rate": {
+      "type": "number",
+      "description": "Pay rate"
+    },
+    "gross_pay": {
+      "type": "number",
+      "description": "Gross payment"
+    },
+    "deductions": {
+      "type": "number",
+      "default": 0,
+      "description": "Total deductions"
+    },
+    "net_pay": {
+      "type": "number",
+      "description": "Net payment"
+    },
+    "payment_method": {
+      "type": "string",
+      "description": "Payment method"
+    },
+    "payment_reference": {
+      "type": "string",
+      "description": "Payment reference number"
+    },
+    "paid_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Payment timestamp"
+    }
+  },
+  "required": [
+    "payroll_period_ref",
+    "staff_ref",
+    "gross_pay",
+    "net_pay"
+  ]
+}

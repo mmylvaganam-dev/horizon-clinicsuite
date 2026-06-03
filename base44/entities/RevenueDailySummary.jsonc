@@ -1,0 +1,29 @@
+{
+  "name": "RevenueDailySummary",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Summary date"
+    },
+    "revenue_by_stream_json": {
+      "type": "object",
+      "description": "Revenue breakdown by stream",
+      "additionalProperties": true
+    },
+    "total_revenue": {
+      "type": "number",
+      "description": "Total revenue"
+    }
+  },
+  "required": [
+    "organization_id",
+    "date",
+    "total_revenue"
+  ]
+}

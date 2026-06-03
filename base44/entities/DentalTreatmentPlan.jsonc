@@ -1,0 +1,47 @@
+{
+  "name": "DentalTreatmentPlan",
+  "type": "object",
+  "properties": {
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient.id as TEXT"
+    },
+    "created_from_encounter_ref": {
+      "type": "string",
+      "description": "DentalEncounter.id as TEXT (optional)"
+    },
+    "plan_title": {
+      "type": "string",
+      "description": "Treatment plan title"
+    },
+    "plan_status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "approved",
+        "in_progress",
+        "completed",
+        "cancelled"
+      ],
+      "default": "draft",
+      "description": "Plan status"
+    },
+    "estimated_total_cost": {
+      "type": "number",
+      "description": "Estimated total cost"
+    },
+    "consent_signed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Patient consent obtained"
+    },
+    "consent_attachment_ref": {
+      "type": "string",
+      "description": "Consent form attachment reference"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "plan_title"
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "name": "CPPUpdateSuggestion",
+  "type": "object",
+  "properties": {
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference"
+    },
+    "source_type": {
+      "type": "string",
+      "description": "Source type (SmartBox/Upload/Encounter)"
+    },
+    "source_id": {
+      "type": "string",
+      "description": "Source record ID"
+    },
+    "suggested_changes_json": {
+      "type": "object",
+      "description": "Suggested CPP changes",
+      "additionalProperties": true
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "Suggestion status"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "description": "Reviewer"
+    },
+    "reviewed_by_email": {
+      "type": "string",
+      "description": "Reviewer email"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Review timestamp"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "source_type",
+    "source_id",
+    "suggested_changes_json"
+  ]
+}

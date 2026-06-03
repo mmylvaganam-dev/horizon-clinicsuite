@@ -1,0 +1,47 @@
+{
+  "name": "Message",
+  "type": "object",
+  "properties": {
+    "thread_id": {
+      "type": "string",
+      "description": "Message thread ID (text reference)"
+    },
+    "sender_type": {
+      "type": "string",
+      "enum": [
+        "patient",
+        "staff"
+      ],
+      "description": "Type of sender"
+    },
+    "sender_ref": {
+      "type": "string",
+      "description": "Sender ID reference (patient or user ID)"
+    },
+    "sender_name": {
+      "type": "string",
+      "description": "Sender name for display"
+    },
+    "body": {
+      "type": "string",
+      "description": "Message body"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Message creation timestamp"
+    },
+    "read_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Message read timestamp"
+    }
+  },
+  "required": [
+    "thread_id",
+    "sender_type",
+    "sender_ref",
+    "body",
+    "created_at"
+  ]
+}

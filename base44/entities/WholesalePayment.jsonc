@@ -1,0 +1,102 @@
+{
+  "name": "WholesalePayment",
+  "type": "object",
+  "properties": {
+    "provider_id": {
+      "type": "string",
+      "description": "Reference to WholesaleProvider \u2014 who received payment"
+    },
+    "company_id": {
+      "type": "string",
+      "description": "Paying company ID (buyer)"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Cached company name"
+    },
+    "order_id": {
+      "type": "string",
+      "description": "Related order ID (optional)"
+    },
+    "order_number": {
+      "type": "string",
+      "description": "Related order number"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Payment amount (LKR)"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "cash",
+        "bank_transfer",
+        "cheque",
+        "credit_note"
+      ]
+    },
+    "payment_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "reference_number": {
+      "type": "string",
+      "description": "Bank ref / cheque number"
+    },
+    "cheque_number": {
+      "type": "string",
+      "description": "Cheque number if method is cheque"
+    },
+    "cheque_bank": {
+      "type": "string",
+      "description": "Bank name on cheque"
+    },
+    "cheque_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date written on cheque"
+    },
+    "cheque_image_url": {
+      "type": "string",
+      "description": "Photo of the cheque (uploaded file URL)"
+    },
+    "cheque_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "deposited",
+        "cleared",
+        "returned"
+      ],
+      "default": "pending",
+      "description": "Cheque clearing status"
+    },
+    "cheque_return_reason": {
+      "type": "string",
+      "description": "Reason if cheque was returned"
+    },
+    "cheque_cleared_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date cheque was cleared"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "recorded_by": {
+      "type": "string"
+    },
+    "submitted_by_buyer": {
+      "type": "boolean",
+      "default": false,
+      "description": "True if payment was submitted by the buyer pharmacy"
+    }
+  },
+  "required": [
+    "provider_id",
+    "company_id",
+    "company_name",
+    "amount",
+    "payment_date"
+  ]
+}

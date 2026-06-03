@@ -1,0 +1,32 @@
+{
+  "name": "SterilizationItem",
+  "type": "object",
+  "properties": {
+    "batch_ref": {
+      "type": "string",
+      "description": "SterilizationBatch.id as TEXT"
+    },
+    "tray_name": {
+      "type": "string",
+      "description": "Instrument tray name"
+    },
+    "instrument_notes": {
+      "type": "string",
+      "description": "Instrument details"
+    },
+    "released_for_use": {
+      "type": "boolean",
+      "default": false,
+      "description": "Released for clinical use"
+    },
+    "released_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Release timestamp"
+    }
+  },
+  "required": [
+    "batch_ref",
+    "tray_name"
+  ]
+}

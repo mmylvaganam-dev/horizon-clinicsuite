@@ -1,0 +1,93 @@
+{
+  "name": "HomeCareService",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Patient ID"
+    },
+    "schedule_id": {
+      "type": "string",
+      "description": "Related schedule ID"
+    },
+    "staff_id": {
+      "type": "string",
+      "description": "Staff who provided service"
+    },
+    "service_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Service date"
+    },
+    "service_category": {
+      "type": "string",
+      "enum": [
+        "nursing_officer",
+        "home_care_worker"
+      ],
+      "description": "Service category"
+    },
+    "service_type": {
+      "type": "string",
+      "enum": [
+        "ng_tubing",
+        "urinary_catheter_insertion",
+        "urinary_catheter_changing",
+        "iv_injection",
+        "iv_infusion",
+        "wound_care",
+        "medication",
+        "monitoring",
+        "adl_support_day",
+        "adl_support_night",
+        "adl_support_day_night",
+        "adl_support_part_time",
+        "housekeeping",
+        "other"
+      ],
+      "description": "Type of service"
+    },
+    "service_duration_type": {
+      "type": "string",
+      "enum": [
+        "one_time",
+        "ongoing_days",
+        "ongoing_weeks",
+        "ongoing_months"
+      ],
+      "description": "Duration type"
+    },
+    "duration_value": {
+      "type": "number",
+      "description": "Duration value (in days/weeks/months for ongoing)"
+    },
+    "duration_hours": {
+      "type": "number",
+      "description": "Service duration in hours (for one-time)"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Service charge amount"
+    },
+    "paid": {
+      "type": "boolean",
+      "default": false,
+      "description": "Payment status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Service notes"
+    }
+  },
+  "required": [
+    "patient_id",
+    "service_date",
+    "service_category",
+    "service_type",
+    "amount"
+  ]
+}

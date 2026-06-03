@@ -1,0 +1,69 @@
+{
+  "name": "EncounterVitals",
+  "type": "object",
+  "properties": {
+    "encounter_ref": {
+      "type": "string",
+      "description": "Encounter ID reference"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference"
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Recording timestamp"
+    },
+    "HR": {
+      "type": "number",
+      "description": "Heart rate (bpm)"
+    },
+    "BP_sys": {
+      "type": "number",
+      "description": "Systolic BP (mmHg)"
+    },
+    "BP_dia": {
+      "type": "number",
+      "description": "Diastolic BP (mmHg)"
+    },
+    "RR": {
+      "type": "number",
+      "description": "Respiratory rate (breaths/min)"
+    },
+    "Temp": {
+      "type": "number",
+      "description": "Temperature (\u00b0C)"
+    },
+    "Weight": {
+      "type": "number",
+      "description": "Weight (kg)"
+    },
+    "Height": {
+      "type": "number",
+      "description": "Height (cm)"
+    },
+    "BMI": {
+      "type": "number",
+      "description": "Body Mass Index"
+    },
+    "SpO2": {
+      "type": "number",
+      "description": "Oxygen saturation (%)"
+    },
+    "recorded_by": {
+      "type": "string",
+      "description": "User who recorded"
+    },
+    "recorded_by_email": {
+      "type": "string",
+      "description": "Recorder email"
+    }
+  },
+  "required": [
+    "encounter_ref",
+    "patient_ref",
+    "recorded_at",
+    "recorded_by"
+  ]
+}

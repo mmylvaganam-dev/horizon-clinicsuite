@@ -1,0 +1,32 @@
+{
+  "name": "PartnerCode",
+  "type": "object",
+  "properties": {
+    "partner_id": {
+      "type": "string",
+      "description": "Partner ID (text reference)"
+    },
+    "code": {
+      "type": "string",
+      "description": "Referral code"
+    },
+    "description": {
+      "type": "string",
+      "description": "Code description"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active status"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Creation timestamp"
+    }
+  },
+  "required": [
+    "partner_id",
+    "code"
+  ]
+}

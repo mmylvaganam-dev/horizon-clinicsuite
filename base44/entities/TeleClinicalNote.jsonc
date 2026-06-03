@@ -1,0 +1,21 @@
+{
+  "name": "TeleClinicalNote",
+  "type": "object",
+  "properties": {
+    "encounter_id": {
+      "type": "string",
+      "description": "Reference to TeleEncounter"
+    },
+    "draft_text": {
+      "type": "string",
+      "description": "Draft clinical note content"
+    },
+    "final_pdf_id": {
+      "type": "string",
+      "description": "File URL or ID of the finalized signed PDF"
+    }
+  },
+  "required": [
+    "encounter_id"
+  ]
+}

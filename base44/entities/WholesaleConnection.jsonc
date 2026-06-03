@@ -1,0 +1,74 @@
+{
+  "name": "WholesaleConnection",
+  "type": "object",
+  "properties": {
+    "provider_id": {
+      "type": "string",
+      "description": "Reference to WholesaleProvider"
+    },
+    "provider_name": {
+      "type": "string",
+      "description": "Cached provider name"
+    },
+    "buyer_organization_id": {
+      "type": "string",
+      "description": "Organization ID of the retail pharmacy (buyer)"
+    },
+    "buyer_company_id": {
+      "type": "string",
+      "description": "Company ID of the retail pharmacy"
+    },
+    "buyer_name": {
+      "type": "string",
+      "description": "Cached buyer organization name"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "active",
+        "suspended",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "Connection status"
+    },
+    "initiated_by": {
+      "type": "string",
+      "enum": [
+        "provider",
+        "buyer",
+        "platform_admin"
+      ],
+      "description": "Who initiated this connection"
+    },
+    "credit_limit": {
+      "type": "number",
+      "default": 0,
+      "description": "Credit limit extended to this buyer by this provider"
+    },
+    "current_balance": {
+      "type": "number",
+      "default": 0,
+      "description": "Outstanding balance owed to provider"
+    },
+    "payment_terms_days": {
+      "type": "number",
+      "default": 30
+    },
+    "notes": {
+      "type": "string"
+    },
+    "approved_by": {
+      "type": "string"
+    },
+    "approved_date": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "provider_id",
+    "buyer_organization_id"
+  ]
+}

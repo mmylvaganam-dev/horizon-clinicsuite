@@ -1,0 +1,91 @@
+{
+  "name": "PatientTask",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Task location"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Reference to patient"
+    },
+    "task_type": {
+      "type": "string",
+      "enum": [
+        "follow_up",
+        "lab_review",
+        "referral",
+        "medication_refill",
+        "preventive_care",
+        "other"
+      ],
+      "description": "Type of task"
+    },
+    "title": {
+      "type": "string",
+      "description": "Task title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Task description"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Task due date"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "default": "medium",
+      "description": "Task priority"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "User ID task is assigned to"
+    },
+    "assigned_to_email": {
+      "type": "string",
+      "description": "Email of assignee"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "cancelled"
+      ],
+      "default": "pending",
+      "description": "Task status"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Completion timestamp"
+    },
+    "completed_by": {
+      "type": "string",
+      "description": "User who completed task"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Task notes"
+    }
+  },
+  "required": [
+    "patient_id",
+    "task_type",
+    "title"
+  ]
+}

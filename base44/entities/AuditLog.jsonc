@@ -1,0 +1,108 @@
+{
+  "name": "AuditLog",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "module": {
+      "type": "string",
+      "enum": [
+        "pharmacy",
+        "clinical",
+        "dental",
+        "lab",
+        "diagnostics",
+        "home_care",
+        "sales",
+        "reports",
+        "admin",
+        "finance"
+      ],
+      "description": "Module where action occurred"
+    },
+    "action_type": {
+      "type": "string",
+      "enum": [
+        "create",
+        "read",
+        "update",
+        "delete",
+        "process",
+        "complete",
+        "approve",
+        "reject",
+        "print",
+        "export"
+      ],
+      "description": "Type of action"
+    },
+    "entity_type": {
+      "type": "string",
+      "description": "Entity affected (e.g., PharmacySale, Patient, Appointment)"
+    },
+    "entity_id": {
+      "type": "string",
+      "description": "ID of affected entity"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Patient ID if applicable"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "User who performed action"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email of user who performed action"
+    },
+    "user_name": {
+      "type": "string",
+      "description": "Name of user who performed action"
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of action"
+    },
+    "old_values": {
+      "type": "object",
+      "description": "Previous values (for updates)"
+    },
+    "new_values": {
+      "type": "object",
+      "description": "New values (for updates)"
+    },
+    "ip_address": {
+      "type": "string",
+      "description": "IP address of user"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "failure"
+      ],
+      "default": "success",
+      "description": "Action outcome"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Error message if failed"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When action occurred"
+    }
+  },
+  "required": [
+    "organization_id",
+    "module",
+    "action_type",
+    "entity_type",
+    "user_id",
+    "timestamp"
+  ]
+}

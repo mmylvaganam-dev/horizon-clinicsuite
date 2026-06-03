@@ -1,0 +1,50 @@
+{
+  "name": "PharmacyReturnsPickup",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location ID"
+    },
+    "vendor_ref": {
+      "type": "string",
+      "description": "VendorProfileLight.id as TEXT"
+    },
+    "vendor_name_cache": {
+      "type": "string",
+      "description": "Vendor name for display"
+    },
+    "pickup_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Pickup date"
+    },
+    "returns_summary_text": {
+      "type": "string",
+      "description": "Returns summary (e.g., returns will be collected)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "ready",
+        "picked_up",
+        "failed"
+      ],
+      "default": "planned",
+      "description": "Pickup status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "vendor_name_cache",
+    "pickup_date"
+  ]
+}

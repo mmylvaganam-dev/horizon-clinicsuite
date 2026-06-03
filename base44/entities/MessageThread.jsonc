@@ -1,0 +1,45 @@
+{
+  "name": "MessageThread",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference (text)"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Thread subject"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "closed"
+      ],
+      "default": "open",
+      "description": "Thread status"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Thread creation timestamp"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who created thread"
+    },
+    "last_message_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last message timestamp"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "created_at"
+  ]
+}

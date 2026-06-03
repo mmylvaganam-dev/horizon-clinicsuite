@@ -1,0 +1,53 @@
+{
+  "name": "PlatformPricingModel",
+  "type": "object",
+  "properties": {
+    "model_name": {
+      "type": "string",
+      "description": "Pricing model name"
+    },
+    "country_code": {
+      "type": "string",
+      "description": "Country code (US, UK, LK, etc.)"
+    },
+    "currency": {
+      "type": "string",
+      "description": "Currency code (USD, GBP, LKR)"
+    },
+    "base_company_fee": {
+      "type": "number",
+      "description": "Base fee per company/month"
+    },
+    "per_organization_fee": {
+      "type": "number",
+      "description": "Fee per organization/month"
+    },
+    "module_pricing": {
+      "type": "string",
+      "description": "JSON string of module pricing {module_code: price}"
+    },
+    "volume_pricing_tiers": {
+      "type": "string",
+      "description": "JSON string of volume tiers [{min: 0, max: 1000, rate: 0.50}]"
+    },
+    "billing_cycle": {
+      "type": "string",
+      "enum": [
+        "monthly",
+        "quarterly",
+        "annually"
+      ],
+      "default": "monthly",
+      "description": "Billing frequency"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active status"
+    }
+  },
+  "required": [
+    "model_name",
+    "currency"
+  ]
+}

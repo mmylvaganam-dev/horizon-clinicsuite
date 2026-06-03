@@ -1,0 +1,48 @@
+{
+  "name": "LocationContactProfile",
+  "type": "object",
+  "properties": {
+    "location_id": {
+      "type": "string",
+      "description": "Location ID reference"
+    },
+    "location_name": {
+      "type": "string",
+      "description": "Location name"
+    },
+    "address": {
+      "type": "string",
+      "description": "Full address"
+    },
+    "phone_number": {
+      "type": "string",
+      "description": "Phone number"
+    },
+    "fax_number": {
+      "type": "string",
+      "description": "Fax number"
+    },
+    "text_number": {
+      "type": "string",
+      "description": "Text/SMS number"
+    },
+    "email": {
+      "type": "string",
+      "description": "Email address"
+    },
+    "hours": {
+      "type": "string",
+      "description": "Operating hours"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    }
+  },
+  "required": [
+    "location_id",
+    "location_name",
+    "updated_at"
+  ]
+}

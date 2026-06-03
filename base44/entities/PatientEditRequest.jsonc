@@ -1,0 +1,71 @@
+{
+  "name": "PatientEditRequest",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Patient ID to be edited"
+    },
+    "requested_by": {
+      "type": "string",
+      "description": "User ID who requested the edit"
+    },
+    "requested_by_name": {
+      "type": "string",
+      "description": "Name of requester"
+    },
+    "requested_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the request was made"
+    },
+    "current_data": {
+      "type": "object",
+      "description": "Current patient data"
+    },
+    "requested_changes": {
+      "type": "object",
+      "description": "Proposed changes"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason for the edit request"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "Request status"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "description": "User ID who reviewed"
+    },
+    "reviewed_by_name": {
+      "type": "string",
+      "description": "Name of reviewer"
+    },
+    "reviewed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When reviewed"
+    },
+    "review_notes": {
+      "type": "string",
+      "description": "Reviewer's notes"
+    }
+  },
+  "required": [
+    "patient_id",
+    "requested_by",
+    "requested_changes"
+  ]
+}

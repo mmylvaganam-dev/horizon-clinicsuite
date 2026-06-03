@@ -1,0 +1,46 @@
+{
+  "name": "PharmacyVendorVisit",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location ID"
+    },
+    "vendor_ref": {
+      "type": "string",
+      "description": "VendorProfileLight.id as TEXT"
+    },
+    "vendor_name_cache": {
+      "type": "string",
+      "description": "Vendor name for display"
+    },
+    "visit_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Visit date"
+    },
+    "visit_note": {
+      "type": "string",
+      "description": "Visit notes (e.g., new order discussion)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "confirmed",
+        "completed",
+        "cancelled"
+      ],
+      "default": "planned",
+      "description": "Visit status"
+    }
+  },
+  "required": [
+    "vendor_name_cache",
+    "visit_date"
+  ]
+}

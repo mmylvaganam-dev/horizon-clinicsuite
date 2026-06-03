@@ -1,0 +1,72 @@
+{
+  "name": "PharmacySaleHeader",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location ID"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Optional patient reference for OTC sales"
+    },
+    "sale_number": {
+      "type": "string",
+      "description": "Unique sale number per org"
+    },
+    "sale_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Sale date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "paid",
+        "void",
+        "refund"
+      ],
+      "default": "paid",
+      "description": "Sale status"
+    },
+    "subtotal": {
+      "type": "number",
+      "description": "Subtotal amount"
+    },
+    "tax_total": {
+      "type": "number",
+      "description": "Tax amount"
+    },
+    "total": {
+      "type": "number",
+      "description": "Total amount"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "cash",
+        "card",
+        "transfer",
+        "insurance"
+      ],
+      "description": "Payment method"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Sale notes"
+    }
+  },
+  "required": [
+    "organization_id",
+    "location_id",
+    "sale_number",
+    "sale_date",
+    "subtotal",
+    "total",
+    "payment_method"
+  ]
+}

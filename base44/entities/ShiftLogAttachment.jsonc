@@ -1,0 +1,36 @@
+{
+  "name": "ShiftLogAttachment",
+  "type": "object",
+  "properties": {
+    "shift_log_ref": {
+      "type": "string",
+      "description": "ShiftLog.id as TEXT"
+    },
+    "file_url_or_storage_ref": {
+      "type": "string",
+      "description": "File URL or storage reference"
+    },
+    "file_type": {
+      "type": "string",
+      "enum": [
+        "image",
+        "pdf"
+      ],
+      "description": "File type"
+    },
+    "uploaded_by": {
+      "type": "string",
+      "description": "User who uploaded"
+    },
+    "uploaded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Upload timestamp"
+    }
+  },
+  "required": [
+    "shift_log_ref",
+    "file_url_or_storage_ref",
+    "file_type"
+  ]
+}

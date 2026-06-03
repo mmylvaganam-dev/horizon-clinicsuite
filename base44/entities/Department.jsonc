@@ -1,0 +1,52 @@
+{
+  "name": "Department",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Parent organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Parent location"
+    },
+    "name": {
+      "type": "string",
+      "description": "Department name"
+    },
+    "code": {
+      "type": "string",
+      "description": "Department code"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "clinical",
+        "administrative",
+        "support",
+        "laboratory",
+        "radiology",
+        "pharmacy",
+        "other"
+      ],
+      "default": "clinical"
+    },
+    "head_user_id": {
+      "type": "string",
+      "description": "Department head user ID"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "organization_id",
+    "name",
+    "code"
+  ]
+}

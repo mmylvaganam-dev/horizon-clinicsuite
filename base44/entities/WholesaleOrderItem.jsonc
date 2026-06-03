@@ -1,0 +1,54 @@
+{
+  "name": "WholesaleOrderItem",
+  "type": "object",
+  "properties": {
+    "order_id": {
+      "type": "string",
+      "description": "Reference to WholesaleOrder"
+    },
+    "provider_id": {
+      "type": "string",
+      "description": "Reference to WholesaleProvider"
+    },
+    "product_id": {
+      "type": "string",
+      "description": "Reference to WholesaleProduct"
+    },
+    "product_name": {
+      "type": "string"
+    },
+    "sku": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "qty": {
+      "type": "number"
+    },
+    "unit": {
+      "type": "string"
+    },
+    "unit_price": {
+      "type": "number"
+    },
+    "discount_pct": {
+      "type": "number",
+      "default": 0
+    },
+    "line_total": {
+      "type": "number"
+    },
+    "package_label": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "order_id",
+    "provider_id",
+    "product_name",
+    "qty",
+    "unit_price",
+    "line_total"
+  ]
+}

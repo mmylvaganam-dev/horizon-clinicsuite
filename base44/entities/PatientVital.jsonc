@@ -1,0 +1,107 @@
+{
+  "name": "PatientVital",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference"
+    },
+    "recorded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Recording timestamp"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "encounter",
+        "manual",
+        "import"
+      ],
+      "default": "encounter",
+      "description": "Vitals source"
+    },
+    "HR": {
+      "type": "number",
+      "description": "Heart rate (bpm)"
+    },
+    "HR_rhythm": {
+      "type": "string",
+      "enum": [
+        "regular",
+        "irregular"
+      ],
+      "description": "Heart rate rhythm \u2014 Regular or Irregular"
+    },
+    "BP_sys": {
+      "type": "number",
+      "description": "Systolic BP (mmHg)"
+    },
+    "BP_dia": {
+      "type": "number",
+      "description": "Diastolic BP (mmHg)"
+    },
+    "MAP": {
+      "type": "number",
+      "description": "Mean Arterial Pressure (mmHg) \u2014 auto-calculated: DBP + (SBP - DBP)/3"
+    },
+    "BP_arm": {
+      "type": "string",
+      "enum": [
+        "left",
+        "right",
+        "both"
+      ],
+      "description": "Arm used for BP measurement"
+    },
+    "BP_sys_right": {
+      "type": "number",
+      "description": "Systolic BP right arm (mmHg) - when both arms measured"
+    },
+    "BP_dia_right": {
+      "type": "number",
+      "description": "Diastolic BP right arm (mmHg) - when both arms measured"
+    },
+    "RR": {
+      "type": "number",
+      "description": "Respiratory rate (breaths/min)"
+    },
+    "Temp": {
+      "type": "number",
+      "description": "Temperature (\u00b0C)"
+    },
+    "Weight": {
+      "type": "number",
+      "description": "Weight (kg)"
+    },
+    "Height": {
+      "type": "number",
+      "description": "Height (cm)"
+    },
+    "BMI": {
+      "type": "number",
+      "description": "Body Mass Index"
+    },
+    "SpO2": {
+      "type": "number",
+      "description": "Oxygen saturation (%)"
+    },
+    "recorded_by": {
+      "type": "string",
+      "description": "User who recorded"
+    },
+    "recorded_by_email": {
+      "type": "string",
+      "description": "Recorder email"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "recorded_at",
+    "recorded_by"
+  ]
+}

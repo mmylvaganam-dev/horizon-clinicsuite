@@ -1,0 +1,38 @@
+{
+  "name": "VendorProfileLight",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "vendor_name": {
+      "type": "string",
+      "description": "Vendor name"
+    },
+    "rep_name": {
+      "type": "string",
+      "description": "Representative name"
+    },
+    "rep_phone": {
+      "type": "string",
+      "description": "Representative phone"
+    },
+    "rep_email": {
+      "type": "string",
+      "description": "Representative email"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Vendor notes"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active status"
+    }
+  },
+  "required": [
+    "vendor_name"
+  ]
+}

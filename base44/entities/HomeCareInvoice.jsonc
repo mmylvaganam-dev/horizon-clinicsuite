@@ -1,0 +1,103 @@
+{
+  "name": "HomeCareInvoice",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "invoice_number": {
+      "type": "string",
+      "description": "Auto-generated invoice number"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Patient reference"
+    },
+    "patient_name": {
+      "type": "string",
+      "description": "Cached patient name"
+    },
+    "patient_phone": {
+      "type": "string",
+      "description": "Cached patient phone"
+    },
+    "patient_address": {
+      "type": "string",
+      "description": "Cached patient address"
+    },
+    "service_from": {
+      "type": "string",
+      "format": "date",
+      "description": "Service period start date"
+    },
+    "service_to": {
+      "type": "string",
+      "format": "date",
+      "description": "Service period end date"
+    },
+    "daily_rate": {
+      "type": "number",
+      "description": "Daily rate for home care (LKR)"
+    },
+    "num_days": {
+      "type": "number",
+      "description": "Number of service days in this billing period"
+    },
+    "daily_subtotal": {
+      "type": "number",
+      "description": "daily_rate x num_days"
+    },
+    "items_subtotal": {
+      "type": "number",
+      "description": "Total of all additional line items"
+    },
+    "grand_total": {
+      "type": "number",
+      "description": "Grand total (daily_subtotal + items_subtotal)"
+    },
+    "amount_paid": {
+      "type": "number",
+      "default": 0,
+      "description": "Amount received"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "cash",
+        "card",
+        "bank_transfer",
+        "cheque",
+        "credit"
+      ],
+      "default": "cash"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "issued",
+        "paid",
+        "partial",
+        "cancelled"
+      ],
+      "default": "draft"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "issued_by": {
+      "type": "string"
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "patient_id",
+    "patient_name",
+    "service_from",
+    "service_to"
+  ]
+}

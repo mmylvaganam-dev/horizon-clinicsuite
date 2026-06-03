@@ -1,0 +1,58 @@
+{
+  "name": "PlatformSubscription",
+  "type": "object",
+  "properties": {
+    "company_id": {
+      "type": "string",
+      "description": "CompanyProfile.id"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Company name (cached)"
+    },
+    "pricing_model_id": {
+      "type": "string",
+      "description": "PlatformPricingModel.id"
+    },
+    "subscription_start": {
+      "type": "string",
+      "format": "date",
+      "description": "Subscription start date"
+    },
+    "subscription_end": {
+      "type": "string",
+      "format": "date",
+      "description": "Subscription end date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "suspended",
+        "cancelled",
+        "trial"
+      ],
+      "default": "active",
+      "description": "Subscription status"
+    },
+    "billing_contact_email": {
+      "type": "string",
+      "description": "Billing contact email"
+    },
+    "custom_discount_percent": {
+      "type": "number",
+      "description": "Custom discount percentage"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Subscription notes"
+    }
+  },
+  "required": [
+    "company_id",
+    "company_name",
+    "pricing_model_id",
+    "subscription_start",
+    "status"
+  ]
+}

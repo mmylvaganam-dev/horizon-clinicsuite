@@ -1,0 +1,41 @@
+{
+  "name": "GovernmentSubmissionLog",
+  "type": "object",
+  "properties": {
+    "report_run_id": {
+      "type": "string",
+      "description": "Report run ID (text reference)"
+    },
+    "submitted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Submission timestamp"
+    },
+    "submitted_by": {
+      "type": "string",
+      "description": "User who submitted"
+    },
+    "submitted_by_email": {
+      "type": "string",
+      "description": "Email of submitter"
+    },
+    "method": {
+      "type": "string",
+      "description": "Submission method (portal, email, API, etc.)"
+    },
+    "reference": {
+      "type": "string",
+      "description": "Submission reference number"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Submission notes"
+    }
+  },
+  "required": [
+    "report_run_id",
+    "submitted_at",
+    "submitted_by",
+    "method"
+  ]
+}

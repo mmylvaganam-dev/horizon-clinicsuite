@@ -1,0 +1,46 @@
+{
+  "name": "PlatformUsageLog",
+  "type": "object",
+  "properties": {
+    "company_id": {
+      "type": "string",
+      "description": "CompanyProfile.id"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "log_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Usage date"
+    },
+    "metric_type": {
+      "type": "string",
+      "enum": [
+        "sales_transaction",
+        "purchase_order",
+        "patient_visit",
+        "lab_test",
+        "prescription",
+        "invoice_generated",
+        "storage_gb"
+      ],
+      "description": "Type of usage metric"
+    },
+    "metric_count": {
+      "type": "number",
+      "description": "Count or volume"
+    },
+    "module_code": {
+      "type": "string",
+      "description": "Related module code"
+    }
+  },
+  "required": [
+    "company_id",
+    "log_date",
+    "metric_type",
+    "metric_count"
+  ]
+}

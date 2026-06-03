@@ -1,0 +1,41 @@
+{
+  "name": "DentalInventoryTxn",
+  "type": "object",
+  "properties": {
+    "inventory_item_ref": {
+      "type": "string",
+      "description": "DentalInventoryItem.id as TEXT"
+    },
+    "txn_type": {
+      "type": "string",
+      "enum": [
+        "purchase",
+        "use",
+        "adjust",
+        "return"
+      ],
+      "description": "Transaction type"
+    },
+    "qty": {
+      "type": "number",
+      "description": "Quantity (positive or negative)"
+    },
+    "unit_cost": {
+      "type": "number",
+      "description": "Unit cost"
+    },
+    "related_encounter_ref": {
+      "type": "string",
+      "description": "DentalEncounter.id as TEXT (optional)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Transaction notes"
+    }
+  },
+  "required": [
+    "inventory_item_ref",
+    "txn_type",
+    "qty"
+  ]
+}

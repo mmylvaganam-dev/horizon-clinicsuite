@@ -1,0 +1,104 @@
+{
+  "name": "MedicalRecord",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Record location"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Reference to patient"
+    },
+    "appointment_id": {
+      "type": "string",
+      "description": "Reference to appointment if applicable"
+    },
+    "record_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of record"
+    },
+    "record_type": {
+      "type": "string",
+      "enum": [
+        "clinical_note",
+        "diagnosis",
+        "prescription",
+        "lab_result",
+        "imaging",
+        "procedure",
+        "referral"
+      ],
+      "description": "Type of medical record"
+    },
+    "provider": {
+      "type": "string",
+      "description": "Healthcare provider name"
+    },
+    "chief_complaint": {
+      "type": "string",
+      "description": "Main complaint or reason for visit"
+    },
+    "diagnosis": {
+      "type": "string",
+      "description": "Diagnosis details"
+    },
+    "diagnosis_code": {
+      "type": "string",
+      "description": "ICD code if applicable"
+    },
+    "treatment_plan": {
+      "type": "string",
+      "description": "Treatment plan details"
+    },
+    "prescription": {
+      "type": "string",
+      "description": "Prescribed medications"
+    },
+    "vitals": {
+      "type": "object",
+      "properties": {
+        "blood_pressure": {
+          "type": "string"
+        },
+        "heart_rate": {
+          "type": "number"
+        },
+        "temperature": {
+          "type": "number"
+        },
+        "weight": {
+          "type": "number"
+        },
+        "height": {
+          "type": "number"
+        },
+        "oxygen_saturation": {
+          "type": "number"
+        }
+      },
+      "description": "Vital signs"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Clinical notes"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "File URLs for attachments"
+    }
+  },
+  "required": [
+    "patient_id",
+    "record_date",
+    "record_type"
+  ]
+}

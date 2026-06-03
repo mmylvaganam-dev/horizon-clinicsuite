@@ -1,0 +1,44 @@
+{
+  "name": "DentalFeeSchedule",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location ID"
+    },
+    "procedure_code": {
+      "type": "string",
+      "description": "Procedure code (clinic or national)"
+    },
+    "procedure_name": {
+      "type": "string",
+      "description": "Procedure name"
+    },
+    "default_fee": {
+      "type": "number",
+      "description": "Default fee amount"
+    },
+    "default_tax_code": {
+      "type": "string",
+      "description": "Default tax code"
+    },
+    "estimated_minutes": {
+      "type": "number",
+      "description": "Estimated duration in minutes"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active status"
+    }
+  },
+  "required": [
+    "procedure_code",
+    "procedure_name",
+    "default_fee"
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "name": "AnalyzerInbox",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Lab location"
+    },
+    "analyzer_id": {
+      "type": "string",
+      "description": "Analyzer registry ID"
+    },
+    "message_type": {
+      "type": "string",
+      "enum": [
+        "hl7",
+        "astm",
+        "csv",
+        "api",
+        "other"
+      ],
+      "description": "Message protocol"
+    },
+    "received_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Message receipt timestamp"
+    },
+    "raw_message": {
+      "type": "string",
+      "description": "Original message content"
+    },
+    "parsed_data": {
+      "type": "object",
+      "description": "Parsed structured data",
+      "additionalProperties": true
+    },
+    "specimen_id": {
+      "type": "string",
+      "description": "Matched specimen ID"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "parsed",
+        "matched",
+        "applied",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "rejection_reason": {
+      "type": "string",
+      "description": "Reason if rejected"
+    },
+    "processed_by": {
+      "type": "string",
+      "description": "User who processed"
+    },
+    "processed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Processing timestamp"
+    },
+    "result_id": {
+      "type": "string",
+      "description": "Created result record ID"
+    }
+  },
+  "required": [
+    "organization_id",
+    "analyzer_id",
+    "message_type",
+    "received_at",
+    "status"
+  ]
+}

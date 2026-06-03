@@ -1,0 +1,43 @@
+{
+  "name": "OrgModuleTogglePermission",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "module_code": {
+      "type": "string",
+      "description": "Module code"
+    },
+    "org_can_toggle": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether ORG_SUPER_USER can toggle this module"
+    },
+    "set_by": {
+      "type": "string",
+      "description": "PLATFORM_OWNER who set permission"
+    },
+    "set_by_email": {
+      "type": "string",
+      "description": "Email of setter"
+    },
+    "set_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When permission was set"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes"
+    }
+  },
+  "required": [
+    "organization_id",
+    "module_code",
+    "org_can_toggle",
+    "set_by",
+    "set_at"
+  ]
+}

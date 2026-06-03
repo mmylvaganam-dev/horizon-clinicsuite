@@ -1,0 +1,66 @@
+{
+  "name": "CardioResultExtension",
+  "type": "object",
+  "properties": {
+    "result_id": {
+      "type": "string",
+      "description": "Reference to Result entity"
+    },
+    "cardio_type": {
+      "type": "string",
+      "enum": [
+        "ECG",
+        "ECHO"
+      ],
+      "description": "Type of cardiology test"
+    },
+    "template_id": {
+      "type": "string",
+      "description": "Reference to CardioReportTemplate (optional)"
+    },
+    "structured_interpretation": {
+      "type": "object",
+      "description": "Structured cardiology findings",
+      "additionalProperties": true
+    },
+    "narrative_interpretation": {
+      "type": "string",
+      "description": "Narrative interpretation text"
+    },
+    "measurements": {
+      "type": "object",
+      "description": "Cardiology measurements",
+      "additionalProperties": true
+    },
+    "rhythm": {
+      "type": "string",
+      "description": "Heart rhythm (for ECG)"
+    },
+    "rate": {
+      "type": "number",
+      "description": "Heart rate"
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of clinical findings"
+    },
+    "impressions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Clinical impressions"
+    },
+    "recommendations": {
+      "type": "string",
+      "description": "Clinical recommendations"
+    }
+  },
+  "required": [
+    "result_id",
+    "cardio_type"
+  ]
+}

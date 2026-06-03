@@ -1,0 +1,80 @@
+{
+  "name": "ShiftLogItem",
+  "type": "object",
+  "properties": {
+    "shift_log_ref": {
+      "type": "string",
+      "description": "ShiftLog.id as TEXT"
+    },
+    "section_code": {
+      "type": "string",
+      "enum": [
+        "PHARMACY_STOCK",
+        "FRONTDESK_CASH",
+        "PATIENT_COMM",
+        "EQUIPMENT_FACILITY",
+        "SPECIAL_NOTE",
+        "HOMECARE",
+        "OPD",
+        "LAB",
+        "OTHER"
+      ],
+      "description": "Section code"
+    },
+    "item_text": {
+      "type": "string",
+      "description": "Item description"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium",
+      "description": "Priority level"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "done",
+        "deferred"
+      ],
+      "default": "open",
+      "description": "Item status"
+    },
+    "assigned_to_staff_ref": {
+      "type": "string",
+      "description": "StaffProfile.id as TEXT (optional)"
+    },
+    "due_datetime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Due date/time (optional)"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient.id as TEXT (optional)"
+    },
+    "patient_name_cache": {
+      "type": "string",
+      "description": "Patient name for display (optional)"
+    },
+    "related_ref_type": {
+      "type": "string",
+      "description": "Related record type (optional)"
+    },
+    "related_ref_id": {
+      "type": "string",
+      "description": "Related record ID (optional)"
+    }
+  },
+  "required": [
+    "shift_log_ref",
+    "section_code",
+    "item_text"
+  ]
+}

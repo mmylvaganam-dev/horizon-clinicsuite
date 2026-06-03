@@ -1,0 +1,71 @@
+{
+  "name": "DiagnosticTest",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location reference"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference"
+    },
+    "test_type": {
+      "type": "string",
+      "enum": [
+        "ECG",
+        "HOLTER",
+        "ABPM",
+        "PFT",
+        "ECHO_TEST",
+        "OTHER"
+      ],
+      "description": "Diagnostic test type"
+    },
+    "test_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Test date"
+    },
+    "performed_by": {
+      "type": "string",
+      "description": "Technician/provider"
+    },
+    "result_status": {
+      "type": "string",
+      "enum": [
+        "uploaded",
+        "entered",
+        "signed"
+      ],
+      "default": "uploaded",
+      "description": "Result status"
+    },
+    "summary_text": {
+      "type": "string",
+      "description": "Test summary"
+    },
+    "report_file_ref": {
+      "type": "string",
+      "description": "Report file URL"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who created"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of creator"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "test_type",
+    "test_date",
+    "created_by"
+  ]
+}

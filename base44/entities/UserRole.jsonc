@@ -1,0 +1,44 @@
+{
+  "name": "UserRole",
+  "type": "object",
+  "properties": {
+    "user_id": {
+      "type": "string",
+      "description": "User ID (from User entity)"
+    },
+    "role_id": {
+      "type": "string",
+      "description": "Role ID"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Organization scope"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location scope (optional)"
+    },
+    "department_id": {
+      "type": "string",
+      "description": "Department scope (optional)"
+    },
+    "is_primary": {
+      "type": "boolean",
+      "default": false,
+      "description": "Primary role for user"
+    },
+    "valid_from": {
+      "type": "string",
+      "format": "date"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "user_id",
+    "role_id",
+    "organization_id"
+  ]
+}

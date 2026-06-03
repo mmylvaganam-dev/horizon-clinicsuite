@@ -1,0 +1,30 @@
+{
+  "name": "SettlementLine",
+  "type": "object",
+  "properties": {
+    "settlement_id": {
+      "type": "string",
+      "description": "Settlement ID (text reference)"
+    },
+    "referral_id": {
+      "type": "string",
+      "description": "Referral ID"
+    },
+    "ref_type": {
+      "type": "string",
+      "description": "Referenced record type"
+    },
+    "ref_id": {
+      "type": "string",
+      "description": "Referenced record ID"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Line amount"
+    }
+  },
+  "required": [
+    "settlement_id",
+    "amount"
+  ]
+}

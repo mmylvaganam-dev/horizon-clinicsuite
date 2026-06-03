@@ -1,0 +1,108 @@
+{
+  "name": "WholesaleOrder",
+  "type": "object",
+  "properties": {
+    "provider_id": {
+      "type": "string",
+      "description": "Reference to WholesaleProvider \u2014 the supplier"
+    },
+    "provider_name": {
+      "type": "string",
+      "description": "Cached provider name"
+    },
+    "order_number": {
+      "type": "string",
+      "description": "Unique order number (WS-YYYYMMDD-XXXX)"
+    },
+    "company_id": {
+      "type": "string",
+      "description": "Ordering company ID (buyer)"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Cached company name (buyer)"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Ordering organization ID (buyer)"
+    },
+    "order_type": {
+      "type": "string",
+      "enum": [
+        "order",
+        "request"
+      ],
+      "default": "order",
+      "description": "Whether this is a formal order or a stock enquiry/request"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "processing",
+        "shipped",
+        "delivered",
+        "cancelled",
+        "rejected"
+      ],
+      "default": "pending"
+    },
+    "subtotal": {
+      "type": "number"
+    },
+    "discount_amount": {
+      "type": "number",
+      "default": 0
+    },
+    "total": {
+      "type": "number"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "unpaid",
+        "partial",
+        "paid",
+        "credit"
+      ],
+      "default": "unpaid"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "cash",
+        "bank_transfer",
+        "credit",
+        "cheque"
+      ]
+    },
+    "delivery_address": {
+      "type": "string"
+    },
+    "requested_delivery_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "actual_delivery_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "admin_notes": {
+      "type": "string"
+    },
+    "ordered_by": {
+      "type": "string"
+    },
+    "approved_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "provider_id",
+    "total"
+  ]
+}

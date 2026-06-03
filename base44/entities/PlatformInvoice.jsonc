@@ -1,0 +1,124 @@
+{
+  "name": "PlatformInvoice",
+  "type": "object",
+  "properties": {
+    "invoice_number": {
+      "type": "string",
+      "description": "Invoice number"
+    },
+    "company_id": {
+      "type": "string",
+      "description": "CompanyProfile.id"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Company name"
+    },
+    "subscription_id": {
+      "type": "string",
+      "description": "PlatformSubscription.id"
+    },
+    "invoice_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Invoice date"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Payment due date"
+    },
+    "billing_period_start": {
+      "type": "string",
+      "format": "date",
+      "description": "Billing period start"
+    },
+    "billing_period_end": {
+      "type": "string",
+      "format": "date",
+      "description": "Billing period end"
+    },
+    "currency": {
+      "type": "string",
+      "description": "Currency code"
+    },
+    "base_fee": {
+      "type": "number",
+      "description": "Base company fee"
+    },
+    "organization_fees": {
+      "type": "number",
+      "description": "Total organization fees"
+    },
+    "module_fees": {
+      "type": "number",
+      "description": "Total module fees"
+    },
+    "volume_fees": {
+      "type": "number",
+      "description": "Volume-based fees"
+    },
+    "subtotal": {
+      "type": "number",
+      "description": "Subtotal before discount"
+    },
+    "discount_amount": {
+      "type": "number",
+      "description": "Discount amount"
+    },
+    "tax_amount": {
+      "type": "number",
+      "description": "Tax amount"
+    },
+    "total_amount": {
+      "type": "number",
+      "description": "Total invoice amount"
+    },
+    "line_items": {
+      "type": "string",
+      "description": "JSON string of line items array"
+    },
+    "usage_summary": {
+      "type": "string",
+      "description": "JSON string of usage metrics"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "sent",
+        "paid",
+        "overdue",
+        "cancelled"
+      ],
+      "default": "draft",
+      "description": "Invoice status"
+    },
+    "paid_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Payment date"
+    },
+    "payment_reference": {
+      "type": "string",
+      "description": "Payment reference number"
+    },
+    "generated_by": {
+      "type": "string",
+      "description": "User who generated invoice"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Invoice notes"
+    }
+  },
+  "required": [
+    "invoice_number",
+    "company_id",
+    "company_name",
+    "invoice_date",
+    "currency",
+    "total_amount",
+    "status"
+  ]
+}

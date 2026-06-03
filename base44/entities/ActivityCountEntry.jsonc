@@ -1,0 +1,72 @@
+{
+  "name": "ActivityCountEntry",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "staff_ref": {
+      "type": "string",
+      "description": "Staff ID reference"
+    },
+    "activity_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Activity date"
+    },
+    "activity_category": {
+      "type": "string",
+      "enum": [
+        "CONSULT",
+        "IMAGING",
+        "TEST",
+        "LAB",
+        "OTHER"
+      ],
+      "description": "Activity category"
+    },
+    "activity_code": {
+      "type": "string",
+      "description": "Service/test code"
+    },
+    "activity_name_cache": {
+      "type": "string",
+      "description": "Cached activity name"
+    },
+    "qty": {
+      "type": "number",
+      "default": 1,
+      "description": "Quantity"
+    },
+    "source_ref_type": {
+      "type": "string",
+      "description": "Source record type"
+    },
+    "source_ref_id": {
+      "type": "string",
+      "description": "Source record ID"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "Creator user ID"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Creator email"
+    }
+  },
+  "required": [
+    "organization_id",
+    "staff_ref",
+    "activity_date",
+    "activity_category",
+    "activity_code",
+    "qty",
+    "created_by"
+  ]
+}

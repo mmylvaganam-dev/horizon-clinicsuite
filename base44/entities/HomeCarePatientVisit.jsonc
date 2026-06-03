@@ -1,0 +1,59 @@
+{
+  "name": "HomeCarePatientVisit",
+  "type": "object",
+  "properties": {
+    "report_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Visit date"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Patient ID"
+    },
+    "patient_name": {
+      "type": "string",
+      "description": "Patient name"
+    },
+    "age": {
+      "type": "number",
+      "description": "Patient age"
+    },
+    "address": {
+      "type": "string",
+      "description": "Patient address"
+    },
+    "visit_time_from": {
+      "type": "string",
+      "description": "Visit start time"
+    },
+    "visit_time_to": {
+      "type": "string",
+      "description": "Visit end time"
+    },
+    "caretaker_name": {
+      "type": "string",
+      "description": "Caretaker name"
+    },
+    "caretaker_age": {
+      "type": "number",
+      "description": "Caretaker age"
+    },
+    "caretaker_experience": {
+      "type": "string",
+      "description": "Caretaker experience"
+    },
+    "caretaker_status": {
+      "type": "string",
+      "description": "Caretaker response status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Visit notes"
+    }
+  },
+  "required": [
+    "report_date",
+    "patient_name"
+  ]
+}

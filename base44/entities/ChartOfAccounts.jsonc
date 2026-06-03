@@ -1,0 +1,47 @@
+{
+  "name": "ChartOfAccounts",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "code": {
+      "type": "string",
+      "description": "Account code"
+    },
+    "name": {
+      "type": "string",
+      "description": "Account name"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "asset",
+        "liability",
+        "equity",
+        "revenue",
+        "expense"
+      ],
+      "description": "Account type"
+    },
+    "parent_code": {
+      "type": "string",
+      "description": "Parent account code (for sub-accounts)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Account description"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active status"
+    }
+  },
+  "required": [
+    "code",
+    "name",
+    "type"
+  ]
+}

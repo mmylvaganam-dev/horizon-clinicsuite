@@ -1,0 +1,49 @@
+{
+  "name": "StockBatch",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Batch location"
+    },
+    "sku_code": {
+      "type": "string",
+      "description": "SKU code"
+    },
+    "item_name": {
+      "type": "string",
+      "description": "Item name for reference"
+    },
+    "batch_number": {
+      "type": "string",
+      "description": "Batch/lot number"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Expiry date"
+    },
+    "qty_on_hand": {
+      "type": "number",
+      "default": 0,
+      "description": "Quantity in this batch"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Batch created timestamp"
+    }
+  },
+  "required": [
+    "location_id",
+    "sku_code",
+    "batch_number",
+    "expiry_date",
+    "qty_on_hand",
+    "created_at"
+  ]
+}

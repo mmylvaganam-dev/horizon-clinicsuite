@@ -1,0 +1,53 @@
+{
+  "name": "DocumentLink",
+  "type": "object",
+  "properties": {
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference"
+    },
+    "left_type": {
+      "type": "string",
+      "description": "Left entity type (e.g., PatientDocument)"
+    },
+    "left_id": {
+      "type": "string",
+      "description": "Left entity ID"
+    },
+    "right_type": {
+      "type": "string",
+      "description": "Right entity type (e.g., Encounter, CPPItem)"
+    },
+    "right_id": {
+      "type": "string",
+      "description": "Right entity ID"
+    },
+    "link_purpose": {
+      "type": "string",
+      "enum": [
+        "supports_cpp",
+        "med_recon",
+        "diagnostic_reference",
+        "visit_attachment"
+      ],
+      "description": "Purpose of link"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who created link"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of creator"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "left_type",
+    "left_id",
+    "right_type",
+    "right_id",
+    "link_purpose",
+    "created_by"
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "name": "FaxInboxItem",
+  "type": "object",
+  "properties": {
+    "org_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "fax_did": {
+      "type": "string",
+      "description": "DID number the fax was received on"
+    },
+    "from_number": {
+      "type": "string"
+    },
+    "received_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "pages": {
+      "type": "number"
+    },
+    "pdf_file_pointer": {
+      "type": "string",
+      "description": "URL or file reference of the fax PDF"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "triaged",
+        "assigned",
+        "archived"
+      ],
+      "default": "new"
+    },
+    "assigned_to_user_id": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "org_id",
+    "fax_did",
+    "received_at",
+    "pdf_file_pointer"
+  ]
+}

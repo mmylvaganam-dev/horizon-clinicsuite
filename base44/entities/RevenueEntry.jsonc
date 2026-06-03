@@ -1,0 +1,68 @@
+{
+  "name": "RevenueEntry",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "company_ref": {
+      "type": "string",
+      "description": "CompanyProfile ID (text reference)"
+    },
+    "revenue_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Revenue date"
+    },
+    "stream_name": {
+      "type": "string",
+      "description": "Revenue stream name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Revenue description"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Revenue amount"
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD",
+      "description": "Currency"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "import"
+      ],
+      "description": "Data source"
+    },
+    "source_ref": {
+      "type": "string",
+      "description": "Source record reference"
+    },
+    "attachment_ref": {
+      "type": "string",
+      "description": "Attachment reference"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who created"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of creator"
+    }
+  },
+  "required": [
+    "organization_id",
+    "company_ref",
+    "revenue_date",
+    "stream_name",
+    "amount",
+    "created_by"
+  ]
+}

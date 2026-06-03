@@ -1,0 +1,38 @@
+{
+  "name": "ResultFlag",
+  "type": "object",
+  "properties": {
+    "result_id": {
+      "type": "string",
+      "description": "Reference to result"
+    },
+    "flag_type": {
+      "type": "string",
+      "enum": [
+        "abnormal",
+        "critical",
+        "panic"
+      ],
+      "description": "Type of flag"
+    },
+    "details": {
+      "type": "string",
+      "description": "Flag details"
+    },
+    "acknowledged": {
+      "type": "boolean",
+      "default": false
+    },
+    "acknowledged_by": {
+      "type": "string"
+    },
+    "acknowledged_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "result_id",
+    "flag_type"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "name": "ProviderAvailability",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "staff_ref": {
+      "type": "string",
+      "description": "Staff ID reference"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location ID"
+    },
+    "day_of_week": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 6,
+      "description": "Day of week (0=Sunday)"
+    },
+    "start_time": {
+      "type": "string",
+      "description": "Start time (HH:MM)"
+    },
+    "end_time": {
+      "type": "string",
+      "description": "End time (HH:MM)"
+    },
+    "effective_from": {
+      "type": "string",
+      "format": "date",
+      "description": "Effective from date"
+    },
+    "effective_to": {
+      "type": "string",
+      "format": "date",
+      "description": "Effective to date"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes"
+    }
+  },
+  "required": [
+    "organization_id",
+    "staff_ref",
+    "day_of_week",
+    "start_time",
+    "end_time",
+    "effective_from"
+  ]
+}

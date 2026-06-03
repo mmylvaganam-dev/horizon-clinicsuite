@@ -1,0 +1,44 @@
+{
+  "name": "NumberingRule",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "doc_type": {
+      "type": "string",
+      "enum": [
+        "invoice",
+        "receipt",
+        "purchase_order",
+        "goods_receipt"
+      ],
+      "description": "Document type"
+    },
+    "prefix": {
+      "type": "string",
+      "description": "Number prefix"
+    },
+    "next_number": {
+      "type": "number",
+      "default": 1,
+      "description": "Next number in sequence"
+    },
+    "format_json": {
+      "type": "object",
+      "description": "Format configuration (e.g., padding, year inclusion)",
+      "additionalProperties": true
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active status"
+    }
+  },
+  "required": [
+    "doc_type",
+    "prefix",
+    "next_number"
+  ]
+}

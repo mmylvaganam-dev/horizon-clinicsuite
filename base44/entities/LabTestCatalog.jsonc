@@ -1,0 +1,77 @@
+{
+  "name": "LabTestCatalog",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "test_code": {
+      "type": "string",
+      "description": "Unique test code/identifier"
+    },
+    "test_name": {
+      "type": "string",
+      "description": "Test name"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "hematology",
+        "chemistry",
+        "microbiology",
+        "immunology",
+        "serology",
+        "coagulation",
+        "urinalysis",
+        "other"
+      ],
+      "default": "other",
+      "description": "Test category"
+    },
+    "specimen_type": {
+      "type": "string",
+      "description": "Required specimen type (blood, urine, etc.)"
+    },
+    "result_type": {
+      "type": "string",
+      "enum": [
+        "numeric",
+        "text",
+        "boolean"
+      ],
+      "default": "numeric",
+      "description": "Type of result value"
+    },
+    "unit": {
+      "type": "string",
+      "description": "Unit of measurement (for numeric results)"
+    },
+    "method": {
+      "type": "string",
+      "description": "Testing methodology"
+    },
+    "price": {
+      "type": "number",
+      "description": "Test price"
+    },
+    "turnaround_time": {
+      "type": "number",
+      "description": "Expected turnaround time in hours"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Test active status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Test notes or instructions"
+    }
+  },
+  "required": [
+    "test_code",
+    "test_name",
+    "result_type"
+  ]
+}

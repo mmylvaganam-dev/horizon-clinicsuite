@@ -1,0 +1,52 @@
+{
+  "name": "ArchiveRecord",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference (text)"
+    },
+    "record_type": {
+      "type": "string",
+      "description": "Type of record being archived (e.g., Result, Order, Invoice)"
+    },
+    "record_id": {
+      "type": "string",
+      "description": "ID of the archived record"
+    },
+    "archived_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Archive timestamp"
+    },
+    "archived_by": {
+      "type": "string",
+      "description": "User who archived the record"
+    },
+    "archived_by_email": {
+      "type": "string",
+      "description": "Email of archiver"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason for archiving"
+    },
+    "metadata_json": {
+      "type": "object",
+      "description": "Additional archive metadata",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "organization_id",
+    "record_type",
+    "record_id",
+    "archived_at",
+    "archived_by",
+    "archived_by_email"
+  ]
+}

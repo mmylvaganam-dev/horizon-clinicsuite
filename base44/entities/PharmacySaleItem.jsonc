@@ -1,0 +1,41 @@
+{
+  "name": "PharmacySaleItem",
+  "type": "object",
+  "properties": {
+    "sale_id": {
+      "type": "string",
+      "description": "Reference to PharmacySale"
+    },
+    "item_name": {
+      "type": "string",
+      "description": "Item/drug name"
+    },
+    "drug_id": {
+      "type": "string",
+      "description": "Optional reference to DrugCatalog"
+    },
+    "quantity": {
+      "type": "number",
+      "description": "Quantity sold"
+    },
+    "unit_price": {
+      "type": "number",
+      "description": "Unit price"
+    },
+    "line_total": {
+      "type": "number",
+      "description": "Line total (qty * unit_price)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Item notes"
+    }
+  },
+  "required": [
+    "sale_id",
+    "item_name",
+    "quantity",
+    "unit_price",
+    "line_total"
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "name": "PharmacySaleLine",
+  "type": "object",
+  "properties": {
+    "sale_header_id": {
+      "type": "string",
+      "description": "Reference to PharmacySaleHeader"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID (for filtering)"
+    },
+    "stock_id": {
+      "type": "string",
+      "description": "Reference to PharmacyStock item"
+    },
+    "product_code": {
+      "type": "string",
+      "description": "Product code"
+    },
+    "barcode_value": {
+      "type": "string",
+      "description": "Scanned barcode"
+    },
+    "product_name_cache": {
+      "type": "string",
+      "description": "Cached product name"
+    },
+    "qty": {
+      "type": "number",
+      "default": 1,
+      "description": "Quantity sold"
+    },
+    "unit_cost": {
+      "type": "number",
+      "default": 0,
+      "description": "Unit cost at time of sale (for profit calculation)"
+    },
+    "unit_price": {
+      "type": "number",
+      "description": "Unit price at time of sale"
+    },
+    "line_total": {
+      "type": "number",
+      "description": "Line total amount"
+    }
+  },
+  "required": [
+    "sale_header_id",
+    "stock_id",
+    "product_name_cache",
+    "qty",
+    "unit_price",
+    "line_total"
+  ]
+}

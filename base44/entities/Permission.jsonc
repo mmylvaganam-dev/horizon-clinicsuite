@@ -1,0 +1,43 @@
+{
+  "name": "Permission",
+  "type": "object",
+  "properties": {
+    "module": {
+      "type": "string",
+      "description": "Module name (EMR, PMS, BILLING, etc)"
+    },
+    "resource": {
+      "type": "string",
+      "description": "Resource type (patient, appointment, record, etc)"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "view",
+        "create",
+        "update",
+        "delete",
+        "export",
+        "print",
+        "sign",
+        "release",
+        "refund_void",
+        "admin_config"
+      ],
+      "description": "Permitted action"
+    },
+    "code": {
+      "type": "string",
+      "description": "Unique permission code (module:resource:action)"
+    },
+    "description": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "module",
+    "resource",
+    "action",
+    "code"
+  ]
+}

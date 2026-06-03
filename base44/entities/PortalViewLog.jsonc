@@ -1,0 +1,36 @@
+{
+  "name": "PortalViewLog",
+  "type": "object",
+  "properties": {
+    "portal_account_id": {
+      "type": "string",
+      "description": "Portal account ID (text reference)"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference"
+    },
+    "view_type": {
+      "type": "string",
+      "description": "Type of view (results, appointments, records)"
+    },
+    "ref_type": {
+      "type": "string",
+      "description": "Referenced record type"
+    },
+    "ref_id": {
+      "type": "string",
+      "description": "Referenced record ID"
+    },
+    "viewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "View timestamp"
+    }
+  },
+  "required": [
+    "portal_account_id",
+    "view_type",
+    "viewed_at"
+  ]
+}

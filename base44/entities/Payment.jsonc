@@ -1,0 +1,61 @@
+{
+  "name": "Payment",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Payment location"
+    },
+    "invoice_id": {
+      "type": "string",
+      "description": "Reference to invoice"
+    },
+    "method": {
+      "type": "string",
+      "enum": [
+        "cash",
+        "card",
+        "online",
+        "check",
+        "insurance"
+      ],
+      "description": "Payment method"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Payment amount"
+    },
+    "paid_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Payment timestamp"
+    },
+    "reference": {
+      "type": "string",
+      "description": "Payment reference/transaction ID"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Payment notes"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who recorded payment"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of creator"
+    }
+  },
+  "required": [
+    "invoice_id",
+    "method",
+    "amount",
+    "paid_at",
+    "created_by"
+  ]
+}

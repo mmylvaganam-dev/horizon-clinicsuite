@@ -1,0 +1,43 @@
+{
+  "name": "StockSnapshot",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location ID"
+    },
+    "snapshot_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date and time of snapshot"
+    },
+    "snapshot_data": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Complete stock data at snapshot time"
+    },
+    "total_items": {
+      "type": "number",
+      "description": "Total number of items in snapshot"
+    },
+    "total_value": {
+      "type": "number",
+      "description": "Total stock value at snapshot time"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes about this snapshot"
+    }
+  },
+  "required": [
+    "snapshot_date",
+    "snapshot_data",
+    "total_items"
+  ]
+}

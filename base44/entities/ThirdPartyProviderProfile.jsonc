@@ -1,0 +1,58 @@
+{
+  "name": "ThirdPartyProviderProfile",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "provider_name": {
+      "type": "string",
+      "description": "Provider name"
+    },
+    "provider_type": {
+      "type": "string",
+      "enum": [
+        "consult_specialist",
+        "radiologist",
+        "sonographer",
+        "lab_reference",
+        "contractor",
+        "consultant",
+        "other"
+      ],
+      "description": "Provider type"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number"
+    },
+    "email": {
+      "type": "string",
+      "description": "Email address"
+    },
+    "address": {
+      "type": "string",
+      "description": "Physical address"
+    },
+    "contract_notes": {
+      "type": "string",
+      "description": "Contract or engagement notes"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active",
+      "description": "Provider status"
+    }
+  },
+  "required": [
+    "organization_id",
+    "provider_name",
+    "provider_type",
+    "status"
+  ]
+}

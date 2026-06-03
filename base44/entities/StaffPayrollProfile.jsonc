@@ -1,0 +1,72 @@
+{
+  "name": "StaffPayrollProfile",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "staff_name": {
+      "type": "string",
+      "description": "Staff member name"
+    },
+    "role_title": {
+      "type": "string",
+      "description": "Job title"
+    },
+    "department": {
+      "type": "string",
+      "description": "Department"
+    },
+    "employment_type": {
+      "type": "string",
+      "enum": [
+        "employee",
+        "contractor",
+        "physician"
+      ],
+      "description": "Employment type"
+    },
+    "pay_type": {
+      "type": "string",
+      "enum": [
+        "hourly",
+        "salary",
+        "session",
+        "percent"
+      ],
+      "description": "Pay structure"
+    },
+    "base_rate": {
+      "type": "number",
+      "description": "Base pay rate"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Employment start date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Employment end date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active",
+      "description": "Employment status"
+    }
+  },
+  "required": [
+    "organization_id",
+    "staff_name",
+    "employment_type",
+    "pay_type",
+    "base_rate",
+    "start_date"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "name": "ImportRowError",
+  "type": "object",
+  "properties": {
+    "import_job_id": {
+      "type": "string",
+      "description": "Import job ID reference"
+    },
+    "row_number": {
+      "type": "number",
+      "description": "Row number in file"
+    },
+    "field_name": {
+      "type": "string",
+      "description": "Field with error"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Error description"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "error",
+        "warning"
+      ],
+      "default": "error",
+      "description": "Error severity"
+    }
+  },
+  "required": [
+    "import_job_id",
+    "row_number",
+    "field_name",
+    "error_message",
+    "severity"
+  ]
+}

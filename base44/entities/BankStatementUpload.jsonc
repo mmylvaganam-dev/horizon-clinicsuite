@@ -1,0 +1,60 @@
+{
+  "name": "BankStatementUpload",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "company_ref": {
+      "type": "string",
+      "description": "CompanyProfile ID (text reference)"
+    },
+    "bank_account_ref": {
+      "type": "string",
+      "description": "BankAccount ID (text reference)"
+    },
+    "statement_month": {
+      "type": "string",
+      "description": "Statement month (YYYY-MM)"
+    },
+    "opening_balance": {
+      "type": "number",
+      "description": "Opening balance"
+    },
+    "closing_balance": {
+      "type": "number",
+      "description": "Closing balance"
+    },
+    "upload_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Upload timestamp"
+    },
+    "file_ref": {
+      "type": "string",
+      "description": "File reference URL"
+    },
+    "extracted_summary_json": {
+      "type": "object",
+      "description": "Extracted data summary",
+      "additionalProperties": true
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who uploaded"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of uploader"
+    }
+  },
+  "required": [
+    "organization_id",
+    "company_ref",
+    "statement_month",
+    "upload_date",
+    "file_ref",
+    "created_by"
+  ]
+}

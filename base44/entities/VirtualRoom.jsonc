@@ -1,0 +1,31 @@
+{
+  "name": "VirtualRoom",
+  "type": "object",
+  "properties": {
+    "appointment_id": {
+      "type": "string",
+      "description": "Reference to TeleAppointment"
+    },
+    "whereby_room_id": {
+      "type": "string",
+      "description": "Whereby meeting room ID"
+    },
+    "join_url": {
+      "type": "string",
+      "description": "Whereby room participant join URL"
+    },
+    "host_url": {
+      "type": "string",
+      "description": "Whereby room host URL (for provider with host controls)"
+    },
+    "expiry_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the Whereby room expires"
+    }
+  },
+  "required": [
+    "appointment_id",
+    "join_url"
+  ]
+}

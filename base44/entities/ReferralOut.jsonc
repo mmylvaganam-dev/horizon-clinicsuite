@@ -1,0 +1,99 @@
+{
+  "name": "ReferralOut",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Referral location"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Reference to patient"
+    },
+    "referring_provider": {
+      "type": "string",
+      "description": "Provider making referral"
+    },
+    "referring_provider_email": {
+      "type": "string",
+      "description": "Email of referring provider"
+    },
+    "specialty": {
+      "type": "string",
+      "description": "Specialty being referred to"
+    },
+    "specialist_name": {
+      "type": "string",
+      "description": "Specialist name"
+    },
+    "referral_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of referral"
+    },
+    "referral_reason": {
+      "type": "string",
+      "description": "Reason for referral"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "routine",
+        "urgent",
+        "stat"
+      ],
+      "default": "routine",
+      "description": "Referral priority"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "scheduled",
+        "seen",
+        "completed",
+        "cancelled"
+      ],
+      "default": "pending",
+      "description": "Referral status"
+    },
+    "appointment_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Specialist appointment date"
+    },
+    "consult_note_received": {
+      "type": "boolean",
+      "default": false,
+      "description": "Consult response received"
+    },
+    "consult_note_text": {
+      "type": "string",
+      "description": "Consultant response note"
+    },
+    "consult_note_file": {
+      "type": "string",
+      "description": "Consult note file URL"
+    },
+    "acknowledged_by": {
+      "type": "string",
+      "description": "Family doctor who acknowledged consult"
+    },
+    "acknowledged_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Acknowledgement timestamp"
+    }
+  },
+  "required": [
+    "patient_id",
+    "referring_provider",
+    "specialty",
+    "referral_date",
+    "referral_reason"
+  ]
+}

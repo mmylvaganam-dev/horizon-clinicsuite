@@ -1,0 +1,106 @@
+{
+  "name": "Specimen",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Collection location"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference (text)"
+    },
+    "order_id": {
+      "type": "string",
+      "description": "Related order ID"
+    },
+    "specimen_id": {
+      "type": "string",
+      "description": "Unique specimen identifier/barcode"
+    },
+    "accession_number": {
+      "type": "string",
+      "description": "Accession number"
+    },
+    "specimen_type": {
+      "type": "string",
+      "enum": [
+        "blood",
+        "urine",
+        "stool",
+        "csf",
+        "tissue",
+        "swab",
+        "other"
+      ],
+      "description": "Type of specimen"
+    },
+    "collection_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Collection timestamp"
+    },
+    "collected_by": {
+      "type": "string",
+      "description": "User who collected"
+    },
+    "received_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Lab receipt timestamp"
+    },
+    "received_by": {
+      "type": "string",
+      "description": "Lab tech who received"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "collected",
+        "received",
+        "rejected",
+        "stored",
+        "disposed"
+      ],
+      "default": "collected",
+      "description": "Specimen status"
+    },
+    "rejection_reason": {
+      "type": "string",
+      "description": "Reason for rejection if applicable"
+    },
+    "volume": {
+      "type": "string",
+      "description": "Volume collected"
+    },
+    "container_type": {
+      "type": "string",
+      "description": "Container/tube type"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "routine",
+        "urgent",
+        "stat"
+      ],
+      "default": "routine"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Special notes"
+    }
+  },
+  "required": [
+    "organization_id",
+    "patient_ref",
+    "specimen_id",
+    "specimen_type",
+    "collection_date",
+    "status"
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "name": "TelePatient",
+  "type": "object",
+  "properties": {
+    "patient_id": {
+      "type": "string",
+      "description": "Reference to main EMR Patient record"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Organization this tele-patient belongs to"
+    },
+    "global_patient_id": {
+      "type": "string",
+      "description": "Global unique identity across orgs (passport no or unique ID)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Patient full name"
+    },
+    "email": {
+      "type": "string",
+      "description": "Patient email address (used for OTP login)"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Patient phone number"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "format": "date"
+    },
+    "gender": {
+      "type": "string",
+      "enum": [
+        "male",
+        "female",
+        "other"
+      ]
+    },
+    "nationality": {
+      "type": "string",
+      "description": "Patient nationality"
+    },
+    "country_of_residence": {
+      "type": "string",
+      "description": "Where the patient currently lives"
+    },
+    "region": {
+      "type": "string",
+      "enum": [
+        "EU",
+        "USA",
+        "CANADA",
+        "SRI_LANKA",
+        "OTHER"
+      ],
+      "default": "OTHER",
+      "description": "Region for compliance purposes"
+    },
+    "passport_number": {
+      "type": "string"
+    },
+    "tele_access_enabled": {
+      "type": "boolean",
+      "default": false
+    },
+    "otp_code": {
+      "type": "string"
+    },
+    "otp_expires_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_login": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "gdpr_consented": {
+      "type": "boolean",
+      "default": false
+    },
+    "gdpr_consented_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "hipaa_acknowledged": {
+      "type": "boolean",
+      "default": false
+    },
+    "pipeda_consented": {
+      "type": "boolean",
+      "default": false
+    },
+    "general_consent": {
+      "type": "boolean",
+      "default": false
+    },
+    "uploaded_records": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs of patient-uploaded records from their home country"
+    },
+    "medical_summary": {
+      "type": "string",
+      "description": "Brief medical history / reason for seeking consultation"
+    },
+    "linked_clinic_patient_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "EMR Patient IDs at physical clinics (for care continuity)"
+    }
+  },
+  "required": [
+    "name",
+    "email"
+  ]
+}

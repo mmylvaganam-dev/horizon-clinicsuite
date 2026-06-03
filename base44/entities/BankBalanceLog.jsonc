@@ -1,0 +1,56 @@
+{
+  "name": "BankBalanceLog",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "company_ref": {
+      "type": "string",
+      "description": "CompanyProfile ID (text reference)"
+    },
+    "bank_account_ref": {
+      "type": "string",
+      "description": "BankAccount ID (text reference)"
+    },
+    "as_of_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Balance as of date"
+    },
+    "balance": {
+      "type": "number",
+      "description": "Account balance"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "statement",
+        "import"
+      ],
+      "description": "Data source"
+    },
+    "source_ref": {
+      "type": "string",
+      "description": "Source record reference"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who logged balance"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of creator"
+    }
+  },
+  "required": [
+    "organization_id",
+    "company_ref",
+    "as_of_date",
+    "balance",
+    "source",
+    "created_by"
+  ]
+}

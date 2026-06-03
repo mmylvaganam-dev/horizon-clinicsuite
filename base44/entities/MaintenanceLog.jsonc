@@ -1,0 +1,76 @@
+{
+  "name": "MaintenanceLog",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Lab location"
+    },
+    "analyzer_id": {
+      "type": "string",
+      "description": "Analyzer registry ID"
+    },
+    "maintenance_type": {
+      "type": "string",
+      "enum": [
+        "preventive",
+        "corrective",
+        "calibration",
+        "cleaning",
+        "replacement"
+      ],
+      "description": "Type of maintenance"
+    },
+    "scheduled_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Scheduled maintenance date"
+    },
+    "performed_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Actual maintenance timestamp"
+    },
+    "performed_by": {
+      "type": "string",
+      "description": "Technician who performed"
+    },
+    "performed_by_email": {
+      "type": "string",
+      "description": "Email of performer"
+    },
+    "description": {
+      "type": "string",
+      "description": "Maintenance description"
+    },
+    "parts_replaced": {
+      "type": "string",
+      "description": "Parts/consumables replaced"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "completed",
+        "overdue",
+        "cancelled"
+      ],
+      "default": "scheduled"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "organization_id",
+    "analyzer_id",
+    "maintenance_type",
+    "scheduled_date",
+    "status"
+  ]
+}

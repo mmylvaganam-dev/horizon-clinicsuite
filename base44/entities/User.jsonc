@@ -1,0 +1,27 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Primary organization assignment (optional - mainly used via UserRole linkage)"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Contact phone number"
+    },
+    "is_platform_owner": {
+      "type": "boolean",
+      "default": false,
+      "description": "Platform owner flag"
+    },
+    "is_organization_admin": {
+      "type": "boolean",
+      "default": false,
+      "description": "Organization administrator flag"
+    }
+  },
+  "required": [
+    "phone"
+  ]
+}

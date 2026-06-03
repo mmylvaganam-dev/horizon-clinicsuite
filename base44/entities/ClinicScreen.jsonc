@@ -1,0 +1,99 @@
+{
+  "name": "ClinicScreen",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Screen display name"
+    },
+    "clinic_name": {
+      "type": "string",
+      "description": "Clinic or branch name"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Organization this screen belongs to"
+    },
+    "location_type": {
+      "type": "string",
+      "enum": [
+        "waiting_room",
+        "reception",
+        "hallway",
+        "exam_room",
+        "pharmacy"
+      ],
+      "default": "waiting_room"
+    },
+    "screen_key": {
+      "type": "string",
+      "description": "Unique key used in the player URL"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "offline"
+      ],
+      "default": "active"
+    },
+    "assigned_playlist_id": {
+      "type": "string",
+      "description": "Playlist currently assigned to this screen"
+    },
+    "orientation": {
+      "type": "string",
+      "enum": [
+        "landscape",
+        "portrait"
+      ],
+      "default": "landscape",
+      "description": "Physical screen orientation"
+    },
+    "theme": {
+      "type": "string",
+      "enum": [
+        "default",
+        "dark",
+        "light",
+        "warm",
+        "branded"
+      ],
+      "default": "default",
+      "description": "Visual theme applied to idle/welcome screens"
+    },
+    "logo_url": {
+      "type": "string",
+      "description": "Clinic logo URL shown on idle screen and corner overlay"
+    },
+    "ticker_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Show scrolling ticker bar at bottom"
+    },
+    "ticker_text": {
+      "type": "string",
+      "description": "Text to scroll in the bottom ticker bar"
+    },
+    "queue_panel_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Show Now Serving queue panel on right side"
+    },
+    "last_seen_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last heartbeat from the player"
+    },
+    "refresh_requested_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Set this to trigger a remote refresh on the player"
+    }
+  },
+  "required": [
+    "name",
+    "screen_key"
+  ]
+}

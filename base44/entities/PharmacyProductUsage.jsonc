@@ -1,0 +1,39 @@
+{
+  "name": "PharmacyProductUsage",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "product_id": {
+      "type": "string",
+      "description": "PharmacyStock.id"
+    },
+    "product_name": {
+      "type": "string",
+      "description": "Cached product name"
+    },
+    "total_sales_count": {
+      "type": "number",
+      "description": "Total number of times sold"
+    },
+    "last_sold_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last sale date"
+    },
+    "recent_30days_count": {
+      "type": "number",
+      "description": "Sales in last 30 days"
+    },
+    "frequency_score": {
+      "type": "number",
+      "description": "Weighted frequency score"
+    }
+  },
+  "required": [
+    "product_id",
+    "product_name"
+  ]
+}

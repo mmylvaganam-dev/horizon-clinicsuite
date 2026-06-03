@@ -1,0 +1,48 @@
+{
+  "name": "HomeCareBatch",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location ID"
+    },
+    "shift_log_ref": {
+      "type": "string",
+      "description": "ShiftLog.id as TEXT (optional)"
+    },
+    "batch_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Batch date"
+    },
+    "batch_notes": {
+      "type": "string",
+      "description": "Batch notes (e.g., caretaker arrangement required)"
+    },
+    "escalation_contact_name": {
+      "type": "string",
+      "description": "Escalation contact name"
+    },
+    "escalation_contact_phone": {
+      "type": "string",
+      "description": "Escalation contact phone"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "closed"
+      ],
+      "default": "open",
+      "description": "Batch status"
+    }
+  },
+  "required": [
+    "batch_date"
+  ]
+}

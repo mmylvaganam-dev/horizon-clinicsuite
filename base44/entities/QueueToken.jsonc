@@ -1,0 +1,92 @@
+{
+  "name": "QueueToken",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string"
+    },
+    "location_id": {
+      "type": "string"
+    },
+    "counter_id": {
+      "type": "string",
+      "description": "Reference to QueueCounter"
+    },
+    "session_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the queue session"
+    },
+    "token_number": {
+      "type": "string",
+      "description": "Display token number (e.g., A001, OPD023)"
+    },
+    "token_seq": {
+      "type": "number",
+      "description": "Sequence number for ordering"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Reference to Patient (optional)"
+    },
+    "patient_name": {
+      "type": "string",
+      "description": "Patient name (cached)"
+    },
+    "patient_mobile": {
+      "type": "string",
+      "description": "Mobile for SMS"
+    },
+    "appointment_id": {
+      "type": "string",
+      "description": "Reference to Appointment (optional)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "waiting",
+        "called",
+        "serving",
+        "completed",
+        "skipped",
+        "no_show"
+      ],
+      "default": "waiting"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "normal",
+        "urgent",
+        "elderly"
+      ],
+      "default": "normal"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "called_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "served_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sms_sent": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "organization_id",
+    "counter_id",
+    "session_date",
+    "token_number",
+    "token_seq"
+  ]
+}

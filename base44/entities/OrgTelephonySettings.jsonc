@@ -1,0 +1,154 @@
+{
+  "name": "OrgTelephonySettings",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID (FK to Organization)"
+    },
+    "pbx_vendor": {
+      "type": "string",
+      "enum": [
+        "3cx",
+        "asterisk",
+        "freepbx",
+        "telnyx",
+        "twilio",
+        "other"
+      ],
+      "default": "telnyx"
+    },
+    "pbx_tenant_id": {
+      "type": "string"
+    },
+    "pbx_base_url": {
+      "type": "string"
+    },
+    "pbx_api_client_id": {
+      "type": "string"
+    },
+    "pbx_api_secret_ref": {
+      "type": "string",
+      "description": "Reference key only \u2014 raw secret never stored here"
+    },
+    "sip_provider_name": {
+      "type": "string",
+      "enum": [
+        "SLT",
+        "Dialog",
+        "Telnyx",
+        "Twilio",
+        "DIDWW",
+        "TechGates",
+        "Other"
+      ]
+    },
+    "sip_trunk_label": {
+      "type": "string"
+    },
+    "did_numbers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "route_to": {
+            "type": "string"
+          },
+          "route_type": {
+            "type": "string",
+            "enum": [
+              "ivr",
+              "queue",
+              "extension"
+            ]
+          }
+        }
+      },
+      "default": []
+    },
+    "default_inbound_route_type": {
+      "type": "string",
+      "enum": [
+        "ivr",
+        "queue",
+        "extension"
+      ],
+      "default": "queue"
+    },
+    "timezone": {
+      "type": "string",
+      "default": "Asia/Colombo"
+    },
+    "business_hours": {
+      "type": "object",
+      "properties": {
+        "mon": {
+          "type": "object"
+        },
+        "tue": {
+          "type": "object"
+        },
+        "wed": {
+          "type": "object"
+        },
+        "thu": {
+          "type": "object"
+        },
+        "fri": {
+          "type": "object"
+        },
+        "sat": {
+          "type": "object"
+        },
+        "sun": {
+          "type": "object"
+        }
+      }
+    },
+    "sip_requirements": {
+      "type": "object",
+      "description": "Sri Lanka SIP onboarding requirements",
+      "properties": {
+        "desired_did_count": {
+          "type": "number"
+        },
+        "desired_concurrent_channels": {
+          "type": "number"
+        },
+        "district_preference": {
+          "type": "string"
+        },
+        "want_fax_did": {
+          "type": "boolean"
+        },
+        "want_portability": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "active",
+        "suspended"
+      ],
+      "default": "pending"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "organization_id"
+  ]
+}

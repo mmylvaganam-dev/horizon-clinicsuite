@@ -1,0 +1,64 @@
+{
+  "name": "SaleDeletionRequest",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "sale_header_id": {
+      "type": "string",
+      "description": "Reference to PharmacySaleHeader"
+    },
+    "sale_number": {
+      "type": "string",
+      "description": "Sale number for display"
+    },
+    "sale_amount": {
+      "type": "number",
+      "description": "Total sale amount"
+    },
+    "requested_by": {
+      "type": "string",
+      "description": "Email of staff who requested"
+    },
+    "requested_by_name": {
+      "type": "string",
+      "description": "Name of requester"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason for deletion request"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "Request status"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "description": "Org admin who reviewed"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When reviewed"
+    },
+    "review_notes": {
+      "type": "string",
+      "description": "Admin notes on decision"
+    }
+  },
+  "required": [
+    "organization_id",
+    "sale_header_id",
+    "sale_number",
+    "requested_by",
+    "reason"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "name": "Supplier",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "name": {
+      "type": "string",
+      "description": "Supplier name"
+    },
+    "contact": {
+      "type": "string",
+      "description": "Contact person/phone"
+    },
+    "email": {
+      "type": "string",
+      "description": "Supplier email"
+    },
+    "address": {
+      "type": "string",
+      "description": "Supplier address"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Supplier active status"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Created timestamp"
+    }
+  },
+  "required": [
+    "name",
+    "created_at"
+  ]
+}

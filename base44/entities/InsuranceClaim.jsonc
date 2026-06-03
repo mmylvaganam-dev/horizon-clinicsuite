@@ -1,0 +1,106 @@
+{
+  "name": "InsuranceClaim",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Claim location"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Reference to patient"
+    },
+    "encounter_id": {
+      "type": "string",
+      "description": "Reference to encounter"
+    },
+    "claim_number": {
+      "type": "string",
+      "description": "Unique claim number"
+    },
+    "payer_name": {
+      "type": "string",
+      "description": "Insurance payer name"
+    },
+    "payer_id": {
+      "type": "string",
+      "description": "Payer identification number"
+    },
+    "policy_number": {
+      "type": "string",
+      "description": "Patient's policy number"
+    },
+    "service_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of service"
+    },
+    "submission_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Claim submission date"
+    },
+    "billed_amount": {
+      "type": "number",
+      "description": "Amount billed to insurance"
+    },
+    "allowed_amount": {
+      "type": "number",
+      "description": "Amount allowed by insurance"
+    },
+    "paid_amount": {
+      "type": "number",
+      "description": "Amount paid by insurance"
+    },
+    "patient_responsibility": {
+      "type": "number",
+      "description": "Patient copay/deductible"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "submitted",
+        "pending",
+        "approved",
+        "denied",
+        "appealed",
+        "paid"
+      ],
+      "default": "draft",
+      "description": "Claim status"
+    },
+    "denial_reason": {
+      "type": "string",
+      "description": "Reason for denial"
+    },
+    "procedure_codes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "CPT/procedure codes"
+    },
+    "diagnosis_codes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "ICD-10 diagnosis codes"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Claim notes"
+    }
+  },
+  "required": [
+    "patient_id",
+    "payer_name",
+    "service_date",
+    "billed_amount"
+  ]
+}

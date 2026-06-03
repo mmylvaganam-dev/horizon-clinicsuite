@@ -1,0 +1,47 @@
+{
+  "name": "DentalAttachment",
+  "type": "object",
+  "properties": {
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient.id as TEXT"
+    },
+    "encounter_ref": {
+      "type": "string",
+      "description": "DentalEncounter.id as TEXT (optional)"
+    },
+    "attachment_type": {
+      "type": "string",
+      "enum": [
+        "xray",
+        "photo",
+        "pdf",
+        "consent",
+        "other"
+      ],
+      "description": "Attachment type"
+    },
+    "file_ref": {
+      "type": "string",
+      "description": "File URL or reference"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "uploaded_by": {
+      "type": "string",
+      "description": "User who uploaded"
+    },
+    "uploaded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Upload timestamp"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "attachment_type",
+    "file_ref"
+  ]
+}

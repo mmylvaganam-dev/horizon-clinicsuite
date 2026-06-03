@@ -1,0 +1,111 @@
+{
+  "name": "WholesaleProduct",
+  "type": "object",
+  "properties": {
+    "provider_id": {
+      "type": "string",
+      "description": "Reference to WholesaleProvider"
+    },
+    "name": {
+      "type": "string",
+      "description": "Product name"
+    },
+    "brand": {
+      "type": "string",
+      "description": "Brand/manufacturer name"
+    },
+    "sku": {
+      "type": "string",
+      "description": "Stock keeping unit code"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "medicine",
+        "surgical",
+        "equipment",
+        "diagnostic",
+        "ppe",
+        "lab_supply",
+        "hospital_furniture",
+        "consumable",
+        "other"
+      ],
+      "default": "medicine"
+    },
+    "description": {
+      "type": "string"
+    },
+    "unit": {
+      "type": "string",
+      "default": "box",
+      "description": "Selling unit"
+    },
+    "unit_price": {
+      "type": "number",
+      "description": "Base wholesale price per unit (LKR)"
+    },
+    "mrp": {
+      "type": "number",
+      "description": "Maximum retail price (LKR)"
+    },
+    "min_order_qty": {
+      "type": "number",
+      "default": 1
+    },
+    "stock_qty": {
+      "type": "number",
+      "default": 0
+    },
+    "reorder_level": {
+      "type": "number",
+      "default": 10,
+      "description": "Alert is triggered when stock_qty falls below this level"
+    },
+    "image_url": {
+      "type": "string"
+    },
+    "package_options": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "qty": {
+            "type": "number"
+          },
+          "price": {
+            "type": "number"
+          },
+          "discount_pct": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "out_of_stock",
+        "discontinued"
+      ],
+      "default": "active"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "provider_id",
+    "name",
+    "category",
+    "unit",
+    "unit_price"
+  ]
+}

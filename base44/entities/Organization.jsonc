@@ -1,0 +1,63 @@
+{
+  "name": "Organization",
+  "type": "object",
+  "properties": {
+    "company_id": {
+      "type": "string",
+      "description": "Parent company ID (links to CompanyProfile)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Organization name"
+    },
+    "code": {
+      "type": "string",
+      "description": "Unique organization code"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "hospital",
+        "clinic",
+        "diagnostic_center",
+        "pharmacy",
+        "lab",
+        "other"
+      ],
+      "default": "clinic"
+    },
+    "country_code": {
+      "type": "string",
+      "description": "ISO country code"
+    },
+    "address": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "tax_id": {
+      "type": "string",
+      "description": "Tax identification number"
+    },
+    "license_number": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "suspended",
+        "inactive"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "name",
+    "code"
+  ]
+}

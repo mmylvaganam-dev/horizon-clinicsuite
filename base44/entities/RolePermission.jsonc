@@ -1,0 +1,22 @@
+{
+  "name": "RolePermission",
+  "type": "object",
+  "properties": {
+    "role_id": {
+      "type": "string",
+      "description": "Role ID"
+    },
+    "permission_id": {
+      "type": "string",
+      "description": "Permission ID"
+    },
+    "granted": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "role_id",
+    "permission_id"
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "name": "GovernmentReportType",
+  "type": "object",
+  "properties": {
+    "country_code": {
+      "type": "string",
+      "description": "ISO country code (from DeploymentProfile)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Report type name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Report description"
+    },
+    "spec_json": {
+      "type": "object",
+      "description": "Report specification (fields, aggregation rules, filters)",
+      "additionalProperties": true
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active status"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Creation timestamp"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who created"
+    }
+  },
+  "required": [
+    "country_code",
+    "name",
+    "spec_json"
+  ]
+}

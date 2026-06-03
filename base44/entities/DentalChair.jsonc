@@ -1,0 +1,37 @@
+{
+  "name": "DentalChair",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location ID"
+    },
+    "chair_name": {
+      "type": "string",
+      "description": "Chair name (e.g., Chair 1, Surgery Room)"
+    },
+    "chair_type": {
+      "type": "string",
+      "enum": [
+        "general",
+        "surgery",
+        "hygiene",
+        "ortho"
+      ],
+      "default": "general",
+      "description": "Chair type"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active status"
+    }
+  },
+  "required": [
+    "chair_name"
+  ]
+}

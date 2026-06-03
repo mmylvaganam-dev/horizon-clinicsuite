@@ -1,0 +1,55 @@
+{
+  "name": "ServiceCatalog",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "service_code": {
+      "type": "string",
+      "description": "Unique service code"
+    },
+    "service_name": {
+      "type": "string",
+      "description": "Service name"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "CONSULT_GP",
+        "CONSULT_SPECIALIST",
+        "TEST",
+        "IMAGING",
+        "LAB_COLLECTION",
+        "OTHER"
+      ],
+      "description": "Service category"
+    },
+    "default_price": {
+      "type": "number",
+      "description": "Default price"
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD",
+      "description": "Currency code"
+    },
+    "tax_rule_code": {
+      "type": "string",
+      "description": "Tax rule reference"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active status"
+    }
+  },
+  "required": [
+    "organization_id",
+    "service_code",
+    "service_name",
+    "category",
+    "default_price"
+  ]
+}

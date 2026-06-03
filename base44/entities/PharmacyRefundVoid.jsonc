@@ -1,0 +1,59 @@
+{
+  "name": "PharmacyRefundVoid",
+  "type": "object",
+  "properties": {
+    "sale_id": {
+      "type": "string",
+      "description": "Reference to PharmacySale"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "refund",
+        "void"
+      ],
+      "description": "Type of reversal"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason for refund/void"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Refund/void amount"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who performed action"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of user"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Approver user ID"
+    },
+    "approved_by_email": {
+      "type": "string",
+      "description": "Approver email"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "sale_id",
+    "type",
+    "reason",
+    "amount",
+    "created_by",
+    "created_at"
+  ]
+}

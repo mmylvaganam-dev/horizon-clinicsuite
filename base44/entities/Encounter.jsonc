@@ -1,0 +1,67 @@
+{
+  "name": "Encounter",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Encounter location"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Reference to patient"
+    },
+    "encounter_type": {
+      "type": "string",
+      "enum": [
+        "inpatient",
+        "outpatient",
+        "emergency",
+        "telemedicine",
+        "home_visit"
+      ],
+      "default": "outpatient"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "arrived",
+        "in-progress",
+        "completed",
+        "cancelled"
+      ],
+      "default": "planned"
+    },
+    "start_datetime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Encounter start"
+    },
+    "end_datetime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Encounter end"
+    },
+    "provider": {
+      "type": "string",
+      "description": "Primary provider"
+    },
+    "department_id": {
+      "type": "string"
+    },
+    "chief_complaint": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "patient_id",
+    "start_datetime"
+  ]
+}

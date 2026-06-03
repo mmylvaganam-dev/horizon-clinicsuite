@@ -1,0 +1,50 @@
+{
+  "name": "PayeeDirectory",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "payee_type": {
+      "type": "string",
+      "enum": [
+        "STAFF",
+        "VENDOR",
+        "THIRDPARTY"
+      ],
+      "description": "Payee type"
+    },
+    "source_ref_id": {
+      "type": "string",
+      "description": "Reference to source record ID"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Display name for dropdown"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active",
+      "description": "Payee status"
+    },
+    "tags_json": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Optional tags"
+    }
+  },
+  "required": [
+    "organization_id",
+    "payee_type",
+    "source_ref_id",
+    "display_name",
+    "status"
+  ]
+}

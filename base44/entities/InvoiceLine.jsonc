@@ -1,0 +1,51 @@
+{
+  "name": "InvoiceLine",
+  "type": "object",
+  "properties": {
+    "invoice_ref": {
+      "type": "string",
+      "description": "Invoice ID reference"
+    },
+    "item_code": {
+      "type": "string",
+      "description": "Service/product/test code"
+    },
+    "item_name_cache": {
+      "type": "string",
+      "description": "Cached item name"
+    },
+    "category": {
+      "type": "string",
+      "description": "Item category"
+    },
+    "qty": {
+      "type": "number",
+      "default": 1,
+      "description": "Quantity"
+    },
+    "unit_price": {
+      "type": "number",
+      "description": "Unit price"
+    },
+    "line_total": {
+      "type": "number",
+      "description": "Line total"
+    },
+    "linked_ref_type": {
+      "type": "string",
+      "description": "Linked record type (appointment/order/specimen)"
+    },
+    "linked_ref_id": {
+      "type": "string",
+      "description": "Linked record ID"
+    }
+  },
+  "required": [
+    "invoice_ref",
+    "item_code",
+    "item_name_cache",
+    "qty",
+    "unit_price",
+    "line_total"
+  ]
+}

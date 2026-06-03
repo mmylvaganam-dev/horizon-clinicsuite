@@ -1,0 +1,23 @@
+{
+  "name": "OrganizationConfig",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "config_key_id": {
+      "type": "string",
+      "description": "ConfigKey ID"
+    },
+    "value": {
+      "type": "string",
+      "description": "Configuration value"
+    }
+  },
+  "required": [
+    "organization_id",
+    "config_key_id",
+    "value"
+  ]
+}

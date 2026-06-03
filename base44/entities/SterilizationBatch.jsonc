@@ -1,0 +1,48 @@
+{
+  "name": "SterilizationBatch",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location ID"
+    },
+    "batch_datetime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Batch date and time"
+    },
+    "autoclave_id": {
+      "type": "string",
+      "description": "Autoclave ID"
+    },
+    "cycle_type": {
+      "type": "string",
+      "description": "Cycle type (steam/dry heat/chemical)"
+    },
+    "operator_staff_ref": {
+      "type": "string",
+      "description": "StaffProfile.id as TEXT"
+    },
+    "indicator_result": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "fail"
+      ],
+      "description": "Sterilization indicator result"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "batch_datetime",
+    "operator_staff_ref",
+    "indicator_result"
+  ]
+}

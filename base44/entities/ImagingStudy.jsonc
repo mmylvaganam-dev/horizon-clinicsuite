@@ -1,0 +1,85 @@
+{
+  "name": "ImagingStudy",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location reference"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference"
+    },
+    "modality": {
+      "type": "string",
+      "enum": [
+        "XR",
+        "US",
+        "BMD",
+        "DEXA",
+        "BONE_SCAN",
+        "CT",
+        "MRI",
+        "ECHO_OTHER"
+      ],
+      "description": "Imaging modality"
+    },
+    "body_part": {
+      "type": "string",
+      "description": "Body part imaged"
+    },
+    "study_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Study date"
+    },
+    "indication": {
+      "type": "string",
+      "description": "Clinical indication"
+    },
+    "report_status": {
+      "type": "string",
+      "enum": [
+        "uploaded",
+        "pending",
+        "signed"
+      ],
+      "default": "uploaded",
+      "description": "Report status"
+    },
+    "report_file_ref": {
+      "type": "string",
+      "description": "Report file URL"
+    },
+    "impression_text": {
+      "type": "string",
+      "description": "Radiologist impression"
+    },
+    "ordering_provider_ref": {
+      "type": "string",
+      "description": "Ordering provider ID"
+    },
+    "performed_at_location": {
+      "type": "string",
+      "description": "Performing location"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who created"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of creator"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "modality",
+    "study_date",
+    "created_by"
+  ]
+}

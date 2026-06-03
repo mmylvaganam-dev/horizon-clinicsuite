@@ -1,0 +1,64 @@
+{
+  "name": "PlatformAdminNote",
+  "type": "object",
+  "properties": {
+    "note_type": {
+      "type": "string",
+      "enum": [
+        "system_health_alert",
+        "user_request",
+        "bug_report",
+        "feature_request",
+        "general"
+      ],
+      "description": "Type of admin note"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "critical"
+      ],
+      "default": "medium",
+      "description": "Severity level"
+    },
+    "title": {
+      "type": "string",
+      "description": "Note title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional data (JSON)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "acknowledged",
+        "resolved",
+        "dismissed"
+      ],
+      "default": "active",
+      "description": "Note status"
+    },
+    "resolved_by": {
+      "type": "string",
+      "description": "Email of user who resolved"
+    },
+    "resolved_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When resolved"
+    }
+  },
+  "required": [
+    "note_type",
+    "title"
+  ]
+}

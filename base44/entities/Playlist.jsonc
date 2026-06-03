@@ -1,0 +1,42 @@
+{
+  "name": "Playlist",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "clinic_name": {
+      "type": "string"
+    },
+    "location_type": {
+      "type": "string",
+      "enum": [
+        "waiting_room",
+        "reception",
+        "hallway",
+        "exam_room",
+        "pharmacy"
+      ],
+      "default": "waiting_room"
+    },
+    "is_default": {
+      "type": "boolean",
+      "default": false
+    },
+    "transition_seconds": {
+      "type": "number",
+      "default": 10
+    },
+    "health_edu_mode": {
+      "type": "boolean",
+      "default": false,
+      "description": "Only show items tagged as health education content"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

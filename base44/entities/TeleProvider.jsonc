@@ -1,0 +1,82 @@
+{
+  "name": "TeleProvider",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Provider full name"
+    },
+    "specialty": {
+      "type": "string",
+      "description": "Medical specialty (e.g., General Practice, Cardiology)"
+    },
+    "license_number": {
+      "type": "string",
+      "description": "Medical license number"
+    },
+    "verification_status": {
+      "type": "string",
+      "enum": [
+        "PENDING",
+        "VERIFIED",
+        "REJECTED"
+      ],
+      "default": "PENDING"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "photo_url": {
+      "type": "string",
+      "description": "Profile photo URL"
+    },
+    "bio": {
+      "type": "string",
+      "description": "Short doctor biography visible to patients"
+    },
+    "languages": {
+      "type": "string",
+      "description": "Languages spoken (e.g., English, Tamil, Sinhala)"
+    },
+    "consultation_fee_usd": {
+      "type": "number",
+      "default": 50,
+      "description": "Consultation fee in USD (overrides platform default)"
+    },
+    "years_experience": {
+      "type": "number",
+      "description": "Years of clinical experience"
+    },
+    "qualifications": {
+      "type": "string",
+      "description": "Degrees/qualifications (e.g., MBBS, MD, FRCS)"
+    },
+    "available_from": {
+      "type": "string",
+      "description": "Default availability start time (HH:MM, e.g. 09:00)"
+    },
+    "available_to": {
+      "type": "string",
+      "description": "Default availability end time (HH:MM, e.g. 17:00)"
+    },
+    "available_days": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "description": "Days of week available (0=Sun, 6=Sat)"
+    },
+    "signature_image": {
+      "type": "string",
+      "description": "URL of provider's digital signature image"
+    },
+    "seal_image": {
+      "type": "string",
+      "description": "URL of provider's official seal image"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

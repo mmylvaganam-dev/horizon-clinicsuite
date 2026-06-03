@@ -1,0 +1,55 @@
+{
+  "name": "DentalInventoryItem",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location ID"
+    },
+    "item_name": {
+      "type": "string",
+      "description": "Item name"
+    },
+    "sku": {
+      "type": "string",
+      "description": "SKU code"
+    },
+    "barcode": {
+      "type": "string",
+      "description": "Barcode"
+    },
+    "unit": {
+      "type": "string",
+      "description": "Unit of measurement"
+    },
+    "reorder_level": {
+      "type": "number",
+      "description": "Reorder level"
+    },
+    "current_stock": {
+      "type": "number",
+      "description": "Current stock quantity"
+    },
+    "cost_per_unit": {
+      "type": "number",
+      "description": "Cost per unit"
+    },
+    "selling_price": {
+      "type": "number",
+      "description": "Selling price (optional)"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active status"
+    }
+  },
+  "required": [
+    "item_name",
+    "unit"
+  ]
+}

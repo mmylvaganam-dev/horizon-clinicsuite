@@ -1,0 +1,63 @@
+{
+  "name": "ProviderSchedule",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location"
+    },
+    "provider_id": {
+      "type": "string",
+      "description": "Provider user ID"
+    },
+    "provider_name": {
+      "type": "string",
+      "description": "Provider name for reference"
+    },
+    "day_of_week": {
+      "type": "string",
+      "enum": [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday"
+      ],
+      "description": "Day of week"
+    },
+    "start_time": {
+      "type": "string",
+      "description": "Schedule start time (HH:mm format)"
+    },
+    "end_time": {
+      "type": "string",
+      "description": "Schedule end time (HH:mm format)"
+    },
+    "slot_duration": {
+      "type": "number",
+      "default": 30,
+      "description": "Appointment slot duration in minutes"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Schedule active status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Schedule notes"
+    }
+  },
+  "required": [
+    "provider_id",
+    "day_of_week",
+    "start_time",
+    "end_time"
+  ]
+}

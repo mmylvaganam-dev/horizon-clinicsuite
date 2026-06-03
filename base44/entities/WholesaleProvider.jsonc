@@ -1,0 +1,62 @@
+{
+  "name": "WholesaleProvider",
+  "type": "object",
+  "properties": {
+    "company_name": {
+      "type": "string",
+      "description": "Wholesale provider company name"
+    },
+    "company_code": {
+      "type": "string",
+      "description": "Unique short code (e.g., PWP, MEDX)"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Platform Organization ID this provider belongs to"
+    },
+    "company_id": {
+      "type": "string",
+      "description": "Platform CompanyProfile ID this provider belongs to"
+    },
+    "admin_emails": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Emails of users who can manage this wholesale provider"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short description of what they supply"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "address": {
+      "type": "string"
+    },
+    "logo_url": {
+      "type": "string"
+    },
+    "payment_terms_days": {
+      "type": "number",
+      "default": 30
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "suspended",
+        "inactive"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "company_name",
+    "company_code"
+  ]
+}

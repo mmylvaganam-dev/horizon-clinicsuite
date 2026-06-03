@@ -1,0 +1,62 @@
+{
+  "name": "Location",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Parent organization"
+    },
+    "name": {
+      "type": "string",
+      "description": "Location/branch name"
+    },
+    "code": {
+      "type": "string",
+      "description": "Unique location code"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "main",
+        "branch",
+        "satellite",
+        "mobile"
+      ],
+      "default": "branch"
+    },
+    "address": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "state": {
+      "type": "string"
+    },
+    "postal_code": {
+      "type": "string"
+    },
+    "country_code": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "organization_id",
+    "name",
+    "code"
+  ]
+}

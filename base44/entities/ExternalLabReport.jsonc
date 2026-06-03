@@ -1,0 +1,50 @@
+{
+  "name": "ExternalLabReport",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location reference"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference"
+    },
+    "report_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Lab report date"
+    },
+    "report_title": {
+      "type": "string",
+      "description": "Report title"
+    },
+    "file_ref": {
+      "type": "string",
+      "description": "File URL"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Clinical notes"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who created"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of creator"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "report_date",
+    "report_title",
+    "file_ref",
+    "created_by"
+  ]
+}

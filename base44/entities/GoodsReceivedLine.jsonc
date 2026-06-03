@@ -1,0 +1,41 @@
+{
+  "name": "GoodsReceivedLine",
+  "type": "object",
+  "properties": {
+    "goods_received_id": {
+      "type": "string",
+      "description": "Reference to goods received"
+    },
+    "sku_code": {
+      "type": "string",
+      "description": "SKU code"
+    },
+    "item_name": {
+      "type": "string",
+      "description": "Item name"
+    },
+    "qty_received": {
+      "type": "number",
+      "description": "Quantity received"
+    },
+    "unit_cost": {
+      "type": "number",
+      "description": "Unit cost"
+    },
+    "batch_number": {
+      "type": "string",
+      "description": "Batch number (optional)"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Expiry date (optional)"
+    }
+  },
+  "required": [
+    "goods_received_id",
+    "sku_code",
+    "item_name",
+    "qty_received"
+  ]
+}

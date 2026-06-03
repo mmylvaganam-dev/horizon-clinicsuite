@@ -1,0 +1,72 @@
+{
+  "name": "SmsOutbox",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "sent_by_user_id": {
+      "type": "string",
+      "description": "User who sent the SMS"
+    },
+    "sent_by_email": {
+      "type": "string",
+      "description": "Email of user who sent"
+    },
+    "mobiles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of mobile numbers (9-digit format)"
+    },
+    "message": {
+      "type": "string",
+      "description": "SMS message content"
+    },
+    "transaction_id": {
+      "type": "string",
+      "description": "Unique transaction ID sent to provider"
+    },
+    "campaign_id": {
+      "type": "string",
+      "description": "Provider campaign ID returned"
+    },
+    "source_address": {
+      "type": "string",
+      "description": "Sender mask/name"
+    },
+    "provider_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "sent",
+        "failed"
+      ],
+      "default": "pending",
+      "description": "Overall status"
+    },
+    "err_code": {
+      "type": "string",
+      "description": "Provider error code if failed"
+    },
+    "provider_comment": {
+      "type": "string",
+      "description": "Provider response message"
+    },
+    "cost": {
+      "type": "number",
+      "description": "Estimated cost"
+    },
+    "recipient_count": {
+      "type": "number",
+      "description": "Number of recipients"
+    }
+  },
+  "required": [
+    "mobiles",
+    "message",
+    "transaction_id"
+  ]
+}

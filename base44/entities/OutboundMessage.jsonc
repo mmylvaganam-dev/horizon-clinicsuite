@@ -1,0 +1,68 @@
+{
+  "name": "OutboundMessage",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "email",
+        "sms"
+      ],
+      "description": "Communication channel"
+    },
+    "recipient_ref": {
+      "type": "string",
+      "description": "Recipient reference (patient ID)"
+    },
+    "recipient_contact": {
+      "type": "string",
+      "description": "Email address or phone number"
+    },
+    "template_id": {
+      "type": "string",
+      "description": "Template ID (text reference)"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Message subject"
+    },
+    "body": {
+      "type": "string",
+      "description": "Message body"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "sent",
+        "failed"
+      ],
+      "default": "queued",
+      "description": "Message status"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Sent timestamp"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Error details if failed"
+    },
+    "metadata_json": {
+      "type": "object",
+      "description": "Additional metadata",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "channel",
+    "recipient_ref",
+    "recipient_contact",
+    "body"
+  ]
+}

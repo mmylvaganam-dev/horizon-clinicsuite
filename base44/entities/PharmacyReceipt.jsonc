@@ -1,0 +1,37 @@
+{
+  "name": "PharmacyReceipt",
+  "type": "object",
+  "properties": {
+    "sale_id": {
+      "type": "string",
+      "description": "Reference to PharmacySale"
+    },
+    "receipt_number": {
+      "type": "string",
+      "description": "Generated receipt number"
+    },
+    "receipt_pdf": {
+      "type": "string",
+      "description": "Optional PDF URL"
+    },
+    "issued_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Receipt issue timestamp"
+    },
+    "issued_by": {
+      "type": "string",
+      "description": "User who issued receipt"
+    },
+    "issued_by_email": {
+      "type": "string",
+      "description": "Email of issuer"
+    }
+  },
+  "required": [
+    "sale_id",
+    "receipt_number",
+    "issued_at",
+    "issued_by"
+  ]
+}

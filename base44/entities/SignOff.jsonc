@@ -1,0 +1,34 @@
+{
+  "name": "SignOff",
+  "type": "object",
+  "properties": {
+    "result_id": {
+      "type": "string",
+      "description": "Reference to result"
+    },
+    "signed_by": {
+      "type": "string",
+      "description": "User who signed"
+    },
+    "signed_by_email": {
+      "type": "string"
+    },
+    "signed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "signature_metadata": {
+      "type": "object",
+      "description": "Additional signature data",
+      "additionalProperties": true
+    },
+    "comments": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "result_id",
+    "signed_by",
+    "signed_at"
+  ]
+}

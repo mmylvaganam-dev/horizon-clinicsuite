@@ -1,0 +1,48 @@
+{
+  "name": "WholesaleCreditAccount",
+  "type": "object",
+  "properties": {
+    "provider_id": {
+      "type": "string",
+      "description": "Reference to WholesaleProvider \u2014 who extended the credit"
+    },
+    "company_id": {
+      "type": "string",
+      "description": "Company ID (buyer)"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Cached company name"
+    },
+    "credit_limit": {
+      "type": "number",
+      "default": 0
+    },
+    "current_balance": {
+      "type": "number",
+      "default": 0,
+      "description": "Outstanding balance owed to provider (positive = owes)"
+    },
+    "payment_terms_days": {
+      "type": "number",
+      "default": 30
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "suspended",
+        "closed"
+      ],
+      "default": "active"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "provider_id",
+    "company_id",
+    "company_name"
+  ]
+}

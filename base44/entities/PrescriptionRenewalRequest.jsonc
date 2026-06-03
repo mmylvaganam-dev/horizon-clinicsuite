@@ -1,0 +1,82 @@
+{
+  "name": "PrescriptionRenewalRequest",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string"
+    },
+    "original_prescription_id": {
+      "type": "string",
+      "description": "FK to original Prescription"
+    },
+    "patient_id": {
+      "type": "string"
+    },
+    "patient_name": {
+      "type": "string"
+    },
+    "drug_name": {
+      "type": "string"
+    },
+    "strength": {
+      "type": "string"
+    },
+    "dosage_form": {
+      "type": "string"
+    },
+    "directions": {
+      "type": "string"
+    },
+    "quantity_requested": {
+      "type": "number"
+    },
+    "original_quantity": {
+      "type": "number"
+    },
+    "requested_by": {
+      "type": "string",
+      "description": "Name of requester"
+    },
+    "requested_via": {
+      "type": "string",
+      "enum": [
+        "portal",
+        "staff"
+      ],
+      "default": "staff",
+      "description": "How the request was submitted"
+    },
+    "patient_notes": {
+      "type": "string",
+      "description": "Notes from the patient"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "denied"
+      ],
+      "default": "pending"
+    },
+    "reviewed_by": {
+      "type": "string"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "pharmacist_notes": {
+      "type": "string"
+    },
+    "new_prescription_id": {
+      "type": "string",
+      "description": "FK to the newly created Prescription upon approval"
+    }
+  },
+  "required": [
+    "original_prescription_id",
+    "patient_id",
+    "drug_name"
+  ]
+}

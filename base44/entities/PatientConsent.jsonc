@@ -1,0 +1,86 @@
+{
+  "name": "PatientConsent",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Consent location"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Reference to patient"
+    },
+    "consent_type": {
+      "type": "string",
+      "enum": [
+        "treatment",
+        "information_sharing",
+        "virtual_care",
+        "research",
+        "photography",
+        "billing",
+        "other"
+      ],
+      "description": "Type of consent"
+    },
+    "consent_text": {
+      "type": "string",
+      "description": "Full consent text"
+    },
+    "obtained_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When consent was obtained"
+    },
+    "obtained_by": {
+      "type": "string",
+      "description": "Staff who obtained consent"
+    },
+    "obtained_by_email": {
+      "type": "string",
+      "description": "Email of staff"
+    },
+    "expires_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Consent expiration date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "revoked",
+        "expired"
+      ],
+      "default": "active",
+      "description": "Consent status"
+    },
+    "revoked_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When consent was revoked"
+    },
+    "signature_url": {
+      "type": "string",
+      "description": "Digital signature image URL"
+    },
+    "witness_name": {
+      "type": "string",
+      "description": "Witness name"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "patient_id",
+    "consent_type",
+    "obtained_date",
+    "obtained_by"
+  ]
+}

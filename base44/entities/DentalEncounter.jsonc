@@ -1,0 +1,79 @@
+{
+  "name": "DentalEncounter",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location ID"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient.id as TEXT"
+    },
+    "encounter_datetime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Encounter date and time"
+    },
+    "provider_staff_ref": {
+      "type": "string",
+      "description": "Dentist (StaffProfile.id as TEXT)"
+    },
+    "assistant_staff_ref": {
+      "type": "string",
+      "description": "Dental assistant (StaffProfile.id as TEXT)"
+    },
+    "chief_complaint": {
+      "type": "string",
+      "description": "Chief complaint"
+    },
+    "medical_history_summary": {
+      "type": "string",
+      "description": "Medical history summary"
+    },
+    "dental_history_summary": {
+      "type": "string",
+      "description": "Dental history summary"
+    },
+    "allergies_summary": {
+      "type": "string",
+      "description": "Allergies summary"
+    },
+    "vitals_snapshot": {
+      "type": "string",
+      "description": "Vitals snapshot (JSON text)"
+    },
+    "note_text": {
+      "type": "string",
+      "description": "Clinical note"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "signed",
+        "final"
+      ],
+      "default": "draft",
+      "description": "Note status"
+    },
+    "signed_by_staff_ref": {
+      "type": "string",
+      "description": "StaffProfile.id who signed"
+    },
+    "signed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Signature timestamp"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "encounter_datetime",
+    "provider_staff_ref"
+  ]
+}

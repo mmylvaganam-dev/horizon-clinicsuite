@@ -1,0 +1,114 @@
+{
+  "name": "ExportBundle",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization (required - bundles are org-scoped)"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Optional location filter"
+    },
+    "bundle_type": {
+      "type": "string",
+      "enum": [
+        "patient_records",
+        "lab_results",
+        "cardio_results",
+        "pft_results",
+        "billing_data",
+        "pharmacy_sales",
+        "full_backup",
+        "custom"
+      ],
+      "description": "Type of export bundle"
+    },
+    "date_from": {
+      "type": "string",
+      "format": "date",
+      "description": "Export period start date"
+    },
+    "date_to": {
+      "type": "string",
+      "format": "date",
+      "description": "Export period end date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "approved",
+        "generated"
+      ],
+      "default": "draft",
+      "description": "Approval workflow status"
+    },
+    "requested_by": {
+      "type": "string",
+      "description": "User who requested the export"
+    },
+    "requested_by_email": {
+      "type": "string",
+      "description": "Email of requester"
+    },
+    "requested_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Request timestamp"
+    },
+    "export_reason": {
+      "type": "string",
+      "description": "Mandatory reason for export (audit requirement)"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Admin who approved the export"
+    },
+    "approved_by_email": {
+      "type": "string",
+      "description": "Email of approver"
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Approval timestamp"
+    },
+    "generated_by": {
+      "type": "string",
+      "description": "User who generated the bundle"
+    },
+    "generated_by_email": {
+      "type": "string",
+      "description": "Email of generator"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Generation timestamp"
+    },
+    "file_ref": {
+      "type": "string",
+      "description": "File URL or reference"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Export notes"
+    },
+    "summary_json": {
+      "type": "object",
+      "description": "Export summary (record counts, patient list, etc.)",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "organization_id",
+    "bundle_type",
+    "date_from",
+    "date_to",
+    "requested_by",
+    "requested_by_email",
+    "requested_at",
+    "export_reason"
+  ]
+}

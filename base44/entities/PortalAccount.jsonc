@@ -1,0 +1,56 @@
+{
+  "name": "PortalAccount",
+  "type": "object",
+  "properties": {
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference (text)"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "active",
+        "locked"
+      ],
+      "default": "pending",
+      "description": "Account status"
+    },
+    "username": {
+      "type": "string",
+      "description": "Portal username"
+    },
+    "email": {
+      "type": "string",
+      "description": "Portal email"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Account creation timestamp"
+    },
+    "activated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Account activation timestamp"
+    },
+    "activated_by": {
+      "type": "string",
+      "description": "User who activated"
+    },
+    "last_login_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last login timestamp"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "email",
+    "created_at"
+  ]
+}

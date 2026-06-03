@@ -1,0 +1,33 @@
+{
+  "name": "CriticalAck",
+  "type": "object",
+  "properties": {
+    "result_id": {
+      "type": "string",
+      "description": "Result ID (text reference)"
+    },
+    "acknowledged_by": {
+      "type": "string",
+      "description": "User ID who acknowledged"
+    },
+    "acknowledged_by_email": {
+      "type": "string",
+      "description": "Email of acknowledger"
+    },
+    "acknowledged_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Acknowledgement timestamp"
+    },
+    "ack_note": {
+      "type": "string",
+      "description": "Acknowledgement note"
+    }
+  },
+  "required": [
+    "result_id",
+    "acknowledged_by",
+    "acknowledged_by_email",
+    "acknowledged_at"
+  ]
+}

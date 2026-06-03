@@ -1,0 +1,58 @@
+{
+  "name": "BackupRunLog",
+  "type": "object",
+  "properties": {
+    "deployment_country_code": {
+      "type": "string",
+      "description": "Country code from DeploymentProfile"
+    },
+    "run_type": {
+      "type": "string",
+      "enum": [
+        "nightly",
+        "weekly",
+        "monthly",
+        "manual"
+      ],
+      "description": "Backup frequency type"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Backup start timestamp"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Backup completion timestamp"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "success",
+        "fail",
+        "in_progress"
+      ],
+      "description": "Backup status"
+    },
+    "backup_ref": {
+      "type": "string",
+      "description": "Backup file reference or URL"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Backup notes or error details"
+    },
+    "metadata_json": {
+      "type": "object",
+      "description": "Backup metadata (size, record counts, etc.)",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "deployment_country_code",
+    "run_type",
+    "started_at",
+    "status"
+  ]
+}

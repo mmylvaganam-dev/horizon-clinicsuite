@@ -1,0 +1,78 @@
+{
+  "name": "ShiftLog",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location ID"
+    },
+    "shift_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Shift date"
+    },
+    "shift_name": {
+      "type": "string",
+      "enum": [
+        "Morning",
+        "Evening",
+        "Night",
+        "Custom"
+      ],
+      "default": "Morning",
+      "description": "Shift name"
+    },
+    "shift_start_time": {
+      "type": "string",
+      "description": "Shift start time"
+    },
+    "shift_end_time": {
+      "type": "string",
+      "description": "Shift end time"
+    },
+    "incoming_nurse_ref": {
+      "type": "string",
+      "description": "StaffProfile.id or free text"
+    },
+    "outgoing_nurse_ref": {
+      "type": "string",
+      "description": "StaffProfile.id or free text"
+    },
+    "duty_doctor_ref": {
+      "type": "string",
+      "description": "StaffProfile.id or free text"
+    },
+    "opd_status": {
+      "type": "string",
+      "enum": [
+        "NIL",
+        "OPEN",
+        "UNKNOWN"
+      ],
+      "default": "NIL",
+      "description": "OPD status"
+    },
+    "lab_status": {
+      "type": "string",
+      "enum": [
+        "NIL",
+        "OPEN",
+        "UNKNOWN"
+      ],
+      "default": "NIL",
+      "description": "LAB status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional notes"
+    }
+  },
+  "required": [
+    "shift_date",
+    "shift_name"
+  ]
+}

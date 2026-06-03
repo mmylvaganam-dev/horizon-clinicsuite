@@ -1,0 +1,38 @@
+{
+  "name": "PlatformFeatureFlag",
+  "type": "object",
+  "properties": {
+    "flag_name": {
+      "type": "string",
+      "description": "Feature flag name"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Flag enabled status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Flag description or notes"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    },
+    "updated_by": {
+      "type": "string",
+      "description": "User who updated"
+    },
+    "updated_by_email": {
+      "type": "string",
+      "description": "Email of updater"
+    }
+  },
+  "required": [
+    "flag_name",
+    "enabled",
+    "updated_at",
+    "updated_by"
+  ]
+}

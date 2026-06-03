@@ -1,0 +1,38 @@
+{
+  "name": "GlobalModuleAvailability",
+  "type": "object",
+  "properties": {
+    "module_code": {
+      "type": "string",
+      "description": "Module code (unique)"
+    },
+    "is_globally_enabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Global availability flag"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes about global availability"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    },
+    "updated_by": {
+      "type": "string",
+      "description": "User who updated"
+    },
+    "updated_by_email": {
+      "type": "string",
+      "description": "Email of updater"
+    }
+  },
+  "required": [
+    "module_code",
+    "is_globally_enabled",
+    "updated_at",
+    "updated_by"
+  ]
+}

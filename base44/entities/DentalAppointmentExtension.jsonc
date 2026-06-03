@@ -1,0 +1,45 @@
+{
+  "name": "DentalAppointmentExtension",
+  "type": "object",
+  "properties": {
+    "appointment_ref": {
+      "type": "string",
+      "description": "Appointment.id as TEXT"
+    },
+    "chair_ref": {
+      "type": "string",
+      "description": "DentalChair.id as TEXT (optional)"
+    },
+    "appointment_type": {
+      "type": "string",
+      "enum": [
+        "consult",
+        "cleaning",
+        "filling",
+        "extraction",
+        "ortho",
+        "surgery",
+        "checkup",
+        "other"
+      ],
+      "default": "consult",
+      "description": "Appointment type"
+    },
+    "planned_procedure_codes": {
+      "type": "string",
+      "description": "Planned procedure codes (comma-separated)"
+    },
+    "pre_auth_required": {
+      "type": "boolean",
+      "default": false,
+      "description": "Pre-authorization required"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Appointment notes"
+    }
+  },
+  "required": [
+    "appointment_ref"
+  ]
+}

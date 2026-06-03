@@ -1,0 +1,89 @@
+{
+  "name": "PatientAccessRequest",
+  "type": "object",
+  "properties": {
+    "patient_id": {
+      "type": "string",
+      "description": "Patient ID this request is for"
+    },
+    "patient_name": {
+      "type": "string",
+      "description": "Cached patient name"
+    },
+    "patient_phn": {
+      "type": "string",
+      "description": "Cached patient PHN"
+    },
+    "request_type": {
+      "type": "string",
+      "enum": [
+        "org_to_org",
+        "patient_self"
+      ],
+      "description": "Who initiated the request - an org admin or the patient themselves"
+    },
+    "requesting_org_id": {
+      "type": "string",
+      "description": "Org requesting access (for org_to_org)"
+    },
+    "requesting_org_name": {
+      "type": "string",
+      "description": "Cached name of requesting org"
+    },
+    "target_org_id": {
+      "type": "string",
+      "description": "Org whose patient record is being requested"
+    },
+    "target_org_name": {
+      "type": "string",
+      "description": "Cached name of target org"
+    },
+    "access_level": {
+      "type": "string",
+      "enum": [
+        "read_only",
+        "full_chart",
+        "labs_only",
+        "medications_only"
+      ],
+      "default": "read_only"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason for requesting access"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Requested expiry date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected",
+        "cancelled"
+      ],
+      "default": "pending"
+    },
+    "requested_by_email": {
+      "type": "string"
+    },
+    "reviewed_by_email": {
+      "type": "string"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "review_notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "patient_id",
+    "request_type",
+    "access_level"
+  ]
+}

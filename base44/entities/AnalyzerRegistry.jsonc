@@ -1,0 +1,84 @@
+{
+  "name": "AnalyzerRegistry",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Lab location"
+    },
+    "analyzer_name": {
+      "type": "string",
+      "description": "Analyzer name/model"
+    },
+    "serial_number": {
+      "type": "string",
+      "description": "Serial number"
+    },
+    "manufacturer": {
+      "type": "string",
+      "description": "Manufacturer name"
+    },
+    "analyzer_type": {
+      "type": "string",
+      "enum": [
+        "chemistry",
+        "hematology",
+        "immunoassay",
+        "microbiology",
+        "molecular",
+        "other"
+      ],
+      "description": "Type of analyzer"
+    },
+    "interface_type": {
+      "type": "string",
+      "enum": [
+        "hl7",
+        "astm",
+        "csv",
+        "api",
+        "manual"
+      ],
+      "description": "Interface protocol"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "maintenance",
+        "inactive"
+      ],
+      "default": "active"
+    },
+    "last_maintenance": {
+      "type": "string",
+      "format": "date",
+      "description": "Last maintenance date"
+    },
+    "next_maintenance": {
+      "type": "string",
+      "format": "date",
+      "description": "Next scheduled maintenance"
+    },
+    "test_mapping": {
+      "type": "object",
+      "description": "Analyzer test codes mapped to catalog codes",
+      "additionalProperties": true
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "organization_id",
+    "analyzer_name",
+    "analyzer_type",
+    "interface_type",
+    "status"
+  ]
+}

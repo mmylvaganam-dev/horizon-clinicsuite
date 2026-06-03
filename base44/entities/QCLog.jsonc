@@ -1,0 +1,87 @@
+{
+  "name": "QCLog",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Lab location"
+    },
+    "analyzer_id": {
+      "type": "string",
+      "description": "Analyzer registry ID"
+    },
+    "qc_type": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "shift",
+        "calibration",
+        "proficiency"
+      ],
+      "description": "Type of QC"
+    },
+    "test_code": {
+      "type": "string",
+      "description": "Test being QC'd"
+    },
+    "qc_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "QC timestamp"
+    },
+    "performed_by": {
+      "type": "string",
+      "description": "Lab tech who performed QC"
+    },
+    "performed_by_email": {
+      "type": "string",
+      "description": "Email of performer"
+    },
+    "control_lot": {
+      "type": "string",
+      "description": "QC control lot number"
+    },
+    "expected_value": {
+      "type": "string",
+      "description": "Expected control value"
+    },
+    "measured_value": {
+      "type": "string",
+      "description": "Measured control value"
+    },
+    "result": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "fail",
+        "out_of_range"
+      ],
+      "description": "QC result"
+    },
+    "corrective_action": {
+      "type": "string",
+      "description": "Actions taken if failed"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Supervisor who approved"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "organization_id",
+    "analyzer_id",
+    "qc_type",
+    "test_code",
+    "qc_date",
+    "performed_by",
+    "result"
+  ]
+}

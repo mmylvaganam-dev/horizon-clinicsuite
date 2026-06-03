@@ -1,0 +1,55 @@
+{
+  "name": "HomeCareCase",
+  "type": "object",
+  "properties": {
+    "homecare_batch_ref": {
+      "type": "string",
+      "description": "HomeCareBatch.id as TEXT"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient.id as TEXT (optional, link to EMR patient)"
+    },
+    "patient_name_cache": {
+      "type": "string",
+      "description": "Patient name for display"
+    },
+    "patient_age_cache": {
+      "type": "number",
+      "description": "Patient age"
+    },
+    "service_address_text": {
+      "type": "string",
+      "description": "Service address"
+    },
+    "time_window_start": {
+      "type": "string",
+      "description": "Time window start"
+    },
+    "time_window_end": {
+      "type": "string",
+      "description": "Time window end"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "attempting_contact",
+        "assigned",
+        "scheduled",
+        "completed",
+        "cancelled"
+      ],
+      "default": "new",
+      "description": "Case status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Case notes"
+    }
+  },
+  "required": [
+    "homecare_batch_ref",
+    "patient_name_cache"
+  ]
+}

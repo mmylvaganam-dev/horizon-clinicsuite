@@ -1,0 +1,77 @@
+{
+  "name": "DrugCatalog",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "drug_code": {
+      "type": "string",
+      "description": "Unique drug code/identifier"
+    },
+    "drug_name": {
+      "type": "string",
+      "description": "Drug name"
+    },
+    "generic_name": {
+      "type": "string",
+      "description": "Generic name"
+    },
+    "brand_name": {
+      "type": "string",
+      "description": "Brand name"
+    },
+    "strength": {
+      "type": "string",
+      "description": "Drug strength (e.g., 500mg)"
+    },
+    "dosage_form": {
+      "type": "string",
+      "enum": [
+        "tablet",
+        "capsule",
+        "syrup",
+        "injection",
+        "cream",
+        "ointment",
+        "drops",
+        "inhaler",
+        "other"
+      ],
+      "default": "tablet",
+      "description": "Dosage form"
+    },
+    "category": {
+      "type": "string",
+      "description": "Drug category/class"
+    },
+    "manufacturer": {
+      "type": "string",
+      "description": "Manufacturer name"
+    },
+    "requires_prescription": {
+      "type": "boolean",
+      "default": true,
+      "description": "Requires prescription"
+    },
+    "is_controlled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Controlled substance"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Drug active status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Drug notes"
+    }
+  },
+  "required": [
+    "drug_code",
+    "drug_name"
+  ]
+}

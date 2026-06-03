@@ -1,0 +1,54 @@
+{
+  "name": "TimesheetEntry",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "staff_ref": {
+      "type": "string",
+      "description": "Staff ID reference"
+    },
+    "work_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Work date"
+    },
+    "start_time": {
+      "type": "string",
+      "description": "Start time"
+    },
+    "end_time": {
+      "type": "string",
+      "description": "End time"
+    },
+    "hours": {
+      "type": "number",
+      "description": "Total hours"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location ID"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Notes"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "Creator user ID"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Creator email"
+    }
+  },
+  "required": [
+    "organization_id",
+    "staff_ref",
+    "work_date",
+    "hours",
+    "created_by"
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "name": "ReferenceRange",
+  "type": "object",
+  "properties": {
+    "test_id": {
+      "type": "string",
+      "description": "Reference to LabTestCatalog"
+    },
+    "gender": {
+      "type": "string",
+      "enum": [
+        "male",
+        "female",
+        "all"
+      ],
+      "default": "all",
+      "description": "Gender-specific range"
+    },
+    "age_min": {
+      "type": "number",
+      "description": "Minimum age in years (optional)"
+    },
+    "age_max": {
+      "type": "number",
+      "description": "Maximum age in years (optional)"
+    },
+    "lower_limit": {
+      "type": "number",
+      "description": "Lower normal limit (for numeric)"
+    },
+    "upper_limit": {
+      "type": "number",
+      "description": "Upper normal limit (for numeric)"
+    },
+    "critical_low": {
+      "type": "number",
+      "description": "Critical low threshold"
+    },
+    "critical_high": {
+      "type": "number",
+      "description": "Critical high threshold"
+    },
+    "reference_text": {
+      "type": "string",
+      "description": "Reference range as text (for text/boolean results)"
+    },
+    "unit": {
+      "type": "string",
+      "description": "Unit of measurement"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "test_id"
+  ]
+}

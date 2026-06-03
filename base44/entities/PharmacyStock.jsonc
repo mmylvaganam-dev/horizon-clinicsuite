@@ -1,0 +1,102 @@
+{
+  "name": "PharmacyStock",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location/store ID"
+    },
+    "product_id": {
+      "type": "string",
+      "description": "Reference to product in catalog"
+    },
+    "display_name": {
+      "type": "string",
+      "description": "Product display name"
+    },
+    "brand_name": {
+      "type": "string",
+      "description": "Brand name"
+    },
+    "generic_name": {
+      "type": "string",
+      "description": "Generic/scientific name"
+    },
+    "barcode": {
+      "type": "string",
+      "description": "Product barcode"
+    },
+    "quantity": {
+      "type": "number",
+      "default": 0,
+      "description": "Current quantity in stock"
+    },
+    "minimum_stock_level": {
+      "type": "number",
+      "default": 5,
+      "description": "Minimum threshold quantity for reordering"
+    },
+    "reorder_quantity": {
+      "type": "number",
+      "description": "Quantity to order when stock falls below minimum"
+    },
+    "unit_cost": {
+      "type": "number",
+      "description": "Cost price per unit"
+    },
+    "mrp": {
+      "type": "number",
+      "description": "Maximum retail price"
+    },
+    "unit_price": {
+      "type": "number",
+      "description": "Selling price per unit"
+    },
+    "batch_no": {
+      "type": "string",
+      "description": "Batch number"
+    },
+    "expire_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Expiration date"
+    },
+    "service_category": {
+      "type": "string",
+      "description": "Service/product category"
+    },
+    "class_of_medicine": {
+      "type": "string",
+      "description": "Medicine classification"
+    },
+    "quality_status": {
+      "type": "string",
+      "enum": [
+        "usable",
+        "expired",
+        "damaged",
+        "discontinued"
+      ],
+      "default": "usable",
+      "description": "Stock quality status"
+    },
+    "is_reorder_flag": {
+      "type": "boolean",
+      "default": false,
+      "description": "Flagged for reordering"
+    },
+    "last_reorder_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this item was last reordered"
+    }
+  },
+  "required": [
+    "display_name",
+    "quantity"
+  ]
+}

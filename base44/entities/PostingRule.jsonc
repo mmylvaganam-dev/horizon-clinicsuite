@@ -1,0 +1,40 @@
+{
+  "name": "PostingRule",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "source_type": {
+      "type": "string",
+      "description": "Source type: Invoice, PharmacySale, Payment, etc."
+    },
+    "source_category": {
+      "type": "string",
+      "description": "Optional category filter (e.g., consultation, lab, pharmacy)"
+    },
+    "debit_account_code": {
+      "type": "string",
+      "description": "Account code for debit"
+    },
+    "credit_account_code": {
+      "type": "string",
+      "description": "Account code for credit"
+    },
+    "description": {
+      "type": "string",
+      "description": "Rule description"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active status"
+    }
+  },
+  "required": [
+    "source_type",
+    "debit_account_code",
+    "credit_account_code"
+  ]
+}

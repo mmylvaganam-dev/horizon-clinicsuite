@@ -1,0 +1,68 @@
+{
+  "name": "SpecimenDispatch",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location ID"
+    },
+    "dispatch_date_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Dispatch timestamp"
+    },
+    "dispatched_by": {
+      "type": "string",
+      "description": "User who dispatched"
+    },
+    "courier_name": {
+      "type": "string",
+      "description": "Courier name"
+    },
+    "tracking_number": {
+      "type": "string",
+      "description": "Tracking number"
+    },
+    "destination_lab_name": {
+      "type": "string",
+      "description": "Destination lab name"
+    },
+    "destination_lab_address": {
+      "type": "string",
+      "description": "Destination lab address"
+    },
+    "specimen_ids_json": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of specimen IDs"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "sent",
+        "received_confirmed",
+        "unknown"
+      ],
+      "default": "sent",
+      "description": "Dispatch status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Dispatch notes"
+    }
+  },
+  "required": [
+    "organization_id",
+    "location_id",
+    "dispatch_date_time",
+    "dispatched_by",
+    "destination_lab_name",
+    "specimen_ids_json"
+  ]
+}

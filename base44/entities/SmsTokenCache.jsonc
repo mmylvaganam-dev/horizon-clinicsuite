@@ -1,0 +1,28 @@
+{
+  "name": "SmsTokenCache",
+  "type": "object",
+  "properties": {
+    "provider": {
+      "type": "string",
+      "enum": [
+        "dialog_esms"
+      ],
+      "default": "dialog_esms",
+      "description": "SMS provider"
+    },
+    "token": {
+      "type": "string",
+      "description": "Access token"
+    },
+    "expires_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Token expiration timestamp"
+    }
+  },
+  "required": [
+    "provider",
+    "token",
+    "expires_at"
+  ]
+}

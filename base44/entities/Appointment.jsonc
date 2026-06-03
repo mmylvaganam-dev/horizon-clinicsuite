@@ -1,0 +1,84 @@
+{
+  "name": "Appointment",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Appointment location"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Reference to patient"
+    },
+    "provider_id": {
+      "type": "string",
+      "description": "Provider user ID"
+    },
+    "start_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Appointment start time"
+    },
+    "end_time": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Appointment end time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "confirmed",
+        "checked-in",
+        "in-progress",
+        "completed",
+        "cancelled",
+        "no-show"
+      ],
+      "default": "scheduled",
+      "description": "Appointment status"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "consultation",
+        "follow-up",
+        "procedure",
+        "emergency",
+        "check-up",
+        "vaccination",
+        "lab_work",
+        "other"
+      ],
+      "default": "consultation",
+      "description": "Appointment type"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason for visit"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "is_telehealth": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this is a telehealth appointment"
+    },
+    "telehealth_link": {
+      "type": "string",
+      "description": "Virtual meeting link (Whereby or external)"
+    }
+  },
+  "required": [
+    "patient_id",
+    "provider_id",
+    "start_time",
+    "end_time"
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "name": "AppVersion",
+  "type": "object",
+  "properties": {
+    "version_name": {
+      "type": "string",
+      "description": "Version name (e.g., Asia ClinicSuite)"
+    },
+    "version_tag": {
+      "type": "string",
+      "description": "Version tag (e.g., v1.0)"
+    },
+    "released_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Release timestamp"
+    },
+    "released_by": {
+      "type": "string",
+      "description": "User who released this version"
+    },
+    "released_by_email": {
+      "type": "string",
+      "description": "Email of releaser"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Release notes"
+    },
+    "is_current": {
+      "type": "boolean",
+      "default": true,
+      "description": "Current active version"
+    }
+  },
+  "required": [
+    "version_name",
+    "version_tag",
+    "released_at",
+    "released_by",
+    "released_by_email"
+  ]
+}

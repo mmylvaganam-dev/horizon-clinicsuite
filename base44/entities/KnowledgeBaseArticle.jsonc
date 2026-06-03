@@ -1,0 +1,58 @@
+{
+  "name": "KnowledgeBaseArticle",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Article title"
+    },
+    "content": {
+      "type": "string",
+      "description": "Full article content / solution"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "software",
+        "hardware",
+        "network",
+        "billing",
+        "access",
+        "other"
+      ],
+      "default": "software"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "published",
+        "archived"
+      ],
+      "default": "published"
+    },
+    "source_ticket_id": {
+      "type": "string",
+      "description": "Ticket ID this article was created from (optional)"
+    },
+    "source_ticket_number": {
+      "type": "string",
+      "description": "Ticket number reference"
+    },
+    "view_count": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "title",
+    "content"
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "name": "DispenseEvent",
+  "type": "object",
+  "properties": {
+    "prescription_id": {
+      "type": "string",
+      "description": "Reference to Prescription"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Reference to patient"
+    },
+    "quantity_dispensed": {
+      "type": "number",
+      "description": "Quantity dispensed"
+    },
+    "dispensed_by": {
+      "type": "string",
+      "description": "User who dispensed"
+    },
+    "dispensed_by_email": {
+      "type": "string",
+      "description": "Email of dispenser"
+    },
+    "dispensed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Dispense timestamp"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "dispensed",
+        "partial",
+        "returned",
+        "cancelled"
+      ],
+      "default": "dispensed",
+      "description": "Dispense status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Dispense notes"
+    }
+  },
+  "required": [
+    "prescription_id",
+    "patient_id",
+    "quantity_dispensed",
+    "dispensed_by",
+    "dispensed_at"
+  ]
+}

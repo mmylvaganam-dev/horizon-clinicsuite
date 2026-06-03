@@ -1,0 +1,70 @@
+{
+  "name": "RetentionPolicy",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Optional - if blank, applies globally as default"
+    },
+    "applies_to": {
+      "type": "string",
+      "enum": [
+        "patient_records",
+        "lab_results",
+        "cardio_results",
+        "pft_results",
+        "radiology_results",
+        "medical_records",
+        "billing_invoices",
+        "pharmacy_sales",
+        "audit_logs",
+        "messages",
+        "all_clinical_data"
+      ],
+      "description": "What type of data this policy applies to"
+    },
+    "retention_years": {
+      "type": "number",
+      "description": "Number of years to retain data"
+    },
+    "archive_mode": {
+      "type": "string",
+      "enum": [
+        "readonly",
+        "delete",
+        "archive_external"
+      ],
+      "default": "readonly",
+      "description": "What to do after retention period"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active status"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who created policy"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of creator"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Creation timestamp"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Policy notes or justification"
+    }
+  },
+  "required": [
+    "applies_to",
+    "retention_years",
+    "created_by",
+    "created_by_email",
+    "created_at"
+  ]
+}

@@ -1,0 +1,63 @@
+{
+  "name": "JournalEntry",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Entry location"
+    },
+    "entry_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Journal entry date"
+    },
+    "entry_number": {
+      "type": "string",
+      "description": "Journal entry number"
+    },
+    "memo": {
+      "type": "string",
+      "description": "Entry memo/description"
+    },
+    "source_type": {
+      "type": "string",
+      "description": "Source record type (Invoice, PharmacySale, Payment, etc.)"
+    },
+    "source_id": {
+      "type": "string",
+      "description": "Source record ID"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "posted",
+        "void"
+      ],
+      "default": "posted",
+      "description": "Entry status"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Created timestamp"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who created entry"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of creator"
+    }
+  },
+  "required": [
+    "entry_date",
+    "created_at",
+    "created_by"
+  ]
+}

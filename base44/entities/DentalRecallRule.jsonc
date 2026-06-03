@@ -1,0 +1,32 @@
+{
+  "name": "DentalRecallRule",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "rule_name": {
+      "type": "string",
+      "description": "Rule name (e.g., 6-month cleaning, perio 3 months)"
+    },
+    "interval_months": {
+      "type": "number",
+      "description": "Recall interval in months"
+    },
+    "appointment_type": {
+      "type": "string",
+      "description": "Appointment type for recall"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Active status"
+    }
+  },
+  "required": [
+    "rule_name",
+    "interval_months",
+    "appointment_type"
+  ]
+}

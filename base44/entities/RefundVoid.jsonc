@@ -1,0 +1,62 @@
+{
+  "name": "RefundVoid",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location"
+    },
+    "invoice_id": {
+      "type": "string",
+      "description": "Reference to invoice"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "refund",
+        "void"
+      ],
+      "description": "Type of reversal"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason for refund/void"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Refund amount (if applicable)"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Created timestamp"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who performed action"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of user"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "Approver user ID"
+    },
+    "approved_by_email": {
+      "type": "string",
+      "description": "Approver email"
+    }
+  },
+  "required": [
+    "invoice_id",
+    "type",
+    "reason",
+    "created_at",
+    "created_by"
+  ]
+}

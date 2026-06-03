@@ -1,0 +1,76 @@
+{
+  "name": "Order",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Order location"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Reference to patient"
+    },
+    "encounter_id": {
+      "type": "string",
+      "description": "Reference to encounter (optional)"
+    },
+    "order_type": {
+      "type": "string",
+      "enum": [
+        "LAB",
+        "CARDIO",
+        "PFT",
+        "RADIOLOGY",
+        "MEDICATION",
+        "PROCEDURE",
+        "OTHER"
+      ],
+      "description": "Type of order"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "Draft",
+        "Submitted",
+        "InProgress",
+        "Completed",
+        "Cancelled"
+      ],
+      "default": "Draft",
+      "description": "Order status"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "routine",
+        "urgent",
+        "stat"
+      ],
+      "default": "routine"
+    },
+    "ordered_by": {
+      "type": "string",
+      "description": "Provider who ordered"
+    },
+    "ordered_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "scheduled_datetime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "patient_id",
+    "order_type",
+    "ordered_by"
+  ]
+}

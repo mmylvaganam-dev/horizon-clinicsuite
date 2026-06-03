@@ -1,0 +1,44 @@
+{
+  "name": "DeploymentProfile",
+  "type": "object",
+  "properties": {
+    "deployment_country_code": {
+      "type": "string",
+      "description": "ISO country code (US, CA, IN, SG, etc)"
+    },
+    "deployment_name": {
+      "type": "string",
+      "description": "Deployment identifier"
+    },
+    "default_language": {
+      "type": "string",
+      "default": "en",
+      "description": "Default system language"
+    },
+    "default_currency": {
+      "type": "string",
+      "default": "USD",
+      "description": "Default currency code"
+    },
+    "tax_profile": {
+      "type": "string",
+      "description": "Tax configuration profile name"
+    },
+    "retention_profile": {
+      "type": "string",
+      "description": "Data retention policy profile"
+    },
+    "payment_gateway_profile": {
+      "type": "string",
+      "description": "Payment gateway configuration"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "deployment_country_code",
+    "deployment_name"
+  ]
+}

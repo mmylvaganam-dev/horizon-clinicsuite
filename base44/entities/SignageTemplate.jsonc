@@ -1,0 +1,46 @@
+{
+  "name": "SignageTemplate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Template display name"
+    },
+    "template_type": {
+      "type": "string",
+      "enum": [
+        "health_tip",
+        "promo",
+        "emergency",
+        "service_ad",
+        "queue",
+        "general_announcement"
+      ],
+      "description": "Category of content this template suits"
+    },
+    "layout_style": {
+      "type": "string",
+      "enum": [
+        "hero",
+        "split",
+        "banner",
+        "sidebar",
+        "fullscreen"
+      ],
+      "description": "Visual layout style"
+    },
+    "theme_name": {
+      "type": "string",
+      "description": "Color theme name"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "name",
+    "template_type",
+    "layout_style"
+  ]
+}

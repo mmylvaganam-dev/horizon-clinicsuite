@@ -1,0 +1,45 @@
+{
+  "name": "SignageAuditLog",
+  "type": "object",
+  "properties": {
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "screen",
+        "item",
+        "playlist",
+        "banner"
+      ],
+      "description": "Type of signage entity changed"
+    },
+    "entity_id": {
+      "type": "string"
+    },
+    "entity_name": {
+      "type": "string",
+      "description": "Display name of the changed entity"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "created",
+        "updated",
+        "deleted"
+      ],
+      "description": "Type of change"
+    },
+    "changed_by_email": {
+      "type": "string"
+    },
+    "changes_summary": {
+      "type": "string",
+      "description": "Human-readable summary of what changed"
+    }
+  },
+  "required": [
+    "entity_type",
+    "entity_id",
+    "action",
+    "changed_by_email"
+  ]
+}

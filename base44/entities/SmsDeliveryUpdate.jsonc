@@ -1,0 +1,28 @@
+{
+  "name": "SmsDeliveryUpdate",
+  "type": "object",
+  "properties": {
+    "campaign_id": {
+      "type": "string",
+      "description": "Campaign ID from provider"
+    },
+    "msisdn": {
+      "type": "string",
+      "description": "Mobile number"
+    },
+    "status": {
+      "type": "string",
+      "description": "Delivery status"
+    },
+    "received_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the DLR was received"
+    }
+  },
+  "required": [
+    "campaign_id",
+    "msisdn",
+    "status"
+  ]
+}

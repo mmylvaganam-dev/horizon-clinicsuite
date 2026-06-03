@@ -1,0 +1,45 @@
+{
+  "name": "CardioReportTemplate",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "template_name": {
+      "type": "string",
+      "description": "Template name"
+    },
+    "cardio_type": {
+      "type": "string",
+      "enum": [
+        "ECG",
+        "ECHO"
+      ],
+      "description": "Type of cardiology test"
+    },
+    "structured_fields": {
+      "type": "object",
+      "description": "Field definitions for structured interpretation",
+      "additionalProperties": true
+    },
+    "narrative_template": {
+      "type": "string",
+      "description": "Template text for narrative report"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Template active status"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0",
+      "description": "Template version"
+    }
+  },
+  "required": [
+    "template_name",
+    "cardio_type"
+  ]
+}

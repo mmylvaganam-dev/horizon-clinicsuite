@@ -294,12 +294,8 @@ function ManualSection({ section }) {
             onClick={() => toggle(i)}
           >
             <div className="flex items-center gap-3">
-              <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white ${section.bg.replace('bg-', 'bg-').replace('-50', '-500')}`}
-                style={{ background: 'var(--step-color)' }}
-              >
-                <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${section.color} ${section.bg} border`}>
-                  {i + 1}
-                </span>
+              <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${section.color} ${section.bg} border flex-shrink-0`}>
+                {i + 1}
               </span>
               <span className="font-semibold text-slate-800">{step.title}</span>
             </div>

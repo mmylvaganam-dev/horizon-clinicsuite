@@ -1,0 +1,54 @@
+{
+  "name": "DentalTreatmentPlanItem",
+  "type": "object",
+  "properties": {
+    "plan_ref": {
+      "type": "string",
+      "description": "DentalTreatmentPlan.id as TEXT"
+    },
+    "phase": {
+      "type": "string",
+      "description": "Treatment phase (Urgent/Phase1/Phase2/Maintenance/custom)"
+    },
+    "item_description": {
+      "type": "string",
+      "description": "Procedure description"
+    },
+    "tooth_number": {
+      "type": "string",
+      "description": "Associated tooth"
+    },
+    "procedure_code": {
+      "type": "string",
+      "description": "Procedure code"
+    },
+    "estimated_fee": {
+      "type": "number",
+      "description": "Estimated fee"
+    },
+    "estimated_time_minutes": {
+      "type": "number",
+      "description": "Estimated time in minutes"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "planned",
+        "authorized",
+        "completed",
+        "deferred",
+        "cancelled"
+      ],
+      "default": "planned",
+      "description": "Item status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "plan_ref",
+    "item_description"
+  ]
+}

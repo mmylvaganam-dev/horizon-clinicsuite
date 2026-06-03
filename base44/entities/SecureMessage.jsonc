@@ -1,0 +1,91 @@
+{
+  "name": "SecureMessage",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Message location"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Related patient"
+    },
+    "from_user_id": {
+      "type": "string",
+      "description": "Sender user ID"
+    },
+    "from_user_email": {
+      "type": "string",
+      "description": "Sender email"
+    },
+    "to_user_id": {
+      "type": "string",
+      "description": "Recipient user ID"
+    },
+    "to_user_email": {
+      "type": "string",
+      "description": "Recipient email"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Message subject"
+    },
+    "message_body": {
+      "type": "string",
+      "description": "Message content"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Send timestamp"
+    },
+    "read_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Read timestamp"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "normal",
+        "high",
+        "urgent"
+      ],
+      "default": "normal",
+      "description": "Message priority"
+    },
+    "message_type": {
+      "type": "string",
+      "enum": [
+        "clinical",
+        "administrative",
+        "billing",
+        "general"
+      ],
+      "default": "general",
+      "description": "Message category"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Attachment URLs"
+    },
+    "is_encrypted": {
+      "type": "boolean",
+      "default": true,
+      "description": "HIPAA encryption status"
+    }
+  },
+  "required": [
+    "from_user_id",
+    "to_user_id",
+    "message_body",
+    "sent_at"
+  ]
+}

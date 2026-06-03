@@ -1,0 +1,46 @@
+{
+  "name": "ShareholdingAccount",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "company_ref": {
+      "type": "string",
+      "description": "CompanyProfile ID (text reference)"
+    },
+    "shareholder_ref": {
+      "type": "string",
+      "description": "ShareholderProfile ID (text reference)"
+    },
+    "share_class": {
+      "type": "string",
+      "enum": [
+        "common",
+        "preferred",
+        "other"
+      ],
+      "default": "common",
+      "description": "Share class"
+    },
+    "issued_shares": {
+      "type": "number",
+      "description": "Number of issued shares"
+    },
+    "fully_diluted_shares": {
+      "type": "number",
+      "description": "Fully diluted shares"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "organization_id",
+    "company_ref",
+    "shareholder_ref",
+    "issued_shares"
+  ]
+}

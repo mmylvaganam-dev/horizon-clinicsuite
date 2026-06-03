@@ -1,0 +1,49 @@
+{
+  "name": "HomeCareContactAttempt",
+  "type": "object",
+  "properties": {
+    "homecare_case_ref": {
+      "type": "string",
+      "description": "HomeCareCase.id as TEXT"
+    },
+    "target": {
+      "type": "string",
+      "enum": [
+        "caretaker",
+        "patient",
+        "family",
+        "other"
+      ],
+      "description": "Contact target"
+    },
+    "attempt_datetime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Attempt date/time"
+    },
+    "result": {
+      "type": "string",
+      "enum": [
+        "answered",
+        "no_answer",
+        "message_seen",
+        "no_response"
+      ],
+      "description": "Attempt result"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Attempt notes"
+    },
+    "recorded_by": {
+      "type": "string",
+      "description": "User who recorded"
+    }
+  },
+  "required": [
+    "homecare_case_ref",
+    "target",
+    "attempt_datetime",
+    "result"
+  ]
+}

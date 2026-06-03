@@ -1,0 +1,48 @@
+{
+  "name": "DentalProblem",
+  "type": "object",
+  "properties": {
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient.id as TEXT"
+    },
+    "encounter_ref": {
+      "type": "string",
+      "description": "DentalEncounter.id as TEXT (optional)"
+    },
+    "problem_code": {
+      "type": "string",
+      "description": "Problem/diagnosis code"
+    },
+    "problem_text": {
+      "type": "string",
+      "description": "Problem description"
+    },
+    "tooth_number": {
+      "type": "string",
+      "description": "Associated tooth"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "resolved"
+      ],
+      "default": "active",
+      "description": "Problem status"
+    },
+    "onset_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Onset date"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "problem_text"
+  ]
+}

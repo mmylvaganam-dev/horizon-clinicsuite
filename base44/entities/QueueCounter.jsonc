@@ -1,0 +1,73 @@
+{
+  "name": "QueueCounter",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location ID (optional)"
+    },
+    "department_id": {
+      "type": "string",
+      "description": "Department ID (optional)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Counter display name (e.g., OPD Counter 1)"
+    },
+    "code": {
+      "type": "string",
+      "description": "Unique code within org (e.g., OPD1)"
+    },
+    "counter_type": {
+      "type": "string",
+      "enum": [
+        "opd",
+        "lab",
+        "pharmacy",
+        "doctor",
+        "consultation",
+        "registration",
+        "radiology",
+        "other"
+      ],
+      "default": "opd"
+    },
+    "prefix": {
+      "type": "string",
+      "description": "Token prefix (e.g., A, OPD, LAB) \u2014 tokens will be A001, A002..."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "paused",
+        "inactive"
+      ],
+      "default": "active"
+    },
+    "display_message": {
+      "type": "string",
+      "description": "Custom message on display board"
+    },
+    "sms_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Send SMS notifications to patients"
+    },
+    "sms_notify_ahead": {
+      "type": "number",
+      "default": 3,
+      "description": "Notify patient when X tokens ahead of their turn"
+    }
+  },
+  "required": [
+    "organization_id",
+    "name",
+    "code",
+    "prefix"
+  ]
+}

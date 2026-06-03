@@ -1,0 +1,53 @@
+{
+  "name": "PharmacyWalkInPatient",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "name": {
+      "type": "string",
+      "description": "Patient name"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number"
+    },
+    "email": {
+      "type": "string",
+      "description": "Email address"
+    },
+    "address": {
+      "type": "string",
+      "description": "Address"
+    },
+    "discount_percentage": {
+      "type": "number",
+      "description": "Special discount percentage",
+      "default": 0
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "total_visits": {
+      "type": "number",
+      "description": "Total purchase count",
+      "default": 0
+    },
+    "total_spent": {
+      "type": "number",
+      "description": "Total amount spent",
+      "default": 0
+    },
+    "last_visit_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last purchase date"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

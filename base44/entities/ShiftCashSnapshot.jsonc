@@ -1,0 +1,53 @@
+{
+  "name": "ShiftCashSnapshot",
+  "type": "object",
+  "properties": {
+    "shift_log_ref": {
+      "type": "string",
+      "description": "ShiftLog.id as TEXT"
+    },
+    "snapshot_type": {
+      "type": "string",
+      "enum": [
+        "OPENING_BALANCE",
+        "TAKEOVER",
+        "HANDOVER"
+      ],
+      "description": "Snapshot type"
+    },
+    "stream_code": {
+      "type": "string",
+      "enum": [
+        "CLINIC_CASH",
+        "PHARMACY_CASH",
+        "LAB_CASH",
+        "CREDIT_SALES",
+        "OTHER"
+      ],
+      "description": "Revenue stream"
+    },
+    "credit_account_label": {
+      "type": "string",
+      "description": "For CREDIT_SALES: institution name (e.g. NRC, Arulmanai, GMH)"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Amount"
+    },
+    "currency": {
+      "type": "string",
+      "default": "LKR",
+      "description": "Currency code"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Optional notes"
+    }
+  },
+  "required": [
+    "shift_log_ref",
+    "snapshot_type",
+    "stream_code",
+    "amount"
+  ]
+}

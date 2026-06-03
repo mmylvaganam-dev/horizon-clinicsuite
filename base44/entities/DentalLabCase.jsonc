@@ -1,0 +1,78 @@
+{
+  "name": "DentalLabCase",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Location ID"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient.id as TEXT"
+    },
+    "encounter_ref": {
+      "type": "string",
+      "description": "DentalEncounter.id as TEXT (optional)"
+    },
+    "lab_vendor_name": {
+      "type": "string",
+      "description": "Lab vendor name"
+    },
+    "lab_case_type": {
+      "type": "string",
+      "description": "Lab case type (crown/denture/aligner/etc)"
+    },
+    "tooth_number": {
+      "type": "string",
+      "description": "Associated tooth number"
+    },
+    "impression_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Impression date"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Expected due date"
+    },
+    "received_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Received date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "sent",
+        "in_progress",
+        "received",
+        "delivered",
+        "cancelled"
+      ],
+      "default": "sent",
+      "description": "Lab case status"
+    },
+    "cost_to_clinic": {
+      "type": "number",
+      "description": "Cost to clinic"
+    },
+    "charge_to_patient": {
+      "type": "number",
+      "description": "Charge to patient"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Lab case notes"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "lab_vendor_name",
+    "lab_case_type"
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "name": "InventoryBalance",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Inventory location"
+    },
+    "sku_code": {
+      "type": "string",
+      "description": "SKU code (DrugCatalog.drug_code or internal)"
+    },
+    "item_name": {
+      "type": "string",
+      "description": "Item name"
+    },
+    "on_hand_qty": {
+      "type": "number",
+      "default": 0,
+      "description": "Current quantity on hand"
+    },
+    "reorder_level": {
+      "type": "number",
+      "default": 0,
+      "description": "Minimum stock level trigger"
+    },
+    "reorder_qty": {
+      "type": "number",
+      "default": 0,
+      "description": "Quantity to reorder"
+    },
+    "unit_cost": {
+      "type": "number",
+      "description": "Unit cost"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    }
+  },
+  "required": [
+    "location_id",
+    "sku_code",
+    "item_name",
+    "on_hand_qty"
+  ]
+}

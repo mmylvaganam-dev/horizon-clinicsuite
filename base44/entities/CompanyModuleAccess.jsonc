@@ -1,0 +1,51 @@
+{
+  "name": "CompanyModuleAccess",
+  "type": "object",
+  "properties": {
+    "company_id": {
+      "type": "string",
+      "description": "Company ID"
+    },
+    "module_code": {
+      "type": "string",
+      "description": "Module code (e.g., PHARMACY, EMR, DENTAL)"
+    },
+    "is_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Module enabled at company level"
+    },
+    "enabled_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the module was enabled"
+    },
+    "enabled_by": {
+      "type": "string",
+      "description": "User ID who enabled the module"
+    },
+    "license_type": {
+      "type": "string",
+      "enum": [
+        "full",
+        "limited",
+        "trial"
+      ],
+      "default": "full",
+      "description": "License type for this module"
+    },
+    "license_expires": {
+      "type": "string",
+      "format": "date",
+      "description": "License expiration date"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "company_id",
+    "module_code"
+  ]
+}

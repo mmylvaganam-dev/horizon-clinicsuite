@@ -1,0 +1,23 @@
+{
+  "name": "TeleEncounter",
+  "type": "object",
+  "properties": {
+    "appointment_id": {
+      "type": "string",
+      "description": "Reference to TeleAppointment"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "OPEN",
+        "SIGNED",
+        "LOCKED"
+      ],
+      "default": "OPEN",
+      "description": "Encounter documentation status"
+    }
+  },
+  "required": [
+    "appointment_id"
+  ]
+}

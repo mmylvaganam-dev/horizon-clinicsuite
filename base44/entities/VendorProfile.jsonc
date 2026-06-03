@@ -1,0 +1,62 @@
+{
+  "name": "VendorProfile",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "vendor_name": {
+      "type": "string",
+      "description": "Vendor name"
+    },
+    "contact_person": {
+      "type": "string",
+      "description": "Contact person"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number"
+    },
+    "email": {
+      "type": "string",
+      "description": "Email address"
+    },
+    "address": {
+      "type": "string",
+      "description": "Physical address"
+    },
+    "vendor_type": {
+      "type": "string",
+      "enum": [
+        "pharmacy_supplier",
+        "lab_supplier",
+        "maintenance",
+        "IT",
+        "rent",
+        "utilities",
+        "other"
+      ],
+      "description": "Vendor type"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active",
+      "description": "Vendor status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "organization_id",
+    "vendor_name",
+    "vendor_type",
+    "status"
+  ]
+}

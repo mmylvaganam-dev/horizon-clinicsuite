@@ -1,0 +1,32 @@
+{
+  "name": "LabCollectionItem",
+  "type": "object",
+  "properties": {
+    "lab_collection_order_ref": {
+      "type": "string",
+      "description": "Lab collection order ID reference"
+    },
+    "test_code": {
+      "type": "string",
+      "description": "Test code or external test name"
+    },
+    "specimen_type": {
+      "type": "string",
+      "description": "Specimen type"
+    },
+    "qty": {
+      "type": "number",
+      "default": 1,
+      "description": "Quantity"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Item notes"
+    }
+  },
+  "required": [
+    "lab_collection_order_ref",
+    "test_code",
+    "specimen_type"
+  ]
+}

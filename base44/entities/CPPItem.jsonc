@@ -1,0 +1,55 @@
+{
+  "name": "CPPItem",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference"
+    },
+    "problem_name": {
+      "type": "string",
+      "description": "Problem/condition name"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "resolved"
+      ],
+      "default": "active",
+      "description": "Problem status"
+    },
+    "onset_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Onset date"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Clinical notes"
+    },
+    "last_reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last review timestamp"
+    },
+    "last_reviewed_by": {
+      "type": "string",
+      "description": "Last reviewer"
+    },
+    "last_reviewed_by_email": {
+      "type": "string",
+      "description": "Reviewer email"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "problem_name",
+    "status"
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "name": "SOAPNote",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Clinic location"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Reference to patient"
+    },
+    "encounter_id": {
+      "type": "string",
+      "description": "Reference to encounter"
+    },
+    "provider_id": {
+      "type": "string",
+      "description": "Provider who created the note"
+    },
+    "provider_email": {
+      "type": "string",
+      "description": "Provider email"
+    },
+    "note_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date of note"
+    },
+    "note_type": {
+      "type": "string",
+      "enum": [
+        "SOAP",
+        "Referral",
+        "Lab Review",
+        "Progress",
+        "Discharge",
+        "Procedure",
+        "Consultation",
+        "Follow-up",
+        "General"
+      ],
+      "default": "SOAP",
+      "description": "Clinical note type/tag"
+    },
+    "rich_content": {
+      "type": "string",
+      "description": "Rich-text HTML content of the note"
+    },
+    "subjective": {
+      "type": "string",
+      "description": "Subjective (patient complaints)"
+    },
+    "objective": {
+      "type": "string",
+      "description": "Objective (clinical findings)"
+    },
+    "assessment": {
+      "type": "string",
+      "description": "Assessment (diagnosis)"
+    },
+    "plan": {
+      "type": "string",
+      "description": "Plan (treatment)"
+    },
+    "ai_generated": {
+      "type": "boolean",
+      "default": false,
+      "description": "Was AI used to generate this note"
+    },
+    "voice_transcript": {
+      "type": "string",
+      "description": "Original voice/text input"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "finalized",
+        "signed",
+        "amended"
+      ],
+      "default": "draft",
+      "description": "Note status"
+    },
+    "signed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When note was signed"
+    },
+    "icd10_codes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "ICD-10 diagnosis codes"
+    }
+  },
+  "required": [
+    "patient_id",
+    "provider_id",
+    "note_date"
+  ]
+}

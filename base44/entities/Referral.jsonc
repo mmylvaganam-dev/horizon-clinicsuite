@@ -1,0 +1,40 @@
+{
+  "name": "Referral",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "partner_code": {
+      "type": "string",
+      "description": "Partner code (text reference)"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference (text)"
+    },
+    "ref_type": {
+      "type": "string",
+      "description": "Referenced record type (Invoice, Order, etc.)"
+    },
+    "ref_id": {
+      "type": "string",
+      "description": "Referenced record ID"
+    },
+    "commission_amount": {
+      "type": "number",
+      "description": "Commission amount for this referral"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Referral timestamp"
+    }
+  },
+  "required": [
+    "partner_code",
+    "patient_ref",
+    "created_at"
+  ]
+}

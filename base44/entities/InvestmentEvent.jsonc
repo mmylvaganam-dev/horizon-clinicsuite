@@ -1,0 +1,87 @@
+{
+  "name": "InvestmentEvent",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "company_ref": {
+      "type": "string",
+      "description": "CompanyProfile ID (text reference)"
+    },
+    "shareholder_ref": {
+      "type": "string",
+      "description": "ShareholderProfile ID (text reference)"
+    },
+    "investment_type": {
+      "type": "string",
+      "enum": [
+        "equity",
+        "loan",
+        "convertible",
+        "grant",
+        "other"
+      ],
+      "description": "Investment type"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Investment amount"
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD",
+      "description": "Currency"
+    },
+    "investment_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Investment date"
+    },
+    "received_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date funds received"
+    },
+    "method": {
+      "type": "string",
+      "enum": [
+        "wire",
+        "etransfer",
+        "cash",
+        "other"
+      ],
+      "description": "Payment method"
+    },
+    "reference": {
+      "type": "string",
+      "description": "Transaction reference"
+    },
+    "memo": {
+      "type": "string",
+      "description": "Investment memo"
+    },
+    "attachment_ref": {
+      "type": "string",
+      "description": "Attachment file reference"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who created record"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of creator"
+    }
+  },
+  "required": [
+    "organization_id",
+    "company_ref",
+    "shareholder_ref",
+    "investment_type",
+    "amount",
+    "investment_date",
+    "created_by"
+  ]
+}

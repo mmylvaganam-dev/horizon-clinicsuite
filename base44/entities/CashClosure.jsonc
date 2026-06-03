@@ -1,0 +1,76 @@
+{
+  "name": "CashClosure",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Closure location"
+    },
+    "closure_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of closure"
+    },
+    "cash_total": {
+      "type": "number",
+      "default": 0,
+      "description": "Total cash collected"
+    },
+    "card_total": {
+      "type": "number",
+      "default": 0,
+      "description": "Total card payments"
+    },
+    "online_total": {
+      "type": "number",
+      "default": 0,
+      "description": "Total online payments"
+    },
+    "check_total": {
+      "type": "number",
+      "default": 0,
+      "description": "Total check payments"
+    },
+    "insurance_total": {
+      "type": "number",
+      "default": 0,
+      "description": "Total insurance payments"
+    },
+    "expected_total": {
+      "type": "number",
+      "description": "Expected total based on system records"
+    },
+    "variance": {
+      "type": "number",
+      "default": 0,
+      "description": "Difference between expected and actual"
+    },
+    "closed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Closure timestamp"
+    },
+    "closed_by": {
+      "type": "string",
+      "description": "User who closed"
+    },
+    "closed_by_email": {
+      "type": "string",
+      "description": "Email of closer"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Closure notes"
+    }
+  },
+  "required": [
+    "location_id",
+    "closure_date",
+    "closed_at",
+    "closed_by"
+  ]
+}

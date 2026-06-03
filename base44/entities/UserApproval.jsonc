@@ -1,0 +1,71 @@
+{
+  "name": "UserApproval",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email of the user"
+    },
+    "organization_id": {
+      "type": "string",
+      "description": "Organization they're requesting access to"
+    },
+    "org_admin_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "Organization admin approval status"
+    },
+    "org_admin_approved_by": {
+      "type": "string",
+      "description": "Organization admin email who approved/rejected"
+    },
+    "org_admin_approved_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When org admin approved/rejected"
+    },
+    "platform_owner_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending",
+      "description": "Platform owner final approval status"
+    },
+    "platform_owner_approved_by": {
+      "type": "string",
+      "description": "Platform owner email who gave final approval/rejection"
+    },
+    "platform_owner_approved_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When platform owner approved/rejected"
+    },
+    "final_status": {
+      "type": "string",
+      "enum": [
+        "pending_org",
+        "pending_platform",
+        "approved",
+        "rejected"
+      ],
+      "default": "pending_org",
+      "description": "Overall approval status - pending_org (waiting for org admin), pending_platform (waiting for platform owner), approved (both approved), rejected (either rejected)"
+    },
+    "rejection_reason": {
+      "type": "string",
+      "description": "Reason for rejection if applicable"
+    }
+  },
+  "required": [
+    "user_email",
+    "organization_id"
+  ]
+}

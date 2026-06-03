@@ -1,0 +1,80 @@
+{
+  "name": "PreventiveCare",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Care location"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "Reference to patient"
+    },
+    "care_type": {
+      "type": "string",
+      "enum": [
+        "immunization",
+        "screening",
+        "health_maintenance",
+        "counseling"
+      ],
+      "description": "Type of preventive care"
+    },
+    "service_name": {
+      "type": "string",
+      "description": "Name of service (e.g., Flu Vaccine, Mammogram)"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When service is due"
+    },
+    "completed_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When service was completed"
+    },
+    "next_due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Next occurrence due date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "due",
+        "overdue",
+        "completed",
+        "declined",
+        "scheduled"
+      ],
+      "default": "due",
+      "description": "Service status"
+    },
+    "provider_id": {
+      "type": "string",
+      "description": "Provider who performed service"
+    },
+    "result": {
+      "type": "string",
+      "description": "Service result or outcome"
+    },
+    "lot_number": {
+      "type": "string",
+      "description": "Lot number (for immunizations)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "patient_id",
+    "care_type",
+    "service_name"
+  ]
+}

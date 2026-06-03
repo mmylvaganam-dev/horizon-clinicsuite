@@ -1,0 +1,45 @@
+{
+  "name": "HelpDeskMessage",
+  "type": "object",
+  "properties": {
+    "ticket_id": {
+      "type": "string",
+      "description": "Parent ticket ID"
+    },
+    "sender_email": {
+      "type": "string"
+    },
+    "sender_name": {
+      "type": "string"
+    },
+    "sender_type": {
+      "type": "string",
+      "enum": [
+        "staff",
+        "client",
+        "system"
+      ],
+      "default": "staff"
+    },
+    "message": {
+      "type": "string"
+    },
+    "attachment_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "is_internal": {
+      "type": "boolean",
+      "default": false,
+      "description": "Internal note not visible to client"
+    }
+  },
+  "required": [
+    "ticket_id",
+    "message",
+    "sender_email"
+  ]
+}

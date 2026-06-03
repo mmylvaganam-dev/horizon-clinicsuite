@@ -1,0 +1,114 @@
+{
+  "name": "SecondOpinionRequest",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Virtual hospital org"
+    },
+    "patient_id": {
+      "type": "string",
+      "description": "FK to TelePatient"
+    },
+    "patient_name": {
+      "type": "string"
+    },
+    "patient_email": {
+      "type": "string"
+    },
+    "patient_region": {
+      "type": "string",
+      "enum": [
+        "EU",
+        "USA",
+        "CANADA",
+        "SRI_LANKA",
+        "OTHER"
+      ]
+    },
+    "original_diagnosis": {
+      "type": "string",
+      "description": "Diagnosis from patient's original doctor"
+    },
+    "original_doctor": {
+      "type": "string",
+      "description": "Name of original doctor/hospital"
+    },
+    "original_country": {
+      "type": "string",
+      "description": "Country where original diagnosis was made"
+    },
+    "reason_for_second_opinion": {
+      "type": "string",
+      "description": "Why the patient is seeking a second opinion"
+    },
+    "specialty_required": {
+      "type": "string",
+      "description": "Medical specialty needed (e.g. Cardiology, Oncology)"
+    },
+    "uploaded_reports": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs of uploaded medical reports, scans, lab results"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "submitted",
+        "under_review",
+        "assigned",
+        "completed",
+        "cancelled"
+      ],
+      "default": "submitted"
+    },
+    "assigned_provider_id": {
+      "type": "string",
+      "description": "Provider assigned to this request"
+    },
+    "assigned_provider_name": {
+      "type": "string"
+    },
+    "assigned_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "tele_appointment_id": {
+      "type": "string",
+      "description": "Created appointment for this request"
+    },
+    "opinion_summary": {
+      "type": "string",
+      "description": "Doctor's second opinion summary"
+    },
+    "opinion_completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "routine",
+        "urgent",
+        "emergency"
+      ],
+      "default": "routine"
+    },
+    "medical_tourism_interested": {
+      "type": "boolean",
+      "default": false,
+      "description": "Patient interested in coming to Sri Lanka for treatment"
+    },
+    "preferred_clinic_id": {
+      "type": "string",
+      "description": "Preferred physical clinic if patient wants to visit"
+    }
+  },
+  "required": [
+    "patient_id",
+    "original_diagnosis",
+    "reason_for_second_opinion"
+  ]
+}

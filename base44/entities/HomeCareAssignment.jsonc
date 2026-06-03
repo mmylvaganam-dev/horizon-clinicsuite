@@ -1,0 +1,38 @@
+{
+  "name": "HomeCareAssignment",
+  "type": "object",
+  "properties": {
+    "homecare_case_ref": {
+      "type": "string",
+      "description": "HomeCareCase.id as TEXT"
+    },
+    "caretaker_ref": {
+      "type": "string",
+      "description": "CaretakerProfileLight.id or StaffProfile.id as TEXT"
+    },
+    "caretaker_name_cache": {
+      "type": "string",
+      "description": "Caretaker name for display"
+    },
+    "caretaker_phone_cache": {
+      "type": "string",
+      "description": "Caretaker phone for display"
+    },
+    "assignment_status": {
+      "type": "string",
+      "enum": [
+        "assigned",
+        "confirmed",
+        "no_response",
+        "replaced",
+        "completed"
+      ],
+      "default": "assigned",
+      "description": "Assignment status"
+    }
+  },
+  "required": [
+    "homecare_case_ref",
+    "caretaker_name_cache"
+  ]
+}

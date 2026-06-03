@@ -1,0 +1,44 @@
+{
+  "name": "DentalRecallEntry",
+  "type": "object",
+  "properties": {
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient.id as TEXT"
+    },
+    "rule_ref": {
+      "type": "string",
+      "description": "DentalRecallRule.id as TEXT"
+    },
+    "last_completed_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Last completed appointment date"
+    },
+    "next_due_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Next recall due date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "due",
+        "booked",
+        "completed",
+        "skipped"
+      ],
+      "default": "due",
+      "description": "Recall status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Recall notes"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "rule_ref",
+    "next_due_date"
+  ]
+}

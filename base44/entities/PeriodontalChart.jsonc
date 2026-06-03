@@ -1,0 +1,51 @@
+{
+  "name": "PeriodontalChart",
+  "type": "object",
+  "properties": {
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient.id as TEXT"
+    },
+    "encounter_ref": {
+      "type": "string",
+      "description": "DentalEncounter.id as TEXT (optional)"
+    },
+    "tooth_number": {
+      "type": "string",
+      "description": "FDI or Universal notation"
+    },
+    "probing_depths_json": {
+      "type": "string",
+      "description": "6-point measurements as JSON text"
+    },
+    "bleeding_on_probing": {
+      "type": "boolean",
+      "default": false,
+      "description": "Bleeding on probing"
+    },
+    "recession_mm": {
+      "type": "number",
+      "description": "Recession in mm"
+    },
+    "mobility_grade": {
+      "type": "string",
+      "description": "Tooth mobility grade"
+    },
+    "furcation": {
+      "type": "string",
+      "description": "Furcation involvement"
+    },
+    "plaque_index": {
+      "type": "number",
+      "description": "Plaque index"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "tooth_number"
+  ]
+}

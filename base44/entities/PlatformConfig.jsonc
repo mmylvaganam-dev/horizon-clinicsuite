@@ -1,0 +1,34 @@
+{
+  "name": "PlatformConfig",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "Configuration key"
+    },
+    "value_json": {
+      "type": "object",
+      "description": "Configuration value as JSON",
+      "additionalProperties": true
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    },
+    "updated_by": {
+      "type": "string",
+      "description": "User who updated"
+    },
+    "updated_by_email": {
+      "type": "string",
+      "description": "Email of updater"
+    }
+  },
+  "required": [
+    "key",
+    "value_json",
+    "updated_at",
+    "updated_by"
+  ]
+}

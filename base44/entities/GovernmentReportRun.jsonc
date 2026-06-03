@@ -1,0 +1,53 @@
+{
+  "name": "GovernmentReportRun",
+  "type": "object",
+  "properties": {
+    "report_type_id": {
+      "type": "string",
+      "description": "Report type ID (text reference)"
+    },
+    "report_type_name": {
+      "type": "string",
+      "description": "Report type name for display"
+    },
+    "period_start": {
+      "type": "string",
+      "format": "date",
+      "description": "Reporting period start date"
+    },
+    "period_end": {
+      "type": "string",
+      "format": "date",
+      "description": "Reporting period end date"
+    },
+    "generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Generation timestamp"
+    },
+    "generated_by": {
+      "type": "string",
+      "description": "User who generated report"
+    },
+    "generated_by_email": {
+      "type": "string",
+      "description": "Email of generator"
+    },
+    "output_file_ref": {
+      "type": "string",
+      "description": "File reference/URL"
+    },
+    "summary_json": {
+      "type": "object",
+      "description": "Report summary data",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "report_type_id",
+    "period_start",
+    "period_end",
+    "generated_at",
+    "generated_by"
+  ]
+}

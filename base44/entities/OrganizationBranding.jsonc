@@ -1,0 +1,97 @@
+{
+  "name": "OrganizationBranding",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID (unique per organization)"
+    },
+    "app_display_name": {
+      "type": "string",
+      "description": "Clinic/health center name"
+    },
+    "primary_logo_file_ref": {
+      "type": "string",
+      "description": "Primary clinic logo file URL"
+    },
+    "secondary_logo_file_ref": {
+      "type": "string",
+      "description": "Secondary logo file URL (optional)"
+    },
+    "phone_number": {
+      "type": "string",
+      "description": "Primary contact phone number"
+    },
+    "phone_number_2": {
+      "type": "string",
+      "description": "Secondary contact phone number (optional)"
+    },
+    "email": {
+      "type": "string",
+      "description": "Contact email address"
+    },
+    "custom_domain": {
+      "type": "string",
+      "description": "Custom domain for white-label (e.g., portal.yourclinic.com)"
+    },
+    "smtp_host": {
+      "type": "string",
+      "description": "Custom SMTP server host"
+    },
+    "smtp_port": {
+      "type": "number",
+      "description": "SMTP port (typically 587 or 465)"
+    },
+    "smtp_username": {
+      "type": "string",
+      "description": "SMTP authentication username"
+    },
+    "smtp_from_email": {
+      "type": "string",
+      "description": "From email address for outgoing emails"
+    },
+    "smtp_from_name": {
+      "type": "string",
+      "description": "From name for outgoing emails"
+    },
+    "address": {
+      "type": "string",
+      "description": "Physical address"
+    },
+    "website": {
+      "type": "string",
+      "description": "Website URL (optional)"
+    },
+    "primary_color": {
+      "type": "string",
+      "description": "Primary brand color (hex format)"
+    },
+    "secondary_color": {
+      "type": "string",
+      "description": "Secondary brand color (hex format)"
+    },
+    "footer_text": {
+      "type": "string",
+      "description": "Custom footer text"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    },
+    "updated_by": {
+      "type": "string",
+      "description": "User who updated branding"
+    },
+    "updated_by_email": {
+      "type": "string",
+      "description": "Email of updater"
+    }
+  },
+  "required": [
+    "organization_id",
+    "app_display_name",
+    "updated_at",
+    "updated_by"
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "name": "ImportJob",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "import_type": {
+      "type": "string",
+      "enum": [
+        "SERVICES",
+        "LAB_PRICES",
+        "PHARMACY_PRODUCTS",
+        "USERS"
+      ],
+      "description": "Type of import"
+    },
+    "file_ref": {
+      "type": "string",
+      "description": "Uploaded file URL"
+    },
+    "uploaded_by": {
+      "type": "string",
+      "description": "User who uploaded"
+    },
+    "uploaded_by_email": {
+      "type": "string",
+      "description": "Email of uploader"
+    },
+    "uploaded_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Upload timestamp"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "uploaded",
+        "validated",
+        "preview_ready",
+        "applied",
+        "failed"
+      ],
+      "default": "uploaded",
+      "description": "Import status"
+    },
+    "summary_json": {
+      "type": "object",
+      "description": "Import summary and stats",
+      "additionalProperties": true
+    },
+    "audit_ref": {
+      "type": "string",
+      "description": "Audit log reference"
+    }
+  },
+  "required": [
+    "organization_id",
+    "import_type",
+    "file_ref",
+    "uploaded_by",
+    "uploaded_at",
+    "status"
+  ]
+}

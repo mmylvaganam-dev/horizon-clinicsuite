@@ -1,0 +1,72 @@
+{
+  "name": "MedicationItem",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "patient_ref": {
+      "type": "string",
+      "description": "Patient ID reference"
+    },
+    "medication_name": {
+      "type": "string",
+      "description": "Medication name"
+    },
+    "dose": {
+      "type": "string",
+      "description": "Dose"
+    },
+    "frequency": {
+      "type": "string",
+      "description": "Frequency"
+    },
+    "route": {
+      "type": "string",
+      "description": "Route of administration"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Start date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "End date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "discontinued"
+      ],
+      "default": "active",
+      "description": "Medication status"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Clinical notes"
+    },
+    "last_reconciled_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last reconciliation timestamp"
+    },
+    "last_reconciled_by": {
+      "type": "string",
+      "description": "Last reconciler"
+    },
+    "last_reconciled_by_email": {
+      "type": "string",
+      "description": "Reconciler email"
+    }
+  },
+  "required": [
+    "patient_ref",
+    "medication_name",
+    "status"
+  ]
+}

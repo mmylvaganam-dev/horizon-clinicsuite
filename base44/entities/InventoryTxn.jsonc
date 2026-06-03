@@ -1,0 +1,83 @@
+{
+  "name": "InventoryTxn",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "location_id": {
+      "type": "string",
+      "description": "Transaction location"
+    },
+    "sku_code": {
+      "type": "string",
+      "description": "SKU code"
+    },
+    "item_name": {
+      "type": "string",
+      "description": "Item name for reference"
+    },
+    "txn_type": {
+      "type": "string",
+      "enum": [
+        "receive",
+        "sale",
+        "dispense",
+        "adjust",
+        "transfer"
+      ],
+      "description": "Transaction type"
+    },
+    "qty": {
+      "type": "number",
+      "description": "Quantity (positive or negative)"
+    },
+    "ref_type": {
+      "type": "string",
+      "description": "Reference type (PharmacySale, DispenseEvent, etc.)"
+    },
+    "ref_id": {
+      "type": "string",
+      "description": "Reference ID"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason for transaction"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who created transaction"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of creator"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Transaction timestamp"
+    },
+    "previous_qty": {
+      "type": "number",
+      "description": "Quantity before transaction"
+    },
+    "new_qty": {
+      "type": "number",
+      "description": "Quantity after transaction"
+    },
+    "metadata_json": {
+      "type": "object",
+      "description": "Additional metadata",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "location_id",
+    "sku_code",
+    "txn_type",
+    "qty",
+    "created_by",
+    "created_at"
+  ]
+}

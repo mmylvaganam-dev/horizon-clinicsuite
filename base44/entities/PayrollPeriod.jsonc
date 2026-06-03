@@ -1,0 +1,68 @@
+{
+  "name": "PayrollPeriod",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "company_ref": {
+      "type": "string",
+      "description": "CompanyProfile ID (text reference)"
+    },
+    "period_start": {
+      "type": "string",
+      "format": "date",
+      "description": "Payroll period start"
+    },
+    "period_end": {
+      "type": "string",
+      "format": "date",
+      "description": "Payroll period end"
+    },
+    "pay_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Payment date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "approved",
+        "paid"
+      ],
+      "default": "draft",
+      "description": "Payroll status"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "User who approved"
+    },
+    "approved_by_email": {
+      "type": "string",
+      "description": "Email of approver"
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Approval timestamp"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who created"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of creator"
+    }
+  },
+  "required": [
+    "organization_id",
+    "company_ref",
+    "period_start",
+    "period_end",
+    "pay_date",
+    "created_by"
+  ]
+}

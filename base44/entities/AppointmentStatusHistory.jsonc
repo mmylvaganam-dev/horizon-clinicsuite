@@ -1,0 +1,45 @@
+{
+  "name": "AppointmentStatusHistory",
+  "type": "object",
+  "properties": {
+    "appointment_id": {
+      "type": "string",
+      "description": "Reference to appointment"
+    },
+    "previous_status": {
+      "type": "string",
+      "description": "Previous status"
+    },
+    "new_status": {
+      "type": "string",
+      "description": "New status"
+    },
+    "changed_by": {
+      "type": "string",
+      "description": "User who changed status"
+    },
+    "changed_by_email": {
+      "type": "string",
+      "description": "Email of user who changed status"
+    },
+    "changed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of change"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Reason for status change"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    }
+  },
+  "required": [
+    "appointment_id",
+    "new_status",
+    "changed_by",
+    "changed_at"
+  ]
+}

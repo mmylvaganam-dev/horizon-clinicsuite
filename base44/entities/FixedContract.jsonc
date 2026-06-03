@@ -1,0 +1,64 @@
+{
+  "name": "FixedContract",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "company_ref": {
+      "type": "string",
+      "description": "CompanyProfile ID (text reference)"
+    },
+    "contract_type": {
+      "type": "string",
+      "enum": [
+        "rent",
+        "lease",
+        "service",
+        "other"
+      ],
+      "description": "Contract type"
+    },
+    "counterparty": {
+      "type": "string",
+      "description": "Contract counterparty"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Contract start date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Contract end date"
+    },
+    "monthly_amount": {
+      "type": "number",
+      "description": "Monthly payment amount"
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD",
+      "description": "Currency"
+    },
+    "attachment_ref": {
+      "type": "string",
+      "description": "Contract document reference"
+    },
+    "active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Contract active status"
+    }
+  },
+  "required": [
+    "organization_id",
+    "company_ref",
+    "contract_type",
+    "counterparty",
+    "start_date",
+    "monthly_amount"
+  ]
+}

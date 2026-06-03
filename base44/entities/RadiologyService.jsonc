@@ -1,0 +1,60 @@
+{
+  "name": "RadiologyService",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Organization ID"
+    },
+    "service_type": {
+      "type": "string",
+      "enum": [
+        "X-Ray",
+        "Ultrasound",
+        "CT Scan",
+        "MRI",
+        "Mammography"
+      ],
+      "description": "Type of radiology service"
+    },
+    "region": {
+      "type": "string",
+      "description": "Body region/part (e.g., Chest, Abdomen, Head, Knee)"
+    },
+    "service_name": {
+      "type": "string",
+      "description": "Full service name (e.g., Chest X-Ray PA View)"
+    },
+    "service_code": {
+      "type": "string",
+      "description": "Service code"
+    },
+    "price": {
+      "type": "number",
+      "description": "Service price"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "description": "Estimated duration in minutes"
+    },
+    "preparation_notes": {
+      "type": "string",
+      "description": "Patient preparation instructions"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ],
+      "default": "active",
+      "description": "Status"
+    }
+  },
+  "required": [
+    "service_type",
+    "region",
+    "service_name",
+    "price"
+  ]
+}

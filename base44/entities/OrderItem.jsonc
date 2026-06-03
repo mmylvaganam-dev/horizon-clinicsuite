@@ -1,0 +1,40 @@
+{
+  "name": "OrderItem",
+  "type": "object",
+  "properties": {
+    "order_id": {
+      "type": "string",
+      "description": "Parent order"
+    },
+    "catalog_code": {
+      "type": "string",
+      "description": "Test/procedure code"
+    },
+    "name": {
+      "type": "string",
+      "description": "Item name"
+    },
+    "parameters": {
+      "type": "object",
+      "description": "Item-specific parameters",
+      "additionalProperties": true
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "in_progress",
+        "completed",
+        "cancelled"
+      ],
+      "default": "pending"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "order_id",
+    "name"
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "name": "HomeCareInvoiceLine",
+  "type": "object",
+  "properties": {
+    "invoice_id": {
+      "type": "string",
+      "description": "Reference to HomeCareInvoice"
+    },
+    "organization_id": {
+      "type": "string"
+    },
+    "line_type": {
+      "type": "string",
+      "enum": [
+        "home_service",
+        "pharmacy_supply",
+        "lab_test",
+        "other"
+      ],
+      "description": "Category of line item"
+    },
+    "description": {
+      "type": "string",
+      "description": "Item description (e.g. Catheter Change, Wound Dressing)"
+    },
+    "service_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date this service/supply was provided"
+    },
+    "qty": {
+      "type": "number",
+      "default": 1
+    },
+    "unit_price": {
+      "type": "number"
+    },
+    "line_total": {
+      "type": "number"
+    }
+  },
+  "required": [
+    "invoice_id",
+    "description",
+    "qty",
+    "unit_price",
+    "line_total"
+  ]
+}

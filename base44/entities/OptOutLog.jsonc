@@ -1,0 +1,37 @@
+{
+  "name": "OptOutLog",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "recipient_ref": {
+      "type": "string",
+      "description": "Recipient reference (patient ID)"
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "email",
+        "sms",
+        "all"
+      ],
+      "description": "Channel to opt out from"
+    },
+    "opted_out_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Opt-out timestamp"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Opt-out reason"
+    }
+  },
+  "required": [
+    "recipient_ref",
+    "channel",
+    "opted_out_at"
+  ]
+}

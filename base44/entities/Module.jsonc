@@ -1,0 +1,58 @@
+{
+  "name": "Module",
+  "type": "object",
+  "properties": {
+    "module_code": {
+      "type": "string",
+      "description": "Unique module code (e.g., PHARMACY, EMR, LIS)"
+    },
+    "module_name": {
+      "type": "string",
+      "description": "Display name of the module"
+    },
+    "description": {
+      "type": "string",
+      "description": "Module description"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "dashboards",
+        "clinical",
+        "lab",
+        "diagnostics",
+        "pharmacy",
+        "finance",
+        "engagement",
+        "reports",
+        "administration"
+      ],
+      "default": "clinical",
+      "description": "Module category"
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0.0",
+      "description": "Module version"
+    },
+    "is_core": {
+      "type": "boolean",
+      "default": false,
+      "description": "Core module (always enabled)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "beta",
+        "deprecated"
+      ],
+      "default": "active",
+      "description": "Module status"
+    }
+  },
+  "required": [
+    "module_code",
+    "module_name"
+  ]
+}
