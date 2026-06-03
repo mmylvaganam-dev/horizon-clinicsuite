@@ -288,7 +288,7 @@ export default function StaffDirectory() {
                 {member.credentials_text && <span className="text-sm text-slate-500 ml-2">{member.credentials_text}</span>}
               </h3>
               <p className="text-sm text-slate-500 capitalize">
-                {member.staff_type.replace(/_/g, ' ').toLowerCase()}
+                {(member.staff_type || '').replace(/_/g, ' ').toLowerCase()}
               </p>
               {member.registration_number && (
                 <p className="text-xs text-slate-500 mt-2">
