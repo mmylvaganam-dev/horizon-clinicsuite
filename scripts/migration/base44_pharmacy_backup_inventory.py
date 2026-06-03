@@ -69,42 +69,101 @@ def read_expected_entities(path: Path) -> list[dict[str, str]]:
 
 def inventory_files(backup_dir: Path) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
-    for path in sorted(item for item in backup_dir.rglob("*") if item.is_file()):
+    export_root = backup_dir / "01_raw_entity_exports"
+    scan_root = export_root if export_root.exists() else backup_dir
+
+    for path in sorted(item for item in scan_root.rglob("*") if item.is_file()):
         if path.suffix.lower() not in {".json", ".csv"}:
             continue
-        rows.append(
-            {
-                "entity": path.stem,
-                "file": str(path.relative_to(backup_dir)),
-                "format": path.suffix.lower().lstrip("."),
-                "record_count": count_records(path),
-                "bytes": path.stat().st_size,
-                "sha256": sha256(path),
-            }
-        )
+        rows.extend(inventory_one_file(path, backup_dir))
     return rows
 
 
-def count_records(path: Path) -> int | str:
-    try:
-        if path.suffix.lower() == ".csv":
-            with path.open(newline="") as handle:
-                return sum(1 for _ in csv.DictReader(handle))
+def inventory_one_file(path: Path, backup_dir: Path) -> list[dict[str, Any]]:
+    base_row = {
+        "file": str(path.relative_to(backup_dir)),
+        "format": path.suffix.lower().lstrip("."),
+        "bytes": path.stat().st_size,
+        "sha256": sha256(path),
+    }
 
-        data = json.loads(path.read_text())
-        if isinstance(data, list):
-            return len(data)
-        if isinstance(data, dict) and isinstance(data.get("records"), list):
-            return len(data["records"])
-        if isinstance(data, dict) and isinstance(data.get("data"), dict):
-            return {
-                key: len(value)
-                for key, value in data["data"].items()
-                if isinstance(value, list)
+    if path.suffix.lower() == ".csv":
+        return [
+            {
+                **base_row,
+                "entity": path.stem,
+                "record_count": count_csv_records(path),
+                "export_shape": "csv_file",
             }
-        return 1
+        ]
+
+    try:
+        data = json.loads(path.read_text())
+
+        if isinstance(data, dict) and isinstance(data.get("data"), dict):
+            company = company_name_from_export(path, data)
+            rows: list[dict[str, Any]] = []
+            for entity, value in sorted(data["data"].items()):
+                rows.append(
+                    {
+                        **base_row,
+                        "entity": entity,
+                        "record_count": len(value) if isinstance(value, list) else 1,
+                        "export_shape": "combined_base44_data_object",
+                        "company_or_export": company,
+                    }
+                )
+            return rows
+
+        if isinstance(data, list):
+            return [
+                {
+                    **base_row,
+                    "entity": path.stem,
+                    "record_count": len(data),
+                    "export_shape": "json_list",
+                }
+            ]
+
+        if isinstance(data, dict) and isinstance(data.get("records"), list):
+            return [
+                {
+                    **base_row,
+                    "entity": path.stem,
+                    "record_count": len(data["records"]),
+                    "export_shape": "json_records_object",
+                }
+            ]
+
+        return [
+            {
+                **base_row,
+                "entity": path.stem,
+                "record_count": 1,
+                "export_shape": "json_object",
+            }
+        ]
     except Exception as exc:
-        return f"error:{exc.__class__.__name__}"
+        return [
+            {
+                **base_row,
+                "entity": path.stem,
+                "record_count": f"error:{exc.__class__.__name__}",
+                "export_shape": "unreadable",
+            }
+        ]
+
+
+def count_csv_records(path: Path) -> int:
+    with path.open(newline="") as handle:
+        return sum(1 for _ in csv.DictReader(handle))
+
+
+def company_name_from_export(path: Path, data: dict[str, Any]) -> str:
+    app_name = data.get("app")
+    if isinstance(app_name, str) and app_name.strip():
+        return app_name.strip()
+    return path.stem
 
 
 def sha256(path: Path) -> str:
