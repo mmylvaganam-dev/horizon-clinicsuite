@@ -10,6 +10,10 @@ import {
 import { format } from 'date-fns';
 
 const ENTITY_GROUPS = {
+  'Users & Access': [
+    'User', 'UserRole', 'Role', 'Permission', 'RolePermission',
+    'UserApproval', 'PendingInvitation', 'BlockedUser',
+  ],
   'Clinical': [
     'Patient', 'Appointment', 'Encounter', 'Order', 'OrderItem', 'Result', 'ResultFlag',
     'SOAPNote', 'MedicalRecord', 'PatientDocument', 'PatientVital', 'EncounterVitals',
@@ -20,8 +24,7 @@ const ENTITY_GROUPS = {
     'CardioResultExtension', 'SecondOpinionRequest', 'PrescriptionRenewalRequest',
   ],
   'Staff & Organization': [
-    'StaffProfile', 'UserRole', 'Role', 'Permission', 'RolePermission',
-    'StaffCredentialDocument', 'ProviderSchedule', 'ProviderAvailability', 'ShiftRoster',
+    'StaffProfile', 'StaffCredentialDocument', 'ProviderSchedule', 'ProviderAvailability', 'ShiftRoster',
     'Organization', 'Location', 'Department', 'OrganizationConfig', 'OrganizationBranding',
     'OrganizationModuleAccess', 'CompanyProfile', 'CompanyModuleAccess',
   ],
@@ -60,7 +63,7 @@ const ENTITY_GROUPS = {
   'Audit & Logs': [
     'AuditLog', 'AppVersion', 'BackupRunLog', 'DocumentArtifact', 'ExportBundle',
     'GovernmentReportRun', 'GovernmentSubmissionLog',
-    'Notification', 'UserApproval', 'PendingInvitation', 'ConfigKey',
+    'Notification', 'ConfigKey',
     'KnowledgeBaseArticle', 'HelpDeskTicket', 'HelpDeskMessage',
     'OutboundMessage', 'MessageTemplate', 'CallLog', 'FaxLog', 'SmsOutbox',
     'PayrollPeriod', 'PayrollLine', 'TimesheetEntry',

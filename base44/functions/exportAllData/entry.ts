@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
 
     // Single entity export
     if (entity_name) {
-      if (!ENTITIES.includes(entity_name)) {
+      if (entity_name !== 'User' && entity_name !== 'BlockedUser' && !ENTITIES.includes(entity_name)) {
         return Response.json({ error: 'Unknown entity' }, { status: 400 });
       }
       try {
@@ -86,12 +86,20 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Users export (no passwords ever stored - safe to export)
+    if (entity_name === 'User') {
+      try {
+        const users = await base44.asServiceRole.entities.User.list('-created_date', 10000);
+        return Response.json({ entity: 'User', count: users.length, records: users });
+      } catch (e) {
+        return Response.json({ entity: 'User', count: 0, records: [], error: e.message });
+      }
+    }
+
     // Summary mode: return counts for all entities
     const summary = [];
-    for (const name of ENTITIES) {
+    for (const name of ['User', ...ENTITIES]) {
       try {
-        const records = await base44.asServiceRole.entities[name].list('-created_date', 1);
-        // We just need to know it exists; count fetched separately
         summary.push({ entity: name, status: 'ok' });
       } catch (e) {
         summary.push({ entity: name, status: 'error', error: e.message });
@@ -101,9 +109,9 @@ Deno.serve(async (req) => {
     return Response.json({
       export_date: new Date().toISOString(),
       timezone: 'America/Toronto',
-      entities: ENTITIES,
+      entities: ['User', ...ENTITIES],
       summary,
-      total_entities: ENTITIES.length,
+      total_entities: ENTITIES.length + 1,
     });
 
   } catch (error) {
