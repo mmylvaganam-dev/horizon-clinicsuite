@@ -5,7 +5,8 @@ import { base44 } from '@/api/base44Client';
 import { createPageUrl } from '../utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { FileText, Shield, Activity, AlertTriangle, Database } from 'lucide-react';
+import { FileText, Shield, Activity, AlertTriangle, Database, Zap, Cloud } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function PlatformDataExport() {
   const navigate = useNavigate();
@@ -39,6 +40,13 @@ export default function PlatformDataExport() {
       icon: FileText, 
       page: 'DataExport',
       color: 'from-blue-500 to-blue-600'
+    },
+    { 
+      title: 'Full System Export', 
+      description: 'One-click download all entities + Backup to Google Drive', 
+      icon: Zap, 
+      page: 'DataExportManager',
+      color: 'from-violet-500 to-violet-700'
     },
     { 
       title: 'Export Approvals', 
