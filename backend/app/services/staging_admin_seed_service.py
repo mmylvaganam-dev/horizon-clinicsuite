@@ -191,8 +191,16 @@ def _seed_identity(
     last_name: Optional[str],
     name: Optional[str],
 ) -> dict:
-    normalized_email = (email or STAGING_ADMIN_EMAIL).strip().lower()
-    normalized_uid = (firebase_uid or STAGING_ADMIN_UID).strip() or None
+    normalized_email = (
+        email
+        or os.getenv("STAGING_ADMIN_SEED_EMAIL")
+        or STAGING_ADMIN_EMAIL
+    ).strip().lower()
+    normalized_uid = (
+        firebase_uid
+        or os.getenv("STAGING_ADMIN_SEED_FIREBASE_UID")
+        or STAGING_ADMIN_UID
+    ).strip() or None
 
     if "@" not in normalized_email:
         raise HTTPException(
