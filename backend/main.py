@@ -27,6 +27,11 @@ from app.services.availability_service import (
     list_availability,
     update_availability,
 )
+from app.services.base44_archive_service import (
+    list_base44_archives,
+    save_base44_archive,
+    search_base44_archive,
+)
 from app.services.document_service import (
     list_document_metadata,
     register_document_metadata,
@@ -41,11 +46,19 @@ from app.services.org_member_service import (
     list_org_members,
     update_org_member_status,
 )
+from app.services.pharmacy_service import (
+    create_pharmacy_product,
+    create_pharmacy_sale,
+    get_pharmacy_daily_summary,
+    list_pharmacy_products,
+    list_pharmacy_sales,
+)
 from app.services.profile_service import get_my_profile, update_my_profile
 from app.services.protected_profile_service import build_protected_profile_response
 from app.services.rbac_service import (
     get_rbac_context,
     require_any_role,
+    require_test_module_role,
 )
 from app.services.storage_service import (
     get_migration_storage_status,
@@ -61,6 +74,10 @@ from app.services.system_health_service import get_system_health_summary
 STAGING_TEST_EMAIL = "firebase-auth-test-1779380527677@example.com"
 STAGING_TEST_EMAIL_PREFIX = "firebase-auth-test-"
 STAGING_TEST_EMAIL_DOMAIN = "@example.com"
+STAGING_TEST_FIREBASE_UIDS = {
+    "9q7CTtPwd4V2D8BccgxmYv8hsi1",
+    "9q7CTtPwd4V2D8BccggxmYv8hsi1",
+}
 STAGING_TEST_ROLES = {"admin", "provider", "staff"}
 rbac_route_logger = logging.getLogger("horizon.rbac.routes")
 
@@ -71,6 +88,19 @@ class ProfileUpdateRequest(BaseModel):
     mobile_number: Optional[str] = None
     specialty_or_program: Optional[str] = None
     practice_address: Optional[str] = None
+
+
+class StagingAdminSeedRequest(BaseModel):
+    firebase_uid: Optional[str] = None
+    email: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    name: Optional[str] = None
+
+
+class Base44ArchiveUploadRequest(BaseModel):
+    file_name: str
+    content: str
 
 
 class OrganizationCreateRequest(BaseModel):
@@ -142,6 +172,31 @@ class OrganizationMemberAddRequest(BaseModel):
 class OrganizationMemberStatusUpdateRequest(BaseModel):
     id: str
     status: str
+
+
+class PharmacyProductCreateRequest(BaseModel):
+    organization_id: Optional[str] = None
+    base44_id: Optional[str] = None
+    name: str
+    sku: Optional[str] = None
+    batch_number: Optional[str] = None
+    quantity_on_hand: int = 0
+    unit_price: float = 0
+
+
+class PharmacySaleItemRequest(BaseModel):
+    product_id: Optional[str] = None
+    product_name: Optional[str] = None
+    quantity: int
+    unit_price: Optional[float] = None
+
+
+class PharmacySaleCreateRequest(BaseModel):
+    organization_id: Optional[str] = None
+    customer_name: Optional[str] = None
+    payment_method: str = "cash"
+    discount: float = 0
+    items: list[PharmacySaleItemRequest]
 
 
 app = FastAPI(
@@ -437,18 +492,105 @@ def system_health_summary(authorization: Optional[str] = Header(default=None)):
     return get_system_health_summary()
 
 
+@app.get("/pharmacy/products")
+def pharmacy_products(
+    query: str = "",
+    authorization: Optional[str] = Header(default=None),
+):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin", "staff", "provider", "viewer"])
+    return list_pharmacy_products(context, query)
+
+
+@app.post("/pharmacy/products")
+def pharmacy_create_product(
+    product: PharmacyProductCreateRequest,
+    authorization: Optional[str] = Header(default=None),
+):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin", "staff"])
+    return create_pharmacy_product(_model_payload(product), context)
+
+
+@app.get("/pharmacy/sales")
+def pharmacy_sales(authorization: Optional[str] = Header(default=None)):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin", "staff", "provider", "viewer"])
+    return list_pharmacy_sales(context)
+
+
+@app.post("/pharmacy/sales")
+def pharmacy_create_sale(
+    sale: PharmacySaleCreateRequest,
+    authorization: Optional[str] = Header(default=None),
+):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin", "staff"])
+    return create_pharmacy_sale(_model_payload(sale), context)
+
+
+@app.get("/pharmacy/daily-summary")
+def pharmacy_daily_summary(authorization: Optional[str] = Header(default=None)):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin", "staff", "provider", "viewer"])
+    return get_pharmacy_daily_summary(context)
+
+
+@app.post("/base44-archive/upload")
+def base44_archive_upload(
+    archive: Base44ArchiveUploadRequest,
+    authorization: Optional[str] = Header(default=None),
+):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin"])
+    return save_base44_archive(archive.file_name, archive.content, context)
+
+
+@app.get("/base44-archive/list")
+def base44_archive_list(authorization: Optional[str] = Header(default=None)):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin"])
+    return list_base44_archives(context)
+
+
+@app.get("/base44-archive/search")
+def base44_archive_search(
+    archive_id: str,
+    entity: str,
+    query: str = "",
+    limit: int = 25,
+    authorization: Optional[str] = Header(default=None),
+):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin"])
+    return search_base44_archive(archive_id, entity, query, limit, context)
+
+
 @app.post("/management/staging/seed-admin")
 def management_staging_seed_admin(
+    seed_request: StagingAdminSeedRequest = StagingAdminSeedRequest(),
     x_admin_seed_token: Optional[str] = Header(default=None),
 ):
-    return seed_staging_admin_user(x_admin_seed_token)
+    return seed_staging_admin_user(
+        x_admin_seed_token,
+        firebase_uid=seed_request.firebase_uid,
+        email=seed_request.email,
+        first_name=seed_request.first_name,
+        last_name=seed_request.last_name,
+        name=seed_request.name,
+    )
 
 
 @app.post("/management/staging/seed-admin/rollback")
 def management_staging_seed_admin_rollback(
+    seed_request: StagingAdminSeedRequest = StagingAdminSeedRequest(),
     x_admin_seed_token: Optional[str] = Header(default=None),
 ):
-    return rollback_staging_admin_user(x_admin_seed_token)
+    return rollback_staging_admin_user(
+        x_admin_seed_token,
+        firebase_uid=seed_request.firebase_uid,
+        email=seed_request.email,
+    )
 
 
 def _profile_update_payload(profile_update: ProfileUpdateRequest) -> dict:
@@ -473,7 +615,10 @@ def _require_test_page_role(
         for role in context.get("roles", [])
     }
 
-    if _is_staging_test_email(firebase_user) and not required_roles.isdisjoint(STAGING_TEST_ROLES):
+    if (
+        _is_staging_test_identity(firebase_user, context)
+        and not required_roles.isdisjoint(STAGING_TEST_ROLES)
+    ):
         return {
             **context,
             "firebase_user": {
@@ -488,6 +633,7 @@ def _require_test_page_role(
         _log_test_page_rbac_denial(
             endpoint_path,
             firebase_user,
+            context,
             sorted(resolved_roles),
             sorted(required_roles),
         )
@@ -499,13 +645,27 @@ def _require_test_page_role(
     return context
 
 
-def _is_staging_test_email(firebase_user: dict) -> bool:
+def _is_staging_test_identity(firebase_user: dict, context: dict) -> bool:
     app_env = (os.getenv("APP_ENV") or os.getenv("ENVIRONMENT") or "").lower()
-    return (
-        app_env == "staging"
-        and _normalize_role(firebase_user.get("email")) == STAGING_TEST_EMAIL
-    )
+    if app_env != "staging":
+        return False
 
+    token_email = _normalize_role(firebase_user.get("email"))
+    token_uid = _normalize_role(
+        firebase_user.get("uid")
+        or firebase_user.get("user_id")
+        or firebase_user.get("sub")
+    )
+    app_user = context.get("app_user") or {}
+    app_user_email = _normalize_role(app_user.get("email"))
+    app_user_firebase_uid = _normalize_role(app_user.get("firebase_uid"))
+
+    return (
+        _is_staging_test_email_value(token_email)
+        or _is_staging_test_email_value(app_user_email)
+        or token_uid in STAGING_TEST_FIREBASE_UIDS
+        or app_user_firebase_uid in STAGING_TEST_FIREBASE_UIDS
+    )
 
 
 def _is_staging_test_email_value(email: str) -> bool:
@@ -517,17 +677,26 @@ def _is_staging_test_email_value(email: str) -> bool:
         )
     )
 
+
 def _log_test_page_rbac_denial(
     endpoint_path: str,
     firebase_user: dict,
+    context: dict,
     resolved_roles: list[str],
     required_roles: list[str],
 ) -> None:
+    app_user = context.get("app_user") or {}
     rbac_route_logger.warning(
-        "RBAC denied endpoint=%s email=%s firebase_uid=%s resolved_roles=%s required_roles=%s",
+        (
+            "RBAC denied endpoint=%s email=%s firebase_uid=%s "
+            "app_user_email=%s app_user_firebase_uid=%s "
+            "resolved_roles=%s required_roles=%s"
+        ),
         endpoint_path,
         firebase_user.get("email"),
-        firebase_user.get("uid"),
+        firebase_user.get("uid") or firebase_user.get("user_id") or firebase_user.get("sub"),
+        app_user.get("email"),
+        app_user.get("firebase_uid"),
         resolved_roles,
         required_roles,
     )

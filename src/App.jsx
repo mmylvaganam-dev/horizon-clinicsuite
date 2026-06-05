@@ -52,6 +52,8 @@ import InvitationsTest from './pages/InvitationsTest';
 import AvailabilityTest from './pages/AvailabilityTest';
 import AppointmentsTest from './pages/AppointmentsTest';
 import OrgMembersTest from './pages/OrgMembersTest';
+import Base44ArchiveTest from './pages/Base44ArchiveTest';
+import PharmacyTransition from './pages/PharmacyTransition';
 import RbacRouteGuard from '@/components/app/RbacRouteGuard';
 import AdminOperationalLayout from '@/layouts/AdminOperationalLayout';
 import ProviderOperationalLayout from '@/layouts/ProviderOperationalLayout';
@@ -59,6 +61,7 @@ import ViewerOperationalLayout from '@/layouts/ViewerOperationalLayout';
 import OperationalDashboard from './pages/OperationalDashboard';
 import OperationalModulePage from './pages/OperationalModulePage';
 import { FirebaseSessionProvider } from '@/context/FirebaseSessionContext';
+import { firebaseAuthFeatureEnabled } from '@/context/FirebaseSessionContext';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -148,113 +151,118 @@ const AuthenticatedApp = () => {
 
 
 function App() {
+  const fallbackElement = firebaseAuthFeatureEnabled
+    ? <Navigate to="/firebase-auth-test" replace />
+    : <AuthenticatedApp />;
 
-  return (
-    <AuthProvider>
-      <FirebaseSessionProvider>
-        <QueryClientProvider client={queryClientInstance}>
-          <Router>
-            <NavigationTracker />
-            <Routes>
-              <Route path="/landing" element={<LandingPage />} />
-              <Route path="/firebase-test" element={<FirebaseTest />} />
-              <Route path="/firebase-auth-test" element={<FirebaseAuthTest />} />
-              <Route path="/firebase-session-test" element={<FirebaseSessionTest />} />
-              <Route path="/app-dashboard-test" element={<AppDashboardTest />} />
-              <Route path="/app-home-test" element={<AppHomeTest />} />
-              <Route path="/file-upload-test" element={<FileUploadTest />} />
-              <Route path="/admin-org-test" element={<AdminOrgTest />} />
-              <Route path="/rbac-test" element={<RbacTest />} />
-              <Route path="/documents-test" element={<DocumentsTest />} />
-              <Route path="/audit-test" element={<AuditTest />} />
-              <Route path="/system-health-test" element={<SystemHealthTest />} />
-              <Route path="/invitations-test" element={<InvitationsTest />} />
-              <Route path="/availability-test" element={<AvailabilityTest />} />
-              <Route path="/appointments-test" element={<AppointmentsTest />} />
-              <Route path="/org-members-test" element={<OrgMembersTest />} />
-              <Route path="/app" element={<Navigate to="/app/viewer/dashboard" replace />} />
-              <Route
-                path="/app/admin"
-                element={<Navigate to="/app/admin/dashboard" replace />}
-              />
-              <Route
-                path="/app/admin/dashboard"
-                element={
-                  <RbacRouteGuard allowedRoles={["admin"]}>
-                    <AdminOperationalLayout>
-                      <OperationalDashboard area="admin" />
-                    </AdminOperationalLayout>
-                  </RbacRouteGuard>
-                }
-              />
-              <Route
-                path="/app/admin/:moduleKey"
-                element={
-                  <RbacRouteGuard allowedRoles={["admin"]}>
-                    <AdminOperationalLayout>
-                      <OperationalModulePage area="admin" />
-                    </AdminOperationalLayout>
-                  </RbacRouteGuard>
-                }
-              />
-              <Route
-                path="/app/provider"
-                element={<Navigate to="/app/provider/dashboard" replace />}
-              />
-              <Route
-                path="/app/provider/dashboard"
-                element={
-                  <RbacRouteGuard allowedRoles={["admin", "provider"]}>
-                    <ProviderOperationalLayout>
-                      <OperationalDashboard area="provider" />
-                    </ProviderOperationalLayout>
-                  </RbacRouteGuard>
-                }
-              />
-              <Route
-                path="/app/provider/:moduleKey"
-                element={
-                  <RbacRouteGuard allowedRoles={["admin", "provider"]}>
-                    <ProviderOperationalLayout>
-                      <OperationalModulePage area="provider" />
-                    </ProviderOperationalLayout>
-                  </RbacRouteGuard>
-                }
-              />
-              <Route
-                path="/app/viewer"
-                element={<Navigate to="/app/viewer/dashboard" replace />}
-              />
-              <Route
-                path="/app/viewer/dashboard"
-                element={
-                  <RbacRouteGuard allowedRoles={["admin", "provider", "staff", "viewer"]}>
-                    <ViewerOperationalLayout>
-                      <OperationalDashboard area="viewer" />
-                    </ViewerOperationalLayout>
-                  </RbacRouteGuard>
-                }
-              />
-              <Route
-                path="/app/viewer/:moduleKey"
-                element={
-                  <RbacRouteGuard allowedRoles={["admin", "provider", "staff", "viewer"]}>
-                    <ViewerOperationalLayout>
-                      <OperationalModulePage area="viewer" />
-                    </ViewerOperationalLayout>
-                  </RbacRouteGuard>
-                }
-              />
-              <Route path="/profile-test" element={<ProfileTest />} />
-              <Route path="/backend-test" element={<BackendTest />} />
-              <Route path="*" element={<AuthenticatedApp />} />
-            </Routes>
-          </Router>
-          <Toaster />
-        </QueryClientProvider>
-      </FirebaseSessionProvider>
-    </AuthProvider>
-  )
+  const appContent = (
+    <FirebaseSessionProvider>
+      <QueryClientProvider client={queryClientInstance}>
+        <Router>
+          <NavigationTracker />
+          <Routes>
+            <Route path="/landing" element={<LandingPage />} />
+            <Route path="/firebase-test" element={<FirebaseTest />} />
+            <Route path="/firebase-auth-test" element={<FirebaseAuthTest />} />
+            <Route path="/firebase-session-test" element={<FirebaseSessionTest />} />
+            <Route path="/app-dashboard-test" element={<AppDashboardTest />} />
+            <Route path="/app-home-test" element={<AppHomeTest />} />
+            <Route path="/file-upload-test" element={<FileUploadTest />} />
+            <Route path="/admin-org-test" element={<AdminOrgTest />} />
+            <Route path="/rbac-test" element={<RbacTest />} />
+            <Route path="/documents-test" element={<DocumentsTest />} />
+            <Route path="/audit-test" element={<AuditTest />} />
+            <Route path="/system-health-test" element={<SystemHealthTest />} />
+            <Route path="/invitations-test" element={<InvitationsTest />} />
+            <Route path="/availability-test" element={<AvailabilityTest />} />
+            <Route path="/appointments-test" element={<AppointmentsTest />} />
+            <Route path="/org-members-test" element={<OrgMembersTest />} />
+            <Route path="/base44-archive-test" element={<Base44ArchiveTest />} />
+            <Route path="/pharmacy-transition" element={<PharmacyTransition />} />
+            <Route path="/app" element={<Navigate to="/app/viewer/dashboard" replace />} />
+            <Route
+              path="/app/admin"
+              element={<Navigate to="/app/admin/dashboard" replace />}
+            />
+            <Route
+              path="/app/admin/dashboard"
+              element={
+                <RbacRouteGuard allowedRoles={["admin"]}>
+                  <AdminOperationalLayout>
+                    <OperationalDashboard area="admin" />
+                  </AdminOperationalLayout>
+                </RbacRouteGuard>
+              }
+            />
+            <Route
+              path="/app/admin/:moduleKey"
+              element={
+                <RbacRouteGuard allowedRoles={["admin"]}>
+                  <AdminOperationalLayout>
+                    <OperationalModulePage area="admin" />
+                  </AdminOperationalLayout>
+                </RbacRouteGuard>
+              }
+            />
+            <Route
+              path="/app/provider"
+              element={<Navigate to="/app/provider/dashboard" replace />}
+            />
+            <Route
+              path="/app/provider/dashboard"
+              element={
+                <RbacRouteGuard allowedRoles={["admin", "provider"]}>
+                  <ProviderOperationalLayout>
+                    <OperationalDashboard area="provider" />
+                  </ProviderOperationalLayout>
+                </RbacRouteGuard>
+              }
+            />
+            <Route
+              path="/app/provider/:moduleKey"
+              element={
+                <RbacRouteGuard allowedRoles={["admin", "provider"]}>
+                  <ProviderOperationalLayout>
+                    <OperationalModulePage area="provider" />
+                  </ProviderOperationalLayout>
+                </RbacRouteGuard>
+              }
+            />
+            <Route
+              path="/app/viewer"
+              element={<Navigate to="/app/viewer/dashboard" replace />}
+            />
+            <Route
+              path="/app/viewer/dashboard"
+              element={
+                <RbacRouteGuard allowedRoles={["admin", "provider", "staff", "viewer"]}>
+                  <ViewerOperationalLayout>
+                    <OperationalDashboard area="viewer" />
+                  </ViewerOperationalLayout>
+                </RbacRouteGuard>
+              }
+            />
+            <Route
+              path="/app/viewer/:moduleKey"
+              element={
+                <RbacRouteGuard allowedRoles={["admin", "provider", "staff", "viewer"]}>
+                  <ViewerOperationalLayout>
+                    <OperationalModulePage area="viewer" />
+                  </ViewerOperationalLayout>
+                </RbacRouteGuard>
+              }
+            />
+            <Route path="/profile-test" element={<ProfileTest />} />
+            <Route path="/backend-test" element={<BackendTest />} />
+            <Route path="*" element={fallbackElement} />
+          </Routes>
+        </Router>
+        <Toaster />
+      </QueryClientProvider>
+    </FirebaseSessionProvider>
+  );
+
+  return firebaseAuthFeatureEnabled ? appContent : <AuthProvider>{appContent}</AuthProvider>;
 }
 
 export default App

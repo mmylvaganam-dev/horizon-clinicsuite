@@ -304,6 +304,59 @@ export async function searchBase44Archive(
   );
 }
 
+export async function listPharmacyProducts(
+  query = "",
+  backendBaseUrl = defaultBackendBaseUrl
+) {
+  const params = new URLSearchParams({ query });
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/pharmacy/products?${params.toString()}`,
+    "Pharmacy products load failed"
+  );
+}
+
+export async function createPharmacyProduct(
+  product,
+  backendBaseUrl = defaultBackendBaseUrl
+) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/pharmacy/products`,
+    "Pharmacy product create failed",
+    {
+      method: "POST",
+      body: JSON.stringify(product),
+    }
+  );
+}
+
+export async function createPharmacySale(
+  sale,
+  backendBaseUrl = defaultBackendBaseUrl
+) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/pharmacy/sales`,
+    "Pharmacy sale create failed",
+    {
+      method: "POST",
+      body: JSON.stringify(sale),
+    }
+  );
+}
+
+export async function listPharmacySales(backendBaseUrl = defaultBackendBaseUrl) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/pharmacy/sales`,
+    "Pharmacy sales load failed"
+  );
+}
+
+export async function getPharmacyDailySummary(backendBaseUrl = defaultBackendBaseUrl) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/pharmacy/daily-summary`,
+    "Pharmacy daily summary load failed"
+  );
+}
+
 async function sendFirebaseAuthorizedRequest(url, fallbackErrorMessage, options = {}) {
   const currentUser = await waitForFirebaseUser();
 
