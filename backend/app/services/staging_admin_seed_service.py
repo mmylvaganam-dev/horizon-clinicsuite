@@ -1,4 +1,5 @@
 import os
+from typing import Optional
 from uuid import UUID
 from uuid import uuid4
 
@@ -16,9 +17,18 @@ STAGING_ORG_ID = UUID("99999999-9999-4999-8999-999999999999")
 STAGING_ORG_SLUG = "horizon-staging-admin-organization"
 
 
-def seed_staging_admin_user(seed_token: str | None) -> dict:
+def seed_staging_admin_user(
+    seed_token: str | None,
+    *,
+    firebase_uid: Optional[str] = None,
+    email: Optional[str] = None,
+    first_name: Optional[str] = None,
+    last_name: Optional[str] = None,
+    name: Optional[str] = None,
+) -> dict:
     _require_staging_environment()
     _require_seed_token(seed_token)
+    identity = _seed_identity(firebase_uid, email, first_name, last_name, name)
 
     if SessionLocal is None:
         raise HTTPException(
@@ -29,7 +39,7 @@ def seed_staging_admin_user(seed_token: str | None) -> dict:
     try:
         with SessionLocal() as db:
             organization = _get_or_create_organization(db)
-            user = _get_or_create_user(db, organization)
+            user = _get_or_create_user(db, organization, identity)
             role = _get_or_create_admin_role(db, organization)
             user_role = _get_or_create_user_role(db, user, role, organization)
             member = _get_or_create_org_member(db, user, organization)
@@ -71,9 +81,15 @@ def seed_staging_admin_user(seed_token: str | None) -> dict:
         ) from exc
 
 
-def rollback_staging_admin_user(seed_token: str | None) -> dict:
+def rollback_staging_admin_user(
+    seed_token: str | None,
+    *,
+    firebase_uid: Optional[str] = None,
+    email: Optional[str] = None,
+) -> dict:
     _require_staging_environment()
     _require_seed_token(seed_token)
+    identity = _seed_identity(firebase_uid, email, None, None, None)
 
     if SessionLocal is None:
         raise HTTPException(
@@ -83,9 +99,15 @@ def rollback_staging_admin_user(seed_token: str | None) -> dict:
 
     try:
         with SessionLocal() as db:
-            user = db.execute(
-                select(User).where(User.firebase_uid == STAGING_ADMIN_UID)
-            ).scalar_one_or_none()
+            user = None
+            if identity["firebase_uid"]:
+                user = db.execute(
+                    select(User).where(User.firebase_uid == identity["firebase_uid"])
+                ).scalar_one_or_none()
+            if user is None:
+                user = db.execute(
+                    select(User).where(User.email == identity["email"])
+                ).scalar_one_or_none()
             organization = db.execute(
                 select(Organization).where(Organization.slug == STAGING_ORG_SLUG)
             ).scalar_one_or_none()
@@ -122,8 +144,8 @@ def rollback_staging_admin_user(seed_token: str | None) -> dict:
 
             return {
                 "rolled_back": True,
-                "firebase_uid": STAGING_ADMIN_UID,
-                "email": STAGING_ADMIN_EMAIL,
+                "firebase_uid": identity["firebase_uid"],
+                "email": identity["email"],
                 "admin_assignments_removed": len(user_roles),
                 "organization_memberships_removed": len(memberships),
                 "user_record_preserved": True,
@@ -162,6 +184,35 @@ def _require_seed_token(seed_token: str | None) -> None:
         )
 
 
+def _seed_identity(
+    firebase_uid: Optional[str],
+    email: Optional[str],
+    first_name: Optional[str],
+    last_name: Optional[str],
+    name: Optional[str],
+) -> dict:
+    normalized_email = (email or STAGING_ADMIN_EMAIL).strip().lower()
+    normalized_uid = (firebase_uid or STAGING_ADMIN_UID).strip() or None
+
+    if "@" not in normalized_email:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="A valid email is required",
+        )
+
+    fallback_name = name or " ".join(
+        part for part in [first_name, last_name] if part
+    ) or "Staging Admin"
+
+    return {
+        "firebase_uid": normalized_uid,
+        "email": normalized_email,
+        "first_name": first_name or "Staging",
+        "last_name": last_name or "Admin",
+        "name": fallback_name,
+    }
+
+
 def _get_or_create_organization(db) -> Organization:
     organization = db.execute(
         select(Organization).where(Organization.slug == STAGING_ORG_SLUG)
@@ -189,36 +240,42 @@ def _get_or_create_organization(db) -> Organization:
     return organization
 
 
-def _get_or_create_user(db, organization: Organization) -> User:
-    user = db.execute(
-        select(User).where(User.firebase_uid == STAGING_ADMIN_UID)
-    ).scalar_one_or_none()
+def _get_or_create_user(db, organization: Organization, identity: dict) -> User:
+    user = None
+    if identity["firebase_uid"]:
+        user = db.execute(
+            select(User).where(User.firebase_uid == identity["firebase_uid"])
+        ).scalar_one_or_none()
 
     if user is None:
         user = db.execute(
-            select(User).where(User.email == STAGING_ADMIN_EMAIL)
+            select(User).where(User.email == identity["email"])
         ).scalar_one_or_none()
 
     if user is None:
         user = User(
             id=uuid4(),
-            firebase_uid=STAGING_ADMIN_UID,
+            firebase_uid=identity["firebase_uid"],
             auth_provider="firebase",
             primary_organization_id=organization.id,
-            email=STAGING_ADMIN_EMAIL,
-            first_name="Staging",
-            last_name="Admin",
-            name="Staging Admin",
+            email=identity["email"],
+            first_name=identity["first_name"],
+            last_name=identity["last_name"],
+            name=identity["name"],
             status="active",
             metadata_json={"staging_admin_seed": True, "non_phi": True},
         )
         db.add(user)
         db.flush()
     else:
-        user.firebase_uid = STAGING_ADMIN_UID
+        if identity["firebase_uid"]:
+            user.firebase_uid = identity["firebase_uid"]
         user.auth_provider = "firebase"
         user.primary_organization_id = user.primary_organization_id or organization.id
-        user.email = STAGING_ADMIN_EMAIL
+        user.email = identity["email"]
+        user.first_name = user.first_name or identity["first_name"]
+        user.last_name = user.last_name or identity["last_name"]
+        user.name = user.name or identity["name"]
         user.status = "active"
         user.metadata_json = {
             **(user.metadata_json or {}),
