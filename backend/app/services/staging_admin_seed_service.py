@@ -191,15 +191,20 @@ def _seed_identity(
     last_name: Optional[str],
     name: Optional[str],
 ) -> dict:
+    env_email = os.getenv("STAGING_ADMIN_SEED_EMAIL")
+    identity_email_overridden = bool(email or env_email)
+    default_uid = None if identity_email_overridden else STAGING_ADMIN_UID
+
     normalized_email = (
         email
-        or os.getenv("STAGING_ADMIN_SEED_EMAIL")
+        or env_email
         or STAGING_ADMIN_EMAIL
     ).strip().lower()
     normalized_uid = (
         firebase_uid
         or os.getenv("STAGING_ADMIN_SEED_FIREBASE_UID")
-        or STAGING_ADMIN_UID
+        or default_uid
+        or ""
     ).strip() or None
 
     if "@" not in normalized_email:
