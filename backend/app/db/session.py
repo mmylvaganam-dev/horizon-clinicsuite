@@ -2,13 +2,16 @@ import os
 from typing import Optional
 
 from dotenv import load_dotenv
+from sqlalchemy import text
 from sqlalchemy import create_engine
 from sqlalchemy.engine import Engine
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import sessionmaker
 
 
 load_dotenv()
 
+APP_ENV = os.getenv("APP_ENV") or os.getenv("ENVIRONMENT") or "development"
 DATABASE_URL = os.getenv("HCS_DATABASE_URL") or os.getenv("DATABASE_URL")
 DATABASE_SSL = os.getenv("DATABASE_SSL", "false").lower() == "true"
 DATABASE_POOL_MIN = int(os.getenv("DATABASE_POOL_MIN", "1"))
@@ -39,24 +42,70 @@ def _engine_options() -> dict:
     return options
 
 
-engine: Optional[Engine] = (
-    create_engine(DATABASE_URL, **_engine_options()) if DATABASE_URL else None
-)
+def _create_engine() -> tuple[Optional[Engine], Optional[Exception]]:
+    if not DATABASE_URL:
+        return None, None
+
+    try:
+        return create_engine(DATABASE_URL, **_engine_options()), None
+    except Exception as exc:
+        return None, exc
+
+
+engine, engine_creation_error = _create_engine()
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine) if engine else None
 
 
-def get_database_status() -> dict[str, str]:
-    if engine is None:
-        return {
-            "database": "configured_not_connected",
-            "database_url_configured": "false",
-        }
+def _is_staging_like_environment() -> bool:
+    return APP_ENV.lower() in {"development", "dev", "local", "staging", "test"}
 
-    return {
+
+def _safe_error_detail(error: Exception) -> str:
+    detail = str(error).replace("\n", " ")
+    return detail[:500]
+
+
+def _database_error_payload(error: Exception, stage: str) -> dict[str, str]:
+    payload = {
         "database": "configured_not_connected",
         "database_url_configured": "true",
         "database_engine": "sqlalchemy",
+        "database_check": stage,
+        "database_error_type": error.__class__.__name__,
+    }
+
+    if _is_staging_like_environment():
+        payload["database_error_detail"] = _safe_error_detail(error)
+
+    return payload
+
+
+def get_database_status() -> dict[str, str]:
+    if engine is None:
+        if engine_creation_error is not None:
+            return _database_error_payload(engine_creation_error, "engine_creation")
+
+        return {
+            "database": "configured_not_connected",
+            "database_url_configured": "false",
+            "database_check": "not_configured",
+        }
+
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("select 1"))
+    except SQLAlchemyError as exc:
+        return _database_error_payload(exc, "connection")
+    except Exception as exc:
+        return _database_error_payload(exc, "connection")
+
+    return {
+        "database": "connected",
+        "database_url_configured": "true",
+        "database_engine": "sqlalchemy",
+        "database_driver": engine.dialect.driver,
+        "database_check": "select_1_passed",
     }
 
 

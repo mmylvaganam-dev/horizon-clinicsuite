@@ -54,6 +54,7 @@ import AppointmentsTest from './pages/AppointmentsTest';
 import OrgMembersTest from './pages/OrgMembersTest';
 import Base44ArchiveTest from './pages/Base44ArchiveTest';
 import PharmacyTransition from './pages/PharmacyTransition';
+import PatientTransition from './pages/PatientTransition';
 import RbacRouteGuard from '@/components/app/RbacRouteGuard';
 import AdminOperationalLayout from '@/layouts/AdminOperationalLayout';
 import ProviderOperationalLayout from '@/layouts/ProviderOperationalLayout';
@@ -179,6 +180,7 @@ function App() {
             <Route path="/org-members-test" element={<OrgMembersTest />} />
             <Route path="/base44-archive-test" element={<Base44ArchiveTest />} />
             <Route path="/pharmacy-transition" element={<PharmacyTransition />} />
+            <Route path="/patient-transition" element={<PatientTransition />} />
             <Route path="/app" element={<Navigate to="/app/viewer/dashboard" replace />} />
             <Route
               path="/app/admin"

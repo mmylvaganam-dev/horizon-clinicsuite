@@ -3,7 +3,13 @@ import os
 from fastapi import HTTPException, status
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.db.models import PharmacyProduct, PharmacySale, PharmacySaleItem
+from app.db.models import (
+    PatientTransition,
+    PatientVisitTransition,
+    PharmacyProduct,
+    PharmacySale,
+    PharmacySaleItem,
+)
 from app.db.session import engine
 
 
@@ -21,6 +27,8 @@ def create_staging_pharmacy_tables(seed_token: str | None) -> dict:
         PharmacyProduct.__table__.create(bind=engine, checkfirst=True)
         PharmacySale.__table__.create(bind=engine, checkfirst=True)
         PharmacySaleItem.__table__.create(bind=engine, checkfirst=True)
+        PatientTransition.__table__.create(bind=engine, checkfirst=True)
+        PatientVisitTransition.__table__.create(bind=engine, checkfirst=True)
         return {
             "created": True,
             "environment": _app_environment(),
@@ -28,6 +36,8 @@ def create_staging_pharmacy_tables(seed_token: str | None) -> dict:
                 "pharmacy_products",
                 "pharmacy_sales_live",
                 "pharmacy_sale_items_live",
+                "patients_transition",
+                "patient_visits_transition",
             ],
             "mode": "staging_only_create_missing_tables",
         }

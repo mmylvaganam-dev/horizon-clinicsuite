@@ -8,7 +8,7 @@ Use `frontend/.env.staging.example` as the template.
 
 ```text
 VITE_USE_FIREBASE_AUTH=true
-VITE_BACKEND_BASE_URL=https://staging-api.example.lk
+VITE_BACKEND_BASE_URL=https://<cloud-run-default-url>
 VITE_FIREBASE_API_KEY=
 VITE_FIREBASE_AUTH_DOMAIN=
 VITE_FIREBASE_PROJECT_ID=
@@ -23,7 +23,7 @@ Use `backend/.env.staging.example` as the template.
 ```text
 APP_ENV=staging
 ENVIRONMENT=staging
-BACKEND_CORS_ORIGINS=https://staging-app.example.lk
+BACKEND_CORS_ORIGINS=https://premier-horizon-suite.web.app,https://premier-horizon-suite.firebaseapp.com
 HCS_DATABASE_URL=postgresql://USER:PASSWORD@STAGING_DB_HOST:5432/horizon_clinicsuite_staging
 DATABASE_SSL=true
 DATABASE_POOL_MIN=1
@@ -45,7 +45,7 @@ Use a staging Firebase project and a staging service account only.
 ## CORS Allowed Origins
 
 ```text
-BACKEND_CORS_ORIGINS=https://staging-app.example.lk
+BACKEND_CORS_ORIGINS=https://premier-horizon-suite.web.app,https://premier-horizon-suite.firebaseapp.com
 ```
 
 Do not use wildcard CORS in staging once the frontend domain is known.
@@ -71,7 +71,7 @@ Use a staging bucket. Do not upload patient files or real PHI.
 ## Security Secrets
 
 ```text
-ALLOWED_HOSTS=staging-app.example.lk,staging-api.example.lk
+ALLOWED_HOSTS=premier-horizon-suite.web.app,premier-horizon-suite.firebaseapp.com,<cloud-run-default-host>
 SESSION_COOKIE_SECURE=true
 LOG_LEVEL=info
 AUDIT_LOGGING_ENABLED=true

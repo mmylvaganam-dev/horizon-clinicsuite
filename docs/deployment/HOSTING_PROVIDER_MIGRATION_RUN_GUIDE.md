@@ -9,7 +9,7 @@ Do not run this against production. Do not use PHI. Do not paste `DATABASE_URL`,
 Use this guide after:
 
 - Staging PostgreSQL has been created.
-- `HCS_DATABASE_URL` has been added securely to the backend hosting provider.
+- `HCS_DATABASE_URL` has been added securely to Cloud Run secrets or the backend hosting provider.
 - Backend code has been deployed or is available to the provider shell/job.
 - Alembic migration files are present.
 - You are ready to create staging tables.
@@ -37,9 +37,37 @@ pip install -r requirements.txt
 alembic -c ../alembic.ini upgrade head
 ```
 
+## Cloud Run Job Or Provider Shell
+
+Official staging flow on Google Cloud:
+
+1. Open Google Cloud console.
+2. Select the staging project.
+3. Confirm Cloud SQL PostgreSQL is configured.
+4. Confirm Cloud Run has access to `HCS_DATABASE_URL` through Secret Manager or secure environment configuration.
+5. Do not reveal or print the value.
+6. Run a one-time migration job using the same backend code and secrets.
+
+Cloud Run job command:
+
+```bash
+pip install -r requirements.txt && alembic upgrade head
+```
+
+If using a temporary Cloud Run job, give it the same database secret access as the staging API service, then delete or disable the job after migration succeeds.
+
+Pass criteria:
+
+- Command exits successfully.
+- No production database is touched.
+- Staging Cloud SQL tables are created.
+- Staging Cloud Run backend can still start after migration.
+
 ## Render Backend Shell Or Job
 
-Recommended staging flow on Render:
+Render is an optional alternative only. Use this section only if Google Cloud setup is temporarily blocked.
+
+Optional staging flow on Render:
 
 1. Open the Render dashboard.
 2. Open the staging backend web service.
@@ -74,7 +102,9 @@ Pass criteria:
 
 ## Railway Shell Or Job
 
-Recommended staging flow on Railway:
+Railway is an optional alternative only. Use this section only if Google Cloud setup is temporarily blocked.
+
+Optional staging flow on Railway:
 
 1. Open the Railway project.
 2. Open the staging backend service.

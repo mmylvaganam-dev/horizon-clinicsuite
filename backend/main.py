@@ -46,6 +46,12 @@ from app.services.org_member_service import (
     list_org_members,
     update_org_member_status,
 )
+from app.services.patient_transition_service import (
+    create_patient,
+    create_patient_visit,
+    list_patient_visits,
+    list_patients,
+)
 from app.services.pharmacy_service import (
     create_pharmacy_product,
     create_pharmacy_sale,
@@ -198,6 +204,26 @@ class PharmacySaleCreateRequest(BaseModel):
     payment_method: str = "cash"
     discount: float = 0
     items: list[PharmacySaleItemRequest]
+
+
+class PatientCreateRequest(BaseModel):
+    organization_id: Optional[str] = None
+    base44_id: Optional[str] = None
+    full_name: str
+    date_of_birth: Optional[str] = None
+    gender: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[str] = None
+    address: Optional[str] = None
+
+
+class PatientVisitCreateRequest(BaseModel):
+    patient_id: str
+    organization_id: Optional[str] = None
+    provider_user_id: Optional[str] = None
+    visit_date: Optional[str] = None
+    reason: Optional[str] = None
+    notes: Optional[str] = None
 
 
 app = FastAPI(
@@ -535,6 +561,46 @@ def pharmacy_daily_summary(authorization: Optional[str] = Header(default=None)):
     firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
     context = require_any_role(firebase_user, ["admin", "staff", "provider", "viewer"])
     return get_pharmacy_daily_summary(context)
+
+
+@app.get("/patients/list")
+def patients_list(
+    query: str = "",
+    authorization: Optional[str] = Header(default=None),
+):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin", "staff", "provider", "viewer"])
+    return list_patients(context, query)
+
+
+@app.post("/patients/create")
+def patients_create(
+    patient: PatientCreateRequest,
+    authorization: Optional[str] = Header(default=None),
+):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin", "staff", "provider"])
+    return create_patient(_model_payload(patient), context)
+
+
+@app.get("/patients/{patient_id}/visits")
+def patients_visits(
+    patient_id: str,
+    authorization: Optional[str] = Header(default=None),
+):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin", "staff", "provider", "viewer"])
+    return list_patient_visits(patient_id, context)
+
+
+@app.post("/patients/visits")
+def patients_create_visit(
+    visit: PatientVisitCreateRequest,
+    authorization: Optional[str] = Header(default=None),
+):
+    firebase_user = firebase_auth_service.get_current_user_from_token(authorization)
+    context = require_any_role(firebase_user, ["admin", "staff", "provider"])
+    return create_patient_visit(_model_payload(visit), context)
 
 
 @app.post("/base44-archive/upload")

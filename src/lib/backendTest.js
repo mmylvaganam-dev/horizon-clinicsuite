@@ -357,6 +357,55 @@ export async function getPharmacyDailySummary(backendBaseUrl = defaultBackendBas
   );
 }
 
+export async function listTransitionPatients(
+  query = "",
+  backendBaseUrl = defaultBackendBaseUrl
+) {
+  const params = new URLSearchParams({ query });
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/patients/list?${params.toString()}`,
+    "Patient list failed"
+  );
+}
+
+export async function createTransitionPatient(
+  patient,
+  backendBaseUrl = defaultBackendBaseUrl
+) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/patients/create`,
+    "Patient create failed",
+    {
+      method: "POST",
+      body: JSON.stringify(patient),
+    }
+  );
+}
+
+export async function listTransitionPatientVisits(
+  patientId,
+  backendBaseUrl = defaultBackendBaseUrl
+) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/patients/${patientId}/visits`,
+    "Patient visits load failed"
+  );
+}
+
+export async function createTransitionPatientVisit(
+  visit,
+  backendBaseUrl = defaultBackendBaseUrl
+) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/patients/visits`,
+    "Patient visit create failed",
+    {
+      method: "POST",
+      body: JSON.stringify(visit),
+    }
+  );
+}
+
 async function sendFirebaseAuthorizedRequest(url, fallbackErrorMessage, options = {}) {
   const currentUser = await waitForFirebaseUser();
 

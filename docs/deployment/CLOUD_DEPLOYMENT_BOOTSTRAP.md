@@ -68,7 +68,8 @@ Environment notes:
 
 - Use `VITE_USE_FIREBASE_AUTH=true` for staging and production.
 - Use environment-specific Firebase web config.
-- Set `VITE_BACKEND_BASE_URL` to the matching Cloud Run service URL or custom API domain.
+- Set `VITE_BACKEND_BASE_URL` to the matching Cloud Run default `*.run.app` URL first.
+- Move to custom API domains only after default URL smoke tests pass.
 - Do not commit real `.env` files.
 
 ## Backend: Google Cloud Run
@@ -158,16 +159,18 @@ Rules:
 Recommended domains:
 
 ```text
-app.example.lk
-api.example.lk
-staging-app.example.lk
-staging-api.example.lk
+cs.premierhorizon.ca
+api.cs.premierhorizon.ca
+cs2.premierhorizon.ca
+api-cs2.premierhorizon.ca
 ```
 
 - Firebase Hosting provides HTTPS for frontend domains.
 - Cloud Run provides HTTPS for service URLs and supports custom domains/load balancing.
 - Restrict backend CORS to approved Firebase Hosting domains.
 - Enable HSTS only after domain setup is stable.
+- First staging deploy should use the Firebase default `*.web.app` URL and Cloud Run default `*.run.app` URL.
+- Add `cs2.premierhorizon.ca` and `api-cs2.premierhorizon.ca` only after default URL smoke tests pass.
 
 ## Estimated Monthly Cost
 

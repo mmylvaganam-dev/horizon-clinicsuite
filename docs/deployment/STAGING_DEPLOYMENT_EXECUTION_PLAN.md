@@ -4,28 +4,32 @@ This plan prepares a real staging deployment for Horizon's independent operation
 
 ## Staging Frontend Hosting
 
-- Deploy the React/Vite frontend to a staging static host.
-- Recommended first option: Render Static Site or Vercel preview/staging project.
-- Use a staging domain such as `staging-app.example.lk`.
+- Deploy the React/Vite frontend to Firebase Hosting.
+- First staging frontend URL: Firebase default `*.web.app`.
+- Current default staging frontend: `https://premier-horizon-suite.web.app`.
+- Custom staging frontend domain `https://cs2.premierhorizon.ca` comes later.
 - Set `VITE_USE_FIREBASE_AUTH=true`.
-- Point `VITE_BACKEND_BASE_URL` to the staging backend API.
+- Point `VITE_BACKEND_BASE_URL` to the Cloud Run default `*.run.app` URL first.
+- After custom domain setup, point `VITE_BACKEND_BASE_URL` to `https://api-cs2.premierhorizon.ca`.
 
 ## Staging Backend Hosting
 
-- Deploy FastAPI to a staging backend host.
-- Recommended first option: Render Web Service in Singapore region.
-- Use a staging API domain such as `staging-api.example.lk`.
+- Deploy FastAPI to Google Cloud Run.
+- First staging backend URL: Cloud Run default `*.run.app`.
+- Custom staging backend domain `https://api-cs2.premierhorizon.ca` comes later.
+- Use `asia-southeast1` Singapore unless a formal region review changes it.
 - Configure HTTPS.
-- Store environment variables in provider secret management.
-- Confirm `/health`, `/db/status`, and protected Firebase routes respond.
+- Store environment variables in Cloud Run secrets or Secret Manager.
+- Confirm `/db/status`, `/system/health-summary`, and protected Firebase routes respond.
 
 ## Staging PostgreSQL Database
 
 - Create a staging PostgreSQL database separate from local and production.
-- Recommended first option: Neon Singapore or Render PostgreSQL.
-- Set `HCS_DATABASE_URL` only in the staging backend environment.
+- Official database: Google Cloud SQL PostgreSQL.
+- Use `asia-southeast1` Singapore unless a formal region review changes it.
+- Set `HCS_DATABASE_URL` only in Cloud Run secrets or Secret Manager.
 - Enable TLS.
-- Enable backups if available on the selected tier.
+- Enable backups.
 - Run Alembic migrations in staging before testing workflows.
 
 ## Firebase Staging Project Guidance
@@ -88,13 +92,16 @@ This plan prepares a real staging deployment for Horizon's independent operation
 
 ## Staging Execution Order
 
-1. Provision staging Firebase.
-2. Provision staging PostgreSQL.
-3. Deploy staging backend.
-4. Configure backend environment variables.
-5. Run Alembic migrations.
-6. Deploy staging frontend.
-7. Configure frontend environment variables.
-8. Bootstrap staging admin account.
-9. Run smoke tests.
-10. Record blockers and fixes.
+1. Provision staging Firebase/Google Cloud project.
+2. Provision Cloud SQL PostgreSQL staging database.
+3. Deploy staging backend to Cloud Run.
+4. Copy the Cloud Run default `*.run.app` URL.
+5. Configure backend environment variables and CORS for the Firebase default frontend URL.
+6. Run Alembic migrations.
+7. Configure `VITE_BACKEND_BASE_URL` with the Cloud Run default URL.
+8. Deploy staging frontend to Firebase Hosting.
+9. Test `https://premier-horizon-suite.web.app`.
+10. Bootstrap staging admin account.
+11. Run smoke tests.
+12. Record blockers and fixes.
+13. Add custom domains only after default URL smoke tests pass.

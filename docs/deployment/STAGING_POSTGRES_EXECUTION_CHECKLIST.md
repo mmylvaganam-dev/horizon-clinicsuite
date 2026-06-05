@@ -4,18 +4,18 @@ This checklist prepares the first real staging PostgreSQL database for Horizon. 
 
 ## Recommended Database Provider
 
-Use one of these options:
+Use Google Cloud SQL PostgreSQL for the official Horizon staging database:
 
-- Recommended first choice: Render PostgreSQL in Singapore, if the backend is also deployed on Render Singapore.
-- Strong alternative: Neon PostgreSQL in Singapore, if the team prefers database-specific tooling, branching, and a managed PostgreSQL-focused provider.
+- Recommended first choice: Cloud SQL PostgreSQL in `asia-southeast1` Singapore.
+- Optional alternatives only: Render PostgreSQL or Neon PostgreSQL in Singapore if Google Cloud setup is temporarily blocked.
 
-For the first staging launch, keeping the backend and PostgreSQL in the same Singapore region is the simplest and safest option.
+For the first staging launch, keep Cloud Run and Cloud SQL in the same Singapore region.
 
 ## Preflight Checklist
 
 - Staging release branch is selected.
-- Staging backend host is selected.
-- Staging frontend host is selected.
+- Staging Cloud Run backend is selected.
+- Staging Firebase Hosting frontend is selected.
 - Staging Firebase project exists.
 - Staging Firebase Auth is enabled.
 - Staging Firebase Storage bucket exists.
@@ -25,58 +25,63 @@ For the first staging launch, keeping the backend and PostgreSQL in the same Sin
 - Alembic migration files exist.
 - Rollback plan is documented.
 
-## Option A: Create Render PostgreSQL In Singapore
+## Option A: Create Cloud SQL PostgreSQL In Singapore
 
-1. Open Render dashboard.
-2. Create a new PostgreSQL database.
-3. Use a staging-only name:
-
-```text
-horizon-clinicsuite-staging-db
-```
-
-4. Select region:
+1. Open Google Cloud console.
+2. Select the staging Google/Firebase project.
+3. Open Cloud SQL.
+4. Create a new PostgreSQL instance.
+5. Use a staging-only instance name:
 
 ```text
-Singapore
+horizon-postgres-staging
 ```
 
-5. Select a small staging plan.
-6. Confirm this database is not connected to production.
-7. After creation, open the database connection settings.
-8. Copy the external database URL or internal database URL depending on where the backend runs.
-9. Store the URL only in the backend hosting secret manager.
-
-Use Render PostgreSQL first if the staging backend is also Render. This keeps the first deployment easier to operate.
-
-## Option B: Create Neon PostgreSQL In Singapore
-
-1. Open Neon dashboard.
-2. Create a new project.
-3. Use a staging-only project name:
+6. Select region:
 
 ```text
-horizon-clinicsuite-staging
+asia-southeast1
 ```
 
-4. Select region:
-
-```text
-Singapore
-```
-
-5. Create the default staging branch.
-6. Create or use the default database:
+7. Create database:
 
 ```text
 horizon_clinicsuite_staging
 ```
 
-7. Copy the PostgreSQL connection string.
-8. Require SSL if Neon provides an SSL-required connection string.
-9. Store the URL only in the backend hosting secret manager.
+8. Enable automated backups.
+9. Use a staging-only database user and strong password.
+10. Choose a Cloud Run to Cloud SQL connection method.
+11. Store the resulting connection details only in Cloud Run secrets or Secret Manager.
 
-Use Neon if database branching, stronger database tooling, or a future move away from provider-coupled hosting is preferred.
+Use Cloud SQL first because Horizon's official backend is Cloud Run and the official database is Google Cloud SQL PostgreSQL.
+
+## Option B: Optional Alternative PostgreSQL In Singapore
+
+Use this only if Google Cloud SQL setup is temporarily blocked.
+
+1. Create a Render PostgreSQL or Neon PostgreSQL database in Singapore.
+2. Use a staging-only project/database name:
+
+```text
+horizon-clinicsuite-staging
+```
+
+3. Select region:
+
+```text
+Singapore
+```
+
+4. Create or use database:
+
+```text
+horizon_clinicsuite_staging
+```
+
+5. Require SSL.
+6. Store the URL only in Cloud Run secrets or Secret Manager.
+7. Document that this is temporary and outside the official Google/Firebase-first architecture.
 
 ## Copy DATABASE_URL Securely
 
@@ -93,14 +98,14 @@ Provider URLs may include SSL options. Keep those options intact.
 Secure handling rules:
 
 - Copy directly from the provider dashboard.
-- Paste directly into backend hosting environment variables.
+- Paste directly into Cloud Run secrets or Secret Manager.
 - Do not store it in `.env.example`.
 - Do not send it to browser/frontend code.
 - Rotate it if accidentally exposed.
 
-## Set HCS_DATABASE_URL In Backend Hosting
+## Set HCS_DATABASE_URL In Cloud Run
 
-In the staging backend host, set:
+In the staging Cloud Run backend, set:
 
 ```text
 HCS_DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/horizon_clinicsuite_staging
@@ -111,13 +116,13 @@ Also confirm:
 ```text
 APP_ENV=staging
 ENVIRONMENT=staging
-BACKEND_CORS_ORIGINS=https://staging-frontend-domain
+BACKEND_CORS_ORIGINS=https://premier-horizon-suite.web.app,https://premier-horizon-suite.firebaseapp.com
 FIREBASE_PROJECT_ID=staging-firebase-project-id
 FIREBASE_STORAGE_BUCKET=staging-storage-bucket
 FIREBASE_SERVICE_ACCOUNT_JSON_PATH=/secure/path/to/staging-service-account.json
 ```
 
-Restart the backend after setting variables.
+Restart or redeploy the Cloud Run service after setting variables.
 
 ## Run Alembic Migration
 

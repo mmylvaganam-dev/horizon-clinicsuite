@@ -75,15 +75,15 @@ npm run build
 Manual staging checks:
 
 ```text
-https://staging-app.example.lk/firebase-auth-test
-https://staging-app.example.lk/app/admin/dashboard
-https://staging-app.example.lk/admin-org-test
-https://staging-app.example.lk/org-members-test
-https://staging-app.example.lk/invitations-test
-https://staging-app.example.lk/documents-test
-https://staging-app.example.lk/availability-test
-https://staging-app.example.lk/appointments-test
-https://staging-app.example.lk/system-health-test
+https://premier-horizon-suite.web.app/firebase-auth-test
+https://premier-horizon-suite.web.app/app/admin/dashboard
+https://premier-horizon-suite.web.app/admin-org-test
+https://premier-horizon-suite.web.app/org-members-test
+https://premier-horizon-suite.web.app/invitations-test
+https://premier-horizon-suite.web.app/documents-test
+https://premier-horizon-suite.web.app/availability-test
+https://premier-horizon-suite.web.app/appointments-test
+https://premier-horizon-suite.web.app/system-health-test
 ```
 
 ## Safety Notes

@@ -16,6 +16,8 @@ For each environment, configure separate Firebase Auth, Firebase Storage, Cloud 
 
 ## 2. Firebase Hosting Frontend
 
+Use Firebase default `*.web.app` URLs first. Custom domains come later.
+
 Initialize hosting:
 
 ```bash
@@ -76,6 +78,8 @@ Store the connection string securely as `HCS_DATABASE_URL`. Do not paste it into
 
 ## 5. Cloud Run Backend
 
+Use Cloud Run default `*.run.app` URLs first. Custom domains come later.
+
 Deploy staging backend:
 
 ```bash
@@ -90,7 +94,7 @@ Set staging environment variables and secrets:
 ```text
 APP_ENV=staging
 ENVIRONMENT=staging
-BACKEND_CORS_ORIGINS=https://staging-app.example.lk
+BACKEND_CORS_ORIGINS=https://premier-horizon-suite.web.app,https://premier-horizon-suite.firebaseapp.com
 HCS_DATABASE_URL=<secret>
 FIREBASE_PROJECT_ID=<staging-project>
 FIREBASE_STORAGE_BUCKET=<staging-bucket>

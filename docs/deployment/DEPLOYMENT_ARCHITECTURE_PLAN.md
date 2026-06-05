@@ -4,33 +4,45 @@ This plan describes a safe deployment architecture for the independent Horizon o
 
 ## Recommended Architecture
 
-- Frontend: static React build hosted on a managed frontend platform with HTTPS and CDN.
-- Backend: FastAPI deployed as a containerized service behind HTTPS.
-- Database: managed PostgreSQL with TLS, automated backups, point-in-time recovery, and private networking where possible.
+- Frontend: Firebase Hosting with HTTPS and CDN.
+- Backend: FastAPI deployed to Google Cloud Run behind HTTPS.
+- Database: Google Cloud SQL PostgreSQL with TLS, automated backups, point-in-time recovery, and private networking where possible.
 - Authentication: Firebase Auth for user identity and ID token issuance.
 - File storage: Firebase Storage for uploaded files and documents.
 - Authorization: FastAPI verifies Firebase ID tokens and applies PostgreSQL-backed app user, organization membership, and RBAC checks.
 
-## Frontend Hosting Options
+## Frontend Hosting
 
-- Vercel or Netlify for fast static deployment and preview environments.
-- Firebase Hosting if keeping frontend close to Firebase Auth and Storage.
-- AWS Amplify, CloudFront plus S3, Azure Static Web Apps, or Google Cloud Hosting for cloud-provider alignment.
+Official host: Firebase Hosting.
 
-Recommended first production path: managed static hosting with preview deployments, custom domain, HTTPS, and environment-specific variables.
+Official domains:
 
-## Backend Deployment Options
+```text
+First staging: https://premier-horizon-suite.web.app
+Later staging custom domain: https://cs2.premierhorizon.ca
+Production: https://cs.premierhorizon.ca
+```
 
-- Render, Railway, Fly.io, or Google Cloud Run for early production container deployment.
-- AWS ECS/Fargate, Azure Container Apps, or Kubernetes for larger operational maturity.
-- Use health checks, structured logs, autoscaling policy, and deployment rollback support.
+Vercel, Netlify, and other static hosts are optional alternatives only.
 
-Recommended first production path: containerized FastAPI on a managed container platform with HTTPS, secret manager integration, and simple rollback.
+## Backend Deployment
+
+Official host: Google Cloud Run.
+
+Official domains:
+
+```text
+First staging: Cloud Run default *.run.app URL
+Later staging custom domain: https://api-cs2.premierhorizon.ca
+Production: https://api.cs.premierhorizon.ca
+```
+
+Render, Railway, Fly.io, AWS ECS/Fargate, Azure Container Apps, and Kubernetes are optional alternatives only.
 
 ## PostgreSQL Hosting
 
-- Managed PostgreSQL is required for production.
-- Candidate providers include Neon, Supabase, AWS RDS, Google Cloud SQL, Azure Database for PostgreSQL, or Render PostgreSQL.
+- Google Cloud SQL PostgreSQL is the official database.
+- Neon, Supabase, AWS RDS, Azure Database for PostgreSQL, and Render PostgreSQL are optional alternatives only.
 - Production requirements:
   - TLS connections
   - automated backups
@@ -94,7 +106,7 @@ Recommended first production path: containerized FastAPI on a managed container 
 
 ## Deployment Sequence
 
-1. Provision staging Firebase, PostgreSQL, backend, and frontend.
+1. Provision staging Firebase project, Cloud SQL PostgreSQL, Cloud Run backend, and Firebase Hosting frontend.
 2. Configure secrets and environment variables.
 3. Run backend tests and frontend build in CI.
 4. Deploy staging.

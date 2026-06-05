@@ -11,6 +11,9 @@ This runbook describes the first Horizon staging deployment using the official G
 - Database: Google Cloud SQL PostgreSQL in `asia-southeast1`
 - Secrets: Google Secret Manager or Cloud Run secrets
 - Feature flag: `VITE_USE_FIREBASE_AUTH=true`
+- First frontend URL: Firebase default `https://premier-horizon-suite.web.app`
+- First backend URL: Cloud Run default `*.run.app`
+- Later custom domains: `https://cs2.premierhorizon.ca` and `https://api-cs2.premierhorizon.ca`
 
 ## Deployment Order
 
@@ -23,14 +26,16 @@ This runbook describes the first Horizon staging deployment using the official G
 7. Create Cloud Run service account.
 8. Add staging secrets and environment variables.
 9. Deploy backend to Cloud Run.
-10. Run Alembic migrations against staging Cloud SQL.
-11. Initialize Firebase Hosting if needed.
-12. Build and deploy frontend to Firebase Hosting.
-13. Configure Firebase authorized domains.
-14. Configure backend CORS for Firebase Hosting domain.
-15. Create staging admin login.
-16. Run smoke tests.
-17. Record result in the staging freeze decision log.
+10. Copy the Cloud Run default `*.run.app` URL.
+11. Run Alembic migrations against staging Cloud SQL.
+12. Set `VITE_BACKEND_BASE_URL` to the Cloud Run default URL.
+13. Initialize Firebase Hosting if needed.
+14. Build and deploy frontend to Firebase Hosting.
+15. Test `https://premier-horizon-suite.web.app`.
+16. Create staging admin login.
+17. Run smoke tests.
+18. Record result in the staging freeze decision log.
+19. Add custom domains only after default URL smoke tests pass.
 
 ## Firebase Hosting Deployment
 
@@ -62,7 +67,7 @@ Required staging variables:
 
 ```text
 VITE_USE_FIREBASE_AUTH=true
-VITE_BACKEND_BASE_URL=https://staging-api.example.lk
+VITE_BACKEND_BASE_URL=https://<cloud-run-default-url>
 VITE_FIREBASE_API_KEY=
 VITE_FIREBASE_AUTH_DOMAIN=
 VITE_FIREBASE_PROJECT_ID=
@@ -73,6 +78,7 @@ VITE_FIREBASE_APP_ID=
 After deploy:
 
 - Open the Firebase Hosting staging URL.
+- First use `https://premier-horizon-suite.web.app`.
 - Confirm routes load.
 - Confirm Firebase login works.
 - Confirm protected app routes require login.
@@ -107,7 +113,7 @@ Required backend variables:
 ```text
 APP_ENV=staging
 ENVIRONMENT=staging
-BACKEND_CORS_ORIGINS=https://staging-app.example.lk
+BACKEND_CORS_ORIGINS=https://premier-horizon-suite.web.app,https://premier-horizon-suite.firebaseapp.com
 HCS_DATABASE_URL=<stored secret>
 FIREBASE_PROJECT_ID=<staging Firebase project>
 FIREBASE_STORAGE_BUCKET=<staging bucket>

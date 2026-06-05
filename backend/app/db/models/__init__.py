@@ -2,6 +2,7 @@ from app.db.models.audit_log import AuditLog
 from app.db.models.appointment_request import AppointmentRequest
 from app.db.models.invitation import Invitation
 from app.db.models.organization_member import OrganizationMember
+from app.db.models.patient_transition import PatientTransition, PatientVisitTransition
 from app.db.models.pharmacy_product import PharmacyProduct
 from app.db.models.pharmacy_sale import PharmacySale, PharmacySaleItem
 from app.db.models.organization import Organization
@@ -16,6 +17,8 @@ __all__ = [
     "AppointmentRequest",
     "Invitation",
     "OrganizationMember",
+    "PatientTransition",
+    "PatientVisitTransition",
     "PharmacyProduct",
     "PharmacySale",
     "PharmacySaleItem",

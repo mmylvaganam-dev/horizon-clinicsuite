@@ -14,11 +14,58 @@ def test_db_status_is_configured_not_connected():
     assert "database_url_configured" in response.json()
 
 
+def test_db_status_returns_connected_when_select_one_passes(monkeypatch):
+    class FakeConnection:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, exc_type, exc, traceback):
+            return False
+
+        def execute(self, statement):
+            assert "select 1" in str(statement)
+
+    class FakeDialect:
+        driver = "psycopg2"
+
+    class FakeEngine:
+        dialect = FakeDialect()
+
+        def connect(self):
+            return FakeConnection()
+
+    monkeypatch.setattr("app.db.session.engine", FakeEngine())
+
+    response = client.get("/db/status")
+
+    assert response.status_code == 200
+    assert response.json()["database"] == "connected"
+    assert response.json()["database_driver"] == "psycopg2"
+    assert response.json()["database_check"] == "select_1_passed"
+
+
+def test_db_status_returns_sanitized_staging_error(monkeypatch):
+    class FakeEngine:
+        def connect(self):
+            raise RuntimeError("connection failed without secret detail")
+
+    monkeypatch.setattr("app.db.session.engine", FakeEngine())
+    monkeypatch.setattr("app.db.session.APP_ENV", "staging")
+
+    response = client.get("/db/status")
+
+    assert response.status_code == 200
+    assert response.json()["database"] == "configured_not_connected"
+    assert response.json()["database_check"] == "connection"
+    assert response.json()["database_error_type"] == "RuntimeError"
+    assert response.json()["database_error_detail"] == "connection failed without secret detail"
+
+
 def test_migration_status_includes_database_status():
     response = client.get("/migration/status")
 
     assert response.status_code == 200
-    assert response.json()["database"] == "configured_not_connected"
+    assert response.json()["database"] in {"configured_not_connected", "connected"}
 
 
 def test_storage_status_is_firebase_scaffold():

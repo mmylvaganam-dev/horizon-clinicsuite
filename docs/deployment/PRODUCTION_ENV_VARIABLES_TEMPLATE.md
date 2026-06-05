@@ -8,7 +8,7 @@ Use these during the frontend build:
 
 ```text
 VITE_USE_FIREBASE_AUTH=true
-VITE_BACKEND_BASE_URL=https://api.example.lk
+VITE_BACKEND_BASE_URL=https://api.cs.premierhorizon.ca
 VITE_FIREBASE_API_KEY=
 VITE_FIREBASE_AUTH_DOMAIN=
 VITE_FIREBASE_PROJECT_ID=
@@ -29,7 +29,7 @@ Set these in Cloud Run environment variables or Secret Manager:
 ```text
 APP_ENV=production
 ENVIRONMENT=production
-BACKEND_CORS_ORIGINS=https://app.example.lk
+BACKEND_CORS_ORIGINS=https://cs.premierhorizon.ca
 HCS_DATABASE_URL=
 DATABASE_SSL=true
 DATABASE_POOL_MIN=1
@@ -40,7 +40,7 @@ FIREBASE_PROJECT_ID=
 FIREBASE_STORAGE_BUCKET=
 FIREBASE_SERVICE_ACCOUNT_JSON_PATH=
 APP_SECRET_KEY=
-ALLOWED_HOSTS=app.example.lk,api.example.lk
+ALLOWED_HOSTS=cs.premierhorizon.ca,api.cs.premierhorizon.ca
 SESSION_COOKIE_SECURE=true
 LOG_LEVEL=info
 AUDIT_LOGGING_ENABLED=true
@@ -89,7 +89,7 @@ Cloud SQL guidance:
 ## Security
 
 ```text
-ALLOWED_HOSTS=app.example.lk,api.example.lk
+ALLOWED_HOSTS=cs.premierhorizon.ca,api.cs.premierhorizon.ca
 SESSION_COOKIE_SECURE=true
 LOG_LEVEL=info
 AUDIT_LOGGING_ENABLED=true
