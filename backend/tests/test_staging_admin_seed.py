@@ -1,5 +1,6 @@
 from fastapi.testclient import TestClient
 
+from app.services import staging_admin_seed_service
 from main import app
 
 
@@ -42,45 +43,14 @@ def test_staging_admin_seed_requires_database(monkeypatch):
     assert response.json()["detail"] == "Database is not configured"
 
 
-def test_staging_admin_seed_accepts_custom_identity(monkeypatch):
-    monkeypatch.setenv("APP_ENV", "staging")
-    monkeypatch.setenv("STAGING_ADMIN_SEED_TOKEN", "seed-token")
+def test_staging_admin_seed_identity_can_come_from_environment(monkeypatch):
+    monkeypatch.setenv("STAGING_ADMIN_SEED_EMAIL", "owner@example.test")
+    monkeypatch.delenv("STAGING_ADMIN_SEED_FIREBASE_UID", raising=False)
 
-    captured = {}
+    identity = staging_admin_seed_service._seed_identity(None, None, None, None, None)
 
-    def fake_seed(token, **kwargs):
-        captured["token"] = token
-        captured.update(kwargs)
-        return {
-            "seeded": True,
-            "email": kwargs["email"],
-            "firebase_uid": kwargs["firebase_uid"],
-        }
-
-    monkeypatch.setattr("main.seed_staging_admin_user", fake_seed)
-
-    response = client.post(
-        "/management/staging/seed-admin",
-        headers={"X-Admin-Seed-Token": "seed-token"},
-        json={
-            "email": "owner@example.test",
-            "firebase_uid": "firebase-uid-123",
-            "first_name": "Owner",
-            "last_name": "Admin",
-            "name": "Owner Admin",
-        },
-    )
-
-    assert response.status_code == 200
-    assert response.json()["seeded"] is True
-    assert captured == {
-        "token": "seed-token",
-        "firebase_uid": "firebase-uid-123",
-        "email": "owner@example.test",
-        "first_name": "Owner",
-        "last_name": "Admin",
-        "name": "Owner Admin",
-    }
+    assert identity["email"] == "owner@example.test"
+    assert identity["firebase_uid"] is None
 
 
 def test_staging_admin_seed_rollback_hidden_outside_staging(monkeypatch):
