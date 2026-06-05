@@ -68,6 +68,7 @@ from app.services.staging_admin_seed_service import (
     rollback_staging_admin_user,
     seed_staging_admin_user,
 )
+from app.services.staging_pharmacy_setup_service import create_staging_pharmacy_tables
 from app.services.system_health_service import get_system_health_summary
 
 
@@ -591,6 +592,13 @@ def management_staging_seed_admin_rollback(
         firebase_uid=seed_request.firebase_uid,
         email=seed_request.email,
     )
+
+
+@app.post("/management/staging/create-pharmacy-tables")
+def management_staging_create_pharmacy_tables(
+    x_admin_seed_token: Optional[str] = Header(default=None),
+):
+    return create_staging_pharmacy_tables(x_admin_seed_token)
 
 
 def _profile_update_payload(profile_update: ProfileUpdateRequest) -> dict:
