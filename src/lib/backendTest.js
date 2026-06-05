@@ -266,6 +266,44 @@ export async function updateOrgMemberStatus(
   );
 }
 
+export async function uploadBase44Archive(
+  archive,
+  backendBaseUrl = defaultBackendBaseUrl
+) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/base44-archive/upload`,
+    "Base44 archive upload failed",
+    {
+      method: "POST",
+      body: JSON.stringify(archive),
+    }
+  );
+}
+
+export async function listBase44Archives(backendBaseUrl = defaultBackendBaseUrl) {
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/base44-archive/list`,
+    "Base44 archive list failed"
+  );
+}
+
+export async function searchBase44Archive(
+  search,
+  backendBaseUrl = defaultBackendBaseUrl
+) {
+  const params = new URLSearchParams({
+    archive_id: search.archive_id,
+    entity: search.entity,
+    query: search.query || "",
+    limit: String(search.limit || 25),
+  });
+
+  return sendFirebaseAuthorizedRequest(
+    `${backendBaseUrl}/base44-archive/search?${params.toString()}`,
+    "Base44 archive search failed"
+  );
+}
+
 async function sendFirebaseAuthorizedRequest(url, fallbackErrorMessage, options = {}) {
   const currentUser = await waitForFirebaseUser();
 
