@@ -8,7 +8,7 @@ import { firebaseAuth } from "@/lib/firebase";
 const FirebaseSessionContext = createContext(null);
 
 export const firebaseAuthFeatureEnabled =
-  import.meta.env.VITE_USE_FIREBASE_AUTH === "true";
+  import.meta.env.VITE_USE_FIREBASE_AUTH !== "false";
 
 export function FirebaseSessionProvider({ children }) {
   const [firebaseUser, setFirebaseUser] = useState(null);

@@ -153,7 +153,7 @@ const AuthenticatedApp = () => {
 
 function App() {
   const fallbackElement = firebaseAuthFeatureEnabled
-    ? <Navigate to="/firebase-auth-test" replace />
+    ? <Navigate to="/patient-transition" replace />
     : <AuthenticatedApp />;
 
   const appContent = (
@@ -162,6 +162,14 @@ function App() {
         <Router>
           <NavigationTracker />
           <Routes>
+            <Route
+              path="/"
+              element={
+                firebaseAuthFeatureEnabled
+                  ? <Navigate to="/patient-transition" replace />
+                  : fallbackElement
+              }
+            />
             <Route path="/landing" element={<LandingPage />} />
             <Route path="/firebase-test" element={<FirebaseTest />} />
             <Route path="/firebase-auth-test" element={<FirebaseAuthTest />} />
