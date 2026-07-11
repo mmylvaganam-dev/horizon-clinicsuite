@@ -103,7 +103,7 @@ const AuthenticatedApp = () => {
       <Route path="/institution-order-history" element={<InstitutionOrderHistory />} />
       <Route path="/institution-payment-portal" element={<InstitutionPaymentPortal />} />
       <Route path="/pharmacy-order-requests" element={<LayoutWrapper currentPageName="PharmacyOrderRequests"><PharmacyOrderRequests /></LayoutWrapper>} />
-      <Route path="/credit-usage-dashboard" element={<LayoutWrapper currentPageName="CreditUsageDashboard"><CreditUsageDashboard /></LayoutWrapper>} />
+      <Route path="/CreditUsageDashboard" element={<LayoutWrapper currentPageName="CreditUsageDashboard"><CreditUsageDashboard /></LayoutWrapper>} />
       <Route path="/lab-report-view" element={<LabReportView />} />
       <Route path="/find-lab-report" element={<FindLabReport />} />
       <Route path="/ConsultationTranscriber" element={<LayoutWrapper currentPageName="ConsultationTranscriber"><ConsultationTranscriber /></LayoutWrapper>} />
