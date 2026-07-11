@@ -20,7 +20,7 @@ import {
   History,
   Calendar,
   DollarSign,
-  TrendingDown as Loss,
+
   Check,
   ChevronsUpDown,
   Trash2
