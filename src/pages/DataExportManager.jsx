@@ -202,7 +202,7 @@ export default function DataExportManager() {
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
             <Database className="w-7 h-7 text-teal-600" />
