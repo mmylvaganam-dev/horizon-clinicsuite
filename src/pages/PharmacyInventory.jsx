@@ -87,6 +87,7 @@ export default function PharmacyInventory() {
   const [showZeroStockOnly, setShowZeroStockOnly] = useState(false);
   const [showExpiredOnly, setShowExpiredOnly] = useState(false);
   const [showExpiringOnly, setShowExpiringOnly] = useState(false);
+  const [displayLimit, setDisplayLimit] = useState(50);
   const [searchQuery, setSearchQuery] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get('search') || '';
@@ -135,8 +136,9 @@ export default function PharmacyInventory() {
   }, [locations, receiveForm.locationId]);
 
   const { data: batches = [] } = useQuery({
-    queryKey: ['stockBatches'],
-    queryFn: () => base44.entities.StockBatch.list('-expiry_date'),
+    queryKey: ['stockBatches', selectedOrgId],
+    queryFn: () => base44.entities.StockBatch.filter(orgFilter, '-expiry_date'),
+    enabled: !!selectedOrgId,
   });
 
   const { data: companies = [] } = useQuery({
@@ -215,6 +217,8 @@ export default function PharmacyInventory() {
     ),
     showExpiringOnly
   );
+
+  const visibleStock = displayedStock.slice(0, displayLimit);
 
   const receiveInventoryMutation = useMutation({
     mutationFn: (data) => {
@@ -771,7 +775,7 @@ export default function PharmacyInventory() {
               </p>
             </Card>
           ) : (
-            displayedStock.map((item) => {
+            visibleStock.map((item) => {
               const isZeroStock = item.quantity === 0;
               const isCritical = item.quantity > 0 && item.quantity <= criticalStockThreshold;
               const isLowStock = item.quantity > criticalStockThreshold && item.quantity <= lowStockThreshold;
@@ -935,6 +939,13 @@ export default function PharmacyInventory() {
                 </Card>
               );
             })
+          )}
+          {displayedStock.length > displayLimit && (
+            <div className="text-center py-4">
+              <Button variant="outline" onClick={() => setDisplayLimit(displayLimit + 50)}>
+                Load More ({displayedStock.length - displayLimit} remaining)
+              </Button>
+            </div>
           )}
         </TabsContent>
 
