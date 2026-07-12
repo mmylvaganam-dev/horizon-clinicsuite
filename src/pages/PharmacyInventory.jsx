@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
+import { useOrganization } from '@/components/OrganizationProvider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,6 +42,7 @@ import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 export default function PharmacyInventory() {
   const queryClient = useQueryClient();
   const { orgFilter, withOrgId, selectedOrgId } = useOrgFiltered();
+  const { organizations, user: orgUser } = useOrganization();
   const [showReceiveDialog, setShowReceiveDialog] = useState(false);
   const [showAdjustDialog, setShowAdjustDialog] = useState(false);
   const [selectedBalance, setSelectedBalance] = useState(null);
@@ -67,11 +69,18 @@ export default function PharmacyInventory() {
     locationId: '',
     skuCode: '',
     itemName: '',
+    genericName: '',
     qty: 0,
     unitCost: 0,
     batchNumber: '',
     expiryDate: '',
-    reason: ''
+    reason: '',
+    supplierName: '',
+    invoiceNumber: '',
+    dealType: 'none',
+    dealDescription: '',
+    buyQty: 0,
+    freeQty: 0,
   });
 
   const [expiryAlertDays, setExpiryAlertDays] = useState(90);
@@ -221,19 +230,72 @@ export default function PharmacyInventory() {
   const visibleStock = displayedStock.slice(0, displayLimit);
 
   const receiveInventoryMutation = useMutation({
-    mutationFn: (data) => {
-      // Use batch receive if batch info provided
+    mutationFn: async (data) => {
+      // Receive stock via existing function
       if (data.batchNumber && data.expiryDate) {
-        return base44.functions.invoke('receiveBatch', data);
+        await base44.functions.invoke('receiveBatch', data);
+      } else {
+        await base44.functions.invoke('receiveInventory', data);
       }
-      return base44.functions.invoke('receiveInventory', data);
+
+      // Create GoodsReceived + GoodsReceivedLine with deal info for procurement intelligence
+      const orgName = organizations?.find(o => o.id === selectedOrgId)?.name || '';
+      const userEmail = orgUser?.email || '';
+      const qtyPurchased = data.buyQty > 0 ? data.buyQty : data.qty;
+      const qtyFree = data.freeQty || 0;
+      const qtyTotal = qtyPurchased + qtyFree;
+      const totalLineCost = qtyPurchased * (data.unitCost || 0);
+      const dealSavings = qtyFree * (data.unitCost || 0);
+      const effectiveUnitCost = qtyTotal > 0 ? totalLineCost / qtyTotal : (data.unitCost || 0);
+
+      try {
+        const grn = await base44.entities.GoodsReceived.create({
+          organization_id: selectedOrgId,
+          organization_name: orgName,
+          location_id: data.locationId,
+          supplier_name: data.supplierName || '',
+          invoice_number: data.invoiceNumber || '',
+          received_at: new Date().toISOString(),
+          received_by: userEmail,
+          received_by_email: userEmail,
+          total_cost: totalLineCost,
+          total_free_items: qtyFree,
+          total_savings: dealSavings,
+          notes: data.reason || '',
+        });
+
+        await base44.entities.GoodsReceivedLine.create({
+          goods_received_id: grn.id,
+          organization_id: selectedOrgId,
+          sku_code: data.skuCode,
+          item_name: data.itemName,
+          generic_name: data.genericName || '',
+          qty_received: qtyTotal,
+          qty_purchased: qtyPurchased,
+          qty_free: qtyFree,
+          unit_cost: data.unitCost || 0,
+          effective_unit_cost: effectiveUnitCost,
+          total_line_cost: totalLineCost,
+          deal_savings: dealSavings,
+          deal_type: data.dealType || 'none',
+          deal_description: data.dealDescription || '',
+          deal_discount_pct: qtyTotal > 0 ? (qtyFree / qtyTotal * 100) : 0,
+          batch_number: data.batchNumber || '',
+          expiry_date: data.expiryDate || '',
+          supplier_name: data.supplierName || '',
+        });
+      } catch (grnErr) {
+        console.error('GRN creation failed (stock was received):', grnErr);
+      }
+
+      return data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['inventoryBalances'] });
       queryClient.invalidateQueries({ queryKey: ['inventoryTxns'] });
       queryClient.invalidateQueries({ queryKey: ['stockBatches'] });
       setShowReceiveDialog(false);
-      setReceiveForm({ locationId: '', skuCode: '', itemName: '', qty: 0, unitCost: 0, batchNumber: '', expiryDate: '', reason: '' });
+      setReceiveForm({ locationId: '', skuCode: '', itemName: '', genericName: '', qty: 0, unitCost: 0, batchNumber: '', expiryDate: '', reason: '', supplierName: '', invoiceNumber: '', dealType: 'none', dealDescription: '', buyQty: 0, freeQty: 0 });
       toast.success('Inventory received successfully!');
     },
     onError: (error) => {
@@ -333,8 +395,17 @@ export default function PharmacyInventory() {
         return;
       }
     }
+
+    // Reconcile deal quantities: if deal is active, total qty = buyQty + freeQty
+    let submitData = { ...receiveForm };
+    if (receiveForm.dealType !== 'none' && receiveForm.buyQty > 0) {
+      submitData.qty = receiveForm.buyQty + (receiveForm.freeQty || 0);
+    } else {
+      submitData.buyQty = receiveForm.qty;
+      submitData.freeQty = 0;
+    }
     
-    receiveInventoryMutation.mutate(receiveForm);
+    receiveInventoryMutation.mutate(submitData);
   };
 
   const handleAdjustInventory = () => {
@@ -1121,7 +1192,8 @@ export default function PharmacyInventory() {
                                 setReceiveForm({
                                   ...receiveForm, 
                                   skuCode: drug.drug_code,
-                                  itemName: drug.drug_name
+                                  itemName: drug.drug_name,
+                                  genericName: drug.generic_name || ''
                                 });
                                 setDrugSearchOpen(false);
                               }}
@@ -1173,6 +1245,83 @@ export default function PharmacyInventory() {
                 onChange={(e) => setReceiveForm({...receiveForm, unitCost: parseFloat(e.target.value) || 0})}
               />
             </div>
+            <div>
+              <Label>Supplier / Wholesaler</Label>
+              <Input
+                value={receiveForm.supplierName}
+                onChange={(e) => setReceiveForm({...receiveForm, supplierName: e.target.value})}
+                placeholder="e.g., Premier Wholesale"
+              />
+            </div>
+            <div>
+              <Label>Invoice Number</Label>
+              <Input
+                value={receiveForm.invoiceNumber}
+                onChange={(e) => setReceiveForm({...receiveForm, invoiceNumber: e.target.value})}
+                placeholder="Supplier invoice #"
+              />
+            </div>
+            <div>
+              <Label>Deal Type</Label>
+              <Select value={receiveForm.dealType} onValueChange={(v) => setReceiveForm({...receiveForm, dealType: v})}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No Deal</SelectItem>
+                  <SelectItem value="buy_x_get_y_free">Buy X Get Y Free</SelectItem>
+                  <SelectItem value="bulk_discount">Bulk Discount</SelectItem>
+                  <SelectItem value="flat_discount">Flat Discount</SelectItem>
+                  <SelectItem value="seasonal_offer">Seasonal Offer</SelectItem>
+                  <SelectItem value="special_pricing">Special Pricing</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Deal Description</Label>
+              <Input
+                value={receiveForm.dealDescription}
+                onChange={(e) => setReceiveForm({...receiveForm, dealDescription: e.target.value})}
+                placeholder="e.g., Buy 5 boxes get 1 free"
+                disabled={receiveForm.dealType === 'none'}
+              />
+            </div>
+            <div>
+              <Label>Buy Qty (paid)</Label>
+              <Input
+                type="number"
+                min="0"
+                value={receiveForm.buyQty}
+                onChange={(e) => setReceiveForm({...receiveForm, buyQty: parseFloat(e.target.value) || 0})}
+                placeholder="e.g., 5"
+                disabled={receiveForm.dealType === 'none'}
+              />
+            </div>
+            <div>
+              <Label>Free Qty</Label>
+              <Input
+                type="number"
+                min="0"
+                value={receiveForm.freeQty}
+                onChange={(e) => setReceiveForm({...receiveForm, freeQty: parseFloat(e.target.value) || 0})}
+                placeholder="e.g., 1"
+                disabled={receiveForm.dealType === 'none'}
+              />
+            </div>
+            {receiveForm.dealType !== 'none' && receiveForm.buyQty > 0 && receiveForm.unitCost > 0 && (
+              <div className="col-span-2 bg-purple-50 border border-purple-200 rounded-lg p-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-600">Effective Unit Cost (after deal):</span>
+                  <span className="font-bold text-purple-700">
+                    {currency} {((receiveForm.buyQty * receiveForm.unitCost) / (receiveForm.buyQty + receiveForm.freeQty)).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between mt-1">
+                  <span className="text-slate-600">Deal Savings:</span>
+                  <span className="font-medium text-green-600">
+                    {currency} {(receiveForm.freeQty * receiveForm.unitCost).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            )}
             <div>
               <Label>Batch Number (Optional)</Label>
               <Input

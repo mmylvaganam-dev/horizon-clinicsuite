@@ -46,7 +46,8 @@ import {
   Pill,
   Mic,
   ClipboardList,
-  BookOpen
+  BookOpen,
+  TrendingDown
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
@@ -489,6 +490,7 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Transfer Ownership', page: 'PlatformOwnership', icon: Crown, description: 'Transfer platform ownership to another user' },
         { name: 'Patient Access Requests', page: 'PatientAccessRequests', icon: Network, description: 'Review and approve cross-clinic patient record access requests from organizations and patients' },
         { name: 'Data Export Manager', page: 'DataExportManager', icon: FileText, description: 'Export all entity data as JSON or CSV for migration or backup purposes' },
+        { name: 'Procurement Intelligence', page: 'ProcurementIntelligence', icon: TrendingDown, description: 'Cross-pharmacy procurement analytics — track supplier deals (buy 5 get 1 free), compare wholesale prices, and build negotiation leverage for global supplier partnerships' },
       ],
       platformOwnerOnly: true
     },

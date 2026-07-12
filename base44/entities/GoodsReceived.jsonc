@@ -6,6 +6,10 @@
       "type": "string",
       "description": "Tenant organization"
     },
+    "organization_name": {
+      "type": "string",
+      "description": "Cached pharmacy name for cross-org reporting"
+    },
     "location_id": {
       "type": "string",
       "description": "Receiving location"
@@ -17,6 +21,22 @@
     "po_number": {
       "type": "string",
       "description": "PO number for reference"
+    },
+    "supplier_name": {
+      "type": "string",
+      "description": "Supplier / wholesaler name (who goods were purchased from)"
+    },
+    "supplier_id": {
+      "type": "string",
+      "description": "Reference to Supplier entity"
+    },
+    "wholesale_provider_id": {
+      "type": "string",
+      "description": "Reference to WholesaleProvider if purchased via wholesale marketplace"
+    },
+    "invoice_number": {
+      "type": "string",
+      "description": "Supplier invoice number"
     },
     "received_at": {
       "type": "string",
@@ -31,13 +51,24 @@
       "type": "string",
       "description": "Email of receiver"
     },
+    "total_cost": {
+      "type": "number",
+      "description": "Total invoice cost (sum of line effective costs)"
+    },
+    "total_free_items": {
+      "type": "number",
+      "description": "Total free items received from deals"
+    },
+    "total_savings": {
+      "type": "number",
+      "description": "Total savings from deals (original cost - effective cost)"
+    },
     "notes": {
       "type": "string",
       "description": "Receiving notes"
     }
   },
   "required": [
-    "purchase_order_id",
     "received_at",
     "received_by"
   ]

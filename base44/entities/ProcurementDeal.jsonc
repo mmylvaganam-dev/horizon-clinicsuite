@@ -1,0 +1,117 @@
+{
+  "name": "ProcurementDeal",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Platform owner org (null = platform-wide deal available to all pharmacies)"
+    },
+    "supplier_name": {
+      "type": "string",
+      "description": "Supplier / wholesaler offering the deal"
+    },
+    "supplier_id": {
+      "type": "string",
+      "description": "Reference to Supplier entity (optional)"
+    },
+    "wholesale_provider_id": {
+      "type": "string",
+      "description": "Reference to WholesaleProvider (optional)"
+    },
+    "drug_name": {
+      "type": "string",
+      "description": "Drug / medicine name this deal applies to"
+    },
+    "generic_name": {
+      "type": "string",
+      "description": "Generic name for cross-brand deal matching"
+    },
+    "sku_code": {
+      "type": "string",
+      "description": "Specific SKU (optional, if deal is for specific product)"
+    },
+    "deal_type": {
+      "type": "string",
+      "enum": [
+        "buy_x_get_y_free",
+        "bulk_discount",
+        "flat_discount",
+        "seasonal_offer",
+        "credit_note",
+        "special_pricing"
+      ],
+      "description": "Type of deal"
+    },
+    "deal_label": {
+      "type": "string",
+      "description": "Short label, e.g., 'Buy 5 Get 1 Free', '10% off 50+ boxes'"
+    },
+    "deal_description": {
+      "type": "string",
+      "description": "Full description of the deal terms"
+    },
+    "buy_qty": {
+      "type": "number",
+      "description": "Quantity to buy to qualify (for buy_x_get_y_free or bulk_discount)"
+    },
+    "free_qty": {
+      "type": "number",
+      "default": 0,
+      "description": "Free quantity given (for buy_x_get_y_free)"
+    },
+    "discount_pct": {
+      "type": "number",
+      "default": 0,
+      "description": "Discount percentage (for bulk_discount or flat_discount)"
+    },
+    "special_price": {
+      "type": "number",
+      "description": "Special unit price (for special_pricing)"
+    },
+    "list_unit_price": {
+      "type": "number",
+      "description": "Normal list price per unit for reference"
+    },
+    "currency": {
+      "type": "string",
+      "default": "LKR"
+    },
+    "start_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Deal start date"
+    },
+    "end_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Deal end date"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Deal currently active"
+    },
+    "min_order_qty": {
+      "type": "number",
+      "default": 1,
+      "description": "Minimum order to qualify"
+    },
+    "region": {
+      "type": "string",
+      "description": "Geographical region (e.g., Colombo, Nationwide, Global)"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "Email of user who created the deal record"
+    }
+  },
+  "required": [
+    "supplier_name",
+    "drug_name",
+    "deal_type",
+    "deal_label"
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "name": "WholesaleMarketPrice",
+  "type": "object",
+  "properties": {
+    "generic_name": {
+      "type": "string",
+      "description": "Generic / molecule name (e.g., Paracetamol, Amoxicillin)"
+    },
+    "drug_name": {
+      "type": "string",
+      "description": "Specific brand/product name (optional)"
+    },
+    "strength": {
+      "type": "string",
+      "description": "Strength (e.g., 500mg, 250mg/5ml)"
+    },
+    "dosage_form": {
+      "type": "string",
+      "description": "Tablet, Capsule, Syrup, Injection, etc."
+    },
+    "market_name": {
+      "type": "string",
+      "description": "Market source, e.g., 'Colombo Wholesale Market', 'Premier Wholesale', 'Global - India', 'Global - China'"
+    },
+    "supplier_name": {
+      "type": "string",
+      "description": "Specific supplier within the market"
+    },
+    "unit_price": {
+      "type": "number",
+      "description": "Price per unit (per tablet, per box, etc.)"
+    },
+    "unit": {
+      "type": "string",
+      "default": "box",
+      "description": "Pricing unit (box, strip, tablet, vial)"
+    },
+    "pack_size": {
+      "type": "number",
+      "description": "Units per pack (e.g., 100 tablets per box)"
+    },
+    "min_order_qty": {
+      "type": "number",
+      "default": 1,
+      "description": "Minimum order quantity for this price"
+    },
+    "currency": {
+      "type": "string",
+      "default": "LKR"
+    },
+    "deal_terms": {
+      "type": "string",
+      "description": "Any deal terms (e.g., 'Buy 50 boxes get 5 free', '10% off on 100+')"
+    },
+    "effective_price_after_deal": {
+      "type": "number",
+      "description": "Effective price per unit after deal applied (for comparison)"
+    },
+    "region": {
+      "type": "string",
+      "description": "Geographical region (Local, India, China, EU, USA)"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "local_wholesale",
+        "importer",
+        "manufacturer_direct",
+        "global_supplier"
+      ],
+      "default": "local_wholesale",
+      "description": "Source category"
+    },
+    "effective_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When this price was recorded / became effective"
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date",
+      "description": "Price valid until this date"
+    },
+    "is_current": {
+      "type": "boolean",
+      "default": true,
+      "description": "Is this the current market price (false = historical)"
+    },
+    "recorded_by": {
+      "type": "string",
+      "description": "Email of user who recorded this price"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "generic_name",
+    "market_name",
+    "unit_price",
+    "effective_date"
+  ]
+}
