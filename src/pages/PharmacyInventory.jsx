@@ -24,9 +24,11 @@ import {
 
   Check,
   ChevronsUpDown,
-  Trash2
+  Trash2,
+  Sparkles
 } from 'lucide-react';
 import BatchesTab from '../components/inventory/BatchesTab';
+import DealPricingEngine from '../components/inventory/DealPricingEngine';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Dialog,
@@ -82,6 +84,29 @@ export default function PharmacyInventory() {
     buyQty: 0,
     freeQty: 0,
   });
+  const [appliedDealId, setAppliedDealId] = useState(null);
+  const [appliedDealResult, setAppliedDealResult] = useState(null);
+
+  const handleApplyDeal = (result) => {
+    setAppliedDealId(result.dealId);
+    setAppliedDealResult(result);
+    setReceiveForm(prev => ({
+      ...prev,
+      dealType: result.dealType,
+      dealDescription: result.dealDescription,
+      buyQty: result.buyQty,
+      freeQty: result.freeQty,
+      // For special_pricing, override unitCost to the special price so stock lands at the right cost
+      ...(result.specialPrice != null ? { unitCost: result.specialPrice } : {}),
+    }));
+    toast.success(`Deal applied — effective cost ${currency} ${result.effectiveUnitCost.toFixed(2)}/unit, savings ${currency} ${result.dealSavings.toFixed(2)}`);
+  };
+
+  const handleClearDeal = () => {
+    setAppliedDealId(null);
+    setAppliedDealResult(null);
+    setReceiveForm(prev => ({ ...prev, dealType: 'none', dealDescription: '', buyQty: 0, freeQty: 0 }));
+  };
 
   const [expiryAlertDays, setExpiryAlertDays] = useState(90);
   const [lowStockThreshold, setLowStockThreshold] = useState(10);
@@ -296,6 +321,8 @@ export default function PharmacyInventory() {
       queryClient.invalidateQueries({ queryKey: ['stockBatches'] });
       setShowReceiveDialog(false);
       setReceiveForm({ locationId: '', skuCode: '', itemName: '', genericName: '', qty: 0, unitCost: 0, batchNumber: '', expiryDate: '', reason: '', supplierName: '', invoiceNumber: '', dealType: 'none', dealDescription: '', buyQty: 0, freeQty: 0 });
+      setAppliedDealId(null);
+      setAppliedDealResult(null);
       toast.success('Inventory received successfully!');
     },
     onError: (error) => {
@@ -1261,9 +1288,24 @@ export default function PharmacyInventory() {
                 placeholder="Supplier invoice #"
               />
             </div>
+            <DealPricingEngine
+              supplierName={receiveForm.supplierName}
+              drugName={receiveForm.itemName}
+              genericName={receiveForm.genericName}
+              skuCode={receiveForm.skuCode}
+              qty={receiveForm.buyQty > 0 ? receiveForm.buyQty + (receiveForm.freeQty || 0) : receiveForm.qty}
+              unitCost={receiveForm.unitCost}
+              currency={currency}
+              appliedDealId={appliedDealId}
+              onApplyDeal={handleApplyDeal}
+              onClearDeal={handleClearDeal}
+            />
             <div>
-              <Label>Deal Type</Label>
-              <Select value={receiveForm.dealType} onValueChange={(v) => setReceiveForm({...receiveForm, dealType: v})}>
+              <div className="flex items-center gap-2">
+                <Label>Deal Type</Label>
+                {appliedDealId && <Badge className="bg-purple-100 text-purple-700 text-xs"><Sparkles className="w-3 h-3 mr-1" />Auto-applied</Badge>}
+              </div>
+              <Select value={receiveForm.dealType} onValueChange={(v) => { setReceiveForm({...receiveForm, dealType: v}); if (v === 'none') handleClearDeal(); }}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">No Deal</SelectItem>
