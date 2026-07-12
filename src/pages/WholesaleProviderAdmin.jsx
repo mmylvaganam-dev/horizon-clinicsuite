@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart3, Package, ShoppingCart, CreditCard, TrendingUp, Users, Lock, AlertTriangle, ChevronDown, Building2, PackageCheck, RotateCcw, Truck, MessageSquare } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import WSProviderDashboard from '@/components/wholesale/WSProviderDashboard.jsx';
+import WSSupplierUnifiedDashboard from '@/components/wholesale/WSSupplierUnifiedDashboard.jsx';
 import WSProviderProducts from '@/components/wholesale/WSProviderProducts.jsx';
 import WSProviderOrders from '@/components/wholesale/WSProviderOrders.jsx';
 import WSProviderConnections from '@/components/wholesale/WSProviderConnections.jsx';
@@ -175,7 +175,7 @@ export default function WholesaleProviderAdmin() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="dashboard"><WSProviderDashboard provider={myProvider} /></TabsContent>
+          <TabsContent value="dashboard"><WSSupplierUnifiedDashboard provider={myProvider} onNavigate={setActiveTab} /></TabsContent>
           <TabsContent value="products"><WSProviderProducts provider={myProvider} /></TabsContent>
           <TabsContent value="orders"><WSProviderOrders provider={myProvider} /></TabsContent>
           <TabsContent value="connections"><WSProviderConnections provider={myProvider} /></TabsContent>
