@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TrendingDown, Building2, BarChart3, Globe, Tag, ShoppingCart } from 'lucide-react';
+import { TrendingDown, Building2, BarChart3, Globe, Tag, ShoppingCart, Rocket } from 'lucide-react';
 import DailyProcurementTab from '@/components/procurement/DailyProcurementTab';
 import MedicineAnalyticsTab from '@/components/procurement/MedicineAnalyticsTab';
 import SupplierComparisonTab from '@/components/procurement/SupplierComparisonTab';
 import NegotiationIntelligenceTab from '@/components/procurement/NegotiationIntelligenceTab';
 import MarketPricesTab from '@/components/procurement/MarketPricesTab';
 import DealsManagerTab from '@/components/procurement/DealsManagerTab';
+import SupplierOnboardingTab from '@/components/procurement/SupplierOnboardingTab';
 
 export default function ProcurementIntelligence() {
   return (
@@ -33,7 +34,7 @@ export default function ProcurementIntelligence() {
       </Card>
 
       <Tabs defaultValue="daily">
-        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 h-auto">
+        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7 h-auto">
           <TabsTrigger value="daily" className="flex flex-col items-center gap-1 py-2">
             <ShoppingCart className="w-4 h-4" />
             <span className="text-xs">Daily</span>
@@ -58,6 +59,10 @@ export default function ProcurementIntelligence() {
             <Globe className="w-4 h-4" />
             <span className="text-xs">Market Prices</span>
           </TabsTrigger>
+          <TabsTrigger value="onboarding" className="flex flex-col items-center gap-1 py-2">
+            <Rocket className="w-4 h-4" />
+            <span className="text-xs">Supplier Onboarding</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="daily"><DailyProcurementTab /></TabsContent>
@@ -66,6 +71,7 @@ export default function ProcurementIntelligence() {
         <TabsContent value="negotiation"><NegotiationIntelligenceTab /></TabsContent>
         <TabsContent value="deals"><DealsManagerTab /></TabsContent>
         <TabsContent value="market"><MarketPricesTab /></TabsContent>
+        <TabsContent value="onboarding"><SupplierOnboardingTab /></TabsContent>
       </Tabs>
     </div>
   );
