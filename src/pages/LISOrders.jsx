@@ -27,7 +27,7 @@ export default function LISOrders() {
 
   const { data: orders = [] } = useQuery({
     queryKey: ['labOrders', selectedOrgId],
-    queryFn: () => base44.entities.Order.filter({ order_type: 'lab', ...orgFilter }),
+    queryFn: () => base44.entities.Order.filter({ order_type: 'LAB', ...orgFilter }),
     enabled: !!selectedOrgId,
   });
 
@@ -47,7 +47,7 @@ export default function LISOrders() {
         received_by: currentUser.id,
       });
 
-      await base44.entities.Order.update(selectedOrder.id, { status: 'In Progress' });
+      await base44.entities.Order.update(selectedOrder.id, { status: 'InProgress' });
 
       await base44.entities.AuditLog.create({
         timestamp: new Date().toISOString(),

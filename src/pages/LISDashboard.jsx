@@ -23,7 +23,7 @@ export default function LISDashboard() {
 
   const { data: orders = [] } = useQuery({
     queryKey: ['labOrders', selectedOrgId],
-    queryFn: () => base44.entities.Order.filter({ order_type: 'lab', ...orgFilter }),
+    queryFn: () => base44.entities.Order.filter({ order_type: 'LAB', ...orgFilter }),
     enabled: !!selectedOrgId,
   });
 
@@ -57,7 +57,7 @@ export default function LISDashboard() {
     enabled: !!selectedOrgId,
   });
 
-  const pendingAccession = orders.filter(o => o.status === 'Pending').length;
+  const pendingAccession = orders.filter(o => o.status === 'Submitted' || o.status === 'Draft').length;
   const collectedSpecimens = specimens.filter(s => s.status === 'collected').length;
   const pendingReview = results.filter(r => r.status === 'Entered').length;
   const criticalPending = results.filter(r => r.is_critical && !r.acknowledged_at).length;
