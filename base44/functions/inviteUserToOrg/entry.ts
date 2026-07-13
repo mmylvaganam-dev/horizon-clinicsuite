@@ -19,7 +19,16 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
 
-    const { email, organizationId, role = 'user' } = await req.json();
+    const body = await req.json();
+    let { email, organizationId, role = 'user' } = body;
+
+    // Org admins can ONLY invite to their own organization — never another org
+    if (!isPlatformOwner) {
+      if (!user.organization_id) {
+        return Response.json({ error: 'Your account has no organization assignment' }, { status: 403 });
+      }
+      organizationId = user.organization_id;
+    }
 
     if (!email || !organizationId) {
       return Response.json({ error: 'Email and organizationId required' }, { status: 400 });

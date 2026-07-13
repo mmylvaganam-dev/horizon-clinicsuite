@@ -66,8 +66,16 @@ export default function Admin() {
   });
 
   const { data: allUsersUnfiltered = [] } = useQuery({
-    queryKey: ['allUsers'],
-    queryFn: () => base44.entities.User.list(),
+    queryKey: ['allUsers', user?.organization_id, user?.is_platform_owner],
+    queryFn: async () => {
+      const users = await base44.entities.User.list();
+      const isOwner = user?.is_platform_owner ||
+        user?.email === 'mmylvaganam@premierhealthcanada.ca' ||
+        user?.email === 'mylvaganam@premierhealthcanada.ca';
+      if (isOwner) return users;
+      return users.filter(u => u.organization_id === user?.organization_id);
+    },
+    enabled: !!user,
   });
 
   const { data: userRoles = [] } = useQuery({
@@ -85,8 +93,16 @@ export default function Admin() {
   });
 
   const { data: organizations = [] } = useQuery({
-    queryKey: ['organizations'],
-    queryFn: () => base44.entities.Organization.list(),
+    queryKey: ['organizations', user?.organization_id, user?.is_platform_owner],
+    queryFn: async () => {
+      const orgs = await base44.entities.Organization.list();
+      const isOwner = user?.is_platform_owner ||
+        user?.email === 'mmylvaganam@premierhealthcanada.ca' ||
+        user?.email === 'mylvaganam@premierhealthcanada.ca';
+      if (isOwner) return orgs;
+      return orgs.filter(o => o.id === user?.organization_id);
+    },
+    enabled: !!user,
   });
 
   // CRITICAL: Define isPlatformOwner BEFORE using it in queries

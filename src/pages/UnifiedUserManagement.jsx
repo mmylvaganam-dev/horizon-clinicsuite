@@ -46,6 +46,11 @@ export default function UnifiedUserManagement() {
     queryFn: () => base44.entities.Organization.list(),
   });
 
+  // Org admins only see their own organization; platform owner sees all
+  const visibleOrganizations = isPlatformOwner
+    ? organizations
+    : organizations.filter(o => o.id === currentUser?.organization_id);
+
   const { data: approvals = [] } = useQuery({
     queryKey: ['userApprovals'],
     queryFn: async () => {
@@ -138,7 +143,9 @@ export default function UnifiedUserManagement() {
 
   const deleteUserMutation = useMutation({
     mutationFn: async (userId) => {
-      await base44.entities.User.delete(userId);
+      const res = await base44.functions.invoke('deleteOrgUser', { userId });
+      if (res.data?.error) throw new Error(res.data.error);
+      return res.data;
     },
     onSuccess: async () => {
       toast.success('✅ User deleted!');
@@ -309,7 +316,7 @@ export default function UnifiedUserManagement() {
                     <SelectValue placeholder="Select organization" />
                   </SelectTrigger>
                   <SelectContent>
-                    {organizations.map(org => (
+                    {visibleOrganizations.map(org => (
                       <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
                     ))}
                   </SelectContent>
