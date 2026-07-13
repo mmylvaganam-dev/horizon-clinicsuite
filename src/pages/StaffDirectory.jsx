@@ -14,7 +14,7 @@ import { format } from 'date-fns';
 import PageInfoTooltip from '../components/shared/PageInfoTooltip';
 import DoctorSignatureUpload from '@/components/clinical/DoctorSignatureUpload';
 
-export default function StaffDirectory() {
+export default function StaffDirectory({ pharmacyOnly = false }) {
   const queryClient = useQueryClient();
   const { orgFilter, withOrgId, selectedOrgId } = useOrgFiltered();
   const [showForm, setShowForm] = useState(false);
@@ -22,7 +22,7 @@ export default function StaffDirectory() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [formData, setFormData] = useState({
-    staff_type: 'PHYSICIAN_GP',
+    staff_type: pharmacyOnly ? 'PHARMACIST' : 'PHYSICIAN_GP',
     first_name: '',
     last_name: '',
     credentials_text: '',
@@ -119,7 +119,7 @@ export default function StaffDirectory() {
 
   const resetForm = () => {
     setFormData({
-      staff_type: 'PHYSICIAN_GP',
+      staff_type: pharmacyOnly ? 'PHARMACIST' : 'PHYSICIAN_GP',
       first_name: '',
       last_name: '',
       credentials_text: '',
@@ -170,7 +170,9 @@ export default function StaffDirectory() {
     setShowForm(true);
   };
 
-  const filteredStaff = staff.filter(s => {
+  const pharmacyTypes = ['PHARMACIST', 'PHARMACY_ASSISTANT'];
+  const scopedStaff = pharmacyOnly ? staff.filter(s => pharmacyTypes.includes(s.staff_type)) : staff;
+  const filteredStaff = scopedStaff.filter(s => {
     const search = searchTerm.toLowerCase();
     const nameMatch = `${s.first_name} ${s.last_name}`.toLowerCase().includes(search);
     const typeMatch = filterType === 'all' || s.staff_type === filterType;
@@ -188,8 +190,8 @@ export default function StaffDirectory() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Staff Directory</h1>
-            <p className="text-slate-500 mt-1">HR management and credentials tracking</p>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">{pharmacyOnly ? 'Pharmacy Staff' : 'Staff Directory'}</h1>
+            <p className="text-slate-500 mt-1">{pharmacyOnly ? 'Pharmacy team — pharmacists and assistants' : 'HR management and credentials tracking'}</p>
           </div>
           <PageInfoTooltip
             title="Staff Directory"
@@ -255,16 +257,26 @@ export default function StaffDirectory() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Staff Types</SelectItem>
-                <SelectItem value="PHYSICIAN_GP">GP Physician</SelectItem>
-                <SelectItem value="CONSULT_SPECIALIST">Specialist</SelectItem>
-                <SelectItem value="RADIOLOGIST">Radiologist</SelectItem>
-                <SelectItem value="SONOGRAPHER">Sonographer</SelectItem>
-                <SelectItem value="LAB_TECH">Lab Tech</SelectItem>
-                <SelectItem value="PHARMACIST">Pharmacist</SelectItem>
-                <SelectItem value="NURSE">Nurse</SelectItem>
-                <SelectItem value="RECEPTION">Reception</SelectItem>
-                <SelectItem value="ADMIN">Admin</SelectItem>
+                {pharmacyOnly ? (
+                  <>
+                    <SelectItem value="all">All Pharmacy Staff</SelectItem>
+                    <SelectItem value="PHARMACIST">Pharmacist</SelectItem>
+                    <SelectItem value="PHARMACY_ASSISTANT">Pharmacy Assistant</SelectItem>
+                  </>
+                ) : (
+                  <>
+                    <SelectItem value="all">All Staff Types</SelectItem>
+                    <SelectItem value="PHYSICIAN_GP">GP Physician</SelectItem>
+                    <SelectItem value="CONSULT_SPECIALIST">Specialist</SelectItem>
+                    <SelectItem value="RADIOLOGIST">Radiologist</SelectItem>
+                    <SelectItem value="SONOGRAPHER">Sonographer</SelectItem>
+                    <SelectItem value="LAB_TECH">Lab Tech</SelectItem>
+                    <SelectItem value="PHARMACIST">Pharmacist</SelectItem>
+                    <SelectItem value="NURSE">Nurse</SelectItem>
+                    <SelectItem value="RECEPTION">Reception</SelectItem>
+                    <SelectItem value="ADMIN">Admin</SelectItem>
+                  </>
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -341,17 +353,26 @@ export default function StaffDirectory() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="PHYSICIAN_GP">GP Physician</SelectItem>
-                  <SelectItem value="CONSULT_SPECIALIST">Specialist</SelectItem>
-                  <SelectItem value="RADIOLOGIST">Radiologist</SelectItem>
-                  <SelectItem value="SONOGRAPHER">Sonographer</SelectItem>
-                  <SelectItem value="LAB_TECH">Lab Tech</SelectItem>
-                  <SelectItem value="PHARMACIST">Pharmacist</SelectItem>
-                  <SelectItem value="PHARMACY_ASSISTANT">Pharmacy Assistant</SelectItem>
-                  <SelectItem value="NURSE">Nurse</SelectItem>
-                  <SelectItem value="RECEPTION">Reception</SelectItem>
-                  <SelectItem value="ADMIN">Admin</SelectItem>
-                  <SelectItem value="OTHER">Other</SelectItem>
+                  {pharmacyOnly ? (
+                    <>
+                      <SelectItem value="PHARMACIST">Pharmacist</SelectItem>
+                      <SelectItem value="PHARMACY_ASSISTANT">Pharmacy Assistant</SelectItem>
+                    </>
+                  ) : (
+                    <>
+                      <SelectItem value="PHYSICIAN_GP">GP Physician</SelectItem>
+                      <SelectItem value="CONSULT_SPECIALIST">Specialist</SelectItem>
+                      <SelectItem value="RADIOLOGIST">Radiologist</SelectItem>
+                      <SelectItem value="SONOGRAPHER">Sonographer</SelectItem>
+                      <SelectItem value="LAB_TECH">Lab Tech</SelectItem>
+                      <SelectItem value="PHARMACIST">Pharmacist</SelectItem>
+                      <SelectItem value="PHARMACY_ASSISTANT">Pharmacy Assistant</SelectItem>
+                      <SelectItem value="NURSE">Nurse</SelectItem>
+                      <SelectItem value="RECEPTION">Reception</SelectItem>
+                      <SelectItem value="ADMIN">Admin</SelectItem>
+                      <SelectItem value="OTHER">Other</SelectItem>
+                    </>
+                  )}
                 </SelectContent>
               </Select>
             </div>

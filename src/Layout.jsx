@@ -253,7 +253,7 @@ function LayoutContent({ children, currentPageName }) {
         { name: 'Work Queue', page: 'PharmacyWorkQueue', icon: CheckSquare, description: 'Prescription queue - Review and verify doctor prescriptions, prepare orders for dispensing' },
         { name: 'Inventory', page: 'PharmacyInventory', icon: Package, description: 'Stock management - Track inventory levels, receive stock, adjust quantities, view transactions' },
         { name: 'Barcode Setup', page: 'BarcodeSetup', icon: Activity, description: 'Barcode configuration - Add barcodes to products, scan items, print labels' },
-        { name: 'Staff Login', page: 'StaffDirectory', icon: Users, description: 'Staff login management - View staff profiles and manage pharmacy staff access' },
+        { name: 'Pharmacy Staff', page: 'PharmacyStaff', icon: Users, description: 'Pharmacy team management - View and manage pharmacists and pharmacy assistants only' },
         { name: 'Stock Monitoring', page: 'StockMonitoring', icon: Activity, description: 'Low-stock alerts - Monitor items below minimum threshold, flag for reorder' },
         { name: 'Product Import', page: 'PharmacyProductImport', icon: FileText, description: 'Bulk product upload - Import medicines from CSV file into the system' },
         { name: 'Operations', page: 'PharmacyOperations', icon: Activity, description: 'Daily operations - Schedule vendor visits, returns pickup, and stock tasks' },

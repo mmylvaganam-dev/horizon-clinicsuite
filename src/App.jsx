@@ -37,6 +37,7 @@ import UnifiedUserManagement from './pages/UnifiedUserManagement';
 import OperatorManual from './pages/OperatorManual';
 import DataExportManager from './pages/DataExportManager';
 import ProcurementIntelligence from './pages/ProcurementIntelligence';
+import PharmacyStaff from './pages/PharmacyStaff';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
@@ -121,6 +122,7 @@ const AuthenticatedApp = () => {
       <Route path="/OperatorManual" element={<LayoutWrapper currentPageName="OperatorManual"><OperatorManual /></LayoutWrapper>} />
       <Route path="/DataExportManager" element={<LayoutWrapper currentPageName="DataExportManager"><DataExportManager /></LayoutWrapper>} />
       <Route path="/ProcurementIntelligence" element={<LayoutWrapper currentPageName="ProcurementIntelligence"><ProcurementIntelligence /></LayoutWrapper>} />
+      <Route path="/PharmacyStaff" element={<LayoutWrapper currentPageName="PharmacyStaff"><PharmacyStaff /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
