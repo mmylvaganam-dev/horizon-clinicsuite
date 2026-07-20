@@ -23,7 +23,9 @@ Deno.serve(async (req) => {
     if (!apiKey) return Response.json({ status: 'error', details: 'OPENAI_API_KEY secret not set', output: null });
 
     // Fetch the uploaded file
-    const fileRes = await fetch(file_url);
+    const fileRes = await fetch(file_url, {
+      headers: { 'User-Agent': 'Horizon-ClinicSuite/1.0 (extractDataOpenAI)' }
+    });
     if (!fileRes.ok) {
       return Response.json({ status: 'error', details: `Failed to fetch file: ${fileRes.status}`, output: null });
     }
