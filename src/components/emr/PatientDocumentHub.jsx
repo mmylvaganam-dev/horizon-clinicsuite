@@ -75,7 +75,7 @@ export default function PatientDocumentHub({ patientId, patientName }) {
     let aiSummary = null;
     let aiExtracted = null;
     try {
-      const aiResponse = await base44.integrations.Core.InvokeLLM({
+      const { data: aiResponse } = await base44.functions.invoke('invokeOpenAI', {
         prompt: `You are a clinical AI assistant. Analyze this medical document and ${catInfo?.aiAction || 'summarize key clinical information'}.
 
 Document category: ${catInfo?.label}
@@ -194,7 +194,7 @@ Be concise and clinically accurate.`,
     let aiSummary = null;
     let aiExtracted = null;
     try {
-      const aiResponse = await base44.integrations.Core.InvokeLLM({
+      const { data: aiResponse } = await base44.functions.invoke('invokeOpenAI', {
         prompt: `You are a clinical AI assistant. Analyze this medical document and summarize key clinical information.
 Patient: ${patientName}
 Please provide: 1. A brief clinical summary. 2. Key findings. 3. Any action items.`,

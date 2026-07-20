@@ -313,7 +313,7 @@ function AIQAPanel({ articles, onClose }) {
         .map(a => `[${a.title}] ${a.content}`)
         .join('\n\n');
       
-      const result = await base44.integrations.Core.InvokeLLM({
+      const { data: result } = await base44.functions.invoke('invokeOpenAI', {
         prompt: `You are a helpful support AI assistant. Use the following Knowledge Base articles to answer the question. If the KB doesn't have the answer, provide general helpful guidance.\n\nKB Articles:\n${kbContext}\n\nQuestion: ${query}`,
         response_json_schema: {
           type: 'object',

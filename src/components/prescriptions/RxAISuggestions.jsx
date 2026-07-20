@@ -41,7 +41,7 @@ export default function RxAISuggestions({ drugSearch, onSelect, organizationId, 
     debounceRef.current = setTimeout(async () => {
       setAiLoading(true);
       try {
-        const res = await base44.integrations.Core.InvokeLLM({
+        const { data: res } = await base44.functions.invoke('invokeOpenAI', {
           prompt: `You are a clinical pharmacology assistant. The user typed: "${drugSearch}".
 This could be a drug name OR a medical condition/diagnosis.
 

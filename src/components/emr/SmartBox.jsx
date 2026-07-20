@@ -66,7 +66,7 @@ export default function SmartBox({ patientId }) {
     mutationFn: async () => {
       setGenerating(true);
       try {
-        const result = await base44.integrations.Core.InvokeLLM({
+        const { data: result } = await base44.functions.invoke('invokeOpenAI', {
           prompt: `Based on this patient summary, suggest structured updates:
           
 Summary: ${summaryText}

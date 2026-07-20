@@ -46,7 +46,7 @@ export default function SignageContentCreator() {
     setDraft(null);
     setSavedId(null);
     try {
-      const result = await base44.integrations.Core.InvokeLLM({
+      const { data: result } = await base44.functions.invoke('invokeOpenAI', {
         prompt: `You are a healthcare signage designer. Convert this raw clinic information into professional, concise TV signboard copy.
 
 RAW INPUT FROM STAFF:

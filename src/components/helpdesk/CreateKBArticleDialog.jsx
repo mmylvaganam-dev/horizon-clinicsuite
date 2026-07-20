@@ -47,7 +47,7 @@ export default function CreateKBArticleDialog({ open, onClose, ticket }) {
     if (!ticket) return;
     setGenerating(true);
     try {
-      const res = await base44.integrations.Core.InvokeLLM({
+      const { data: res } = await base44.functions.invoke('invokeOpenAI', {
         prompt: `You are a technical support knowledge base writer. 
 Create a clear, concise KB article from this resolved support ticket.
 

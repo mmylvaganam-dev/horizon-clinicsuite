@@ -62,7 +62,7 @@ Please check:
 
 Return as JSON with fields: interactions (array of strings), allergy_concerns (array of strings), severity (string), recommendations (string)`;
 
-        const aiResponse = await base44.asServiceRole.integrations.Core.InvokeLLM({
+        const aiResponse = await base44.asServiceRole.functions.invoke('invokeOpenAI', {
             prompt: prompt,
             response_json_schema: {
                 type: "object",
