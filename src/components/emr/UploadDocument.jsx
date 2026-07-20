@@ -98,7 +98,7 @@ export default function UploadDocument({ patientId, defaultCategory, onSuccess }
       // Auto-extract medications
       if (PRESCRIPTION_CATEGORIES.includes(formData.doc_category)) {
         try {
-          const extracted = await base44.integrations.Core.ExtractDataFromUploadedFile({
+          const { data: extracted } = await base44.functions.invoke('extractDataOpenAI', {
             file_url,
             json_schema: {
               type: 'object',

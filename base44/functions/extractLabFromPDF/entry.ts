@@ -39,7 +39,7 @@ Deno.serve(async (req) => {
         };
 
         // Extract lab data from PDF
-        const extractionResult = await base44.asServiceRole.integrations.Core.ExtractDataFromUploadedFile({
+        const extractionResult = await base44.asServiceRole.functions.invoke('extractDataOpenAI', {
             file_url: file_url,
             json_schema: labSchema
         });

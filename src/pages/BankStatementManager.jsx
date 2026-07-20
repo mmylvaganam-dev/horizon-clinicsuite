@@ -163,7 +163,7 @@ export default function BankStatementManager() {
       // Extract data from file - with better error handling for PDFs
       let extractResult;
       try {
-        const extractResponse = await base44.integrations.Core.ExtractDataFromUploadedFile({
+        const extractResponse = await base44.functions.invoke('extractDataOpenAI', {
           file_url: uploadResult.file_url,
           json_schema: {
             type: "object",

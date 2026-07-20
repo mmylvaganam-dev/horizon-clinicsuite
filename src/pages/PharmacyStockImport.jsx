@@ -131,7 +131,7 @@ export default function PharmacyStockImport() {
         const uploadResponse = await base44.integrations.Core.UploadFile({ file });
         const fileUrl = uploadResponse.file_url;
 
-        const extractResponse = await base44.integrations.Core.ExtractDataFromUploadedFile({
+        const { data: extractResponse } = await base44.functions.invoke('extractDataOpenAI', {
           file_url: fileUrl,
           json_schema: {
             type: "object",

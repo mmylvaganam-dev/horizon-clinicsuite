@@ -39,7 +39,7 @@ Deno.serve(async (req) => {
         };
 
         // Extract data from Excel/CSV file using AI
-        const extractionResult = await base44.asServiceRole.integrations.Core.ExtractDataFromUploadedFile({
+        const extractionResult = await base44.asServiceRole.functions.invoke('extractDataOpenAI', {
             file_url: file_url,
             json_schema: patientSchema
         });
