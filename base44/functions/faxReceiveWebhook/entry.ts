@@ -34,9 +34,9 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const { org_id, fax_did, from_number, received_at, pages, pdf_url, webhook_secret } = body;
 
-    // ── Validate shared secret ───────────────────────────────────────
-    if (SHARED_SECRET && webhook_secret !== SHARED_SECRET) {
-      console.warn('[faxReceiveWebhook] Invalid webhook secret');
+    // ── Validate shared secret (fail-closed) ─────────────────────────
+    if (!SHARED_SECRET || webhook_secret !== SHARED_SECRET) {
+      console.warn('[faxReceiveWebhook] Invalid or missing webhook secret');
       return Response.json({ error: 'Forbidden' }, { status: 403 });
     }
 

@@ -1,14 +1,23 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
+const DLR_SECRET = Deno.env.get('DIALOG_DLR_SECRET') || '';
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     
     // Parse query parameters
     const url = new URL(req.url);
+    const token = url.searchParams.get('token');
     const campaignId = url.searchParams.get('campaignId');
     const msisdn = url.searchParams.get('msisdn');
     const status = url.searchParams.get('status');
+
+    // ── Validate shared secret (fail-closed) ─────────────────────────
+    if (!DLR_SECRET || token !== DLR_SECRET) {
+      console.warn('[dialogDlrCallback] Invalid or missing DLR token');
+      return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
     
     console.log('DLR received:', { campaignId, msisdn, status });
     
