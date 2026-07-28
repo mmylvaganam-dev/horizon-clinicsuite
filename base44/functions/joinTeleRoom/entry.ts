@@ -13,6 +13,18 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'appointment_id is required' }, { status: 400 });
     }
 
+    // SECURITY: Provider/staff roles grant host/moderator controls and must be
+    // backed by an authenticated clinic user. Patients may join unauthenticated.
+    let authenticatedUser = null;
+    if (role === 'provider' || role === 'staff') {
+      try {
+        authenticatedUser = await base44.auth.me();
+      } catch (_) { /* not authenticated */ }
+      if (!authenticatedUser) {
+        return Response.json({ error: 'Authentication required for provider/staff role' }, { status: 401 });
+      }
+    }
+
     // Fetch appointment (service role — allows both patient portal and staff)
     const appt = await base44.asServiceRole.entities.TeleAppointment.get(appointment_id);
     if (!appt) {

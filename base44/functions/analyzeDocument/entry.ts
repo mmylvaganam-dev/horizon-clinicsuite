@@ -8,6 +8,15 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const { file_url, analysis_type, custom_prompt } = await req.json();
 
+    // SECURITY: Require authentication to prevent unauthenticated OpenAI credit consumption.
+    let user = null;
+    try {
+      user = await base44.auth.me();
+    } catch (_) { /* not authenticated */ }
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     if (!file_url) {
       return Response.json({ error: 'File URL required' }, { status: 400 });
     }

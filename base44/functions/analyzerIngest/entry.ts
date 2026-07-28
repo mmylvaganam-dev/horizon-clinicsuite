@@ -120,6 +120,17 @@ function checkCritical(parameters) {
   return false;
 }
 
+// ─── Auth Helpers ───────────────────────────────────────────────────────────
+
+function timingSafeEqual(a, b) {
+  const sa = String(a);
+  const sb = String(b);
+  if (sa.length !== sb.length) return false;
+  let diff = 0;
+  for (let i = 0; i < sa.length; i++) diff |= sa.charCodeAt(i) ^ sb.charCodeAt(i);
+  return diff === 0;
+}
+
 // ─── Main Handler ──────────────────────────────────────────────────────────
 
 Deno.serve(async (req) => {
@@ -140,6 +151,15 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Analyzer not found or unauthorized' }, { status: 404 });
     }
     const analyzer = analyzers[0];
+
+    // SECURITY: Validate the supplied api_key against the configured webhook key.
+    // Prevents unauthenticated injection of medical results.
+    if (!analyzer.webhook_api_key) {
+      return Response.json({ error: 'Analyzer has no webhook API key configured' }, { status: 403 });
+    }
+    if (!api_key || !timingSafeEqual(api_key, analyzer.webhook_api_key)) {
+      return Response.json({ error: 'Invalid or missing API key' }, { status: 401 });
+    }
 
     // Parse the message
     let parsed;

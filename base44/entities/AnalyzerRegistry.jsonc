@@ -69,6 +69,10 @@
       "description": "Analyzer test codes mapped to catalog codes",
       "additionalProperties": true
     },
+    "webhook_api_key": {
+      "type": "string",
+      "description": "Secret API key that the analyzer/webhook must present to authenticate ingest requests"
+    },
     "notes": {
       "type": "string",
       "description": "Additional notes"

@@ -9,6 +9,16 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // SECURITY: Only existing platform owners may invoke this bootstrap function.
+    // This prevents any authenticated user from self-escalating to PLATFORM_OWNER.
+    const PLATFORM_OWNER_EMAILS = [
+      'mmylvaganam@premierhealthcanada.ca',
+      'mylvaganam@premierhealthcanada.ca',
+    ];
+    if (!user.email || !PLATFORM_OWNER_EMAILS.includes(user.email.toLowerCase())) {
+      return Response.json({ error: 'Forbidden — platform owner only' }, { status: 403 });
+    }
+
     // Get all roles
     const allRoles = await base44.asServiceRole.entities.Role.list();
     
