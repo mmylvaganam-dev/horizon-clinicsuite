@@ -87,5 +87,63 @@
     "to_user_id",
     "message_body",
     "sent_at"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.from_user_email": "{{user.email}}"
+        },
+        {
+          "data.from_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.from_user_email": "{{user.email}}"
+        },
+        {
+          "data.to_user_email": "{{user.email}}"
+        },
+        {
+          "data.from_user_id": "{{user.id}}"
+        },
+        {
+          "data.to_user_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.from_user_email": "{{user.email}}"
+        },
+        {
+          "data.to_user_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
 }

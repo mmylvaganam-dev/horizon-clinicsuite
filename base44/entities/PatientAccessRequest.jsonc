@@ -85,5 +85,54 @@
     "patient_id",
     "request_type",
     "access_level"
-  ]
+  ],
+  "rls": {
+    "create": {
+      "$or": [
+        {
+          "data.requested_by_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "read": {
+      "$or": [
+        {
+          "data.requested_by_email": "{{user.email}}"
+        },
+        {
+          "data.reviewed_by_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "data.requested_by_email": "{{user.email}}"
+        },
+        {
+          "data.reviewed_by_email": "{{user.email}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
 }
