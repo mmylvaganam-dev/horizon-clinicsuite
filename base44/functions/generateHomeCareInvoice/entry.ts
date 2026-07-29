@@ -1,5 +1,15 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
+// HTML-entity escape all untrusted values before interpolating into the
+// invoice HTML template. Prevents stored XSS via patient_name, address,
+// line descriptions, notes, branding fields, etc.
+const esc = (s) => String(s ?? '')
+  .replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;')
+  .replace(/'/g, '&#39;');
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -16,16 +26,16 @@ Deno.serve(async (req) => {
     const brandings = await base44.entities.OrganizationBranding.filter({ organization_id: invoice.organization_id });
     const branding = brandings[0];
 
-    const fmt = (n) => (n || 0).toFixed(2);
+    const fmt = (n) => (Number(n) || 0).toFixed(2);
 
     const lineTypeLabel = { home_service: 'Home Service', pharmacy_supply: 'Pharmacy Supply', lab_test: 'Lab Test', other: 'Other' };
 
     const linesHTML = lines.map(l => `
       <div class="item">
-        <div class="item-name">${l.description}</div>
-        <div class="item-meta">${lineTypeLabel[l.line_type] || ''}${l.service_date ? ' · ' + l.service_date : ''}</div>
+        <div class="item-name">${esc(l.description)}</div>
+        <div class="item-meta">${esc(lineTypeLabel[l.line_type] || '')}${l.service_date ? ' · ' + esc(l.service_date) : ''}</div>
         <div class="item-details">
-          <span>${l.qty} x Rs ${fmt(l.unit_price)}</span>
+          <span>${esc(Number(l.qty) || 0)} x Rs ${fmt(l.unit_price)}</span>
           <span><strong>Rs ${fmt(l.line_total)}</strong></span>
         </div>
       </div>
@@ -36,7 +46,7 @@ Deno.serve(async (req) => {
     const html = `
 <html>
 <head>
-  <title>Home Care Invoice ${invoice.invoice_number || ''}</title>
+  <title>Home Care Invoice ${esc(invoice.invoice_number || '')}</title>
   <style>
     @page { size: 80mm auto; margin: 0; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -62,26 +72,26 @@ Deno.serve(async (req) => {
 </head>
 <body>
   <div class="header">
-    <h1>${branding?.organization_name || 'Home Care Services'}</h1>
-    ${branding?.address ? `<p>${branding.address}</p>` : ''}
-    ${branding?.contact_phone ? `<p>Tel: ${branding.contact_phone}</p>` : ''}
+    <h1>${esc(branding?.organization_name || 'Home Care Services')}</h1>
+    ${branding?.address ? `<p>${esc(branding.address)}</p>` : ''}
+    ${branding?.contact_phone ? `<p>Tel: ${esc(branding.contact_phone)}</p>` : ''}
     <div class="tag">HOME CARE INVOICE</div>
   </div>
 
   <div class="section-title">Invoice Details</div>
-  <div class="info-row"><span>Invoice #:</span><span><strong>${invoice.invoice_number || invoiceId.slice(-6).toUpperCase()}</strong></span></div>
+  <div class="info-row"><span>Invoice #:</span><span><strong>${esc(invoice.invoice_number || (invoiceId || '').slice(-6).toUpperCase())}</strong></span></div>
   <div class="info-row"><span>Date Issued:</span><span>${invoice.issued_at ? new Date(invoice.issued_at).toLocaleDateString() : new Date().toLocaleDateString()}</span></div>
-  <div class="info-row"><span>Status:</span><span>${statusLabel[invoice.status] || invoice.status}</span></div>
+  <div class="info-row"><span>Status:</span><span>${esc(statusLabel[invoice.status] || invoice.status)}</span></div>
 
   <div class="section-title">Patient</div>
-  <div class="info-row"><span>Name:</span><span>${invoice.patient_name}</span></div>
-  ${invoice.patient_phone ? `<div class="info-row"><span>Phone:</span><span>${invoice.patient_phone}</span></div>` : ''}
-  ${invoice.patient_address ? `<div class="info-row"><span>Address:</span><span style="max-width:130px;text-align:right;">${invoice.patient_address}</span></div>` : ''}
+  <div class="info-row"><span>Name:</span><span>${esc(invoice.patient_name)}</span></div>
+  ${invoice.patient_phone ? `<div class="info-row"><span>Phone:</span><span>${esc(invoice.patient_phone)}</span></div>` : ''}
+  ${invoice.patient_address ? `<div class="info-row"><span>Address:</span><span style="max-width:130px;text-align:right;">${esc(invoice.patient_address)}</span></div>` : ''}
 
   <div class="section-title">Service Period</div>
-  <div class="info-row"><span>From:</span><span>${invoice.service_from}</span></div>
-  <div class="info-row"><span>To:</span><span>${invoice.service_to}</span></div>
-  <div class="info-row"><span>Days:</span><span>${invoice.num_days || 0}</span></div>
+  <div class="info-row"><span>From:</span><span>${esc(invoice.service_from)}</span></div>
+  <div class="info-row"><span>To:</span><span>${esc(invoice.service_to)}</span></div>
+  <div class="info-row"><span>Days:</span><span>${Number(invoice.num_days) || 0}</span></div>
   ${invoice.shift_start_datetime ? `<div class="info-row"><span>Shift Start:</span><span>${new Date(invoice.shift_start_datetime).toLocaleString()}</span></div>` : ''}
   ${invoice.shift_end_datetime ? `<div class="info-row"><span>Shift End:</span><span>${new Date(invoice.shift_end_datetime).toLocaleString()}</span></div>` : ''}
 
@@ -89,7 +99,7 @@ Deno.serve(async (req) => {
 
   <div class="section-title">Daily Care Charge</div>
   <div class="daily-row">
-    <span>${invoice.num_days || 0} days × Rs ${fmt(invoice.daily_rate)}/day</span>
+    <span>${Number(invoice.num_days) || 0} days × Rs ${fmt(invoice.daily_rate)}/day</span>
     <span><strong>Rs ${fmt(invoice.daily_subtotal)}</strong></span>
   </div>
 
@@ -103,13 +113,13 @@ Deno.serve(async (req) => {
     <div class="total-row"><span>Daily Care:</span><span>Rs ${fmt(invoice.daily_subtotal)}</span></div>
     <div class="total-row"><span>Services & Supplies:</span><span>Rs ${fmt(invoice.items_subtotal)}</span></div>
     <div class="total-row grand-total"><span>TOTAL:</span><span>Rs ${fmt(invoice.grand_total)}</span></div>
-    ${invoice.amount_paid > 0 ? `
-    <div class="payment-row"><span>Paid (${invoice.payment_method || ''}):</span><span>Rs ${fmt(invoice.amount_paid)}</span></div>
-    <div class="payment-row" style="font-weight:bold;"><span>Balance Due:</span><span>Rs ${fmt(invoice.grand_total - invoice.amount_paid)}</span></div>
+    ${Number(invoice.amount_paid) > 0 ? `
+    <div class="payment-row"><span>Paid (${esc(invoice.payment_method || '')}):</span><span>Rs ${fmt(invoice.amount_paid)}</span></div>
+    <div class="payment-row" style="font-weight:bold;"><span>Balance Due:</span><span>Rs ${fmt(Number(invoice.grand_total) - Number(invoice.amount_paid))}</span></div>
     ` : ''}
   </div>
 
-  ${invoice.notes ? `<div class="footer" style="text-align:left;"><strong>Notes:</strong> ${invoice.notes}</div>` : ''}
+  ${invoice.notes ? `<div class="footer" style="text-align:left;"><strong>Notes:</strong> ${esc(invoice.notes)}</div>` : ''}
 
   <div class="footer">
     <p>Thank you for choosing our Home Care Services</p>

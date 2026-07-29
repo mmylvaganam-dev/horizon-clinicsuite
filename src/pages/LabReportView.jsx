@@ -14,6 +14,10 @@ export default function LabReportView() {
 
   const params = new URLSearchParams(window.location.search);
   const resultId = params.get('resultId');
+  // Patient credentials (mobile + billNo) passed from FindLabReport so the
+  // backend can verify ownership for public (unauthenticated) report viewing.
+  const mobile = params.get('mobile') || '';
+  const billNo = params.get('billNo') || '';
 
   const appBaseUrl = window.location.origin;
   const reportUrl = `${appBaseUrl}/lab-report-view?resultId=${resultId}`;
@@ -25,7 +29,7 @@ export default function LabReportView() {
       setLoading(false);
       return;
     }
-    base44.functions.invoke('generateLabReport', { resultId }).then(res => {
+    base44.functions.invoke('generateLabReport', { resultId, mobile, billNo }).then(res => {
       if (res.data?.success) {
         setReportData(res.data.reportData);
       } else {

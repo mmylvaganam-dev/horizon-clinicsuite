@@ -20,7 +20,7 @@ const STATUS_COLORS = {
   NO_SHOW: 'bg-slate-100 text-slate-600',
 };
 
-function AppointmentRow({ appt, onRefresh }) {
+function AppointmentRow({ appt, onRefresh, session }) {
   const [joining, setJoining] = useState(false);
   const qc = useQueryClient();
 
@@ -47,6 +47,8 @@ function AppointmentRow({ appt, onRefresh }) {
       const res = await base44.functions.invoke('joinTeleRoom', {
         appointment_id: appt.id,
         role: 'patient',
+        patient_id: session?.id,
+        patient_email: session?.email,
       });
       const url = res?.data?.url;
       if (url) {
@@ -208,7 +210,7 @@ export default function TelemedicinePatientPortal() {
             <Button
               className="bg-white text-yellow-700 hover:bg-yellow-50 font-bold"
               onClick={async () => {
-                const res = await base44.functions.invoke('joinTeleRoom', { appointment_id: liveCall.id, role: 'patient' });
+                const res = await base44.functions.invoke('joinTeleRoom', { appointment_id: liveCall.id, role: 'patient', patient_id: session?.id, patient_email: session?.email });
                 const url = res?.data?.url;
                 if (url) window.open(url, '_blank');
               }}
@@ -271,7 +273,7 @@ export default function TelemedicinePatientPortal() {
                   </Button>
                 </div>
               ) : (
-                upcoming.map(a => <AppointmentRow key={a.id} appt={a} onRefresh={refetch} />)
+                upcoming.map(a => <AppointmentRow key={a.id} appt={a} onRefresh={refetch} session={session} />)
               )}
             </TabsContent>
 
@@ -279,7 +281,7 @@ export default function TelemedicinePatientPortal() {
               {past.length === 0 ? (
                 <p className="text-center py-12 text-slate-400 text-sm">No past appointments.</p>
               ) : (
-                past.map(a => <AppointmentRow key={a.id} appt={a} />)
+                past.map(a => <AppointmentRow key={a.id} appt={a} session={session} />)
               )}
             </TabsContent>
 

@@ -53,10 +53,14 @@ export default function AppointmentCard({ appt, role = 'patient', onRefresh }) {
   const handleJoin = async () => {
     setJoining(true);
     try {
-      const res = await base44.functions.invoke('joinTeleRoom', {
-        appointment_id: appt.id,
-        role: isProvider ? 'provider' : 'patient',
-      });
+      const payload = { appointment_id: appt.id, role: isProvider ? 'provider' : 'patient' };
+      if (!isProvider) {
+        try {
+          const s = JSON.parse(localStorage.getItem('tele_patient_session') || 'null');
+          if (s) { payload.patient_id = s.id; payload.patient_email = s.email; }
+        } catch (_) { /* ignore */ }
+      }
+      const res = await base44.functions.invoke('joinTeleRoom', payload);
       const url = res?.data?.url;
       if (url) {
         window.open(url, '_blank');

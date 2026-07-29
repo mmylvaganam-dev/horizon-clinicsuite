@@ -29,7 +29,12 @@ export default function FindLabReport() {
   };
 
   const openReport = (reportId) => {
-    window.open(`/lab-report-view?resultId=${reportId}`, '_blank');
+    // Pass the patient credentials through so generateLabReport can verify
+    // ownership (result IDs alone are no longer sufficient to view a report).
+    const params = new URLSearchParams({ resultId: reportId });
+    if (mobile) params.set('mobile', mobile);
+    if (billNo) params.set('billNo', billNo);
+    window.open(`/lab-report-view?${params.toString()}`, '_blank');
   };
 
   return (
