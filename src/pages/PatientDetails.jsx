@@ -78,6 +78,19 @@ const statusColors = {
   deceased: 'bg-rose-100 text-rose-700 border-rose-200',
 };
 
+// date-fns format() throws RangeError on an Invalid Date — which would crash the
+// whole page into a white screen. Guard every patient/record/appointment date.
+function safeFormatDate(value, fmt = 'dd/MM/yyyy') {
+  if (!value) return '';
+  try {
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return String(value);
+    return format(d, fmt);
+  } catch {
+    return String(value);
+  }
+}
+
 export default function PatientDetails() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -463,7 +476,7 @@ export default function PatientDetails() {
                     </div>
                     <div>
                       <p className="text-sm text-slate-500">Date of Birth</p>
-                      <p className="font-medium">{format(new Date(patient.date_of_birth), 'dd/MM/yyyy')}</p>
+                      <p className="font-medium">{safeFormatDate(patient.date_of_birth)}</p>
                     </div>
                   </div>
                 )}
@@ -583,7 +596,7 @@ export default function PatientDetails() {
                           {record.record_type?.replace(/[_-]/g, ' ')}
                         </p>
                         <p className="text-sm text-slate-500 mt-1">
-                          {format(new Date(record.record_date), 'dd/MM/yyyy')}
+                          {safeFormatDate(record.record_date)}
                           {record.provider && ` • Dr. ${record.provider}`}
                         </p>
                         {record.diagnosis && (
@@ -618,7 +631,7 @@ export default function PatientDetails() {
                     </p>
                     <div className="flex items-center gap-2 text-sm text-slate-500">
                       <Clock className="w-4 h-4" />
-                      <span>{format(new Date(apt.date), 'dd/MM/yyyy')} at {apt.time}</span>
+                      <span>{safeFormatDate(apt.date)}{apt.time ? ` at ${apt.time}` : ''}</span>
                       {apt.provider && <span>• Dr. {apt.provider}</span>}
                     </div>
                   </div>
