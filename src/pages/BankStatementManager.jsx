@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import {
   Upload, Building2, Plus, TrendingUp, TrendingDown, DollarSign,
-  FileText, BarChart3, CheckCircle2, Clock, AlertCircle, Lock
+  FileText, BarChart3, CheckCircle2, Clock, AlertCircle, Lock, RefreshCw
 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import moment from 'moment';
@@ -192,22 +192,32 @@ export default function BankStatementManager() {
         }
       };
 
-      let extractResult = null;
-      let primaryError = null;
-      try {
-        const r = await base44.functions.invoke('extractDataOpenAI', { file_url: uploadResult.file_url, json_schema: bankSchema });
-        extractResult = r.data || r;
-        if (!extractResult?.output || extractResult.status === 'error') { primaryError = extractResult?.details || 'No data'; extractResult = null; }
-      } catch (e) { primaryError = e.message; }
+      // Try BOTH extraction methods in parallel, use whichever captures more transactions
+      const [openAiRes, builtinRes] = await Promise.allSettled([
+        base44.functions.invoke('extractDataOpenAI', { file_url: uploadResult.file_url, json_schema: bankSchema }),
+        base44.integrations.Core.ExtractDataFromUploadedFile({ file_url: uploadResult.file_url, json_schema: bankSchema }),
+      ]);
 
-      if (!extractResult) {
-        try {
-          const r2 = await base44.integrations.Core.ExtractDataFromUploadedFile({ file_url: uploadResult.file_url, json_schema: bankSchema });
-          extractResult = r2.data || r2;
-          if (!extractResult?.output || extractResult.status === 'error') throw new Error(extractResult?.details || 'No data');
-        } catch (fallbackErr) {
-          throw new Error(`Extraction failed.\nPrimary: ${primaryError}\nFallback: ${fallbackErr.message}`);
-        }
+      let openAiResult = null, builtinResult = null;
+      if (openAiRes.status === 'fulfilled') {
+        const d = openAiRes.value?.data || openAiRes.value;
+        if (d?.output && d.status !== 'error') openAiResult = d;
+      }
+      if (builtinRes.status === 'fulfilled') {
+        const d = builtinRes.value?.data || builtinRes.value;
+        if (d?.output && d.status !== 'error') builtinResult = d;
+      }
+
+      const openAiCount = openAiResult?.output?.transactions?.length || 0;
+      const builtinCount = builtinResult?.output?.transactions?.length || 0;
+      let extractResult = null;
+      if (openAiCount >= builtinCount && openAiCount > 0) extractResult = openAiResult;
+      else if (builtinCount > 0) extractResult = builtinResult;
+      else if (openAiResult) extractResult = openAiResult;
+      else if (builtinResult) extractResult = builtinResult;
+      else {
+        const errs = [openAiRes.reason?.message, builtinRes.reason?.message].filter(Boolean).join('; ');
+        throw new Error(`No transactions extracted from file${errs ? ': ' + errs : ''}`);
       }
 
       const summaryData = extractResult?.output || {};
@@ -297,6 +307,117 @@ export default function BankStatementManager() {
     } catch (error) {
       console.error('Upload error:', error);
       alert('Failed to upload statement:\n\n' + (error.message || 'Unknown error'));
+    } finally {
+      setUploading(false);
+      setUploadStatus('');
+    }
+  };
+
+  // ── Re-extract from existing file (fixes incomplete extractions) ──
+  const handleReextract = async (statement) => {
+    if (!confirm('Re-extract all transactions from this statement? This will replace existing transaction records.')) return;
+    setUploading(true);
+    setUploadStatus('Re-extracting transactions...');
+    try {
+      const bankSchema = {
+        type: "object",
+        properties: {
+          statement_period_start: { type: "string" },
+          statement_period_end: { type: "string" },
+          transactions: { type: "array", items: { type: "object", properties: {
+            date: { type: "string" }, description: { type: "string" },
+            amount: { type: "number" }, type: { type: "string" }
+          }}},
+          opening_balance: { type: "number" },
+          closing_balance: { type: "number" },
+          total_deposits: { type: "number" },
+          total_withdrawals: { type: "number" }
+        }
+      };
+
+      // Try BOTH extraction methods, use whichever captures more transactions
+      const [openAiRes, builtinRes] = await Promise.allSettled([
+        base44.functions.invoke('extractDataOpenAI', { file_url: statement.file_ref, json_schema: bankSchema }),
+        base44.integrations.Core.ExtractDataFromUploadedFile({ file_url: statement.file_ref, json_schema: bankSchema }),
+      ]);
+
+      let openAiResult = null, builtinResult = null;
+      if (openAiRes.status === 'fulfilled') {
+        const d = openAiRes.value?.data || openAiRes.value;
+        if (d?.output && d.status !== 'error') openAiResult = d;
+      }
+      if (builtinRes.status === 'fulfilled') {
+        const d = builtinRes.value?.data || builtinRes.value;
+        if (d?.output && d.status !== 'error') builtinResult = d;
+      }
+
+      const openAiCount = openAiResult?.output?.transactions?.length || 0;
+      const builtinCount = builtinResult?.output?.transactions?.length || 0;
+      let extractResult = null;
+      if (openAiCount >= builtinCount && openAiCount > 0) extractResult = openAiResult;
+      else if (builtinCount > 0) extractResult = builtinResult;
+      else if (openAiResult) extractResult = openAiResult;
+      else if (builtinResult) extractResult = builtinResult;
+      else throw new Error('No transactions extracted from file');
+
+      const summaryData = extractResult?.output || {};
+      setUploadStatus('Auto-matching vendors...');
+
+      // Delete old BankTransaction records for this statement
+      await base44.entities.BankTransaction.deleteMany({ statement_upload_id: statement.id });
+
+      // Re-create with auto-matching
+      const allPayees = payees.length > 0 ? payees : await base44.entities.PayeeDirectory.filter({ organization_id: selectedOrgId, status: 'active' });
+      const txRecords = (summaryData.transactions || []).map(tx => {
+        const isDeposit = String(tx.type || '').toLowerCase().includes('deposit') || Number(tx.amount) > 0;
+        const matched = autoMatchPayee(tx.description, allPayees);
+        const type = isDeposit ? 'deposit' : 'withdrawal';
+        return {
+          organization_id: selectedOrgId,
+          bank_account_ref: statement.bank_account_ref,
+          statement_upload_id: statement.id,
+          transaction_date: tx.date || statement.statement_month,
+          description: tx.description || '',
+          amount: Number(tx.amount) || 0,
+          type,
+          payee_name: matched?.display_name || '',
+          matched_payee_id: matched?.id || '',
+          matched_payee_name: matched?.display_name || '',
+          category: matched ? guessCategory(tx.description, type) : '',
+          reconciliation_status: matched ? 'auto_matched' : 'unmatched',
+          created_by: currentUser?.email || 'system',
+          created_by_email: currentUser?.email || 'system',
+        };
+      });
+
+      if (txRecords.length > 0) {
+        await base44.entities.BankTransaction.bulkCreate(txRecords);
+      }
+
+      // Update statement with new summary
+      await base44.entities.BankStatementUpload.update(statement.id, {
+        opening_balance: summaryData.opening_balance || 0,
+        closing_balance: summaryData.closing_balance || 0,
+        transactions: summaryData.transactions || [],
+        extracted_summary_json: {
+          total_deposits: summaryData.total_deposits || 0,
+          total_withdrawals: summaryData.total_withdrawals || 0,
+          transaction_count: summaryData.transactions?.length || 0,
+          file_name: statement.extracted_summary_json?.file_name || '',
+          period_start: summaryData.statement_period_start,
+          period_end: summaryData.statement_period_end,
+        }
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['bankStatements'] });
+      queryClient.invalidateQueries({ queryKey: ['bankTransactions'] });
+      queryClient.invalidateQueries({ queryKey: ['bankTxUnmatched'] });
+
+      const matchedCount = txRecords.filter(t => t.reconciliation_status === 'auto_matched').length;
+      alert(`✓ Re-extracted ${txRecords.length} transactions\n${matchedCount} auto-matched to vendors\n${txRecords.length - matchedCount} need review`);
+      setActiveTab('transactions');
+    } catch (error) {
+      alert('Re-extraction failed: ' + (error.message || 'Unknown error'));
     } finally {
       setUploading(false);
       setUploadStatus('');
@@ -579,6 +700,16 @@ export default function BankStatementManager() {
                             account={account}
                             onReconciled={() => queryClient.invalidateQueries({ queryKey: ['bankStatements'] })}
                           />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-blue-600 text-blue-700 hover:bg-blue-50"
+                            onClick={() => handleReextract(statement)}
+                            disabled={uploading}
+                          >
+                            <RefreshCw className="w-3.5 h-3.5 mr-1" />
+                            Re-extract
+                          </Button>
                         </div>
                       </div>
                     );

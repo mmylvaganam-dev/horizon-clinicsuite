@@ -73,13 +73,12 @@ Deno.serve(async (req) => {
       : json_schema;
 
     const schemaStr = JSON.stringify(apiSchema);
-    const instruction = `Extract structured data from the file content below. Return ONLY a valid JSON object matching this schema (no markdown fences, no explanation, no surrounding text):\n${schemaStr}`;
+    const instruction = `You are a financial data extraction assistant. Extract structured data from the bank statement below.\n\nCRITICAL: Extract EVERY SINGLE transaction listed in the statement. Do NOT skip, summarize, or omit any transaction. Each row in the statement is a separate transaction — include ALL of them in the transactions array.\n\nReturn ONLY a valid JSON object matching this schema (no markdown fences, no explanation):\n${schemaStr}`;
 
     let messages;
-    let model = 'gpt-4o-mini';
+    const model = 'gpt-4o';
 
     if (imageDataUrl) {
-      model = 'gpt-4o';
       messages = [{
         role: 'user',
         content: [
@@ -97,7 +96,13 @@ Deno.serve(async (req) => {
     const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
-      body: JSON.stringify({ model, messages, response_format: { type: 'json_object' } })
+      body: JSON.stringify({
+        model,
+        messages,
+        response_format: { type: 'json_object' },
+        max_tokens: 16384,
+        temperature: 0
+      })
     });
 
     if (!aiRes.ok) {
@@ -127,8 +132,9 @@ function bytesToBase64(bytes) {
   return btoa(binary);
 }
 
-// Basic PDF text extraction: finds FlateDecode-compressed streams, decompresses
-// them, and pulls text from Tj / TJ operators. Works for text-based PDFs.
+// PDF text extraction: finds FlateDecode-compressed streams, decompresses
+// them, and pulls text from Tj / TJ operators while preserving line structure.
+// Each Tj/TJ output gets its own newline so the AI can see individual rows.
 async function extractPdfText(bytes) {
   const latin1 = new TextDecoder('latin1').decode(bytes);
   let fullText = '';
@@ -142,18 +148,31 @@ async function extractPdfText(bytes) {
       const decompressed = await new Response(
         new Blob([streamBytes]).stream().pipeThrough(new DecompressionStream('deflate'))
       ).text();
-      // Tj operator: (text) Tj
-      let tjMatch;
-      const tjRegex = /\(((?:[^()\\]|\\.)*)\)\s*Tj/g;
-      while ((tjMatch = tjRegex.exec(decompressed)) !== null) {
-        fullText += tjMatch[1].replace(/\\([nrtbf()\\])/g, '$1') + ' ';
-      }
-      // TJ array operator: [(text) -num (text)] TJ
-      const tjArrayRegex = /\[([\s\S]*?)\]\s*TJ/g;
-      while ((tjMatch = tjArrayRegex.exec(decompressed)) !== null) {
-        const parts = tjMatch[1].match(/\(((?:[^()\\]|\\.)*)\)/g);
-        if (parts) {
-          fullText += parts.map(p => p.slice(1, -1).replace(/\\([nrtbf()\\])/g, '$1')).join('') + ' ';
+
+      // Add page separator between streams
+      if (fullText.length > 0) fullText += '\n\n';
+
+      // Process Tj and TJ operators in order of appearance, each on its own line
+      const tokenRegex = /\[([\s\S]*?)\]\s*TJ|\(((?:[^()\\]|\\.)*)\)\s*Tj/g;
+      let tokMatch;
+      while ((tokMatch = tokenRegex.exec(decompressed)) !== null) {
+        if (tokMatch[1] !== undefined) {
+          // TJ array: [(text) -num (text) ...] TJ
+          const inner = tokMatch[1];
+          const textParts = inner.match(/\(((?:[^()\\]|\\.)*)\)/g);
+          if (textParts) {
+            const lineText = textParts
+              .map(p => p.slice(1, -1).replace(/\\([nrtbf()\\])/g, '$1'))
+              .join('');
+            if (lineText.trim()) fullText += lineText + '\n';
+          }
+        } else {
+          // Tj: (text) Tj
+          const text = tokMatch[2];
+          if (text) {
+            const decoded = text.replace(/\\([nrtbf()\\])/g, '$1');
+            if (decoded.trim()) fullText += decoded + '\n';
+          }
         }
       }
     } catch (_) {
