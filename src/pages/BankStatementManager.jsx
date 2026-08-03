@@ -160,43 +160,67 @@ export default function BankStatementManager() {
         throw new Error('File upload failed - no URL returned');
       }
 
-      // Extract data from file - with better error handling for PDFs
-      let extractResult;
+      // Extraction schema for bank statements
+      const bankSchema = {
+        type: "object",
+        properties: {
+          statement_period_start: { type: "string" },
+          statement_period_end: { type: "string" },
+          transactions: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                date: { type: "string" },
+                description: { type: "string" },
+                amount: { type: "number" },
+                type: { type: "string" }
+              }
+            }
+          },
+          opening_balance: { type: "number" },
+          closing_balance: { type: "number" },
+          total_deposits: { type: "number" },
+          total_withdrawals: { type: "number" }
+        }
+      };
+
+      // Try custom extraction (uses user's OpenAI API key), then fall back to built-in
+      let extractResult = null;
+      let primaryError = null;
+
       try {
         const extractResponse = await base44.functions.invoke('extractDataOpenAI', {
           file_url: uploadResult.file_url,
-          json_schema: {
-            type: "object",
-            properties: {
-              statement_period_start: { type: "string" },
-              statement_period_end: { type: "string" },
-              transactions: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    date: { type: "string" },
-                    description: { type: "string" },
-                    amount: { type: "number" },
-                    type: { type: "string" }
-                  }
-                }
-              },
-              opening_balance: { type: "number" },
-              closing_balance: { type: "number" },
-              total_deposits: { type: "number" },
-              total_withdrawals: { type: "number" }
-            }
-          }
+          json_schema: bankSchema
         });
         extractResult = extractResponse.data || extractResponse;
-      } catch (extractError) {
-        console.error('Extraction error:', extractError);
-        throw new Error(`Failed to extract data from ${file.type === 'application/pdf' ? 'PDF' : 'file'}: ${extractError.message || 'Please ensure the file contains valid bank statement data'}`);
+        if (!extractResult?.output || extractResult.status === 'error') {
+          primaryError = extractResult?.details || 'No data extracted';
+          extractResult = null;
+        }
+      } catch (e) {
+        primaryError = e.message;
       }
 
-      if (!extractResult?.output) {
-        throw new Error('No data could be extracted from the file');
+      // Fallback to built-in platform extraction if custom function failed
+      if (!extractResult) {
+        try {
+          const fallbackResponse = await base44.integrations.Core.ExtractDataFromUploadedFile({
+            file_url: uploadResult.file_url,
+            json_schema: bankSchema
+          });
+          extractResult = fallbackResponse.data || fallbackResponse;
+          if (!extractResult?.output || extractResult.status === 'error') {
+            throw new Error(extractResult?.details || 'No data extracted');
+          }
+        } catch (fallbackErr) {
+          throw new Error(
+            `Could not extract data from ${file.type === 'application/pdf' ? 'PDF' : 'file'}.\n` +
+            `Primary: ${primaryError}\n` +
+            `Fallback: ${fallbackErr.message}`
+          );
+        }
       }
 
       // Auto-detect statement month from the data
