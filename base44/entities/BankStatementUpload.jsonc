@@ -40,6 +40,50 @@
       "description": "Extracted data summary",
       "additionalProperties": true
     },
+    "transactions": {
+      "type": "array",
+      "description": "Individual extracted transactions from the bank statement",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "type": {
+            "type": "string"
+          },
+          "reconciled": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      }
+    },
+    "reconciliation_status": {
+      "type": "string",
+      "enum": [
+        "unreconciled",
+        "in_progress",
+        "reconciled"
+      ],
+      "default": "unreconciled",
+      "description": "Reconciliation status"
+    },
+    "reconciled_by": {
+      "type": "string",
+      "description": "Email of user who reconciled"
+    },
+    "reconciled_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the statement was reconciled"
+    },
     "created_by": {
       "type": "string",
       "description": "User who uploaded"

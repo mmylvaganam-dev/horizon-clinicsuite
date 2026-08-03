@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import moment from 'moment';
+import StatementReconcileDialog from '@/components/finance/StatementReconcileDialog';
 
 const COLORS = ['#14b8a6', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
 
@@ -240,13 +241,15 @@ export default function BankStatementManager() {
         upload_date: new Date().toISOString(),
         opening_balance: summaryData.opening_balance || 0,
         closing_balance: summaryData.closing_balance || 0,
+        transactions: summaryData.transactions || [],
         extracted_summary_json: {
           total_deposits: summaryData.total_deposits || 0,
           total_withdrawals: summaryData.total_withdrawals || 0,
           transaction_count: summaryData.transactions?.length || 0,
           file_name: file.name,
           period_start: summaryData.statement_period_start,
-          period_end: summaryData.statement_period_end
+          period_end: summaryData.statement_period_end,
+          transactions: summaryData.transactions || []
         }
       });
 
@@ -657,7 +660,7 @@ export default function BankStatementManager() {
           ) : (
             <div className="space-y-3">
               {statements.map(statement => {
-                const account = bankAccounts.find(a => a.id === statement.bank_account_id);
+                const account = bankAccounts.find(a => a.id === statement.bank_account_ref);
                 return (
                   <div key={statement.id} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg">
                     <div className="flex items-center gap-4">
@@ -667,7 +670,7 @@ export default function BankStatementManager() {
                         <p className="text-sm text-slate-500">{moment(statement.statement_month).format('MMMM YYYY')}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-4">
                       <div>
                         <p className="text-xs text-slate-500">Deposits</p>
                         <p className="font-semibold text-green-600">${getDeposits(statement).toLocaleString()}</p>
@@ -680,11 +683,11 @@ export default function BankStatementManager() {
                         <p className="text-xs text-slate-500">Transactions</p>
                         <p className="font-semibold">{getTxCount(statement)}</p>
                       </div>
-                      <Badge className={statement.upload_status === 'processed' ? 'bg-green-500' : 'bg-yellow-500'}>
-                        {statement.upload_status === 'processed' ? (
+                      <Badge className={statement.reconciliation_status === 'reconciled' ? 'bg-green-500' : 'bg-yellow-500'}>
+                        {statement.reconciliation_status === 'reconciled' ? (
                           <>
                             <CheckCircle2 className="w-3 h-3 mr-1" />
-                            Processed
+                            Reconciled
                           </>
                         ) : (
                           <>
@@ -693,6 +696,11 @@ export default function BankStatementManager() {
                           </>
                         )}
                       </Badge>
+                      <StatementReconcileDialog
+                        statement={statement}
+                        account={bankAccounts.find(a => a.id === statement.bank_account_ref)}
+                        onReconciled={() => queryClient.invalidateQueries({ queryKey: ['bankStatements'] })}
+                      />
                     </div>
                   </div>
                 );
