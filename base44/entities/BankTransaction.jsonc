@@ -1,0 +1,85 @@
+{
+  "name": "BankTransaction",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Tenant organization"
+    },
+    "bank_account_ref": {
+      "type": "string",
+      "description": "BankAccount ID (text reference)"
+    },
+    "statement_upload_id": {
+      "type": "string",
+      "description": "BankStatementUpload ID this transaction came from"
+    },
+    "transaction_date": {
+      "type": "string",
+      "description": "Transaction date (from bank statement)"
+    },
+    "description": {
+      "type": "string",
+      "description": "Transaction description as shown on bank statement"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Transaction amount (positive = deposit, negative = withdrawal)"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "deposit",
+        "withdrawal"
+      ],
+      "description": "Transaction direction"
+    },
+    "payee_name": {
+      "type": "string",
+      "description": "Detected or matched payee name"
+    },
+    "matched_payee_id": {
+      "type": "string",
+      "description": "PayeeDirectory ID if matched to a vendor"
+    },
+    "matched_payee_name": {
+      "type": "string",
+      "description": "Cached matched payee display name"
+    },
+    "category": {
+      "type": "string",
+      "description": "Income/expense category (e.g. Rent, Payroll, Sales Revenue)"
+    },
+    "reconciliation_status": {
+      "type": "string",
+      "enum": [
+        "unmatched",
+        "auto_matched",
+        "manually_matched",
+        "reviewed"
+      ],
+      "default": "unmatched",
+      "description": "Reconciliation state"
+    },
+    "reconciliation_notes": {
+      "type": "string",
+      "description": "Optional notes added during reconciliation"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "User who created the record"
+    },
+    "created_by_email": {
+      "type": "string",
+      "description": "Email of creator"
+    }
+  },
+  "required": [
+    "organization_id",
+    "transaction_date",
+    "description",
+    "amount",
+    "type",
+    "reconciliation_status"
+  ]
+}
