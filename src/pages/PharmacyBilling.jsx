@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 
 import { format } from 'date-fns';
+import { formatSL } from '@/components/utils/dateUtils';
 import toast from 'react-hot-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -44,8 +45,9 @@ import { useNavigate } from 'react-router-dom';
 import PHNCard from '@/components/patients/PHNCard';
 import { useOrgFiltered } from '@/components/hooks/useOrgFiltered';
 import PageInfoTooltip from '@/components/shared/PageInfoTooltip';
+import PharmacyErrorBoundary from '@/components/pharmacy/PharmacyErrorBoundary';
 
-export default function PharmacyBilling() {
+function PharmacyBillingBase() {
   const queryClient = useQueryClient();
   const location = useLocation();
   const { orgFilter, selectedOrgId } = useOrgFiltered();
@@ -298,8 +300,8 @@ export default function PharmacyBilling() {
           : c
       ));
     } else {
-      const mrp = item.mrp || item.unit_price || 0;
-      const cost = item.unit_cost || 0;
+      const mrp = Number(item.mrp || item.unit_price || 0);
+      const cost = Number(item.unit_cost || 0);
       setCart([...cart, {
         stock_id: item.id,
         display_name: item.display_name,
@@ -404,11 +406,11 @@ export default function PharmacyBilling() {
     }
   });
 
-  const subtotal = cart.reduce((sum, item) => sum + item.total, 0);
-  const totalMRP = cart.reduce((sum, item) => sum + (item.mrp * item.quantity), 0);
+  const subtotal = cart.reduce((sum, item) => sum + Number(item.total || 0), 0);
+  const totalMRP = cart.reduce((sum, item) => sum + (Number(item.mrp || 0) * item.quantity), 0);
   
   // Calculate bill-level discount from profit margin
-  const totalProfit = cart.reduce((sum, item) => sum + ((item.mrp - item.unit_cost) * item.quantity), 0);
+  const totalProfit = cart.reduce((sum, item) => sum + ((Number(item.mrp || 0) - Number(item.unit_cost || 0)) * item.quantity), 0);
   const billDiscountAmount = (totalProfit * billDiscountPercent) / 100;
   
   // Apply walk-in customer discount or bill discount (not both)
@@ -1242,19 +1244,25 @@ export default function PharmacyBilling() {
                             <p className="font-semibold text-base text-slate-900 flex-1">
                               {item.display_name}
                             </p>
-                            {item.expire_date && (
-                              <Badge className={`font-bold text-xs whitespace-nowrap ${
-                                new Date(item.expire_date) < new Date() 
-                                  ? 'bg-red-600 text-white border-2 border-red-700' 
-                                  : new Date(item.expire_date) <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                                  ? 'bg-orange-600 text-white border-2 border-orange-700'
-                                  : new Date(item.expire_date) <= new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)
-                                  ? 'bg-amber-500 text-white border-2 border-amber-600'
-                                  : 'bg-slate-100 text-slate-700'
-                              }`}>
-                                {format(new Date(item.expire_date), 'd MMM yyyy')}
-                              </Badge>
-                            )}
+                            {(() => {
+                              const d = new Date(item.expire_date);
+                              if (isNaN(d)) return null;
+                              const now = new Date();
+                              const days30 = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+                              const days90 = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
+                              const cls = d < now
+                                ? 'bg-red-600 text-white border-2 border-red-700'
+                                : d <= days30
+                                ? 'bg-orange-600 text-white border-2 border-orange-700'
+                                : d <= days90
+                                ? 'bg-amber-500 text-white border-2 border-amber-600'
+                                : 'bg-slate-100 text-slate-700';
+                              return (
+                                <Badge className={`font-bold text-xs whitespace-nowrap ${cls}`}>
+                                  {formatSL(item.expire_date, 'MMM d, yyyy')}
+                                </Badge>
+                              );
+                            })()}
                           </div>
                           <div className="flex items-center gap-3 text-sm text-slate-600">
                             <Badge variant="outline">{item.barcode}</Badge>
@@ -1265,7 +1273,7 @@ export default function PharmacyBilling() {
                         </div>
                         <div className="text-right">
                           <p className="text-2xl font-bold text-emerald-600">
-                            {currency} {(item.mrp || item.unit_price || 0).toFixed(2)}
+                            {currency} {Number(item.mrp || item.unit_price || 0).toFixed(2)}
                           </p>
                           <Button size="sm" className="mt-2 bg-indigo-600 hover:bg-indigo-700">
                             <Plus className="w-4 h-4 mr-1" />
@@ -1355,9 +1363,9 @@ export default function PharmacyBilling() {
                       
                       <div className="text-right">
                         {item.discount_percent > 0 && (
-                          <p className="text-[9px] text-slate-500 line-through">{currency} {(item.mrp * item.quantity).toFixed(2)}</p>
+                          <p className="text-[9px] text-slate-500 line-through">{currency} {Number(item.mrp * item.quantity).toFixed(2)}</p>
                         )}
-                        <p className="font-bold text-sm text-emerald-600">{currency} {item.total.toFixed(2)}</p>
+                        <p className="font-bold text-sm text-emerald-600">{currency} {Number(item.total).toFixed(2)}</p>
                       </div>
                     </div>
                   </div>
@@ -1986,5 +1994,13 @@ export default function PharmacyBilling() {
         </DialogContent>
       </Dialog>
     </div>
+  );
+}
+
+export default function PharmacyBilling() {
+  return (
+    <PharmacyErrorBoundary>
+      <PharmacyBillingBase />
+    </PharmacyErrorBoundary>
   );
 }
