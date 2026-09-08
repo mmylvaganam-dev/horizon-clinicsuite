@@ -1,0 +1,37 @@
+{
+  "name": "Appointment Status Notification",
+  "description": "Sends an SMS and email notification to the patient when their appointment status changes to 'confirmed' or 'rescheduled'.",
+  "trigger": {
+    "condition": "${ ((.trigger.changed_fields | index(\"status\") != null) and (.trigger.data.status == \"confirmed\" or .trigger.data.status == \"rescheduled\")) }",
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "update"
+      ],
+      "entity_name": "Appointment"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "appointment_status_notification",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "appointmentStatusNotify",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "appointmentStatusNotify"
+  }
+}

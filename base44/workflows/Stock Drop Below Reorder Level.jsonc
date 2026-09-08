@@ -1,0 +1,37 @@
+{
+  "name": "Stock Drop Below Reorder Level",
+  "description": "Fires when a PharmacyStock item's quantity field is updated \u2014 runs the low-stock check for that item's org so real-time alerts are sent when stock drops after a sale.",
+  "trigger": {
+    "condition": "${ (.trigger.changed_fields | index(\"quantity\") != null) }",
+    "config": {
+      "trigger_type": "entity",
+      "events": [
+        "update"
+      ],
+      "entity_name": "PharmacyStock"
+    }
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "stock_drop_below_reorder_level",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "run_function": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "checkLowStock",
+            "args": {}
+          },
+          "then": "end"
+        }
+      }
+    ]
+  },
+  "x-base44-migrated-from-automation": {
+    "legacy_payload_function": "checkLowStock"
+  }
+}
