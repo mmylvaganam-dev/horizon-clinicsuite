@@ -1,4 +1,5 @@
 import React from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useOrganization } from '@/components/OrganizationProvider';
 import {
   Select,
@@ -11,25 +12,15 @@ import { Building2 } from 'lucide-react';
 
 export default function OrganizationSwitcher() {
   const { selectedOrgId, organizations, onOrgChange } = useOrganization();
-
-  console.log('🟢 OrganizationSwitcher - Rendering with:', {
-    selectedOrgId,
-    orgCount: organizations?.length,
-    organizations: organizations?.map(o => `${o.name} (${o.status})`)
-  });
+  const queryClient = useQueryClient();
 
   if (!organizations || organizations.length === 0) {
-    console.log('⚠️ OrganizationSwitcher - No organizations available, hiding dropdown');
     return null;
   }
 
-  const selectedOrg = organizations.find(org => org.id === selectedOrgId);
-  console.log('🟢 OrganizationSwitcher - Selected org:', selectedOrg?.name, selectedOrg?.status);
-
   const handleChange = (orgId) => {
-    console.log('Switching to organization:', orgId);
     onOrgChange(orgId);
-    window.location.reload();
+    queryClient.invalidateQueries();
   };
 
   return (
