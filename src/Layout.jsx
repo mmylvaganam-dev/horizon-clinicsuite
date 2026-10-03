@@ -126,7 +126,7 @@ function LayoutContent({ children, currentPageName }) {
       } catch (error) {
         console.error('❌ Auth.me() failed:', error);
         // Return a mock user with email from JWT token
-        const token = localStorage.getItem('base44_token') || sessionStorage.getItem('base44_token');
+        const token = localStorage.getItem('base44_access_token') || sessionStorage.getItem('base44_access_token');
         if (token) {
           try {
             const payload = JSON.parse(atob(token.split('.')[1]));
@@ -722,6 +722,16 @@ function LayoutContent({ children, currentPageName }) {
                     <p className="text-xs text-slate-500 capitalize">
                       {currentOrganization?.type?.replace('_', ' ') || ''}
                     </p>
+                  </div>
+                </div>
+              )}
+              {/* FALLBACK: No organization selected and no switcher visible */}
+              {!selectedOrgId && !isDefinitelyPlatformOwner && !currentPageName?.startsWith('Platform') && !currentPageName?.includes('UserManagement') && !currentPageName?.includes('UserApprovals') && !currentPageName?.includes('BlockedUsers') && (
+                <div className="flex items-center gap-2 px-4 py-2 bg-amber-50 rounded-lg border border-amber-300">
+                  <Building2 className="w-5 h-5 text-amber-600" />
+                  <div className="text-left">
+                    <p className="text-sm font-semibold text-amber-900 leading-tight">No Organization</p>
+                    <p className="text-xs text-amber-700">Contact your administrator</p>
                   </div>
                 </div>
               )}

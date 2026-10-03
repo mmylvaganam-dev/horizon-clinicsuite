@@ -8,12 +8,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Building2 } from 'lucide-react';
+import { Building2, Loader2 } from 'lucide-react';
 
 export default function OrganizationSwitcher() {
-  const { selectedOrgId, organizations, onOrgChange } = useOrganization();
+  const { selectedOrgId, organizations, onOrgChange, isPlatformOwner } = useOrganization();
   const queryClient = useQueryClient();
 
+  // Still loading organizations
+  if (isPlatformOwner && !organizations) {
+    return (
+      <div className="flex items-center gap-2 px-3 py-2 text-sm text-slate-500">
+        <Loader2 className="w-4 h-4 animate-spin" />
+        Loading organizations...
+      </div>
+    );
+  }
+
+  // No organizations available
   if (!organizations || organizations.length === 0) {
     return null;
   }

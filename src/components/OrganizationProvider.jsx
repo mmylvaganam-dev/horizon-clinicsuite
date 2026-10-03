@@ -19,7 +19,7 @@ export function OrganizationProvider({ children }) {
       } catch (error) {
         console.error('User auth check failed:', error);
         // Decode JWT token to get email
-        const token = localStorage.getItem('base44_token') || sessionStorage.getItem('base44_token');
+        const token = localStorage.getItem('base44_access_token') || sessionStorage.getItem('base44_access_token');
         if (token) {
           try {
             const payload = JSON.parse(atob(token.split('.')[1]));
